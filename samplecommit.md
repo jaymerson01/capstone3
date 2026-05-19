@@ -1,1 +1,1 @@
-sample commit galing kay ycko para macheck kung may koneksyon na
+check mo to son kung lalabas sayo to HAHAHAHAHA
