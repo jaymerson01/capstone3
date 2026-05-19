@@ -1,0 +1,1 @@
+sample commit galing kay ycko para macheck kung may koneksyon na
