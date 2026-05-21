@@ -5,6 +5,7 @@ import '../pages/report_incident.dart';
 import '../pages/my_reports.dart';
 import '../pages/maps.dart';
 import '../pages/settings.dart';
+import '../pages/welcome_page.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -14,49 +15,27 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
-
   String hoveredItem = "";
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       backgroundColor: AppColors.darkGreen,
-
       child: SafeArea(
         child: Column(
           children: [
-
             const SizedBox(height: 40),
 
-            menuItem(
-              context,
-              Icons.home,
-              "User Dashboard",
-            ),
+            menuItem(context, Icons.home, "User Dashboard"),
+            menuItem(context, Icons.warning_amber, "Report Incident"),
+            menuItem(context, Icons.list_alt, "My Reports"),
+            menuItem(context, Icons.map, "Maps"),
+            menuItem(context, Icons.settings, "Settings"),
 
-            menuItem(
-              context,
-              Icons.warning_amber,
-              "Report Incident",
-            ),
+            const Spacer(),
 
-            menuItem(
-              context,
-              Icons.list_alt,
-              "My Reports",
-            ),
-
-            menuItem(
-              context,
-              Icons.map,
-              "Maps",
-            ),
-
-            menuItem(
-              context,
-              Icons.settings,
-              "Settings",
-            ),
+            menuItem(context, Icons.logout, "Logout"),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -75,31 +54,24 @@ class _SideMenuState extends State<SideMenu> {
         horizontal: 20,
         vertical: 8,
       ),
-
       child: MouseRegion(
-
         onEnter: (_) {
           setState(() {
             hoveredItem = title;
           });
         },
-
         onExit: (_) {
           setState(() {
             hoveredItem = "";
           });
         },
-
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-
           decoration: BoxDecoration(
             color: isHovered
                 ? Colors.green.shade200
                 : Colors.grey.shade200,
-
             borderRadius: BorderRadius.circular(10),
-
             boxShadow: isHovered
                 ? [
                     BoxShadow(
@@ -110,13 +82,8 @@ class _SideMenuState extends State<SideMenu> {
                   ]
                 : [],
           ),
-
           child: ListTile(
-            leading: Icon(
-              icon,
-              color: Colors.black,
-            ),
-
+            leading: Icon(icon, color: Colors.black),
             title: Text(
               title,
               style: const TextStyle(
@@ -124,19 +91,15 @@ class _SideMenuState extends State<SideMenu> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-
             hoverColor: Colors.transparent,
-
             onTap: () {
-
               Navigator.pop(context);
 
               if (title == "User Dashboard") {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const DashboardPage(),
+                    builder: (context) => const DashboardPage(),
                   ),
                 );
               }
@@ -165,8 +128,7 @@ class _SideMenuState extends State<SideMenu> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        const MapsPage(),
+                    builder: (context) => const MapsPage(),
                   ),
                 );
               }
@@ -178,6 +140,16 @@ class _SideMenuState extends State<SideMenu> {
                     builder: (context) =>
                         const SettingsPage(),
                   ),
+                );
+              }
+
+              if (title == "Logout") {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => WelcomePage(),
+                  ),
+                  (route) => false,
                 );
               }
             },

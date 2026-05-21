@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/dashboard.dart';
+import 'pages/welcome_page.dart';
 
 void main() {
   runApp(const CommunitySafetyApp());
@@ -10,9 +10,9 @@ class CommunitySafetyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: DashboardPage(),
+      home: WelcomePage(),
     );
   }
 }
