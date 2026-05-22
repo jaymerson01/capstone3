@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'sign_up.dart';
-import 'admin_login.dart';
 
 class WelcomePage extends StatelessWidget {
-  WelcomePage({super.key});
+  const WelcomePage({super.key});
 
   Widget appLogo() {
     return Image.asset(
@@ -25,12 +24,10 @@ class WelcomePage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF004D00),
-              Color(0xFF9EA89E),
-            ],
+            colors: [Color(0xFF004D00), Color(0xFF9EA89E)],
           ),
         ),
+
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -51,10 +48,7 @@ class WelcomePage extends StatelessWidget {
 
             const Text(
               "Your safety is our priority",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
 
             const SizedBox(height: 25),
@@ -62,10 +56,12 @@ class WelcomePage extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
+
               decoration: BoxDecoration(
                 color: Colors.black45,
                 borderRadius: BorderRadius.circular(8),
               ),
+
               child: const Center(
                 child: Text(
                   "Moonwalk, Parañaque City",
@@ -79,6 +75,7 @@ class WelcomePage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: 45,
+
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -88,13 +85,11 @@ class WelcomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => LoginPage()),
                   );
                 },
 
-                child: const Text("Login as User"),
+                child: const Text("Login"),
               ),
             ),
 
@@ -103,6 +98,7 @@ class WelcomePage extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: 45,
+
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -112,31 +108,11 @@ class WelcomePage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => SignupPage(),
-                    ),
+                    MaterialPageRoute(builder: (context) => SignupPage()),
                   );
                 },
 
                 child: const Text("Create an Account"),
-              ),
-            ),
-
-            const SizedBox(height: 15),
-
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AdminLoginPage(),
-                  ),
-                );
-              },
-
-              child: const Text(
-                "Admin Login",
-                style: TextStyle(color: Colors.white),
               ),
             ),
           ],

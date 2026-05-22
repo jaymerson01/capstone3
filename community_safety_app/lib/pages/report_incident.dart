@@ -4,153 +4,294 @@ import '../theme/app_color.dart';
 class ReportIncidentPage extends StatelessWidget {
   const ReportIncidentPage({super.key});
 
-  Widget logoBox() {
+  Widget appLogo() {
     return Container(
       height: 40,
       width: 40,
       padding: const EdgeInsets.all(3),
       color: Colors.white,
-      child: Image.asset(
-        'assets/images/logo.png',
-        fit: BoxFit.contain,
-      ),
-    );
-  }
-
-  Widget reportBox(String text) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(5),
-      height: 35,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        border: Border.all(color: Colors.black54),
-      ),
-      child: Text(text, style: const TextStyle(fontSize: 10)),
+      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF4F4F4),
+
       appBar: AppBar(
         backgroundColor: AppColors.darkGreen,
         iconTheme: const IconThemeData(color: Colors.white),
+
         title: Row(
           children: [
-            logoBox(),
+            appLogo(),
             const SizedBox(width: 10),
+
             const Text(
-              "Safe Moonwalk Report Incidents",
-              style: TextStyle(color: Colors.white, fontSize: 15),
+              "Report Incident",
+              style: TextStyle(color: Colors.white, fontSize: 18),
             ),
           ],
         ),
+
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 15),
             child: CircleAvatar(
               backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.grey),
+              child: Icon(Icons.help_outline, color: Colors.green),
             ),
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Report New Incident", style: TextStyle(fontSize: 16)),
-            const SizedBox(height: 20),
+            /// FORM PROGRESS
             Container(
-              width: double.infinity,
               padding: const EdgeInsets.all(20),
-              color: Colors.grey.shade300,
-              child: Column(
-                children: [
-                  Container(
-                    height: 150,
-                    width: double.infinity,
-                    color: Colors.black,
-                  ),
-                  const SizedBox(height: 15),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Incident Type"),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.all(8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text("Location"),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.all(8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.black,
-                    ),
-                    onPressed: () {},
-                    child: const Text("Submit Report"),
-                  ),
+
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 6),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(15),
-              color: Colors.grey.shade300,
+
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+
                 children: [
                   Row(
-                    children: [
-                      const Text("Recent Report"),
-                      const Spacer(),
-                      Container(
-                        color: Colors.grey,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        child: const Text(
-                          "View All >",
-                          style: TextStyle(fontSize: 11),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    children: const [
+                      Text(
+                        "Form Progress",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+
+                      Text(
+                        "0% Complete",
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
-                  const Divider(color: Colors.black),
-                  reportBox("House Fire on St. Francis Compound\n5 mins ago"),
-                  reportBox(""),
-                  reportBox(""),
+
+                  const SizedBox(height: 10),
+
+                  LinearProgressIndicator(
+                    value: 0,
+                    backgroundColor: Colors.grey.shade300,
+                    color: Colors.green,
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  const Center(
+                    child: Text(
+                      "Incident Details",
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  /// REPORTER INFO
+                  sectionTitle(Icons.person_outline, "Reporter Information"),
+
+                  const SizedBox(height: 15),
+
+                  dropdownBox("Complainant Name", "Anonymous"),
+
+                  const SizedBox(height: 30),
+
+                  /// LOCATION
+                  sectionTitle(Icons.location_on_outlined, "Location"),
+
+                  const SizedBox(height: 15),
+
+                  dropdownBox("Barangay", "Moonwalk"),
+
+                  const SizedBox(height: 15),
+
+                  textFieldBox(
+                    "Location Coordinates (Optional)",
+                    Icons.gps_fixed,
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  bigButton(Icons.location_pin, "Pin Location on Map"),
+
+                  const SizedBox(height: 30),
+
+                  /// EVIDENCE
+                  sectionTitle(
+                    Icons.camera_alt_outlined,
+                    "Evidence (Optional)",
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  Row(
+                    children: [
+                      Expanded(child: bigButton(Icons.photo, "Upload Photo")),
+
+                      const SizedBox(width: 15),
+
+                      Expanded(
+                        child: bigButton(Icons.camera_alt, "Take Photo"),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  /// DESCRIPTION
+                  sectionTitle(
+                    Icons.description_outlined,
+                    "Incident Description",
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    maxLines: 5,
+
+                    decoration: InputDecoration(
+                      hintText: "Describe the incident here...",
+
+                      filled: true,
+                      fillColor: Colors.white,
+
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.darkGreen,
+
+                        foregroundColor: Colors.white,
+
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+
+                      onPressed: () {},
+
+                      child: const Text(
+                        "Submit Report",
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget sectionTitle(IconData icon, String title) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+
+          decoration: BoxDecoration(
+            color: Colors.green.shade50,
+            borderRadius: BorderRadius.circular(15),
+          ),
+
+          child: Icon(icon, color: Colors.green),
+        ),
+
+        const SizedBox(width: 15),
+
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.green,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget dropdownBox(String label, String value) {
+    return DropdownButtonFormField<String>(
+      value: value,
+
+      decoration: InputDecoration(
+        labelText: label,
+
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+
+      items: [DropdownMenuItem(value: value, child: Text(value))],
+
+      onChanged: (value) {},
+    );
+  }
+
+  Widget textFieldBox(String hint, IconData icon) {
+    return TextField(
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon),
+        hintText: hint,
+
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+      ),
+    );
+  }
+
+  Widget bigButton(IconData icon, String text) {
+    return SizedBox(
+      height: 55,
+
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+
+        onPressed: () {},
+
+        icon: Icon(icon),
+        label: Text(text),
       ),
     );
   }
