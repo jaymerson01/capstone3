@@ -115,6 +115,23 @@ class WelcomePage extends StatelessWidget {
                 child: const Text("Create an Account"),
               ),
             ),
+
+            const SizedBox(height: 20),
+
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/admin/login');
+              },
+              child: const Text(
+                "Access Admin Portal",
+                style: TextStyle(
+                  color: Colors.white,
+                  decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
           ],
         ),
       ),

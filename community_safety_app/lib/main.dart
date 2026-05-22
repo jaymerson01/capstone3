@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/welcome_page.dart';
+import 'admin/pages/admin_login_page.dart';
+import 'admin/admin_panel_shell.dart';
 
 void main() {
   runApp(const CommunitySafetyApp());
@@ -12,7 +14,13 @@ class CommunitySafetyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: WelcomePage(),
+      title: 'Community Safety System',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomePage(),
+        '/admin/login': (context) => const AdminLoginPage(),
+        '/admin/dashboard': (context) => const AdminPanelShell(),
+      },
     );
   }
-}
+}
