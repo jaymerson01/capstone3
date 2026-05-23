@@ -23,10 +23,17 @@ class AdminHeader extends StatelessWidget {
       builder: (context, _) {
         return Container(
           height: 70,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: const BoxDecoration(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          decoration: BoxDecoration(
             color: Colors.white,
-            border: Border(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+            border: const Border(
               bottom: BorderSide(
                 color: AdminColors.border,
                 width: 1,
@@ -41,22 +48,23 @@ class AdminHeader extends StatelessWidget {
                 children: [
                   if (isMobile)
                     IconButton(
-                      icon: const Icon(Icons.menu, color: AdminColors.primaryGreen),
+                      icon: const Icon(Icons.menu, color: AdminColors.primaryGreen, size: 22),
                       onPressed: onMenuPressed,
                     )
                   else
                     IconButton(
-                      icon: const Icon(Icons.menu_open, color: AdminColors.primaryGreen),
+                      icon: const Icon(Icons.menu_open, color: AdminColors.primaryGreen, size: 22),
                       onPressed: onMenuPressed,
                       tooltip: "Toggle Sidebar",
                     ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
                       color: AdminColors.textDark,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ],
@@ -68,13 +76,20 @@ class AdminHeader extends StatelessWidget {
                   // Quick notifications (decorative)
                   Stack(
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.notifications_outlined, color: Colors.grey.shade600),
-                        onPressed: () {},
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.notifications_none_outlined, color: Colors.grey.shade700, size: 20),
+                          onPressed: () {},
+                        ),
                       ),
                       Positioned(
-                        right: 8,
-                        top: 8,
+                        right: 4,
+                        top: 4,
                         child: Container(
                           width: 8,
                           height: 8,
@@ -86,16 +101,18 @@ class AdminHeader extends StatelessWidget {
                       )
                     ],
                   ),
-                  const SizedBox(width: 15),
+                  const SizedBox(width: 16),
+                  
                   // Divider
                   Container(
-                    height: 25,
+                    height: 24,
                     width: 1,
-                    color: Colors.grey.shade300,
+                    color: Colors.grey.shade200,
                   ),
-                  const SizedBox(width: 15),
+                  const SizedBox(width: 16),
+                  
                   // User info
-                  if (!isMobile)
+                  if (!isMobile) ...[
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -103,30 +120,48 @@ class AdminHeader extends StatelessWidget {
                         Text(
                           adminService.adminName,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 13.5,
                             fontWeight: FontWeight.bold,
                             color: AdminColors.textDark,
                           ),
                         ),
+                        const SizedBox(height: 2),
                         const Text(
-                          "System Administrator",
+                          "System Admin",
                           style: TextStyle(
                             fontSize: 11,
                             color: AdminColors.textLight,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
-                  const SizedBox(width: 10),
+                    const SizedBox(width: 14),
+                  ],
+                  
                   // Avatar
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: AdminColors.primaryGreen,
-                    child: const Text(
-                      "A",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: AdminColors.primaryGreen,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AdminColors.primaryGreen.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        adminService.adminName.substring(0, 1).toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ),
@@ -139,3 +174,4 @@ class AdminHeader extends StatelessWidget {
     );
   }
 }
+

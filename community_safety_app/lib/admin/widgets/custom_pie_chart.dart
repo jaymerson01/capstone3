@@ -17,18 +17,19 @@ class CustomPieChart extends StatelessWidget {
     ];
 
     return Container(
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      height: 270,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,7 +42,7 @@ class CustomPieChart extends StatelessWidget {
               color: Color(0xFF1E293B),
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
           Expanded(
             child: Row(
               children: [
@@ -52,21 +53,22 @@ class CustomPieChart extends StatelessWidget {
                     painter: DonutChartPainter(data),
                   ),
                 ),
-                const SizedBox(width: 15),
+                const SizedBox(width: 20),
                 Expanded(
                   flex: 6,
                   child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: data.map((d) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(vertical: 6),
                           child: Row(
                             children: [
                               Container(
-                                width: 12,
-                                height: 12,
+                                width: 10,
+                                height: 10,
                                 decoration: BoxDecoration(
                                   color: d.color,
                                   borderRadius: BorderRadius.circular(3),
@@ -77,8 +79,8 @@ class CustomPieChart extends StatelessWidget {
                                 child: Text(
                                   d.label,
                                   style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
                                     color: Color(0xFF1E293B),
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -87,9 +89,9 @@ class CustomPieChart extends StatelessWidget {
                               Text(
                                 "${d.percentage}%",
                                 style: const TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
+                                  color: Color(0xFF64748B),
                                 ),
                               ),
                             ],
@@ -131,6 +133,7 @@ class DonutChartPainter extends CustomPainter {
     final Rect rect = Rect.fromCircle(center: centerPoint, radius: radius - (thickness / 2));
 
     double startAngle = -pi / 2; // Start drawing from the top (12 o'clock)
+    const double gapAngle = 0.04; // Small gap between slices
 
     for (var slice in data) {
       final double sweepAngle = (slice.percentage / 100.0) * 2 * pi;
@@ -139,25 +142,21 @@ class DonutChartPainter extends CustomPainter {
         ..color = slice.color
         ..style = PaintingStyle.stroke
         ..strokeWidth = thickness
+        ..strokeCap = StrokeCap.round
         ..isAntiAlias = true;
 
-      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+      // Draw arc with a small gap
+      if (sweepAngle > gapAngle * 2) {
+        canvas.drawArc(rect, startAngle + gapAngle, sweepAngle - gapAngle * 2, false, paint);
+      } else {
+        canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+      }
+      
       startAngle += sweepAngle;
     }
-
-    // Optional: Draw outer and inner borders for an ultra clean look
-    final Paint borderPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
-    // Outer border
-    canvas.drawCircle(centerPoint, radius, borderPaint);
-
-    // Inner border
-    canvas.drawCircle(centerPoint, radius - thickness, borderPaint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
+

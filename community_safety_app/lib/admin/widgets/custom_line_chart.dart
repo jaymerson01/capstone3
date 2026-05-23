@@ -6,18 +6,19 @@ class CustomLineChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 250,
-      padding: const EdgeInsets.all(16),
+      height: 270,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,15 +38,15 @@ class CustomLineChart extends StatelessWidget {
               painter: LineChartPainter(),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 15),
           // Chart Legend
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               legendItem("Theft", Colors.orange),
-              const SizedBox(width: 20),
+              const SizedBox(width: 24),
               legendItem("Accident", Colors.blue),
-              const SizedBox(width: 20),
+              const SizedBox(width: 24),
               legendItem("Fire/Violence", Colors.green),
             ],
           ),
@@ -58,17 +59,17 @@ class CustomLineChart extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 10,
+          height: 10,
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
+          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
         ),
       ],
     );
@@ -83,7 +84,7 @@ class LineChartPainter extends CustomPainter {
 
     // Draw Grid Lines and Y-Axis labels
     final Paint gridPaint = Paint()
-      ..color = Colors.grey.shade200
+      ..color = Colors.grey.shade100
       ..strokeWidth = 1.0;
 
     final TextPainter textPainter = TextPainter(
@@ -94,7 +95,7 @@ class LineChartPainter extends CustomPainter {
     final List<String> yLabels = ['25%', '20%', '15%', '10%', '5%'];
     
     // Available drawing area offset for labels
-    const double leftMargin = 40.0;
+    const double leftMargin = 35.0;
     const double bottomMargin = 20.0;
     final double graphWidth = width - leftMargin;
     final double graphHeight = height - bottomMargin;
@@ -111,9 +112,9 @@ class LineChartPainter extends CustomPainter {
       // Y-axis label text
       textPainter.text = TextSpan(
         text: yLabels[i],
-        style: const TextStyle(
-          color: Colors.grey,
-          fontSize: 10,
+        style: TextStyle(
+          color: Colors.grey.shade400,
+          fontSize: 9,
           fontWeight: FontWeight.w500,
         ),
       );
@@ -126,8 +127,8 @@ class LineChartPainter extends CustomPainter {
       Offset(leftMargin, graphHeight),
       Offset(width, graphHeight),
       Paint()
-        ..color = Colors.grey.shade300
-        ..strokeWidth = 1.5,
+        ..color = Colors.grey.shade200
+        ..strokeWidth = 1.0,
     );
 
     // Draw X-axis labels (months)
@@ -137,9 +138,9 @@ class LineChartPainter extends CustomPainter {
       double x = leftMargin + (xSpacing * i);
       textPainter.text = TextSpan(
         text: xLabels[i],
-        style: const TextStyle(
-          color: Colors.grey,
-          fontSize: 10,
+        style: TextStyle(
+          color: Colors.grey.shade400,
+          fontSize: 9,
           fontWeight: FontWeight.w500,
         ),
       );
@@ -147,14 +148,9 @@ class LineChartPainter extends CustomPainter {
       textPainter.paint(canvas, Offset(x - (textPainter.width / 2), graphHeight + 6));
     }
 
-    // Points for three lines matching reference:
-    // Orange: rising high (e.g. 10%, 18%, 21%, 20%, 25%, 30%)
-    // Blue: middle stable (e.g. 5%, 10%, 12%, 8%, 10%, 12%)
-    // Green: starts low then surges (e.g. 2%, 4%, 6%, 10%, 19%, 23%)
-
-    // Helper to calculate Y position on canvas based on percentage (0% to 25% max grid height)
+    // Available height function
     double getCorrectY(double percentage) {
-      double pctFactor = percentage / 25.0; // grid tops at 25%
+      double pctFactor = percentage / 25.0;
       return graphHeight - (graphHeight * pctFactor);
     }
 
@@ -162,9 +158,9 @@ class LineChartPainter extends CustomPainter {
     final List<double> bluePoints = [5.0, 10.0, 12.0, 8.0, 10.0, 9.0];
     final List<double> greenPoints = [2.0, 4.0, 6.0, 10.0, 19.0, 14.0];
 
-    drawLineGraph(canvas, orangePoints, Colors.orange, leftMargin, xSpacing, getCorrectY);
-    drawLineGraph(canvas, bluePoints, Colors.blue, leftMargin, xSpacing, getCorrectY);
-    drawLineGraph(canvas, greenPoints, Colors.green, leftMargin, xSpacing, getCorrectY);
+    drawLineGraph(canvas, orangePoints, Colors.orange, leftMargin, xSpacing, getCorrectY, graphHeight);
+    drawLineGraph(canvas, bluePoints, Colors.blue, leftMargin, xSpacing, getCorrectY, graphHeight);
+    drawLineGraph(canvas, greenPoints, Colors.green, leftMargin, xSpacing, getCorrectY, graphHeight);
   }
 
   void drawLineGraph(
@@ -174,6 +170,7 @@ class LineChartPainter extends CustomPainter {
     double leftMargin, 
     double xSpacing,
     double Function(double) getY,
+    double graphHeight,
   ) {
     final Paint linePaint = Paint()
       ..color = color
@@ -188,34 +185,70 @@ class LineChartPainter extends CustomPainter {
 
     final Paint borderDotPaint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 1.5
+      ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
     final Path path = Path();
+    final Path areaPath = Path();
+
+    // Generate Points List
+    List<Offset> points = [];
     for (int i = 0; i < values.length; i++) {
       double x = leftMargin + (xSpacing * i);
       double y = getY(values[i]);
+      points.add(Offset(x, y));
+    }
 
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
+    // Bezier Draw Method
+    if (points.isNotEmpty) {
+      path.moveTo(points[0].dx, points[0].dy);
+      areaPath.moveTo(points[0].dx, points[0].dy);
+
+      for (int i = 0; i < points.length - 1; i++) {
+        final p0 = points[i];
+        final p1 = points[i + 1];
+
+        // Smooth wave controls
+        final controlX1 = p0.dx + (p1.dx - p0.dx) / 2;
+        final controlY1 = p0.dy;
+        final controlX2 = p0.dx + (p1.dx - p0.dx) / 2;
+        final controlY2 = p1.dy;
+
+        path.cubicTo(controlX1, controlY1, controlX2, controlY2, p1.dx, p1.dy);
+        areaPath.cubicTo(controlX1, controlY1, controlX2, controlY2, p1.dx, p1.dy);
       }
+
+      // Close Area Path for Gradient Fill
+      areaPath.lineTo(points.last.dx, graphHeight);
+      areaPath.lineTo(points.first.dx, graphHeight);
+      areaPath.close();
+
+      // Draw Gradient Area
+      final Paint areaPaint = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            color.withOpacity(0.24),
+            color.withOpacity(0.0),
+          ],
+        ).createShader(Rect.fromLTRB(leftMargin, 0, points.last.dx, graphHeight))
+        ..style = PaintingStyle.fill;
+
+      canvas.drawPath(areaPath, areaPaint);
     }
 
     // Draw the main line
     canvas.drawPath(path, linePaint);
 
     // Draw indicator dots on each node
-    for (int i = 0; i < values.length; i++) {
-      double x = leftMargin + (xSpacing * i);
-      double y = getY(values[i]);
-
-      canvas.drawCircle(Offset(x, y), 5.5, dotPaint);
-      canvas.drawCircle(Offset(x, y), 5.5, borderDotPaint);
+    for (var point in points) {
+      canvas.drawCircle(point, 5.0, dotPaint);
+      canvas.drawCircle(point, 5.0, borderDotPaint);
     }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
+
