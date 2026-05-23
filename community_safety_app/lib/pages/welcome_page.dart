@@ -76,15 +76,21 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 35),
-                
+
                 // Glassmorphic Location Container
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.2),
+                      width: 1.5,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.08),
@@ -96,7 +102,11 @@ class WelcomePage extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: const [
-                      Icon(Icons.location_on_outlined, color: Colors.white, size: 20),
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         "Moonwalk, Parañaque City",
@@ -110,9 +120,9 @@ class WelcomePage extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Login Button
                 SizedBox(
                   width: double.infinity,
@@ -130,7 +140,9 @@ class WelcomePage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
                     child: const Text(
@@ -144,7 +156,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Create an Account Button
                 SizedBox(
                   width: double.infinity,
@@ -160,7 +172,9 @@ class WelcomePage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignupPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpPage(),
+                        ),
                       );
                     },
                     child: const Text(
@@ -173,9 +187,9 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                
+
                 const Spacer(),
-                
+
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/admin/login');
@@ -207,4 +221,3 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
-

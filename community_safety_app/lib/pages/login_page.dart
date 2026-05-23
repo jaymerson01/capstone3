@@ -1,9 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_color.dart';
 import 'dashboard.dart';
+import 'sign_up.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
+
+  // Safe external URI launcher wrapper
+  Future<void> _launchAuthUrl(BuildContext context, String urlString) async {
+    final Uri url = Uri.parse(urlString);
+    try {
+      if (await canLaunchUrl(url)) {
+        await launchUrl(
+          url,
+          mode: LaunchMode
+              .externalApplication, // Forces real external system browser redirection
+        );
+      } else {
+        throw "Could not redirect to authorization screen.";
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Redirect Error: ${e.toString()}"),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
 
   Widget appLogo() {
     return Container(
@@ -18,6 +46,8 @@ class LoginPage extends StatelessWidget {
         height: 70,
         width: 70,
         fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.lock, size: 50, color: Colors.white),
       ),
     );
   }
@@ -32,10 +62,7 @@ class LoginPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.darkGreen,
-              Color(0xFF9EA89E),
-            ],
+            colors: [AppColors.darkGreen, Color(0xFF9EA89E)],
           ),
         ),
         child: SafeArea(
@@ -59,14 +86,11 @@ class LoginPage extends StatelessWidget {
                   const SizedBox(height: 6),
                   const Text(
                     "Enter your email to sign in for this app",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 13),
                   ),
                   const SizedBox(height: 30),
-                  
-                  // Login Form Card
+
+                  // Retained Existing Login Form Card
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -96,17 +120,27 @@ class LoginPage extends StatelessWidget {
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             hintText: "Email or mobile number",
-                            prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textLight, size: 20),
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              color: AppColors.textLight,
+                              size: 20,
+                            ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                           ),
                         ),
@@ -124,23 +158,33 @@ class LoginPage extends StatelessWidget {
                           obscureText: true,
                           decoration: InputDecoration(
                             hintText: "Password",
-                            prefixIcon: const Icon(Icons.lock_outline, color: AppColors.textLight, size: 20),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              color: AppColors.textLight,
+                              size: 20,
+                            ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade200,
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(height: 24),
-                        
-                        // Submit Button
+
+                        // Main Continuation Action Button
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -174,32 +218,76 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  
+
+                  // Enhanced Divider Block
                   const Row(
                     children: [
                       Expanded(child: Divider(color: Colors.white38)),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text("or", style: TextStyle(color: Colors.white70)),
+                        child: Text(
+                          "or continue with",
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
                       ),
                       Expanded(child: Divider(color: Colors.white38)),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  
-                  googleButton("Continue with Google", Icons.g_mobiledata),
-                  const SizedBox(height: 12),
-                  googleButton("Continue with Apple", Icons.apple),
-                  
-                  const SizedBox(height: 10),
-                  // Back option
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      "Back to Home",
-                      style: TextStyle(color: Colors.white, decoration: TextDecoration.underline),
-                    ),
+
+                  // Social Authentication Button Layout Matrix
+                  socialButton(
+                    context,
+                    "Continue with Google",
+                    Icons.g_mobiledata,
+                    "https://accounts.google.com/signin",
                   ),
+                  const SizedBox(height: 12),
+                  socialButton(
+                    context,
+                    "Continue with Facebook",
+                    Icons.facebook,
+                    "https://www.facebook.com/login/",
+                  ),
+                  const SizedBox(height: 12),
+                  socialButton(
+                    context,
+                    "Continue with Apple",
+                    Icons.apple,
+                    "https://appleid.apple.com/auth/authorize",
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Alternate Sign Up Access Gateway
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Don't have an account? ",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SignUpPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Sign Up",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
@@ -209,7 +297,12 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget googleButton(String text, IconData icon) {
+  Widget socialButton(
+    BuildContext context,
+    String text,
+    IconData icon,
+    String targetUrl,
+  ) {
     return SizedBox(
       width: double.infinity,
       height: 48,
@@ -223,7 +316,7 @@ class LoginPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: () {},
+        onPressed: () => _launchAuthUrl(context, targetUrl),
         icon: Icon(icon, size: 24, color: AppColors.textDark),
         label: Text(
           text,
@@ -232,4 +325,4 @@ class LoginPage extends StatelessWidget {
       ),
     );
   }
-}
+}

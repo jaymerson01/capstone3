@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
+// Note: Ensure 'url_launcher' is added to your pubspec.yaml if triggering actual calls:
+// import 'package:url_launcher/url_launcher.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -9,20 +11,113 @@ class ReportIncidentPage extends StatefulWidget {
 }
 
 class _ReportIncidentPageState extends State<ReportIncidentPage> {
-  // Stepper current active step simulation
-  int currentStep = 2; // e.g. Location step is active
+  int currentStep = 2; // Active step simulation: Step 2 (Location) is active
 
-  Widget appLogo() {
+  // Controllers for form state handling
+  final TextEditingController _coordinatesController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  String _selectedComplainant = "Anonymous";
+  String _selectedBarangay = "Moonwalk";
+
+  @override
+  void dispose() {
+    _coordinatesController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  // Visual component for the App Title bar logo
+  Widget _buildAppLogo() {
     return Container(
-      height: 36,
-      width: 36,
+      height: 34,
+      width: 34,
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+      child: Image.asset(
+        'assets/images/logo.png',
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.security, size: 18, color: AppColors.darkGreen),
+      ),
+    );
+  }
+
+  // Unified Confirmation Dialog for hotlines before triggering dialer mechanics
+  void _showEmergencyCallConfirmation(String agencyName, String phoneNumber) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              const Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.danger,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Text('Call $agencyName?'),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to dial the official hotline for $agencyName ($phoneNumber) now?',
+            style: const TextStyle(fontSize: 14, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textLight),
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.danger,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Simulation response. Replace with actual runtime url_launcher call string logic:
+                // launchUrl(Uri.parse('tel:$phoneNumber'));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Connecting to $agencyName hotline ($phoneNumber)...',
+                    ),
+                    backgroundColor: AppColors.darkGreen,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: const Text(
+                'Call Now',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -34,235 +129,282 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         backgroundColor: AppColors.darkGreen,
         iconTheme: const IconThemeData(color: Colors.white),
         titleSpacing: 0,
+        elevation: 1,
         title: Row(
           children: [
-            appLogo(),
-            const SizedBox(width: 10),
+            _buildAppLogo(),
+            const SizedBox(width: 12),
             const Text(
               "Report Incident",
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.2,
+              ),
             ),
           ],
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 15),
-            child: CircleAvatar(
-              backgroundColor: Colors.white24,
-              foregroundColor: Colors.white,
-              child: Icon(Icons.help_outline),
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(
+                Icons.help_outline,
+                color: Colors.white,
+                size: 24,
+              ),
+              tooltip: "Filing Guidelines",
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      "Ensure accurate data for priority responder handling.",
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // STEPPER PROGRESS HEADER
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text(
-                        "Report Submission Process",
-                        style: TextStyle(color: AppColors.textLight, fontSize: 13, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        "Step 2 of 4",
-                        style: TextStyle(
-                          color: AppColors.darkGreen,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  // Custom Visual Stepper Dots
-                  Row(
-                    children: [
-                      _stepperDot(1, "Info", true),
-                      _stepperLine(true),
-                      _stepperDot(2, "Location", true),
-                      _stepperLine(false),
-                      _stepperDot(3, "Evidence", false),
-                      _stepperLine(false),
-                      _stepperDot(4, "Details", false),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            /// 1. EMERGENCY QUICK-CALL HOTLINES PANELS
+            _buildEmergencyHotlinesSection(),
+
             const SizedBox(height: 24),
 
-            // FORM CONTAINER
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(
-                    child: Text(
-                      "Incident Details",
-                      style: TextStyle(
-                        color: AppColors.darkGreen,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
+            /// 2. STEPPER PROGRESS HEADER CARD
+            _buildStepperProgressHeader(),
 
-                  /// REPORTER INFO
-                  sectionTitle(Icons.person_outline, "Reporter Information"),
-                  const SizedBox(height: 16),
-                  dropdownBox("Complainant Name", "Anonymous"),
+            const SizedBox(height: 24),
 
-                  const SizedBox(height: 32),
-
-                  /// LOCATION
-                  sectionTitle(Icons.location_on_outlined, "Location"),
-                  const SizedBox(height: 16),
-                  dropdownBox("Barangay", "Moonwalk"),
-                  const SizedBox(height: 16),
-                  textFieldBox(
-                    "Location Coordinates (Optional)",
-                    Icons.gps_fixed,
-                  ),
-                  const SizedBox(height: 20),
-                  bigButton(Icons.map_outlined, "Pin Location on Map", false),
-
-                  const SizedBox(height: 32),
-
-                  /// EVIDENCE
-                  sectionTitle(
-                    Icons.camera_alt_outlined,
-                    "Evidence (Optional)",
-                  ),
-                  const SizedBox(height: 20),
-
-                  // File upload visual drop boxes
-                  Row(
-                    children: [
-                      Expanded(child: uploadBox(Icons.photo_library_outlined, "Upload Photo")),
-                      const SizedBox(width: 16),
-                      Expanded(child: uploadBox(Icons.camera_alt_outlined, "Take Photo")),
-                    ],
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  /// DESCRIPTION
-                  sectionTitle(
-                    Icons.description_outlined,
-                    "Incident Description",
-                  ),
-                  const SizedBox(height: 16),
-
-                  TextField(
-                    maxLines: 5,
-                    decoration: InputDecoration(
-                      hintText: "Please describe the incident in detail...",
-                      filled: true,
-                      fillColor: Colors.grey.shade50,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Submit CTA button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkGreen,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 3,
-                        shadowColor: AppColors.darkGreen.withOpacity(0.3),
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Submitting safety incident report..."),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Submit Report",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            /// 3. PRIMARY CONTENT FORM CONTAINER
+            _buildPrimaryFormContainer(),
           ],
         ),
       ),
     );
   }
 
-  Widget _stepperDot(int step, String label, bool isCompletedOrActive) {
+  // UI Component: Quick Responder Hotline Section
+  Widget _buildEmergencyHotlinesSection() {
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border.withOpacity(0.8)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.danger.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.flash_on,
+                  color: AppColors.danger,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                "Immediate Threat? Emergency Hotlines",
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Adaptive Grid wrapping emergency dispatch channels
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final buttonWidth = (constraints.maxWidth - 12) / 2;
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildHotlineButton(
+                    "Call Police",
+                    Icons.local_police,
+                    "911",
+                    buttonWidth,
+                  ),
+                  _buildHotlineButton(
+                    "Fire Station",
+                    Icons.local_fire_department,
+                    "112",
+                    buttonWidth,
+                  ),
+                  _buildHotlineButton(
+                    "Ambulance / Med",
+                    Icons.medical_services,
+                    "143",
+                    buttonWidth,
+                  ),
+                  _buildHotlineButton(
+                    "Barangay Desk",
+                    Icons.phone_in_talk,
+                    "888-9999",
+                    buttonWidth,
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHotlineButton(
+    String name,
+    IconData icon,
+    String dialNum,
+    double targetWidth,
+  ) {
+    return SizedBox(
+      width: targetWidth,
+      height: 44,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.danger,
+          side: BorderSide(
+            color: AppColors.danger.withOpacity(0.5),
+            width: 1.2,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.white,
+        ),
+        onPressed: () => _showEmergencyCallConfirmation(name, dialNum),
+        icon: Icon(icon, size: 16, color: AppColors.danger),
+        label: Text(
+          name,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            letterSpacing: -0.1,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // UI Component: Step-by-Step Navigation Progress bar
+  Widget _buildStepperProgressHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.01),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                "Report Submission Process",
+                style: TextStyle(
+                  color: AppColors.textLight,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                "Step 2 of 4",
+                style: TextStyle(
+                  color: AppColors.darkGreen,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Visual Stepper Track
+          Row(
+            children: [
+              _buildStepperDot(1, "Info", true),
+              _buildStepperLine(true),
+              _buildStepperDot(2, "Location", true),
+              _buildStepperLine(false),
+              _buildStepperDot(3, "Evidence", false),
+              _buildStepperLine(false),
+              _buildStepperDot(4, "Details", false),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStepperDot(int step, String label, bool isCompletedOrActive) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           width: 32,
           height: 32,
           decoration: BoxDecoration(
             color: isCompletedOrActive ? AppColors.darkGreen : Colors.white,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isCompletedOrActive ? AppColors.darkGreen : Colors.grey.shade300,
+              color: isCompletedOrActive
+                  ? AppColors.darkGreen
+                  : Colors.grey.shade300,
               width: 2,
             ),
+            boxShadow: isCompletedOrActive
+                ? [
+                    BoxShadow(
+                      color: AppColors.darkGreen.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Center(
             child: isCompletedOrActive
-                ? const Icon(Icons.check, size: 16, color: Colors.white)
+                ? const Icon(Icons.check, size: 15, color: Colors.white)
                 : Text(
                     step.toString(),
                     style: TextStyle(
@@ -273,46 +415,251 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         Text(
           label,
           style: TextStyle(
-            color: isCompletedOrActive ? AppColors.textDark : AppColors.textLight,
-            fontSize: 10,
-            fontWeight: isCompletedOrActive ? FontWeight.bold : FontWeight.normal,
+            color: isCompletedOrActive
+                ? AppColors.textDark
+                : AppColors.textLight,
+            fontSize: 11,
+            fontWeight: isCompletedOrActive
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
         ),
       ],
     );
   }
 
-  Widget _stepperLine(bool isActive) {
+  Widget _buildStepperLine(bool isActive) {
     return Expanded(
       child: Container(
-        height: 2,
+        height: 2.5,
         color: isActive ? AppColors.darkGreen : Colors.grey.shade200,
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(
+          bottom: 22,
+        ), // Aligns cross-axis with circular progress node rings
       ),
     );
   }
 
-  Widget sectionTitle(IconData icon, String title) {
+  // UI Component: Structured Interactive Intake Fields Section
+  Widget _buildPrimaryFormContainer() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Center(
+            child: Text(
+              "Incident Details",
+              style: TextStyle(
+                color: AppColors.darkGreen,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.3,
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          /// SECTION A: REPORTER DETAILS
+          _buildSectionTitle(Icons.person_outline, "Reporter Information"),
+          const SizedBox(height: 14),
+          _buildDropdownBox(
+            label: "Complainant Name",
+            value: _selectedComplainant,
+            options: [
+              "Anonymous",
+              "Verified Account Profile",
+              "Confidential Third-Party",
+            ],
+            onChanged: (val) => setState(() => _selectedComplainant = val!),
+          ),
+
+          const SizedBox(height: 28),
+
+          /// SECTION B: GEOLOCATION INTAKE
+          _buildSectionTitle(Icons.location_on_outlined, "Location Context"),
+          const SizedBox(height: 14),
+          _buildDropdownBox(
+            label: "Barangay",
+            value: _selectedBarangay,
+            options: ["Moonwalk", "Don Bosco", "Sun Valley", "Merville"],
+            onChanged: (val) => setState(() => _selectedBarangay = val!),
+          ),
+          const SizedBox(height: 14),
+          _buildTextFieldBox(
+            hint: "Location Coordinates (Optional)",
+            icon: Icons.gps_fixed,
+            controller: _coordinatesController,
+          ),
+          const SizedBox(height: 16),
+          _buildMapActionTemplate(
+            Icons.map_outlined,
+            "Pin Exact Location on System Map",
+          ),
+
+          const SizedBox(height: 28),
+
+          /// SECTION C: ATTACHMENTS
+          _buildSectionTitle(
+            Icons.camera_alt_outlined,
+            "Evidence Attachments (Optional)",
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _buildUploadBox(
+                  Icons.photo_library_outlined,
+                  "Upload Photo",
+                  "From Storage",
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: _buildUploadBox(
+                  Icons.camera_alt_outlined,
+                  "Take Photo",
+                  "Open Camera",
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 28),
+
+          /// SECTION D: SUMMARY CONTEXT TEXT BLOCK
+          _buildSectionTitle(
+            Icons.description_outlined,
+            "Incident Description",
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _descriptionController,
+            maxLines: 4,
+            maxLength: 500,
+            style: const TextStyle(fontSize: 14, color: AppColors.textDark),
+            decoration: InputDecoration(
+              hintText:
+                  "Please describe the incident timeline, visible hazards, or actors involved in clean detail...",
+              hintStyle: const TextStyle(
+                color: AppColors.textLight,
+                fontSize: 13,
+              ),
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              contentPadding: const EdgeInsets.all(16),
+              counterStyle: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textLight,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.border),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.darkGreen,
+                  width: 1.5,
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          /// SUBMIT TRIGGER BUTTON
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.darkGreen,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 2,
+                shadowColor: AppColors.darkGreen.withOpacity(0.4),
+              ),
+              onPressed: () {
+                // Production input validation safety assertions could fall here
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Row(
+                      children: [
+                        SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Text(
+                          "Submitting safety incident report...",
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: AppColors.darkGreen,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: const Text(
+                "Submit Report",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(IconData icon, String title) {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.accentGreenBg,
-            borderRadius: BorderRadius.circular(12),
+            color: AppColors.darkGreen.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: AppColors.darkGreen, size: 20),
+          child: Icon(icon, color: AppColors.darkGreen, size: 18),
         ),
-        const SizedBox(width: 14),
+        const SizedBox(width: 12),
         Text(
           title,
           style: const TextStyle(
             color: AppColors.textDark,
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -320,14 +667,24 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  Widget dropdownBox(String label, String value) {
+  Widget _buildDropdownBox({
+    required String label,
+    required String value,
+    required List<String> options,
+    required ValueChanged<String?> onChanged,
+  }) {
     return DropdownButtonFormField<String>(
       value: value,
+      style: const TextStyle(color: AppColors.textDark, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textLight),
+        labelStyle: const TextStyle(color: AppColors.textLight, fontSize: 13),
         filled: true,
         fillColor: Colors.grey.shade50,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),
@@ -336,19 +693,36 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.darkGreen),
+        ),
       ),
-      items: [DropdownMenuItem(value: value, child: Text(value))],
-      onChanged: (value) {},
+      items: options.map((String opt) {
+        return DropdownMenuItem<String>(value: opt, child: Text(opt));
+      }).toList(),
+      onChanged: onChanged,
     );
   }
 
-  Widget textFieldBox(String hint, IconData icon) {
+  Widget _buildTextFieldBox({
+    required String hint,
+    required IconData icon,
+    required TextEditingController controller,
+  }) {
     return TextField(
+      controller: controller,
+      style: const TextStyle(fontSize: 14, color: AppColors.textDark),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: AppColors.textLight, size: 18),
         hintText: hint,
+        hintStyle: const TextStyle(color: AppColors.textLight, fontSize: 13),
         filled: true,
         fillColor: Colors.grey.shade50,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),
@@ -357,34 +731,56 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.darkGreen, width: 1.5),
+        ),
       ),
     );
   }
 
-  Widget uploadBox(IconData icon, String text) {
+  Widget _buildUploadBox(IconData icon, String title, String subtitle) {
     return Container(
-      height: 100,
+      height: 96,
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300, style: BorderStyle.solid),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.grey.shade300,
+          style: BorderStyle.solid,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Triggering media context device hook: $title'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          borderRadius: BorderRadius.circular(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: AppColors.darkGreen, size: 28),
-              const SizedBox(height: 8),
+              Icon(icon, color: AppColors.darkGreen, size: 24),
+              const SizedBox(height: 6),
               Text(
-                text,
+                title,
                 style: const TextStyle(
                   color: AppColors.textDark,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: AppColors.textLight,
+                  fontSize: 11,
                 ),
               ),
             ],
@@ -394,26 +790,35 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  Widget bigButton(IconData icon, String text, bool isPrimary) {
+  Widget _buildMapActionTemplate(IconData icon, String text) {
     return SizedBox(
       width: double.infinity,
-      height: 50,
+      height: 44,
       child: OutlinedButton.icon(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.darkGreen,
-          side: const BorderSide(color: AppColors.darkGreen, width: 1.5),
+          side: const BorderSide(color: AppColors.darkGreen, width: 1.2),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
+          backgroundColor: Colors.white,
         ),
-        onPressed: () {},
-        icon: Icon(icon, size: 18),
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "Launching interactive map selector subsystem overlay...",
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        },
+        icon: Icon(icon, size: 16),
         label: Text(
           text,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
       ),
     );
   }
 }
-
