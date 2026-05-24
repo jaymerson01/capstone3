@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../constants/admin_colors.dart';
 
 enum IncidentStatus {
   pending,
   inProgress,
   solved,
+  spam,
 }
 
 class IncidentReport {
@@ -26,7 +26,6 @@ class IncidentReport {
     required this.description,
   });
 
-  // Getter to get human readable status label
   String get statusLabel {
     switch (status) {
       case IncidentStatus.pending:
@@ -35,22 +34,24 @@ class IncidentReport {
         return 'In Progress';
       case IncidentStatus.solved:
         return 'Solved';
+      case IncidentStatus.spam:
+        return 'Spam';
     }
   }
 
-  // Getter to match custom status colors
   Color get statusColor {
     switch (status) {
       case IncidentStatus.pending:
-        return AdminColors.pendingYellow;
+        return Colors.orange;
       case IncidentStatus.inProgress:
-        return AdminColors.progressBlue;
+        return Colors.blue;
       case IncidentStatus.solved:
-        return AdminColors.solvedGreen;
+        return Colors.green;
+      case IncidentStatus.spam:
+        return Colors.red;
     }
   }
 
-  // Copy with method to help modify reports in service
   IncidentReport copyWith({
     String? id,
     String? incidentType,

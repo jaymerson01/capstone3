@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../theme/app_color.dart';
 import '../pages/dashboard.dart';
 import '../pages/report_incident.dart';
@@ -52,7 +53,7 @@ class _SideMenuState extends State<SideMenu> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
                         Text(
-                          "SAFE MOONWALK",
+                          "RESQ",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -103,7 +104,7 @@ class _SideMenuState extends State<SideMenu> {
     Color textColor = Colors.white70;
 
     if (isLogout) {
-      tileBgColor = isHovered ? Colors.redAccent.withOpacity(0.2) : Colors.redAccent.withOpacity(0.12);
+      tileBgColor = isHovered ? AppColors.danger.withOpacity(0.3) : AppColors.danger.withOpacity(0.18);
       iconColor = Colors.red.shade200;
       textColor = Colors.red.shade100;
     } else {
@@ -191,6 +192,9 @@ class _SideMenuState extends State<SideMenu> {
                   MaterialPageRoute(builder: (context) => const SettingsPage()),
                 );
               } else if (title == "Logout") {
+                // Clear user persistent session state from Hive
+                Hive.box('auth').put('isLoggedIn', false);
+
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const WelcomePage()),

@@ -33,7 +33,7 @@ class DashboardPage extends StatelessWidget {
             logoBox(),
             const SizedBox(width: 10),
             const Text(
-              "Safe Moonwalk",
+              "ResQ",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../theme/app_color.dart';
 import 'dashboard.dart';
 import 'sign_up.dart';
@@ -25,7 +26,7 @@ class LoginPage extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Redirect Error: ${e.toString()}"),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -198,6 +199,9 @@ class LoginPage extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
+                              // Store user session persistently in Hive box
+                              Hive.box('auth').put('isLoggedIn', true);
+
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(

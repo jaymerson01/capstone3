@@ -18,7 +18,7 @@ class SignUpPage extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Redirect Error: ${e.toString()}"),
-            backgroundColor: Colors.redAccent,
+            backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
         );

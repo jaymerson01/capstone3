@@ -25,12 +25,13 @@ class _AdminSidebarState extends State<AdminSidebar> {
 
   // Sidebar navigation options
   final List<SidebarItem> menuItems = [
-    SidebarItem(Icons.analytics_outlined, "Overview Dashboard"),
-    SidebarItem(Icons.assignment_late_outlined, "Incident Reports"),
-    SidebarItem(Icons.manage_accounts_outlined, "User Management"),
-    SidebarItem(Icons.dashboard_customize_outlined, "Incident Categories"),
-    SidebarItem(Icons.map_outlined, "Area Management"),
-    SidebarItem(Icons.admin_panel_settings_outlined, "Profile Settings"),
+  SidebarItem(Icons.analytics_outlined, "Overview Dashboard"),
+  SidebarItem(Icons.assignment_late_outlined, "Incident Reports"),
+  SidebarItem(Icons.manage_accounts_outlined, "User Management"),
+  SidebarItem(Icons.dashboard_customize_outlined, "Incident Categories"),
+  SidebarItem(Icons.map_outlined, "Area Management"),
+  SidebarItem(Icons.history_outlined, "Admin Audit Logs"),
+  SidebarItem(Icons.admin_panel_settings_outlined, "Profile Settings"),
   ];
 
   @override
@@ -95,7 +96,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                               ),
                               SizedBox(height: 2),
                               Text(
-                                "Safe Moonwalk",
+                                "ResQ",
                                 style: TextStyle(
                                   color: Colors.white54,
                                   fontSize: 11,

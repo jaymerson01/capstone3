@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_color.dart';
+import 'emergency_hotlines_page.dart';
 import 'login_page.dart';
 import 'sign_up.dart';
 
@@ -7,18 +7,81 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   Widget appLogo() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.25), width: 1.5),
+    return Image.asset(
+      'assets/images/logo.png',
+      height: 90,
+      width: 90,
+      fit: BoxFit.contain,
+    );
+  }
+
+  void _showLoginRequired(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Login Required'),
+        content: const Text(
+          'Please login or create an account first before reporting an incident.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            },
+            child: const Text('Login'),
+          ),
+        ],
       ),
-      child: Image.asset(
-        'assets/images/logo.png',
-        height: 80,
-        width: 80,
-        fit: BoxFit.contain,
+    );
+  }
+
+  Widget _topButton({
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return TextButton(
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _mainButton({
+    required IconData icon,
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        onPressed: onPressed,
+        icon: Icon(icon),
+        label: Text(
+          text,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -28,193 +91,103 @@ class WelcomePage extends StatelessWidget {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        height: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 40),
+        padding: const EdgeInsets.all(25),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.darkGreen, Color(0xFF9EA89E)],
+            colors: [Color(0xFF004D00), Color(0xFF9EA89E)],
           ),
         ),
         child: SafeArea(
-          child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeOut,
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 30 * (1.0 - value)),
-                  child: child,
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  _topButton(
+                    text: 'Login',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
+                    },
+                  ),
+                  _topButton(
+                    text: 'Sign Up',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignUpPage()),
+                      );
+                    },
+                  ),
+                ],
+              ),
+
+              const Spacer(),
+
+              appLogo(),
+              const SizedBox(height: 35),
+
+              const Text(
+                'RESQ',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
                 ),
-              );
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                appLogo(),
-                const SizedBox(height: 25),
-                const Text(
-                  "SAFE MOONWALK",
+              ),
+
+              const SizedBox(height: 8),
+
+              const Text(
+                'Your safety is our priority',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+
+              const SizedBox(height: 35),
+
+              _mainButton(
+                icon: Icons.warning_amber,
+                text: 'Report an Incident',
+                onPressed: () => _showLoginRequired(context),
+              ),
+
+              const SizedBox(height: 15),
+
+              _mainButton(
+                icon: Icons.call,
+                text: 'Emergency Hotlines',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmergencyHotlinesPage(),
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/admin/login');
+                },
+                child: const Text(
+                  'Access Admin Portal',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
+                    decoration: TextDecoration.underline,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Your safety is our priority",
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 15,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                const SizedBox(height: 35),
+              ),
 
-                // Glassmorphic Location Container
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.08),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Moonwalk, Parañaque City",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Spacer(),
-
-                // Login Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.darkGreen,
-                      elevation: 4,
-                      shadowColor: Colors.black26,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginPage(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Create an Account Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 1.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SignUpPage(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Create an Account",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const Spacer(),
-
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/admin/login');
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white.withOpacity(0.9),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: const [
-                      Icon(Icons.admin_panel_settings_outlined, size: 16),
-                      SizedBox(width: 6),
-                      Text(
-                        "Access Admin Portal",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              const Spacer(),
+            ],
           ),
         ),
       ),

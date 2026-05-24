@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../theme/app_color.dart';
+import 'welcome_page.dart';
 
 // Note: Ensure you run `flutter pub add url_launcher` in your terminal
 // and import 'package:url_launcher/url_launcher.dart'; to execute direct phone dialers.
@@ -179,7 +181,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       onTap: () => _showModalInformation(
                         context,
                         "Help & Support",
-                        "For application assistance, email support@safemoonwalk.gov.ph or contact the municipal tech division desk directly.",
+                        "For application assistance, email support@resq.gov.ph or contact the municipal tech division desk directly.",
                       ),
                     ),
                     _buildSettingTile(
@@ -211,7 +213,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: const [
                     Text(
-                      "Safe Moonwalk Enterprise",
+                      "ResQ Enterprise",
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 11,
@@ -390,7 +392,7 @@ class _SettingsPageState extends State<SettingsPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: const [
-            Icon(Icons.warning_rounded, color: Colors.redAccent),
+            Icon(Icons.warning_rounded, color: AppColors.danger),
             SizedBox(width: 8),
             Text("Emergency System Outbound"),
           ],
@@ -405,7 +407,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.danger,
               foregroundColor: Colors.white,
             ),
             onPressed: () {
@@ -417,7 +419,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   content: Text(
                     "Initiating secure dial routing to: $number...",
                   ),
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: AppColors.danger,
                 ),
               );
             },
@@ -511,13 +513,25 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Action '$contextTitle' processed successfully.",
+              if (contextTitle == "Logout") {
+                // Clear user persistent session state from Hive
+                Hive.box('auth').put('isLoggedIn', false);
+
+                // Navigate back to welcome page clearing screen stack
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WelcomePage()),
+                  (route) => false,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Action '$contextTitle' processed successfully.",
+                    ),
                   ),
-                ),
-              );
+                );
+              }
             },
             child: const Text("CONFIRM"),
           ),
@@ -1383,7 +1397,7 @@ class AboutAppPage extends StatelessWidget {
             const SizedBox(height: 12),
             const Center(
               child: Text(
-                'Safe Moonwalk Environment',
+                'ResQ Environment',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,

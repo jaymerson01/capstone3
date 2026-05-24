@@ -2,74 +2,109 @@ import 'package:flutter/material.dart';
 import 'constants/admin_colors.dart';
 import 'widgets/admin_sidebar.dart';
 import 'widgets/admin_header.dart';
+
 import 'pages/admin_dashboard_page.dart';
 import 'pages/incident_reports_page.dart';
 import 'pages/user_management_page.dart';
 import 'pages/incident_categories_page.dart';
 import 'pages/area_management_page.dart';
+import 'pages/admin_audit_logs_page.dart';
 import 'pages/profile_settings_page.dart';
 
 class AdminPanelShell extends StatefulWidget {
   const AdminPanelShell({super.key});
 
   @override
-  State<AdminPanelShell> createState() => _AdminPanelShellState();
+  State<AdminPanelShell> createState() =>
+      _AdminPanelShellState();
 }
 
-class _AdminPanelShellState extends State<AdminPanelShell> {
+class _AdminPanelShellState
+    extends State<AdminPanelShell> {
   int _selectedIndex = 0;
-  bool _isSidebarCollapsed = false;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // Title strings mapping for header
+  bool _isSidebarCollapsed = false;
+
+  final GlobalKey<ScaffoldState>
+      _scaffoldKey =
+      GlobalKey<ScaffoldState>();
+
+  // PAGE TITLES
   final List<String> _pageTitles = [
     "Overview Dashboard",
     "Incident Reports Management",
     "User Management",
     "Incident Categories",
     "Area Management",
+    "Admin Audit Logs",
     "Profile Settings",
   ];
 
-  // Selected sub-screen widget mapper
+  // PAGE SWITCHER
   Widget _getSelectedPage() {
     switch (_selectedIndex) {
       case 0:
         return const AdminDashboardPage();
+
       case 1:
         return const IncidentReportsPage();
+
       case 2:
         return const UserManagementPage();
+
       case 3:
         return const IncidentCategoriesPage();
+
       case 4:
         return const AreaManagementPage();
+
       case 5:
+        return const AdminAuditLogsPage();
+
+      case 6:
         return const ProfileSettingsPage();
+
       default:
         return const AdminDashboardPage();
     }
   }
 
+  // LOGOUT
   void _handleLogout() {
-    // Show quick confirmation alert
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirm Logout"),
-          content: const Text("Are you sure you want to log out of the admin panel?"),
+          title:
+              const Text("Confirm Logout"),
+
+          content: const Text(
+            "Are you sure you want to log out of the admin panel?",
+          ),
+
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+              },
               child: const Text("Cancel"),
             ),
+
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pushReplacementNamed(context, '/admin/login'); // Redirect to login
+                Navigator.pop(context);
+
+                Navigator.pushReplacementNamed(
+                  context,
+                  '/admin/login',
+                );
               },
-              child: const Text("Logout", style: TextStyle(color: Colors.red)),
+              child: const Text(
+                "Logout",
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
             ),
           ],
         );
@@ -79,76 +114,123 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
 
   @override
   Widget build(BuildContext context) {
-    // Media Query to detect screen size breakpoints
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isMobile = screenWidth < 900;
+    final double screenWidth =
+        MediaQuery.of(context).size.width;
+
+    final bool isMobile =
+        screenWidth < 900;
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: AdminColors.background,
-      // Left side drawer for mobile users
+      backgroundColor:
+          AdminColors.background,
+
+      // MOBILE DRAWER
       drawer: isMobile
           ? Drawer(
               child: AdminSidebar(
-                selectedIndex: _selectedIndex,
-                onItemSelected: (index) {
+                selectedIndex:
+                    _selectedIndex,
+
+                onItemSelected:
+                    (index) {
                   setState(() {
-                    _selectedIndex = index;
+                    _selectedIndex =
+                        index;
                   });
-                  _scaffoldKey.currentState?.closeDrawer();
+
+                  _scaffoldKey
+                      .currentState
+                      ?.closeDrawer();
                 },
+
                 isCollapsed: false,
-                onLogout: _handleLogout,
+
+                onLogout:
+                    _handleLogout,
               ),
             )
           : null,
+
       body: Row(
         children: [
-          // Sidebar is static only for non-mobile screen widths
+          // DESKTOP SIDEBAR
           if (!isMobile)
             AdminSidebar(
-              selectedIndex: _selectedIndex,
-              onItemSelected: (index) {
+              selectedIndex:
+                  _selectedIndex,
+
+              onItemSelected:
+                  (index) {
                 setState(() {
-                  _selectedIndex = index;
+                  _selectedIndex =
+                      index;
                 });
               },
-              isCollapsed: _isSidebarCollapsed,
-              onLogout: _handleLogout,
+
+              isCollapsed:
+                  _isSidebarCollapsed,
+
+              onLogout:
+                  _handleLogout,
             ),
 
-          // Main page structure panel
+          // MAIN CONTENT
           Expanded(
             child: Column(
               children: [
-                // Top Header Panel
+                // HEADER
                 AdminHeader(
-                  title: _pageTitles[_selectedIndex],
+                  title: _pageTitles[
+                      _selectedIndex],
+
                   isMobile: isMobile,
+
                   onMenuPressed: () {
                     if (isMobile) {
-                      _scaffoldKey.currentState?.openDrawer();
+                      _scaffoldKey
+                          .currentState
+                          ?.openDrawer();
                     } else {
                       setState(() {
-                        _isSidebarCollapsed = !_isSidebarCollapsed;
+                        _isSidebarCollapsed =
+                            !_isSidebarCollapsed;
                       });
                     }
                   },
                 ),
 
-                // Selected Sub-page content body with clean transitions
+                // PAGE BODY
                 Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: (Widget child, Animation<double> animation) {
+                  child:
+                      AnimatedSwitcher(
+                    duration:
+                        const Duration(
+                      milliseconds:
+                          250,
+                    ),
+
+                    transitionBuilder:
+                        (
+                      Widget child,
+                      Animation<
+                              double>
+                          animation,
+                    ) {
                       return FadeTransition(
-                        opacity: animation,
+                        opacity:
+                            animation,
                         child: child,
                       );
                     },
+
                     child: KeyedSubtree(
-                      key: ValueKey<int>(_selectedIndex),
-                      child: _getSelectedPage(),
+                      key: ValueKey<int>(
+                        _selectedIndex,
+                      ),
+
+                      child:
+                          _getSelectedPage(),
                     ),
                   ),
                 ),

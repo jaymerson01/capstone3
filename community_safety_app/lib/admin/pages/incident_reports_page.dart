@@ -12,6 +12,7 @@ class IncidentReportsPage extends StatefulWidget {
 
 class _IncidentReportsPageState extends State<IncidentReportsPage> {
   final dataService = AdminDataService();
+
   String searchQuery = "";
   String statusFilter = "All";
 
@@ -20,200 +21,204 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     return ListenableBuilder(
       listenable: dataService,
       builder: (context, _) {
-        // Filter reports list based on search bar text and status filter dropdown
         final filteredReports = dataService.reports.where((report) {
-          final matchesSearch = report.id.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              report.reporterName.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              report.incidentType.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              report.location.toLowerCase().contains(searchQuery.toLowerCase());
+          final matchesSearch =
+              report.id.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                  report.incidentType
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase()) ||
+                  report.reporterName
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase()) ||
+                  report.location
+                      .toLowerCase()
+                      .contains(searchQuery.toLowerCase());
 
-          final matchesStatus = statusFilter == "All" || 
-              (statusFilter == "Pending" && report.status == IncidentStatus.pending) ||
-              (statusFilter == "In Progress" && report.status == IncidentStatus.inProgress) ||
-              (statusFilter == "Solved" && report.status == IncidentStatus.solved);
+          final matchesStatus =
+              statusFilter == "All" || report.statusLabel == statusFilter;
 
           return matchesSearch && matchesStatus;
         }).toList();
 
         return Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Search and Filter Controls Layout
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    // Search Field
-                    Expanded(
-                      flex: 4,
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Search by ID, reporter, type, or location...",
-                          prefixIcon: const Icon(Icons.search),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: AdminColors.border),
-                          ),
-                        ),
-                        onChanged: (val) {
-                          setState(() {
-                            searchQuery = val;
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Status Filter Dropdown
-                    Expanded(
-                      flex: 2,
-                      child: DropdownButtonFormField<String>(
-                        value: statusFilter,
-                        decoration: InputDecoration(
-                          labelText: "Filter Status",
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: AdminColors.border),
-                          ),
-                        ),
-                        items: ["All", "Pending", "In Progress", "Solved"].map((status) {
-                          return DropdownMenuItem<String>(
-                            value: status,
-                            child: Text(status),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() {
-                              statusFilter = val;
-                            });
-                          }
-                        },
-                      ),
-                    ),
-                  ],
+              const Text(
+                "Incident Reports",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Data Table Card
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Search reports...",
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  DropdownButton<String>(
+                    value: statusFilter,
+                    items: const [
+                      DropdownMenuItem(value: "All", child: Text("All")),
+                      DropdownMenuItem(value: "Pending", child: Text("Pending")),
+                      DropdownMenuItem(
+                        value: "In Progress",
+                        child: Text("In Progress"),
+                      ),
+                      DropdownMenuItem(value: "Solved", child: Text("Solved")),
+                      DropdownMenuItem(value: "Spam", child: Text("Spam")),
+                    ],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          statusFilter = value;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
               Expanded(
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-                    ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: filteredReports.isEmpty
-                        ? const Center(
-                            child: Text(
-                              "No incident reports found matching search criteria.",
-                              style: TextStyle(color: AdminColors.textLight, fontSize: 15),
-                            ),
-                          )
-                        : SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                headingRowColor: WidgetStateProperty.all(AdminColors.primaryGreen.withOpacity(0.05)),
-                                columnSpacing: 35,
-                                columns: const [
-                                  DataColumn(label: Text("Report ID", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Incident Type", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Reporter Name", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Location", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Date", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Status", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold))),
-                                ],
-                                rows: filteredReports.map((report) {
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(Text(report.id, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                      DataCell(Text(report.incidentType)),
-                                      DataCell(Text(report.reporterName)),
-                                      DataCell(Text(report.location)),
-                                      DataCell(Text("${report.date.day}/${report.date.month}/${report.date.year}")),
-                                      DataCell(
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: report.statusColor.withOpacity(0.15),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Text(
-                                            report.statusLabel,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: report.statusColor == AdminColors.pendingYellow 
-                                                  ? Colors.orange.shade800
-                                                  : report.statusColor,
-                                            ),
+                  child: filteredReports.isEmpty
+                      ? const Center(
+                          child: Text("No incident reports found."),
+                        )
+                      : SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columns: const [
+                                DataColumn(label: Text("Report ID")),
+                                DataColumn(label: Text("Type")),
+                                DataColumn(label: Text("Reporter")),
+                                DataColumn(label: Text("Location")),
+                                DataColumn(label: Text("Date")),
+                                DataColumn(label: Text("Status")),
+                                DataColumn(label: Text("Actions")),
+                              ],
+                              rows: filteredReports.map((report) {
+                                return DataRow(
+                                  cells: [
+                                    DataCell(Text(report.id)),
+                                    DataCell(Text(report.incidentType)),
+                                    DataCell(Text(report.reporterName)),
+                                    DataCell(Text(report.location)),
+                                    DataCell(Text(_formatDate(report.date))),
+                                    DataCell(
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              report.statusColor.withOpacity(0.15),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          report.statusLabel,
+                                          style: TextStyle(
+                                            color: report.statusColor,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
-                                      DataCell(
-                                        Row(
-                                          children: [
-                                            // View Dialog Trigger
-                                            IconButton(
-                                              icon: const Icon(Icons.visibility, color: Colors.grey, size: 20),
-                                              tooltip: "View Details",
-                                              onPressed: () => _showViewDialog(context, report),
+                                    ),
+                                    DataCell(
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.visibility,
+                                              color: AdminColors.primaryGreen,
+                                              size: 20,
                                             ),
-                                            // Edit Dialog Trigger
-                                            IconButton(
-                                              icon: const Icon(Icons.edit, color: Colors.blue, size: 20),
-                                              tooltip: "Edit Report",
-                                              onPressed: () => _showEditDialog(context, report),
+                                            tooltip: "View Details",
+                                            onPressed: () {
+                                              _showReportDetails(context, report);
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.edit,
+                                              color: Colors.blue,
+                                              size: 20,
                                             ),
-                                            // Delete Trigger
-                                            IconButton(
-                                              icon: const Icon(Icons.delete, color: AdminColors.dangerRed, size: 20),
-                                              tooltip: "Delete Report",
-                                              onPressed: () => _confirmDelete(context, report.id),
+                                            tooltip: "Edit Report",
+                                            onPressed: () {
+                                              _showEditReportDialog(
+                                                context,
+                                                report,
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.report_gmailerrorred,
+                                              color: Colors.red,
+                                              size: 20,
                                             ),
-                                            // Solve Trigger Shortcut
-                                            if (report.status != IncidentStatus.solved)
-                                              IconButton(
-                                                icon: const Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
-                                                tooltip: "Mark as Solved",
-                                                onPressed: () {
-                                                  dataService.updateReportStatus(report.id, IncidentStatus.solved);
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(content: Text("Report ${report.id} marked as Solved")),
-                                                  );
-                                                },
-                                              ),
-                                          ],
-                                        ),
+                                            tooltip: "Mark as Spam",
+                                            onPressed: () {
+                                              dataService.markReportAsSpam(
+                                                report.id,
+                                              );
+
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    "Report ${report.id} marked as Spam",
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                              size: 20,
+                                            ),
+                                            tooltip: "Delete Report",
+                                            onPressed: () {
+                                              dataService.deleteReport(report.id);
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
                             ),
                           ),
-                  ),
+                        ),
                 ),
               ),
             ],
@@ -223,110 +228,23 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     );
   }
 
-  // View report details dialog popup
-  void _showViewDialog(BuildContext context, IncidentReport report) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Report Details: ${report.id}"),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: report.statusColor.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  report.statusLabel,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: report.statusColor == AdminColors.pendingYellow 
-                        ? Colors.orange.shade800
-                        : report.statusColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: 500,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Divider(),
-                const SizedBox(height: 10),
-                _detailField("Incident Type", report.incidentType),
-                _detailField("Reporter Name", report.reporterName),
-                _detailField("Location", report.location),
-                _detailField("Reported Date", "${report.date.day}/${report.date.month}/${report.date.year} ${report.date.hour}:${report.date.minute}"),
-                const SizedBox(height: 15),
-                const Text(
-                  "Incident Description:",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AdminColors.textDark, fontSize: 14),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: Text(
-                    report.description,
-                    style: const TextStyle(fontSize: 13.5, height: 1.4),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
-            ),
-          ],
-        );
-      },
-    );
+  String _formatDate(DateTime date) {
+    return "${date.month}/${date.day}/${date.year}";
   }
 
-  Widget _detailField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 130,
-            child: Text(
-              "$label:",
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AdminColors.textLight, fontSize: 13),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AdminColors.textDark, fontSize: 13.5),
-            ),
-          ),
-        ],
-      ),
-    );
+  String _formatDateTime(DateTime? date) {
+    if (date == null) return "Not yet";
+
+    final hour = date.hour.toString().padLeft(2, '0');
+    final minute = date.minute.toString().padLeft(2, '0');
+
+    return "${date.month}/${date.day}/${date.year}, $hour:$minute";
   }
 
-  // Edit details of a report dialog popup
-  void _showEditDialog(BuildContext context, IncidentReport report) {
-    final formKey = GlobalKey<FormState>();
-    final typeController = TextEditingController(text: report.incidentType);
-    final locationController = TextEditingController(text: report.location);
-    final descController = TextEditingController(text: report.description);
+  void _showEditReportDialog(
+    BuildContext context,
+    IncidentReport report,
+  ) {
     IncidentStatus selectedStatus = report.status;
 
     showDialog(
@@ -335,93 +253,69 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text("Edit Incident Report: ${report.id}"),
+              title: Text("Update Report Status: ${report.id}"),
               content: SizedBox(
-                width: 500,
-                child: Form(
-                  key: formKey,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 10),
-                        // Type field
-                        TextFormField(
-                          controller: typeController,
-                          decoration: const InputDecoration(labelText: "Incident Type"),
-                          validator: (val) => val == null || val.isEmpty ? "Enter incident type" : null,
-                        ),
-                        const SizedBox(height: 15),
-                        // Location field
-                        TextFormField(
-                          controller: locationController,
-                          decoration: const InputDecoration(labelText: "Location"),
-                          validator: (val) => val == null || val.isEmpty ? "Enter location details" : null,
-                        ),
-                        const SizedBox(height: 15),
-                        // Status Field
-                        DropdownButtonFormField<IncidentStatus>(
-                          value: selectedStatus,
-                          decoration: const InputDecoration(labelText: "Report Status"),
-                          items: IncidentStatus.values.map((status) {
-                            String label = status == IncidentStatus.pending 
-                                ? "Pending" 
-                                : status == IncidentStatus.inProgress 
-                                    ? "In Progress" 
-                                    : "Solved";
-                            return DropdownMenuItem<IncidentStatus>(
-                              value: status,
-                              child: Text(label),
-                            );
-                          }).toList(),
-                          onChanged: (val) {
-                            if (val != null) {
-                              setDialogState(() {
-                                selectedStatus = val;
-                              });
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 15),
-                        // Description text area
-                        TextFormField(
-                          controller: descController,
-                          maxLines: 4,
-                          decoration: const InputDecoration(
-                            labelText: "Incident Description",
-                            alignLabelWithHint: true,
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (val) => val == null || val.isEmpty ? "Enter details description" : null,
-                        ),
-                      ],
-                    ),
+                width: 400,
+                child: DropdownButtonFormField<IncidentStatus>(
+                  value: selectedStatus,
+                  decoration: const InputDecoration(
+                    labelText: "Status",
+                    border: OutlineInputBorder(),
                   ),
+                  items: const [
+                    DropdownMenuItem(
+                      value: IncidentStatus.pending,
+                      child: Text("Pending"),
+                    ),
+                    DropdownMenuItem(
+                      value: IncidentStatus.inProgress,
+                      child: Text("In Progress"),
+                    ),
+                    DropdownMenuItem(
+                      value: IncidentStatus.solved,
+                      child: Text("Solved"),
+                    ),
+                    DropdownMenuItem(
+                      value: IncidentStatus.spam,
+                      child: Text("Spam"),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setDialogState(() {
+                        selectedStatus = value;
+                      });
+                    }
+                  },
                 ),
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                   child: const Text("Cancel"),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: AdminColors.primaryGreen, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AdminColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      final updated = report.copyWith(
-                        incidentType: typeController.text.trim(),
-                        location: locationController.text.trim(),
-                        status: selectedStatus,
-                        description: descController.text.trim(),
-                      );
-                      dataService.editReport(updated);
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Report details successfully updated")),
-                      );
-                    }
+                    dataService.updateReportStatus(
+                      report.id,
+                      selectedStatus,
+                    );
+
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Report status updated successfully"),
+                      ),
+                    );
                   },
-                  child: const Text("Save Changes"),
+                  child: const Text("Save"),
                 ),
               ],
             );
@@ -431,33 +325,179 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     );
   }
 
-  // Delete incident report confirmation dialog popup
-  void _confirmDelete(BuildContext context, String reportId) {
+  void _showReportDetails(
+    BuildContext context,
+    IncidentReport report,
+  ) {
+    final submittedAt =
+        dataService.getStatusTimestamp(report.id, IncidentStatus.pending) ??
+            report.date;
+
+    final inProgressAt =
+        dataService.getStatusTimestamp(report.id, IncidentStatus.inProgress);
+
+    final solvedAt =
+        dataService.getStatusTimestamp(report.id, IncidentStatus.solved);
+
+    final isInProgressActive = report.status == IncidentStatus.inProgress ||
+        report.status == IncidentStatus.solved;
+
+    final isSolvedActive = report.status == IncidentStatus.solved;
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Delete Report"),
-          content: Text("Are you sure you want to permanently delete report $reportId? This action is irreversible."),
+          title: Text("Incident Details - ${report.id}"),
+          content: SizedBox(
+            width: 540,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _detailRow("Incident Type", report.incidentType),
+                  _detailRow("Reporter", report.reporterName),
+                  _detailRow("Location", report.location),
+                  _detailRow("Status", report.statusLabel),
+                  const SizedBox(height: 15),
+                  const Text(
+                    "Description",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(report.description),
+                  const SizedBox(height: 30),
+                  const Text(
+                    "Status Timeline",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _timelineTile(
+                    icon: Icons.access_time,
+                    title: "Pending",
+                    subtitle: "Submitted: ${_formatDateTime(submittedAt)}",
+                    active: true,
+                  ),
+                  _timelineLine(),
+                  _timelineTile(
+                    icon: Icons.build,
+                    title: "In Progress",
+                    subtitle: "Dispatched: ${_formatDateTime(inProgressAt)}",
+                    active: isInProgressActive,
+                  ),
+                  _timelineLine(),
+                  _timelineTile(
+                    icon: Icons.check_circle,
+                    title: "Solved",
+                    subtitle: "Solved: ${_formatDateTime(solvedAt)}",
+                    active: isSolvedActive,
+                  ),
+                  if (report.status == IncidentStatus.spam) ...[
+                    _timelineLine(),
+                    _timelineTile(
+                      icon: Icons.report_gmailerrorred,
+                      title: "Spam",
+                      subtitle: "Marked as Spam",
+                      active: true,
+                      activeColor: Colors.red,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AdminColors.dangerRed, foregroundColor: Colors.white),
               onPressed: () {
-                dataService.deleteReport(reportId);
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Report $reportId deleted successfully")),
-                );
               },
-              child: const Text("Delete"),
+              child: const Text("Close"),
             ),
           ],
         );
       },
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              "$label:",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(child: Text(value)),
+        ],
+      ),
+    );
+  }
+
+  Widget _timelineLine() {
+    return Container(
+      margin: const EdgeInsets.only(left: 15),
+      width: 2,
+      height: 35,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade300,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget _timelineTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool active,
+    Color activeColor = AdminColors.primaryGreen,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: active ? activeColor : Colors.grey.shade300,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 18,
+          ),
+        ),
+        const SizedBox(width: 15),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: active ? Colors.black : Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: active ? Colors.black54 : Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -15,7 +15,7 @@ class AdminColors {
   static const Color pendingYellow = Color(0xFFFFD166);
   static const Color progressBlue = Color(0xFF118AB2);
   static const Color solvedGreen = Color(0xFF06D6A0);
-  static const Color dangerRed = Color(0xFFEF476F);
+  static const Color dangerRed = Color(0xFF8B0000);
 
   // Card/Highlight Colors for Admin theme
   static const Color cardRed = Color(0xFFD32F2F);

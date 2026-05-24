@@ -16,5 +16,5 @@ class AppColors {
   static const Color pending = Color(0xFFFFD166);
   static const Color progress = Color(0xFF118AB2);
   static const Color solved = Color(0xFF06D6A0);
-  static const Color danger = Color(0xFFEF476F);
+  static const Color danger = Color(0xFF8B0000);
 }
