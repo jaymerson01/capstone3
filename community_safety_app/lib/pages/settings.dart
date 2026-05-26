@@ -93,7 +93,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildSettingTile(
                       icon: Icons.shield_outlined,
                       title: "Privacy & Account Security",
-                      subtitle: "Change password, active 2FA credentials",
+                      subtitle:
+                          "Change password, active Biometric ID Gateway Login",
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -1043,7 +1044,6 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   bool _obscureNew = true;
   bool _obscureConfirm = true;
 
-  bool is2FAEnabled = false;
   bool isBiometricActive = true;
 
   @override
@@ -1132,35 +1132,6 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
             ),
             child: Column(
               children: [
-                SwitchListTile(
-                  secondary: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: const BoxDecoration(
-                      color: AppColors.accentGreenBg,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.phonelink_lock_outlined,
-                      color: AppColors.darkGreen,
-                      size: 20,
-                    ),
-                  ),
-                  title: const Text(
-                    'Secure 2FA Authentication',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  subtitle: const Text(
-                    'Require numeric code authorization strings on execution prompts',
-                    style: TextStyle(fontSize: 12),
-                  ),
-                  value: is2FAEnabled,
-                  activeColor: AppColors.darkGreen,
-                  onChanged: (bool value) {
-                    setState(() => is2FAEnabled = value);
-                    if (value) _displayTwoFactorModal(context);
-                  },
-                ),
-                const Divider(height: 1),
                 SwitchListTile(
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
@@ -1325,43 +1296,6 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
       ),
     );
   }
-
-  void _displayTwoFactorModal(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: const [
-            Icon(Icons.security, color: AppColors.darkGreen),
-            SizedBox(width: 10),
-            Text(
-              'Activate 2FA Gateway',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-          ],
-        ),
-        content: const Text(
-          'Enabling this layer mandates automated entry token validation passes before granting authentication credentials accessibility clearance inside mobile terminals.',
-          style: TextStyle(
-            fontSize: 13,
-            height: 1.4,
-            color: AppColors.textLight,
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.darkGreen,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () => Navigator.pop(context),
-            child: const Text('INITIALIZE INTERFACES'),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 // ================= SUB PAGE: GENERAL APPLICATION POLICIES ARCHIVE =================
@@ -1414,14 +1348,29 @@ class AboutAppPage extends StatelessWidget {
             const SizedBox(height: 32),
 
             _buildLegalGlossaryCard(
-              "System Operations Framework",
-              "1. Location coordinates stream background coordinates calculations strictly to verify safety event layout anchors.\n\n"
-                  "2. Data logs interface straight into city dispatch consoles to facilitate expedited perimeter checks and response deployment.",
+              "Barangay Moonwalk Emergency Hotlines",
+              "• Barangay Hall / Desk: 888-9999\n"
+                  "• Local Police Station: 911\n"
+                  "• Fire Department: 112\n"
+                  "• Medical Response: 143\n\n"
+                  "Keep these numbers saved for direct dialing in case of emergency application connectivity issues.",
             ),
             const SizedBox(height: 16),
+
             _buildLegalGlossaryCard(
-              "Privacy & Information Protection Act",
-              "Citizen identity variables, physical coordinates histories, and communication strings maintain complete encryption blocks inside localized device infrastructure. The system is managed under public transparency laws alongside strict municipal privacy compliance frameworks.",
+              "Terms of Service: Anti-Fake Reporting",
+              "By using ResQ, you agree to submit only genuine, factual emergency incident reports.\n\n"
+                  "WARNING: Fake reporting and malicious false alarms are statutory offenses punishable by law. "
+                  "While the 1987 Constitution of the Philippines guarantees fundamental rights like freedom of speech, it does not protect malicious falsehoods or public disturbances. "
+                  "Under Article 154 of the Revised Penal Code (Unlawful use of means of publication and unlawful utterances) and relevant Presidential Decrees (e.g., P.D. 1727) regarding false alarms, perpetrators of fake emergency reports will be subject to account termination, heavy fines, and legal prosecution.",
+            ),
+            const SizedBox(height: 16),
+
+            _buildLegalGlossaryCard(
+              "Privacy Policy: GPS Geolocation Data",
+              "Your privacy is a fundamental priority. The ResQ platform strictly collects and transmits your real-time GPS geolocation data ONLY when you actively submit an incident report or trigger an SOS function. "
+                  "This spatial data is routed directly to local dispatch consoles to expedite perimeter checks and direct emergency response teams to your exact coordinates. "
+                  "Your background location history is securely encrypted, never sold to third parties, and is managed strictly under municipal privacy compliance and the Data Privacy Act of 2012.",
             ),
           ],
         ),
@@ -1452,6 +1401,8 @@ class AboutAppPage extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             detailedBody,
+            textAlign: TextAlign
+                .justify, // ADDED THIS LINE to justify the text alignment
             style: const TextStyle(
               fontSize: 12.5,
               height: 1.5,
