@@ -44,8 +44,8 @@ class LoginPage extends StatelessWidget {
       ),
       child: Image.asset(
         'assets/images/logo.png',
-        height: 70,
-        width: 70,
+        height: 100,
+        width: 100,
         fit: BoxFit.contain,
         errorBuilder: (context, error, stackTrace) =>
             const Icon(Icons.lock, size: 50, color: Colors.white),
@@ -63,7 +63,7 @@ class LoginPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.darkGreen, Color(0xFF9EA89E)],
+            colors: [Color(0xFF7BBDE8), Color(0xFF001D39)],
           ),
         ),
         child: SafeArea(
@@ -191,7 +191,7 @@ class LoginPage extends StatelessWidget {
                           height: 48,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.darkGreen,
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               elevation: 2,
                               shape: RoundedRectangleBorder(

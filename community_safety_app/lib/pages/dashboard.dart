@@ -25,7 +25,7 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       drawer: const SideMenu(),
       appBar: AppBar(
-        backgroundColor: AppColors.darkGreen,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
         titleSpacing: 0,
         title: Row(
@@ -33,7 +33,7 @@ class DashboardPage extends StatelessWidget {
             logoBox(),
             const SizedBox(width: 10),
             const Text(
-              "ResQ",
+              "RESQ",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -103,13 +103,13 @@ class DashboardPage extends StatelessWidget {
                   ),
                   Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppColors.accentGreenBg,
+                    decoration: const BoxDecoration(
+                      color: AppColors.accentBg,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.verified_user_outlined,
-                      color: AppColors.darkGreen,
+                      color: AppColors.primary,
                       size: 24,
                     ),
                   ),
@@ -134,14 +134,13 @@ class DashboardPage extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF0F172A), AppColors.darkGreen],
+                  colors: [Color(0xFF0F172A), AppColors.primary],
                 ),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Stack(
                   children: [
-                    // Decorative patterns
                     Positioned(
                       right: -30,
                       top: -30,
@@ -168,7 +167,7 @@ class DashboardPage extends StatelessWidget {
                             ),
                             child: const Icon(
                               Icons.play_arrow,
-                              color: AppColors.darkGreen,
+                              color: AppColors.primary,
                               size: 28,
                             ),
                           ),
@@ -204,10 +203,10 @@ class DashboardPage extends StatelessWidget {
               height: 58,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD6F0D6),
-                  foregroundColor: AppColors.darkGreen,
+                  backgroundColor: AppColors.accentBg,
+                  foregroundColor: AppColors.primary,
                   elevation: 2,
-                  shadowColor: AppColors.darkGreen.withOpacity(0.2),
+                  shadowColor: AppColors.primary.withOpacity(0.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -225,149 +224,6 @@ class DashboardPage extends StatelessWidget {
                     ),
                   );
                 },
-              ),
-            ),
-            const SizedBox(height: 28),
-
-            // Incomplete Reports Section
-            const Text(
-              "Incomplete Reports",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3CD),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text("🔥", style: TextStyle(fontSize: 24)),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Fire Incident",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.access_time,
-                              size: 14,
-                              color: AppColors.textLight,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              "16-03-2026",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textLight,
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Icon(
-                              Icons.location_on_outlined,
-                              size: 14,
-                              color: AppColors.textLight,
-                            ),
-                            SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                "St. Francis Compound",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textLight,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 28),
-
-            // Unsubmitted Reports Section
-            const Text(
-              "Unsubmitted Reports",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
-                    Icons.check_circle_outline,
-                    color: Colors.green,
-                    size: 32,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "All drafts submitted",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    "Tap 'Report Incident' to draft a new safety warning.",
-                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
               ),
             ),
           ],

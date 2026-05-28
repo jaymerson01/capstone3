@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../theme/app_color.dart';
-// Note: Ensure 'url_launcher' is added to your pubspec.yaml if triggering actual calls:
-// import 'package:url_launcher/url_launcher.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -11,13 +10,17 @@ class ReportIncidentPage extends StatefulWidget {
 }
 
 class _ReportIncidentPageState extends State<ReportIncidentPage> {
-  int currentStep = 2; // Active step simulation: Step 2 (Location) is active
+  int currentStep = 2;
 
-  // Controllers for form state handling
   final TextEditingController _coordinatesController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
   String _selectedComplainant = "Anonymous";
   String _selectedBarangay = "Moonwalk";
+
+  final ImagePicker _imagePicker = ImagePicker();
+  final List<XFile> _selectedEvidenceFiles = [];
+  bool _addAnotherFile = false;
 
   @override
   void dispose() {
@@ -26,7 +29,72 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     super.dispose();
   }
 
-  // Visual component for the App Title bar logo
+  Future<void> _chooseEvidenceFile() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+
+      if (pickedFile == null) return;
+
+      setState(() {
+        if (_addAnotherFile) {
+          _selectedEvidenceFiles.add(pickedFile);
+        } else {
+          _selectedEvidenceFiles.clear();
+          _selectedEvidenceFiles.add(pickedFile);
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Unable to choose file: $e"),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _takeEvidencePhoto() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+
+      if (pickedFile == null) return;
+
+      setState(() {
+        if (_addAnotherFile) {
+          _selectedEvidenceFiles.add(pickedFile);
+        } else {
+          _selectedEvidenceFiles.clear();
+          _selectedEvidenceFiles.add(pickedFile);
+        }
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Unable to open camera: $e"),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  String _getFileDisplayText() {
+    if (_selectedEvidenceFiles.isEmpty) {
+      return "No file chosen";
+    }
+
+    if (_selectedEvidenceFiles.length == 1) {
+      return _selectedEvidenceFiles.first.name;
+    }
+
+    return "${_selectedEvidenceFiles.length} files selected";
+  }
+
   Widget _buildAppLogo() {
     return Container(
       height: 34,
@@ -52,7 +120,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  // Unified Confirmation Dialog for hotlines before triggering dialer mechanics
   void _showEmergencyCallConfirmation(String agencyName, String phoneNumber) {
     showDialog(
       context: context,
@@ -98,8 +165,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Simulation response. Replace with actual runtime url_launcher call string logic:
-                // launchUrl(Uri.parse('tel:$phoneNumber'));
+
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -175,17 +241,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// 1. EMERGENCY QUICK-CALL HOTLINES PANELS
             _buildEmergencyHotlinesSection(),
-
             const SizedBox(height: 24),
-
-            /// 2. STEPPER PROGRESS HEADER CARD
             _buildStepperProgressHeader(),
-
             const SizedBox(height: 24),
-
-            /// 3. PRIMARY CONTENT FORM CONTAINER
             _buildPrimaryFormContainer(),
           ],
         ),
@@ -193,7 +252,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  // UI Component: Quick Responder Hotline Section
   Widget _buildEmergencyHotlinesSection() {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -238,11 +296,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ],
           ),
           const SizedBox(height: 14),
-
-          // Adaptive Grid wrapping emergency dispatch channels
           LayoutBuilder(
             builder: (context, constraints) {
               final buttonWidth = (constraints.maxWidth - 12) / 2;
+
               return Wrap(
                 spacing: 12,
                 runSpacing: 12,
@@ -317,7 +374,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  // UI Component: Step-by-Step Navigation Progress bar
   Widget _buildStepperProgressHeader() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -357,8 +413,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ],
           ),
           const SizedBox(height: 20),
-
-          // Visual Stepper Track
           Row(
             children: [
               _buildStepperDot(1, "Info", true),
@@ -423,9 +477,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 ? AppColors.textDark
                 : AppColors.textLight,
             fontSize: 11,
-            fontWeight: isCompletedOrActive
-                ? FontWeight.bold
-                : FontWeight.normal,
+            fontWeight:
+                isCompletedOrActive ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ],
@@ -437,14 +490,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       child: Container(
         height: 2.5,
         color: isActive ? AppColors.darkGreen : Colors.grey.shade200,
-        margin: const EdgeInsets.only(
-          bottom: 22,
-        ), // Aligns cross-axis with circular progress node rings
+        margin: const EdgeInsets.only(bottom: 22),
       ),
     );
   }
 
-  // UI Component: Structured Interactive Intake Fields Section
   Widget _buildPrimaryFormContainer() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -476,7 +526,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
           const SizedBox(height: 24),
 
-          /// SECTION A: REPORTER DETAILS
           _buildSectionTitle(Icons.person_outline, "Reporter Information"),
           const SizedBox(height: 14),
           _buildDropdownBox(
@@ -492,7 +541,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
           const SizedBox(height: 28),
 
-          /// SECTION B: GEOLOCATION INTAKE
           _buildSectionTitle(Icons.location_on_outlined, "Location Context"),
           const SizedBox(height: 14),
           _buildDropdownBox(
@@ -515,35 +563,15 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
           const SizedBox(height: 28),
 
-          /// SECTION C: ATTACHMENTS
           _buildSectionTitle(
-            Icons.camera_alt_outlined,
-            "Evidence Attachments (Optional)",
+            Icons.attach_file_outlined,
+            "Evidence Attachment",
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _buildUploadBox(
-                  Icons.photo_library_outlined,
-                  "Upload Photo",
-                  "From Storage",
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: _buildUploadBox(
-                  Icons.camera_alt_outlined,
-                  "Take Photo",
-                  "Open Camera",
-                ),
-              ),
-            ],
-          ),
+          _buildClassicFileUploadBox(),
 
           const SizedBox(height: 28),
 
-          /// SECTION D: SUMMARY CONTEXT TEXT BLOCK
           _buildSectionTitle(
             Icons.description_outlined,
             "Incident Description",
@@ -588,7 +616,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
           const SizedBox(height: 24),
 
-          /// SUBMIT TRIGGER BUTTON
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -603,7 +630,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 shadowColor: AppColors.darkGreen.withOpacity(0.4),
               ),
               onPressed: () {
-                // Production input validation safety assertions could fall here
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Row(
@@ -638,6 +664,154 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassicFileUploadBox() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: const TextSpan(
+              text: "File Upload ",
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+              children: [
+                TextSpan(
+                  text: "*",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 8,
+            children: [
+              SizedBox(
+                height: 34,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade200,
+                    foregroundColor: Colors.black87,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                      side: BorderSide(color: Colors.grey.shade400),
+                    ),
+                  ),
+                  onPressed: _chooseEvidenceFile,
+                  child: const Text(
+                    "Choose File",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+
+              Text(
+                _getFileDisplayText(),
+                style: const TextStyle(
+                  color: AppColors.textLight,
+                  fontSize: 12,
+                ),
+              ),
+
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Checkbox(
+                    value: _addAnotherFile,
+                    activeColor: AppColors.darkGreen,
+                    visualDensity: VisualDensity.compact,
+                    onChanged: (value) {
+                      setState(() {
+                        _addAnotherFile = value ?? false;
+                      });
+                    },
+                  ),
+                  const Text(
+                    "Add another?",
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(
+                height: 34,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.darkGreen,
+                    side: const BorderSide(color: AppColors.darkGreen),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  onPressed: _takeEvidencePhoto,
+                  icon: const Icon(Icons.camera_alt_outlined, size: 15),
+                  label: const Text(
+                    "Camera",
+                    style: TextStyle(fontSize: 12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          if (_selectedEvidenceFiles.length > 1) ...[
+            const SizedBox(height: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: _selectedEvidenceFiles.map((file) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.insert_drive_file_outlined,
+                        size: 15,
+                        color: AppColors.textLight,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          file.name,
+                          style: const TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ],
       ),
     );
@@ -695,7 +869,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.darkGreen),
+          borderSide: const BorderSide(color: AppColors.darkGreen),
         ),
       ),
       items: options.map((String opt) {
@@ -734,57 +908,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.darkGreen, width: 1.5),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUploadBox(IconData icon, String title, String subtitle) {
-    return Container(
-      height: 96,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey.shade300,
-          style: BorderStyle.solid,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Triggering media context device hook: $title'),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: AppColors.darkGreen, size: 24),
-              const SizedBox(height: 6),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  color: AppColors.textLight,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

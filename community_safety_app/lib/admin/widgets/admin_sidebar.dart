@@ -23,15 +23,14 @@ class AdminSidebar extends StatefulWidget {
 class _AdminSidebarState extends State<AdminSidebar> {
   int hoveredIndex = -1;
 
-  // Sidebar navigation options
   final List<SidebarItem> menuItems = [
-  SidebarItem(Icons.analytics_outlined, "Overview Dashboard"),
-  SidebarItem(Icons.assignment_late_outlined, "Incident Reports"),
-  SidebarItem(Icons.manage_accounts_outlined, "User Management"),
-  SidebarItem(Icons.dashboard_customize_outlined, "Incident Categories"),
-  SidebarItem(Icons.map_outlined, "Area Management"),
-  SidebarItem(Icons.history_outlined, "Admin Audit Logs"),
-  SidebarItem(Icons.admin_panel_settings_outlined, "Profile Settings"),
+    SidebarItem(Icons.analytics_outlined, "Overview Dashboard"),
+    SidebarItem(Icons.assignment_late_outlined, "Incident Reports"),
+    SidebarItem(Icons.manage_accounts_outlined, "User Management"),
+    SidebarItem(Icons.dashboard_customize_outlined, "Incident Categories"),
+    SidebarItem(Icons.map_outlined, "Area Management"),
+    SidebarItem(Icons.history_outlined, "Admin Audit Logs"),
+    SidebarItem(Icons.admin_panel_settings_outlined, "Profile Settings"),
   ];
 
   @override
@@ -58,25 +57,38 @@ class _AdminSidebarState extends State<AdminSidebar> {
           child: SafeArea(
             child: Column(
               children: [
-                // Top Header (User profile avatar and ADMIN text)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 24,
+                    horizontal: 16,
+                  ),
                   child: Row(
-                    mainAxisAlignment: widget.isCollapsed 
-                        ? MainAxisAlignment.center 
+                    mainAxisAlignment: widget.isCollapsed
+                        ? MainAxisAlignment.center
                         : MainAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        width: 44,
+                        height: 44,
+                        padding: const EdgeInsets.all(7),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withOpacity(0.14),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.15), width: 1.5),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.20),
+                            width: 1.5,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.security,
-                          color: Colors.white,
-                          size: 20,
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.security,
+                              color: Colors.white,
+                              size: 22,
+                            );
+                          },
                         ),
                       ),
                       if (!widget.isCollapsed) ...[
@@ -96,16 +108,18 @@ class _AdminSidebarState extends State<AdminSidebar> {
                               ),
                               SizedBox(height: 2),
                               Text(
-                                "ResQ",
+                                "RESQ",
                                 style: TextStyle(
-                                  color: Colors.white54,
+                                  color: Colors.white70,
                                   fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.8,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ),
@@ -113,7 +127,6 @@ class _AdminSidebarState extends State<AdminSidebar> {
                 const Divider(color: Colors.white12, height: 1),
                 const SizedBox(height: 15),
 
-                // Sidebar items list
                 Expanded(
                   child: ListView.builder(
                     physics: const BouncingScrollPhysics(),
@@ -127,22 +140,24 @@ class _AdminSidebarState extends State<AdminSidebar> {
                         onEnter: (_) => setState(() => hoveredIndex = index),
                         onExit: (_) => setState(() => hoveredIndex = -1),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           child: Tooltip(
                             message: widget.isCollapsed ? item.title : "",
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 150),
                               decoration: BoxDecoration(
-                                color: isSelected 
+                                color: isSelected
                                     ? Colors.white.withOpacity(0.12)
-                                    : isHovered 
+                                    : isHovered
                                         ? Colors.white.withOpacity(0.06)
                                         : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
                                 children: [
-                                  // Left side selection indicator bar
                                   AnimatedContainer(
                                     duration: const Duration(milliseconds: 150),
                                     width: 4,
@@ -154,24 +169,32 @@ class _AdminSidebarState extends State<AdminSidebar> {
                                   ),
                                   Expanded(
                                     child: ListTile(
-                                      minLeadingWidth: widget.isCollapsed ? 0 : 25,
+                                      minLeadingWidth:
+                                          widget.isCollapsed ? 0 : 25,
                                       visualDensity: VisualDensity.compact,
                                       contentPadding: EdgeInsets.symmetric(
-                                        horizontal: widget.isCollapsed ? 12 : 16,
+                                        horizontal:
+                                            widget.isCollapsed ? 12 : 16,
                                         vertical: 2,
                                       ),
                                       leading: Icon(
                                         item.icon,
-                                        color: isSelected ? Colors.white : Colors.white60,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.white60,
                                         size: 22,
                                       ),
-                                      title: widget.isCollapsed 
-                                          ? null 
+                                      title: widget.isCollapsed
+                                          ? null
                                           : Text(
                                               item.title,
                                               style: TextStyle(
-                                                color: isSelected ? Colors.white : Colors.white60,
-                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : Colors.white60,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w500,
                                                 fontSize: 13.5,
                                               ),
                                             ),
@@ -188,9 +211,9 @@ class _AdminSidebarState extends State<AdminSidebar> {
                   ),
                 ),
 
-                // Bottom Logout button (Red matching mock reference)
                 const Divider(color: Colors.white12, height: 1),
                 const SizedBox(height: 10),
+
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: MouseRegion(
@@ -204,7 +227,9 @@ class _AdminSidebarState extends State<AdminSidebar> {
                             : AdminColors.dangerRed.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: hoveredIndex == 99 ? Colors.transparent : AdminColors.dangerRed.withOpacity(0.3),
+                          color: hoveredIndex == 99
+                              ? Colors.transparent
+                              : AdminColors.dangerRed.withOpacity(0.3),
                         ),
                       ),
                       child: ListTile(
@@ -215,15 +240,19 @@ class _AdminSidebarState extends State<AdminSidebar> {
                         ),
                         leading: Icon(
                           Icons.logout,
-                          color: hoveredIndex == 99 ? Colors.white : AdminColors.dangerRed,
+                          color: hoveredIndex == 99
+                              ? Colors.white
+                              : AdminColors.dangerRed,
                           size: 20,
                         ),
-                        title: widget.isCollapsed 
-                            ? null 
+                        title: widget.isCollapsed
+                            ? null
                             : Text(
                                 "Logout Portal",
                                 style: TextStyle(
-                                  color: hoveredIndex == 99 ? Colors.white : AdminColors.dangerRed,
+                                  color: hoveredIndex == 99
+                                      ? Colors.white
+                                      : AdminColors.dangerRed,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13.5,
                                 ),
@@ -233,6 +262,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 10),
               ],
             ),
@@ -249,4 +279,3 @@ class SidebarItem {
 
   SidebarItem(this.icon, this.title);
 }
-

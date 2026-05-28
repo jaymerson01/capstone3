@@ -9,8 +9,8 @@ class WelcomePage extends StatelessWidget {
   Widget appLogo() {
     return Image.asset(
       'assets/images/logo.png',
-      height: 90,
-      width: 90,
+      height: 100,
+      width: 100,
       fit: BoxFit.contain,
     );
   }
@@ -96,7 +96,7 @@ class WelcomePage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF004D00), Color(0xFF9EA89E)],
+            colors: [Color(0xFF7BBDE8), Color(0xFF001D39)],
           ),
         ),
         child: SafeArea(

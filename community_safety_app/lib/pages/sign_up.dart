@@ -36,7 +36,7 @@ class SignUpPage extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.darkGreen, Color(0xFF9EA89E)],
+            colors: [Color(0xFF7BBDE8), Color(0xFF001D39)],
           ),
         ),
         child: SafeArea(
@@ -125,7 +125,7 @@ class SignUpPage extends StatelessWidget {
                           height: 48,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.darkGreen,
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),

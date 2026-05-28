@@ -3,9 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../theme/app_color.dart';
 import 'welcome_page.dart';
 
-// Note: Ensure you run `flutter pub add url_launcher` in your terminal
-// and import 'package:url_launcher/url_launcher.dart'; to execute direct phone dialers.
-
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -15,7 +12,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   // Global State Variables for Toggles
-  bool isLocationEnabled = true;
+
   bool isNotificationEnabled = true;
   bool isDarkMode = false;
   bool isBiometricsEnabled = true;
@@ -24,7 +21,7 @@ class _SettingsPageState extends State<SettingsPage> {
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [AppColors.darkGreen, Color(0xFF9EA89E)],
+      colors: [Color(0xFF7BBDE8), Color(0xFF001D39)],
     ),
   );
 
@@ -122,18 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildSectionTitle("Preferences"),
                     const SizedBox(height: 12),
 
-                    /// 4. INTEGRATED TOGGLE MATRICES
-                    _buildSettingTile(
-                      icon: Icons.location_on_outlined,
-                      title: "Location Monitoring",
-                      subtitle: "Real-time incident geo-tracking metrics",
-                      trailing: Switch(
-                        value: isLocationEnabled,
-                        activeColor: AppColors.darkGreen,
-                        onChanged: (value) =>
-                            setState(() => isLocationEnabled = value),
-                      ),
-                    ),
+                  
                     _buildSettingTile(
                       icon: Icons.notifications_none_outlined,
                       title: "Push Notifications",

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AdminColors {
-  // Primary dark green color theme from user requirements (#004D00)
-  static const Color primaryGreen = Color(0xFF004D00);
+  // Primary brand Cobalt Blue theme color
+  static const Color primaryRose = Color(0xFF0A4174);
+  
+  @Deprecated('Use AdminColors.primaryRose instead')
+  static const Color primaryGreen = primaryRose;
   
   // Clean backgrounds and surfaces
   static const Color background = Color(0xFFF4F6F9);
