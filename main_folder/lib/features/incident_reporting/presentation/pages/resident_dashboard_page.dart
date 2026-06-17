@@ -8,31 +8,38 @@ class ResidentDashboardPage extends StatelessWidget {
 
   Widget logoBox() {
     return Container(
-      height: 40,
-      width: 40,
-      padding: const EdgeInsets.all(3),
-      color: Colors.white,
-      child: Image.asset(
-        'assets/images/logo.png',
-        fit: BoxFit.contain,
+      height: 36,
+      width: 36,
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
       ),
+      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const SideMenu(),
+      backgroundColor: AppColors.background,
+      drawer: const SideMenu(currentPage: "User Dashboard"),
       appBar: AppBar(
-        backgroundColor: AppColors.darkGreen,
+        backgroundColor: AppColors.primary,
         iconTheme: const IconThemeData(color: Colors.white),
+        titleSpacing: 0,
         title: Row(
           children: [
             logoBox(),
             const SizedBox(width: 10),
             const Text(
-              "Safe Moonwalk",
-              style: TextStyle(color: Colors.white, fontSize: 18),
+              "RESQ",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -40,57 +47,175 @@ class ResidentDashboardPage extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: 15),
             child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, color: Colors.grey),
+              backgroundColor: Colors.white24,
+              foregroundColor: Colors.white,
+              child: Icon(Icons.person),
             ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Welcome, Moonwalk Paranaque!",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
+            // Welcome Header Card
             Container(
-              height: 220,
               width: double.infinity,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Row(
                 children: [
-                  Icon(Icons.play_circle_outline, color: Colors.white, size: 70),
-                  SizedBox(height: 10),
-                  Text(
-                    "Video Instructions",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          "Welcome Back!",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          "Moonwalk Paranaque",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: const BoxDecoration(
+                      color: AppColors.accentBg,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.verified_user_outlined,
+                      color: AppColors.primary,
+                      size: 24,
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
+
+            // Video Instructions Card
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.15),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF0F172A), AppColors.primary],
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -30,
+                      top: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withOpacity(0.04),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: AppColors.primary,
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "Video Instructions",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            "How to report safety issues in Moonwalk",
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Report Incident CTA Button
             SizedBox(
               width: double.infinity,
-              height: 55,
+              height: 58,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD6F0D6),
-                  foregroundColor: AppColors.darkGreen,
+                  backgroundColor: AppColors.accentBg,
+                  foregroundColor: AppColors.primary,
+                  elevation: 2,
+                  shadowColor: AppColors.primary.withOpacity(0.2),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                icon: const Icon(Icons.warning_amber),
+                icon: const Icon(Icons.warning_amber_rounded, size: 24),
                 label: const Text(
                   "Report Incident",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -102,55 +227,103 @@ class ResidentDashboardPage extends StatelessWidget {
                 },
               ),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 30),
+
+            // Incomplete Reports Section
             const Text(
               "Incomplete Reports",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
             ),
             const SizedBox(height: 12),
             Container(
-              padding: const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black26),
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: const Row(
                 children: [
-                  Text("🔥", style: TextStyle(fontSize: 40)),
-                  SizedBox(width: 15),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Fire Incident",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Icon(Icons.access_time, size: 15),
-                          Text(" 16-03-2026   "),
-                          Icon(Icons.location_on, size: 15, color: Colors.grey),
-                          Text(" St. Francis Compound"),
-                        ],
-                      ),
-                    ],
+                  Text("🔥", style: TextStyle(fontSize: 36)),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Fire Incident",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.access_time_filled_outlined, size: 14, color: AppColors.textLight),
+                            SizedBox(width: 4),
+                            Text(
+                              "16-03-2026",
+                              style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                            ),
+                            SizedBox(width: 12),
+                            Icon(Icons.location_on, size: 14, color: AppColors.textLight),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                "St. Francis Compound",
+                                style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 24),
+
+            // Unsubmitted Reports Section
             const Text(
               "Unsubmitted Reports",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
             ),
             const SizedBox(height: 12),
             Container(
               height: 85,
               width: double.infinity,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black26),
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  "No unsubmitted drafts found.",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: AppColors.textLight,
+                  ),
+                ),
               ),
             ),
           ],

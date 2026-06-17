@@ -36,16 +36,24 @@ class AdminDataService extends ChangeNotifier {
   final List<IncidentCategory> _categories = [];
   final List<AreaInfo> _areas = [];
 
+  final List<Map<String, String>> _auditLogs = [];
+  final Map<String, Map<IncidentStatus, DateTime>> _statusTimestamps = {};
+
   List<IncidentReport> get reports => _reports;
   List<UserProfile> get users => _users;
   List<IncidentCategory> get categories => _categories;
   List<AreaInfo> get areas => _areas;
+  List<Map<String, String>> get auditLogs => _auditLogs;
 
   // Live Statistics Getters
   int get totalIncidents => _baseIncidents + _reports.length;
   int get solvedCases => _baseSolved + _reports.where((r) => r.status == IncidentStatus.solved).length;
   int get registeredUsers => _baseUsers + _users.length;
   int get totalAreas => _baseAreas + _areas.length;
+
+  DateTime? getStatusTimestamp(String reportId, IncidentStatus status) {
+    return _statusTimestamps[reportId]?[status];
+  }
 
   // Initialize detailed dummy data
   void _initData() {
@@ -86,8 +94,21 @@ class AdminDataService extends ChangeNotifier {
     _reports.clear();
     final rawList = SharedIncidentDatabase().getRawIncidents();
     for (var raw in rawList) {
-      _reports.add(_mapFromRaw(raw));
+      final report = _mapFromRaw(raw);
+      _reports.add(report);
+
+      // Populate timestamps for reports
+      _statusTimestamps.putIfAbsent(report.id, () => {
+        IncidentStatus.pending: report.date,
+      });
+      if (report.status == IncidentStatus.inProgress || report.status == IncidentStatus.solved) {
+        _statusTimestamps[report.id]!.putIfAbsent(IncidentStatus.inProgress, () => report.date.add(const Duration(minutes: 12)));
+      }
+      if (report.status == IncidentStatus.solved) {
+        _statusTimestamps[report.id]!.putIfAbsent(IncidentStatus.solved, () => report.date.add(const Duration(minutes: 45)));
+      }
     }
+    _recalculateAreaCounts();
     notifyListeners();
   }
 
@@ -101,6 +122,9 @@ class AdminDataService extends ChangeNotifier {
       case 'solved':
       case 'resolved':
         status = IncidentStatus.solved;
+        break;
+      case 'spam':
+        status = IncidentStatus.spam;
         break;
       case 'pending':
       default:
@@ -121,6 +145,58 @@ class AdminDataService extends ChangeNotifier {
     );
   }
 
+  String _formatDateTime(DateTime dateTime) {
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+
+    return "${dateTime.month}/${dateTime.day}/${dateTime.year} $hour:$minute";
+  }
+
+  void addAuditLog({
+    required String action,
+    required String details,
+  }) {
+    _auditLogs.insert(0, {
+      "time": _formatDateTime(DateTime.now()),
+      "admin": adminName,
+      "action": action,
+      "details": details,
+    });
+  }
+
+  String _statusLabel(IncidentStatus status) {
+    switch (status) {
+      case IncidentStatus.pending:
+        return "Pending";
+      case IncidentStatus.inProgress:
+        return "In Progress";
+      case IncidentStatus.solved:
+        return "Solved";
+      case IncidentStatus.spam:
+        return "Spam";
+    }
+  }
+
+  // Helper to adjust area counts dynamically based on sqlite live database reports
+  void _recalculateAreaCounts() {
+    final Map<String, int> baseCounts = {
+      "Moonwalk": 450,
+      "Jacinto": 220,
+      "Purok 7": 180,
+      "Doang Batang": 120,
+      "Pepa Compound": 150,
+      "San Agustin": 0,
+    };
+    for (var area in _areas) {
+      final base = baseCounts[area.name] ?? 0;
+      final liveCount = _reports.where((r) => 
+        r.location.toLowerCase().contains(area.name.toLowerCase()) || 
+        area.name.toLowerCase().contains(r.location.toLowerCase())
+      ).length;
+      area.incidentsCount = base + liveCount;
+    }
+  }
+
   // --- Profile Operations ---
   void updateProfile({required String name, required String password, String? profilePic}) {
     _adminName = name;
@@ -128,6 +204,10 @@ class AdminDataService extends ChangeNotifier {
     if (profilePic != null) {
       _adminProfilePic = profilePic;
     }
+    addAuditLog(
+      action: "Profile Updated",
+      details: "Updated admin profile information",
+    );
     notifyListeners();
   }
 
@@ -142,12 +222,18 @@ class AdminDataService extends ChangeNotifier {
       'timestamp': report.date.toIso8601String(),
       'status': report.status == IncidentStatus.pending
           ? 'pending'
-          : (report.status == IncidentStatus.inProgress ? 'inProgress' : 'solved'),
+          : (report.status == IncidentStatus.inProgress
+              ? 'inProgress'
+              : (report.status == IncidentStatus.solved ? 'solved' : 'spam')),
       'severity': 'Medium',
       'latitude': 14.4796,
       'longitude': 121.0196,
       'imagePath': 'assets/images/logo.png',
     });
+    addAuditLog(
+      action: "Report Added",
+      details: "Added Report ${report.id}",
+    );
   }
 
   void editReport(IncidentReport updatedReport) {
@@ -160,16 +246,26 @@ class AdminDataService extends ChangeNotifier {
       'timestamp': updatedReport.date.toIso8601String(),
       'status': updatedReport.status == IncidentStatus.pending
           ? 'pending'
-          : (updatedReport.status == IncidentStatus.inProgress ? 'inProgress' : 'solved'),
+          : (updatedReport.status == IncidentStatus.inProgress
+              ? 'inProgress'
+              : (updatedReport.status == IncidentStatus.solved ? 'solved' : 'spam')),
       'severity': 'Medium',
       'latitude': 14.4796,
       'longitude': 121.0196,
       'imagePath': 'assets/images/logo.png',
     });
+    addAuditLog(
+      action: "Report Edited",
+      details: "Edited Report ${updatedReport.id}",
+    );
   }
 
   void deleteReport(String reportId) {
     SharedIncidentDatabase().deleteIncident(reportId);
+    addAuditLog(
+      action: "Report Deleted",
+      details: "Deleted Report $reportId",
+    );
   }
 
   void updateReportStatus(String reportId, IncidentStatus newStatus) {
@@ -179,24 +275,36 @@ class AdminDataService extends ChangeNotifier {
       final updated = Map<String, dynamic>.from(rawList[index]);
       updated['status'] = newStatus == IncidentStatus.pending
           ? 'pending'
-          : (newStatus == IncidentStatus.inProgress ? 'inProgress' : 'solved');
+          : (newStatus == IncidentStatus.inProgress
+              ? 'inProgress'
+              : (newStatus == IncidentStatus.solved ? 'solved' : 'spam'));
       SharedIncidentDatabase().saveIncident(updated);
+
+      _statusTimestamps.putIfAbsent(reportId, () => {});
+      _statusTimestamps[reportId]![newStatus] = DateTime.now();
+
+      addAuditLog(
+        action: "Report Status Updated",
+        details: "Updated Report $reportId to ${_statusLabel(newStatus)}",
+      );
     }
   }
 
-  // Helper to adjust area counts dynamically
-  void _updateAreaCount(String areaName, int change) {
-    for (var area in _areas) {
-      if (areaName.toLowerCase().contains(area.name.toLowerCase()) || 
-          area.name.toLowerCase().contains(areaName.toLowerCase())) {
-        area.incidentsCount = (area.incidentsCount + change).clamp(0, 99999);
-      }
-    }
+  void markReportAsSpam(String reportId) {
+    updateReportStatus(reportId, IncidentStatus.spam);
+    addAuditLog(
+      action: "Marked as Spam",
+      details: "Marked Report $reportId as Spam",
+    );
   }
 
   // --- User Operations ---
   void addUser(UserProfile user) {
     _users.insert(0, user);
+    addAuditLog(
+      action: "User Added",
+      details: "Added user ${user.name}",
+    );
     notifyListeners();
   }
 
@@ -204,19 +312,48 @@ class AdminDataService extends ChangeNotifier {
     int index = _users.indexWhere((u) => u.id == updatedUser.id);
     if (index != -1) {
       _users[index] = updatedUser;
+      addAuditLog(
+        action: "User Updated",
+        details: "Updated user ${updatedUser.name}",
+      );
+      notifyListeners();
+    }
+  }
+
+  void updateUserRole(String userId, String newRole) {
+    int index = _users.indexWhere((u) => u.id == userId);
+    if (index != -1) {
+      final userName = _users[index].name;
+      _users[index] = _users[index].copyWith(role: newRole);
+      addAuditLog(
+        action: "Role Changed",
+        details: "Changed $userName role to $newRole",
+      );
       notifyListeners();
     }
   }
 
   void deleteUser(String userId) {
-    _users.removeWhere((u) => u.id == userId);
-    notifyListeners();
+    final index = _users.indexWhere((u) => u.id == userId);
+    if (index != -1) {
+      final userName = _users[index].name;
+      _users.removeAt(index);
+      addAuditLog(
+        action: "User Deleted",
+        details: "Deleted user $userName",
+      );
+      notifyListeners();
+    }
   }
 
   void toggleUserActive(String userId) {
     int index = _users.indexWhere((u) => u.id == userId);
     if (index != -1) {
       _users[index].isActive = !_users[index].isActive;
+      addAuditLog(
+        action: _users[index].isActive ? "User Enabled" : "User Disabled",
+        details: "${_users[index].isActive ? "Enabled" : "Disabled"} user ${_users[index].name}",
+      );
       notifyListeners();
     }
   }
@@ -224,6 +361,10 @@ class AdminDataService extends ChangeNotifier {
   // --- Categories Operations ---
   void addCategory(IncidentCategory category) {
     _categories.add(category);
+    addAuditLog(
+      action: "Category Added",
+      details: "Added category ${category.name}",
+    );
     notifyListeners();
   }
 
@@ -231,18 +372,34 @@ class AdminDataService extends ChangeNotifier {
     int index = _categories.indexWhere((c) => c.id == updatedCategory.id);
     if (index != -1) {
       _categories[index] = updatedCategory;
+      addAuditLog(
+        action: "Category Updated",
+        details: "Updated category ${updatedCategory.name}",
+      );
       notifyListeners();
     }
   }
 
   void deleteCategory(String categoryId) {
-    _categories.removeWhere((c) => c.id == categoryId);
-    notifyListeners();
+    final index = _categories.indexWhere((c) => c.id == categoryId);
+    if (index != -1) {
+      final categoryName = _categories[index].name;
+      _categories.removeAt(index);
+      addAuditLog(
+        action: "Category Deleted",
+        details: "Deleted category $categoryName",
+      );
+      notifyListeners();
+    }
   }
 
   // --- Area Operations ---
   void addArea(AreaInfo area) {
     _areas.add(area);
+    addAuditLog(
+      action: "Area Added",
+      details: "Added area ${area.name}",
+    );
     notifyListeners();
   }
 
@@ -250,13 +407,25 @@ class AdminDataService extends ChangeNotifier {
     int index = _areas.indexWhere((a) => a.id == updatedArea.id);
     if (index != -1) {
       _areas[index] = updatedArea;
+      addAuditLog(
+        action: "Area Updated",
+        details: "Updated area ${updatedArea.name}",
+      );
       notifyListeners();
     }
   }
 
   void deleteArea(String areaId) {
-    _areas.removeWhere((a) => a.id == areaId);
-    notifyListeners();
+    final index = _areas.indexWhere((a) => a.id == areaId);
+    if (index != -1) {
+      final areaName = _areas[index].name;
+      _areas.removeAt(index);
+      addAuditLog(
+        action: "Area Deleted",
+        details: "Deleted area $areaName",
+      );
+      notifyListeners();
+    }
   }
 
   @override

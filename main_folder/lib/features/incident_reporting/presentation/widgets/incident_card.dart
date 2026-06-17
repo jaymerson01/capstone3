@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models/incident_model.dart';
+import '../theme/app_colors.dart';
 
 class IncidentCard extends StatelessWidget {
   final IncidentModel incident;
@@ -30,7 +31,7 @@ class IncidentCard extends StatelessWidget {
       case IncidentStatus.verified:
         return 'In Progress';
       case IncidentStatus.resolved:
-        return 'Resolve'; // Match the exact UI text "Resolve"
+        return 'Resolve';
       case IncidentStatus.rejected:
         return 'Rejected';
     }
@@ -39,64 +40,86 @@ class IncidentCard extends StatelessWidget {
   Color _getStatusColor(IncidentStatus status) {
     switch (status) {
       case IncidentStatus.pending:
-        return Colors.yellow;
+        return AppColors.pending;
       case IncidentStatus.verified:
-        return Colors.orange;
+        return AppColors.progress;
       case IncidentStatus.resolved:
-        return Colors.green;
+        return AppColors.solved;
       case IncidentStatus.rejected:
-        return Colors.red;
-    }
-  }
-
-  Color _getStatusTextColor(IncidentStatus status) {
-    switch (status) {
-      case IncidentStatus.pending:
-        return Colors.black;
-      case IncidentStatus.verified:
-      case IncidentStatus.resolved:
-      case IncidentStatus.rejected:
-        return Colors.white;
+        return AppColors.danger;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _getStatusColor(incident.status);
+    final statusText = _getStatusText(incident.status);
+
     return Container(
-      height: 60,
       width: double.infinity,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        border: Border.all(color: Colors.black54),
-        boxShadow: const [
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black26,
-            blurRadius: 2,
-            offset: Offset(2, 2),
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              "${incident.title}\n${_getRelativeTime(incident.timestamp)}",
-              style: const TextStyle(fontSize: 11),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  incident.title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time_filled_outlined,
+                      size: 14,
+                      color: AppColors.textLight,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getRelativeTime(incident.timestamp),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
+          const SizedBox(width: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getStatusColor(incident.status),
-              borderRadius: BorderRadius.circular(10),
+              color: statusColor.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              _getStatusText(incident.status),
+              statusText,
               style: TextStyle(
-                fontSize: 10,
-                color: _getStatusTextColor(incident.status),
-                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: statusColor == AppColors.pending
+                    ? Colors.orange.shade800
+                    : statusColor,
               ),
             ),
           ),

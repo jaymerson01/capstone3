@@ -12,6 +12,7 @@ class UserManagementPage extends StatefulWidget {
 
 class _UserManagementPageState extends State<UserManagementPage> {
   final dataService = AdminDataService();
+
   String searchQuery = "";
 
   @override
@@ -19,7 +20,6 @@ class _UserManagementPageState extends State<UserManagementPage> {
     return ListenableBuilder(
       listenable: dataService,
       builder: (context, _) {
-        // Search filter matching name, email, or role
         final filteredUsers = dataService.users.where((user) {
           return user.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
               user.email.toLowerCase().contains(searchQuery.toLowerCase()) ||
@@ -27,168 +27,113 @@ class _UserManagementPageState extends State<UserManagementPage> {
         }).toList();
 
         return Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Search Input Control
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                    ),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Search users by name, email, or role...",
-                          prefixIcon: const Icon(Icons.search),
-                          contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(color: AdminColors.border),
-                          ),
-                        ),
-                        onChanged: (val) {
-                          setState(() {
-                            searchQuery = val;
-                          });
-                        },
-                      ),
+                child: TextField(
+                  style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: "Search users...",
+                    hintStyle: const TextStyle(color: AdminColors.textLight, fontSize: 14),
+                    prefixIcon: const Icon(Icons.search, color: AdminColors.textLight),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(width: 16),
-                    // Quick stats tag
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AdminColors.primaryGreen.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        "Total Registered: ${dataService.registeredUsers}",
-                        style: const TextStyle(
-                          color: AdminColors.primaryGreen,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    )
-                  ],
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Users Table
               Expanded(
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: const [
-                      BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-                    ],
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: filteredUsers.isEmpty
-                        ? const Center(
-                            child: Text(
-                              "No users found matching search criteria.",
-                              style: TextStyle(color: AdminColors.textLight, fontSize: 15),
-                            ),
-                          )
-                        : SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                headingRowColor: WidgetStateProperty.all(AdminColors.primaryGreen.withOpacity(0.05)),
-                                columnSpacing: 45,
-                                columns: const [
-                                  DataColumn(label: Text("User ID", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Full Name", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Email Address", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Account Role", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Status", style: TextStyle(fontWeight: FontWeight.bold))),
-                                  DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold))),
-                                ],
-                                rows: filteredUsers.map((user) {
-                                  return DataRow(
-                                    cells: [
-                                      DataCell(Text(user.id, style: const TextStyle(fontWeight: FontWeight.bold))),
-                                      DataCell(Text(user.name)),
-                                      DataCell(Text(user.email)),
-                                      DataCell(Text(user.role)),
-                                      DataCell(
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(
-                                            color: user.isActive 
-                                                ? AdminColors.solvedGreen.withOpacity(0.15) 
-                                                : Colors.grey.withOpacity(0.15),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Text(
-                                            user.isActive ? "Active" : "Disabled",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: user.isActive ? AdminColors.solvedGreen : Colors.grey,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      DataCell(
-                                        Row(
-                                          children: [
-                                            // Edit dialog trigger
-                                            IconButton(
-                                              icon: const Icon(Icons.edit, color: Colors.blue, size: 20),
-                                              tooltip: "Edit User",
-                                              onPressed: () => _showEditUserDialog(context, user),
-                                            ),
-                                            // Enable/Disable toggle trigger
-                                            IconButton(
-                                              icon: Icon(
-                                                user.isActive ? Icons.block : Icons.check_circle_outline,
-                                                color: user.isActive ? Colors.orange : Colors.green,
-                                                size: 20,
-                                              ),
-                                              tooltip: user.isActive ? "Disable User" : "Enable User",
-                                              onPressed: () {
-                                                dataService.toggleUserActive(user.id);
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      user.isActive 
-                                                          ? "User account successfully disabled" 
-                                                          : "User account successfully enabled"
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            // Delete trigger
-                                            IconButton(
-                                              icon: const Icon(Icons.delete, color: AdminColors.dangerRed, size: 20),
-                                              tooltip: "Delete User",
-                                              onPressed: () => _confirmDeleteUser(context, user),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
+                  child: SingleChildScrollView(
+                    child: DataTable(
+                      columns: const [
+                        DataColumn(label: Text("ID", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Name", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Email", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Role", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Status", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Actions", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                      ],
+                      rows: filteredUsers.map((user) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(user.id, style: const TextStyle(color: AdminColors.textDark))),
+                            DataCell(Text(user.name, style: const TextStyle(color: AdminColors.textDark))),
+                            DataCell(Text(user.email, style: const TextStyle(color: AdminColors.textDark))),
+                            DataCell(Text(user.role, style: const TextStyle(color: AdminColors.textDark))),
+                            DataCell(
+                              Text(
+                                user.isActive ? "Active" : "Disabled",
+                                style: TextStyle(
+                                  color: user.isActive ? AdminColors.primaryGreen : Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
+                            DataCell(
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                    onPressed: () {
+                                      _showEditUserDialog(
+                                        context,
+                                        user,
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      user.isActive ? Icons.block : Icons.check,
+                                      color: user.isActive ? Colors.orange : Colors.green,
+                                    ),
+                                    onPressed: () {
+                                      dataService.toggleUserActive(user.id);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () {
+                                      dataService.deleteUser(user.id);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),
@@ -199,11 +144,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
     );
   }
 
-  // Edit user detail dialog
-  void _showEditUserDialog(BuildContext context, UserProfile user) {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController(text: user.name);
-    final emailController = TextEditingController(text: user.email);
+  void _showEditUserDialog(
+    BuildContext context,
+    UserProfile user,
+  ) {
     String selectedRole = user.role;
 
     showDialog(
@@ -212,110 +156,89 @@ class _UserManagementPageState extends State<UserManagementPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text("Edit User Profile: ${user.id}"),
+              backgroundColor: Colors.white,
+              title: const Text("Edit User Role", style: TextStyle(color: AdminColors.textDark)),
               content: SizedBox(
-                width: 450,
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 10),
-                      TextFormField(
-                        controller: nameController,
-                        decoration: const InputDecoration(labelText: "Full Name"),
-                        validator: (val) => val == null || val.isEmpty ? "Enter full name" : null,
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Name: ${user.name}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AdminColors.textDark,
                       ),
-                      const SizedBox(height: 15),
-                      TextFormField(
-                        controller: emailController,
-                        decoration: const InputDecoration(labelText: "Email Address"),
-                        validator: (val) {
-                          if (val == null || val.isEmpty) return "Enter email address";
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(val)) {
-                            return "Enter a valid email format";
-                          }
-                          return null;
-                        },
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Email: ${user.email}",
+                      style: const TextStyle(color: AdminColors.textDark),
+                    ),
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField<String>(
+                      value: selectedRole,
+                      dropdownColor: Colors.white,
+                      style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                      decoration: const InputDecoration(
+                        labelText: "User Role",
+                        labelStyle: TextStyle(color: AdminColors.textLight),
+                        border: OutlineInputBorder(),
                       ),
-                      const SizedBox(height: 15),
-                      DropdownButtonFormField<String>(
-                        value: selectedRole,
-                        decoration: const InputDecoration(labelText: "Account Role"),
-                        items: ["Reporter", "Barangay Official", "Security Officer", "System Admin"].map((role) {
-                          return DropdownMenuItem<String>(
-                            value: role,
-                            child: Text(role),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setDialogState(() {
-                              selectedRole = val;
-                            });
-                          }
-                        },
-                      ),
-                    ],
-                  ),
+                      items: [
+                        "Reporter",
+                        "Barangay Official",
+                        "Security Officer",
+                        "System Admin",
+                      ].map((role) {
+                        return DropdownMenuItem(
+                          value: role,
+                          child: Text(role),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value != null) {
+                          setDialogState(() {
+                            selectedRole = value;
+                          });
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                   child: const Text("Cancel"),
                 ),
                 ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: AdminColors.primaryGreen, foregroundColor: Colors.white),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AdminColors.primaryGreen,
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      final updated = user.copyWith(
-                        name: nameController.text.trim(),
-                        email: emailController.text.trim(),
-                        role: selectedRole,
-                      );
-                      dataService.editUser(updated);
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("User profile successfully updated")),
-                      );
-                    }
+                    dataService.updateUserRole(
+                      user.id,
+                      selectedRole,
+                    );
+
+                    Navigator.pop(context);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("User role updated successfully"),
+                      ),
+                    );
                   },
-                  child: const Text("Save Changes"),
+                  child: const Text("Save"),
                 ),
               ],
             );
           },
-        );
-      },
-    );
-  }
-
-  // Confirm delete user dialog popup
-  void _confirmDeleteUser(BuildContext context, UserProfile user) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Delete User"),
-          content: Text("Are you sure you want to permanently delete user account '${user.name}'? This will delete all record associations."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AdminColors.dangerRed, foregroundColor: Colors.white),
-              onPressed: () {
-                dataService.deleteUser(user.id);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("User '${user.name}' deleted successfully")),
-                );
-              },
-              child: const Text("Delete"),
-            ),
-          ],
         );
       },
     );

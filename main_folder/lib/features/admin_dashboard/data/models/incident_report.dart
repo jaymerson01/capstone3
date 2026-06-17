@@ -5,6 +5,7 @@ enum IncidentStatus {
   pending,
   inProgress,
   solved,
+  spam,
 }
 
 class IncidentReport {
@@ -35,6 +36,8 @@ class IncidentReport {
         return 'In Progress';
       case IncidentStatus.solved:
         return 'Solved';
+      case IncidentStatus.spam:
+        return 'Spam';
     }
   }
 
@@ -47,6 +50,8 @@ class IncidentReport {
         return AdminColors.progressBlue;
       case IncidentStatus.solved:
         return AdminColors.solvedGreen;
+      case IncidentStatus.spam:
+        return AdminColors.dangerRed;
     }
   }
 

@@ -94,15 +94,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   style: TextStyle(fontSize: 13, color: AdminColors.textLight),
                 ),
                 const SizedBox(height: 30),
-
-                // Profile Image Simulator
                 Center(
                   child: Stack(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 50,
                         backgroundColor: AdminColors.primaryGreen,
-                        child: const Text(
+                        child: Text(
                           "A",
                           style: TextStyle(
                             color: Colors.white,
@@ -138,8 +136,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ),
                 ),
                 const SizedBox(height: 35),
-
-                // Name field
                 const Text(
                   "Admin Display Name",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AdminColors.textDark),
@@ -147,8 +143,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameController,
+                  style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.person_outline),
+                    prefixIcon: const Icon(Icons.person_outline, color: AdminColors.textLight),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -158,8 +155,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   validator: (val) => val == null || val.isEmpty ? "Enter display name" : null,
                 ),
                 const SizedBox(height: 20),
-
-                // Email field (read-only for security)
                 const Text(
                   "Login Email Address (Read-only)",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AdminColors.textDark),
@@ -168,8 +163,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 TextFormField(
                   controller: _emailController,
                   readOnly: true,
+                  style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.email_outlined),
+                    prefixIcon: const Icon(Icons.email_outlined, color: AdminColors.textLight),
                     fillColor: Colors.grey.shade100,
                     filled: true,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -180,8 +176,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Password field
                 const Text(
                   "Account Password",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: AdminColors.textDark),
@@ -190,8 +184,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
+                  style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.lock_outline),
+                    prefixIcon: const Icon(Icons.lock_outline, color: AdminColors.textLight),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -201,8 +196,6 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   validator: (val) => val == null || val.isEmpty ? "Enter account password" : null,
                 ),
                 const SizedBox(height: 35),
-
-                // Action Buttons layout
                 Row(
                   children: [
                     Expanded(

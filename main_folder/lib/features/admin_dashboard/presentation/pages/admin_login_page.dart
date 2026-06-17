@@ -9,7 +9,6 @@ class AdminLoginPage extends StatefulWidget {
 }
 
 class _AdminLoginPageState extends State<AdminLoginPage> {
-  // Form keys and controller for fields validation
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -35,19 +34,16 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         _isLoading = true;
       });
 
-      // Simulate a small delay for premium feels
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (!mounted) return;
 
         final email = _emailController.text.trim();
         final password = _passwordController.text;
 
-        // Verify simulated credentials
         if (email == "admin@safe.gov" && password == "admin123") {
           setState(() {
             _isLoading = false;
           });
-          // Redirect to the Admin Dashboard Shell using routing
           Navigator.pushReplacementNamed(context, '/admin/dashboard');
         } else {
           setState(() {
@@ -70,7 +66,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Container wrapper with shadows for a modern aesthetic
                 Container(
                   width: 450,
                   padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
@@ -90,7 +85,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Back to Portal button
                         TextButton.icon(
                           onPressed: () {
                             Navigator.pushReplacementNamed(context, '/');
@@ -103,8 +97,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         ),
                         const SizedBox(height: 20),
-
-                        // Title Header
                         Center(
                           child: Column(
                             children: [
@@ -142,8 +134,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           ),
                         ),
                         const SizedBox(height: 35),
-
-                        // Alert error prompt if any
                         if (_errorMessage != null)
                           Container(
                             width: double.infinity,
@@ -171,8 +161,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                               ],
                             ),
                           ),
-
-                        // Email Field
                         const Text(
                           "Email Address",
                           style: TextStyle(
@@ -185,9 +173,11 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
+                          style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                           decoration: InputDecoration(
                             hintText: "Enter admin email (e.g. admin@safe.gov)",
-                            prefixIcon: const Icon(Icons.email_outlined),
+                            hintStyle: const TextStyle(color: AdminColors.textLight, fontSize: 14),
+                            prefixIcon: const Icon(Icons.email_outlined, color: AdminColors.textLight),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -211,8 +201,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           },
                         ),
                         const SizedBox(height: 20),
-
-                        // Password Field
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -247,13 +235,15 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
+                          style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                           decoration: InputDecoration(
                             hintText: "Enter password (e.g. admin123)",
-                            prefixIcon: const Icon(Icons.lock_outline),
+                            hintStyle: const TextStyle(color: AdminColors.textLight, fontSize: 14),
+                            prefixIcon: const Icon(Icons.lock_outline, color: AdminColors.textLight),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: Colors.grey,
+                                color: AdminColors.textLight,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -281,8 +271,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           },
                         ),
                         const SizedBox(height: 30),
-
-                        // Submit Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,

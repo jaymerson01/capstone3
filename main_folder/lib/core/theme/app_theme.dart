@@ -1,23 +1,28 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color darkGreen = Color(0xFF1E5325);
-  static const Color lightGreen = Color(0xFF6BD18B);
-  static const Color greyGreen = Color(0xFF9DA299);
+  static const Color primaryBlue = Color(0xFF0A4174);
+  static const Color secondaryBlue = Color(0xFF7BBDE8);
+  static const Color darkNavy = Color(0xFF001D39);
   static const Color backgroundDark = Color(0xFF121212);
   static const Color surfaceDark = Color(0xFF1E1E1E);
 
   static ThemeData get lightTheme {
     return ThemeData(
+      brightness: Brightness.light,
       useMaterial3: true,
+      canvasColor: Colors.white,
+      dialogBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       colorScheme: ColorScheme.fromSeed(
-        seedColor: darkGreen,
-        primary: darkGreen,
-        secondary: lightGreen,
+        seedColor: primaryBlue,
+        brightness: Brightness.light,
+        primary: primaryBlue,
+        secondary: secondaryBlue,
         surface: Colors.white,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: darkGreen,
+        backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -37,8 +42,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.dark(
-        primary: lightGreen,
-        secondary: greyGreen,
+        primary: secondaryBlue,
+        secondary: darkNavy,
         surface: backgroundDark,
       ),
       appBarTheme: const AppBarTheme(

@@ -26,7 +26,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header actions bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -58,8 +57,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                 ],
               ),
               const SizedBox(height: 25),
-
-              // Categories Grid
               Expanded(
                 child: dataService.categories.isEmpty
                     ? const Center(
@@ -107,7 +104,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Icon + Name
               Row(
                 children: [
                   Container(
@@ -133,7 +129,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   ),
                 ],
               ),
-              // Option triggers
               Row(
                 children: [
                   IconButton(
@@ -151,7 +146,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
             ],
           ),
           const SizedBox(height: 12),
-          // Description
           Expanded(
             child: Text(
               category.description,
@@ -169,7 +163,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Add Category dialog popup
   void _showAddCategoryDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
@@ -179,7 +172,8 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Add New Incident Category"),
+          backgroundColor: Colors.white,
+          title: const Text("Add New Incident Category", style: TextStyle(color: AdminColors.textDark)),
           content: SizedBox(
             width: 400,
             child: Form(
@@ -190,9 +184,12 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
+                    style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                     decoration: const InputDecoration(
                       labelText: "Category Name",
+                      labelStyle: TextStyle(color: AdminColors.textLight),
                       hintText: "e.g. Environmental Hazard",
+                      hintStyle: TextStyle(color: AdminColors.textLight),
                       border: OutlineInputBorder(),
                     ),
                     validator: (val) => val == null || val.isEmpty ? "Enter category name" : null,
@@ -201,9 +198,12 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   TextFormField(
                     controller: descController,
                     maxLines: 3,
+                    style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                     decoration: const InputDecoration(
                       labelText: "Description",
+                      labelStyle: TextStyle(color: AdminColors.textLight),
                       hintText: "Enter explanation of what this category covers...",
+                      hintStyle: TextStyle(color: AdminColors.textLight),
                       border: OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),
@@ -242,7 +242,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Edit Category dialog popup
   void _showEditCategoryDialog(BuildContext context, IncidentCategory category) {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: category.name);
@@ -252,7 +251,8 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Edit Category: ${category.name}"),
+          backgroundColor: Colors.white,
+          title: Text("Edit Category: ${category.name}", style: const TextStyle(color: AdminColors.textDark)),
           content: SizedBox(
             width: 400,
             child: Form(
@@ -263,15 +263,22 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: "Category Name", border: OutlineInputBorder()),
+                    style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                    decoration: const InputDecoration(
+                      labelText: "Category Name",
+                      labelStyle: TextStyle(color: AdminColors.textLight),
+                      border: OutlineInputBorder(),
+                    ),
                     validator: (val) => val == null || val.isEmpty ? "Enter category name" : null,
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
                     controller: descController,
                     maxLines: 3,
+                    style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
                     decoration: const InputDecoration(
                       labelText: "Description",
+                      labelStyle: TextStyle(color: AdminColors.textLight),
                       border: OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),
@@ -309,14 +316,14 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Confirm delete category dialog popup
   void _confirmDeleteCategory(BuildContext context, IncidentCategory category) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Delete Category"),
-          content: Text("Are you sure you want to permanently delete category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions."),
+          backgroundColor: Colors.white,
+          title: const Text("Delete Category", style: TextStyle(color: AdminColors.textDark)),
+          content: Text("Are you sure you want to permanently delete category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions.", style: const TextStyle(color: AdminColors.textDark)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),

@@ -7,6 +7,7 @@ import 'incident_reports_page.dart';
 import 'user_management_page.dart';
 import 'incident_categories_page.dart';
 import 'area_management_page.dart';
+import 'admin_audit_logs_page.dart';
 import 'profile_settings_page.dart';
 
 class AdminPanelShell extends StatefulWidget {
@@ -28,6 +29,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
     "User Management",
     "Incident Categories",
     "Area Management",
+    "Admin Audit Logs",
     "Profile Settings",
   ];
 
@@ -45,6 +47,8 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       case 4:
         return const AreaManagementPage();
       case 5:
+        return const AdminAuditLogsPage();
+      case 6:
         return const ProfileSettingsPage();
       default:
         return const AdminDashboardPage();
