@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/widgets/side_menu.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -220,7 +223,10 @@ class DashboardPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ReportIncidentPage(),
+                      builder: (context) => BlocProvider.value(
+                        value: sl<IncidentBloc>(),
+                        child: const ReportIncidentPage(),
+                      ),
                     ),
                   );
                 },

@@ -1,6 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/services/location_service.dart';
+import 'package:community_safety_app/core/services/camera_service.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
+import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -18,9 +26,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   String _selectedComplainant = "Anonymous";
   String _selectedBarangay = "Moonwalk";
 
-  final ImagePicker _imagePicker = ImagePicker();
-  final List<XFile> _selectedEvidenceFiles = [];
-  bool _addAnotherFile = false;
+  double? _latitude;
+  double? _longitude;
+  String? _photoUrl;
+  File? _selectedImageFile;
+  bool _isUploadingImage = false;
+  bool _isLocating = false;
 
   @override
   void dispose() {
@@ -29,22 +40,67 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     super.dispose();
   }
 
+  Future<void> _getCurrentLocation() async {
+    setState(() {
+      _isLocating = true;
+    });
+    try {
+      final locationService = sl<LocationService>();
+      final coordinate = await locationService.getCurrentLocation();
+      if (coordinate != null) {
+        setState(() {
+          _latitude = coordinate.latitude;
+          _longitude = coordinate.longitude;
+          _coordinatesController.text =
+              "${coordinate.latitude.toStringAsFixed(6)}, ${coordinate.longitude.toStringAsFixed(6)}";
+        });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Location pinned successfully!"),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.darkGreen,
+          ),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Unable to fetch location: permissions denied or GPS disabled"),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.danger,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error fetching location: $e"),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLocating = false;
+      });
+    }
+  }
+
   Future<void> _chooseEvidenceFile() async {
     try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
-      );
-
-      if (pickedFile == null) return;
+      final file = await sl<CameraService>().pickImageFromGallery();
+      if (file == null) return;
 
       setState(() {
-        if (_addAnotherFile) {
-          _selectedEvidenceFiles.add(pickedFile);
-        } else {
-          _selectedEvidenceFiles.clear();
-          _selectedEvidenceFiles.add(pickedFile);
-        }
+        _selectedImageFile = file;
+        _isUploadingImage = true;
+      });
+
+      final url = await sl<CameraService>().uploadImage(file);
+      setState(() {
+        _photoUrl = url;
       });
     } catch (e) {
       if (!mounted) return;
@@ -52,27 +108,29 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         SnackBar(
           content: Text("Unable to choose file: $e"),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.danger,
         ),
       );
+    } finally {
+      setState(() {
+        _isUploadingImage = false;
+      });
     }
   }
 
   Future<void> _takeEvidencePhoto() async {
     try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 80,
-      );
-
-      if (pickedFile == null) return;
+      final file = await sl<CameraService>().pickImageFromCamera();
+      if (file == null) return;
 
       setState(() {
-        if (_addAnotherFile) {
-          _selectedEvidenceFiles.add(pickedFile);
-        } else {
-          _selectedEvidenceFiles.clear();
-          _selectedEvidenceFiles.add(pickedFile);
-        }
+        _selectedImageFile = file;
+        _isUploadingImage = true;
+      });
+
+      final url = await sl<CameraService>().uploadImage(file);
+      setState(() {
+        _photoUrl = url;
       });
     } catch (e) {
       if (!mounted) return;
@@ -80,21 +138,54 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         SnackBar(
           content: Text("Unable to open camera: $e"),
           behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.danger,
         ),
       );
+    } finally {
+      setState(() {
+        _isUploadingImage = false;
+      });
     }
   }
 
+  void _submitReport() {
+    final description = _descriptionController.text.trim();
+    if (description.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter a description of the incident"),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.danger,
+        ),
+      );
+      return;
+    }
+
+    final double lat = _latitude ?? 0.0;
+    final double lng = _longitude ?? 0.0;
+
+    final incident = IncidentEntity(
+      id: '',
+      title: description.length > 30 ? '${description.substring(0, 30)}...' : description,
+      description: description,
+      latitude: lat,
+      longitude: lng,
+      photoUrl: _photoUrl,
+      status: 'Pending',
+      timestamp: DateTime.now(),
+    );
+
+    context.read<IncidentBloc>().add(SubmitIncidentRequested(incident));
+  }
+
   String _getFileDisplayText() {
-    if (_selectedEvidenceFiles.isEmpty) {
+    if (_isUploadingImage) {
+      return "Uploading image...";
+    }
+    if (_selectedImageFile == null) {
       return "No file chosen";
     }
-
-    if (_selectedEvidenceFiles.length == 1) {
-      return _selectedEvidenceFiles.first.name;
-    }
-
-    return "${_selectedEvidenceFiles.length} files selected";
+    return _selectedImageFile!.path.split('/').last.split('\\').last;
   }
 
   Widget _buildAppLogo() {
@@ -191,66 +282,90 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.darkGreen,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleSpacing: 0,
-        elevation: 1,
-        title: Row(
-          children: [
-            _buildAppLogo(),
-            const SizedBox(width: 12),
-            const Text(
-              "Report Incident",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.2,
-              ),
+    return BlocConsumer<IncidentBloc, IncidentState>(
+      listener: (context, state) {
+        if (state is IncidentSubmitSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Incident reported successfully!"),
+              backgroundColor: AppColors.darkGreen,
+              behavior: SnackBarBehavior.floating,
             ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: IconButton(
-              icon: const Icon(
-                Icons.help_outline,
-                color: Colors.white,
-                size: 24,
-              ),
-              tooltip: "Filing Guidelines",
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Ensure accurate data for priority responder handling.",
-                    ),
-                    behavior: SnackBarBehavior.floating,
+          );
+          Navigator.pop(context);
+        } else if (state is IncidentSubmitFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to submit: ${state.message}"),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: AppBar(
+            backgroundColor: AppColors.darkGreen,
+            iconTheme: const IconThemeData(color: Colors.white),
+            titleSpacing: 0,
+            elevation: 1,
+            title: Row(
+              children: [
+                _buildAppLogo(),
+                const SizedBox(width: 12),
+                const Text(
+                  "Report Incident",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.2,
                   ),
-                );
-              },
+                ),
+              ],
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.help_outline,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                  tooltip: "Filing Guidelines",
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          "Ensure accurate data for priority responder handling.",
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildEmergencyHotlinesSection(),
+                const SizedBox(height: 24),
+                _buildStepperProgressHeader(),
+                const SizedBox(height: 24),
+                _buildPrimaryFormContainer(state),
+              ],
             ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildEmergencyHotlinesSection(),
-            const SizedBox(height: 24),
-            _buildStepperProgressHeader(),
-            const SizedBox(height: 24),
-            _buildPrimaryFormContainer(),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -497,7 +612,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  Widget _buildPrimaryFormContainer() {
+  Widget _buildPrimaryFormContainer(IncidentState state) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -558,9 +673,34 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             controller: _coordinatesController,
           ),
           const SizedBox(height: 16),
-          _buildMapActionTemplate(
-            Icons.map_outlined,
-            "Pin Exact Location on System Map",
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.darkGreen,
+                side: const BorderSide(color: AppColors.darkGreen, width: 1.2),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                backgroundColor: Colors.white,
+              ),
+              onPressed: _isLocating ? null : _getCurrentLocation,
+              icon: _isLocating
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.darkGreen,
+                      ),
+                    )
+                  : const Icon(Icons.map_outlined, size: 16),
+              label: Text(
+                _isLocating ? "Fetching location..." : "Pin Exact Location on System Map",
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              ),
+            ),
           ),
 
           const SizedBox(height: 28),
@@ -631,39 +771,26 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 elevation: 2,
                 shadowColor: AppColors.darkGreen.withValues(alpha: 0.4),
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Text(
-                          "Submitting safety incident report...",
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                      ],
+              onPressed: (state is IncidentSubmitLoading || _isUploadingImage)
+                  ? null
+                  : _submitReport,
+              child: state is IncidentSubmitLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text(
+                      "Submit Report",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.3,
+                      ),
                     ),
-                    backgroundColor: AppColors.darkGreen,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
-              child: const Text(
-                "Submit Report",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 0.3,
-                ),
-              ),
             ),
           ),
         ],
@@ -719,7 +846,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       side: BorderSide(color: Colors.grey.shade400),
                     ),
                   ),
-                  onPressed: _chooseEvidenceFile,
+                  onPressed: _isUploadingImage ? null : _chooseEvidenceFile,
                   child: const Text(
                     "Choose File",
                     style: TextStyle(
@@ -738,29 +865,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 ),
               ),
 
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Checkbox(
-                    value: _addAnotherFile,
-                    activeColor: AppColors.darkGreen,
-                    visualDensity: VisualDensity.compact,
-                    onChanged: (value) {
-                      setState(() {
-                        _addAnotherFile = value ?? false;
-                      });
-                    },
-                  ),
-                  const Text(
-                    "Add another?",
-                    style: TextStyle(
-                      color: AppColors.textDark,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-
               SizedBox(
                 height: 34,
                 child: OutlinedButton.icon(
@@ -772,7 +876,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  onPressed: _takeEvidencePhoto,
+                  onPressed: _isUploadingImage ? null : _takeEvidencePhoto,
                   icon: const Icon(Icons.camera_alt_outlined, size: 15),
                   label: const Text(
                     "Camera",
@@ -783,35 +887,16 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ],
           ),
 
-          if (_selectedEvidenceFiles.length > 1) ...[
-            const SizedBox(height: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _selectedEvidenceFiles.map((file) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.insert_drive_file_outlined,
-                        size: 15,
-                        color: AppColors.textLight,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          file.name,
-                          style: const TextStyle(
-                            color: AppColors.textLight,
-                            fontSize: 12,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+          if (_selectedImageFile != null) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.file(
+                _selectedImageFile!,
+                height: 150,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ],
         ],
@@ -910,38 +995,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.darkGreen, width: 1.5),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMapActionTemplate(IconData icon, String text) {
-    return SizedBox(
-      width: double.infinity,
-      height: 44,
-      child: OutlinedButton.icon(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.darkGreen,
-          side: const BorderSide(color: AppColors.darkGreen, width: 1.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.white,
-        ),
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                "Launching interactive map selector subsystem overlay...",
-              ),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
-        },
-        icon: Icon(icon, size: 16),
-        label: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
         ),
       ),
     );

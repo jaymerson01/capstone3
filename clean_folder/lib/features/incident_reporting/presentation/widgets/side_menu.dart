@@ -9,6 +9,8 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -175,14 +177,20 @@ class _SideMenuState extends State<SideMenu> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const ReportIncidentPage(),
+                      builder: (context) => BlocProvider.value(
+                        value: sl<IncidentBloc>(),
+                        child: const ReportIncidentPage(),
+                      ),
                     ),
                   );
                 } else if (title == "My Reports") {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const MyReportsPage(),
+                      builder: (context) => BlocProvider.value(
+                        value: sl<IncidentBloc>(),
+                        child: const MyReportsPage(),
+                      ),
                     ),
                   );
                 } else if (title == "Maps") {

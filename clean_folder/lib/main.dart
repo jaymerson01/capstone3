@@ -10,12 +10,19 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/core/widgets/floating_chat_bot.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:community_safety_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
   await Hive.openBox('auth');
+  
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   await init();
 
   runApp(const MyApp());
