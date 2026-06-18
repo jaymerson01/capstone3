@@ -18,6 +18,22 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   String _selectedComplainant = "Anonymous";
   String _selectedBarangay = "Moonwalk";
 
+  String? _selectedIncidentCategory;
+  String _selectedUrgencyLevel = "Medium Emergency";
+
+  final List<String> _incidentCategories = [
+    "Fire Incident",
+    "Theft / Robbery",
+    "Medical Emergency",
+    "Violence / Physical Fight",
+    "Road Accident",
+    "Suspicious Activity",
+    "Flood / Calamity",
+    "Lost Item / Missing Person",
+    "Noise Complaint",
+    "Other Emergency",
+  ];
+
   final ImagePicker _imagePicker = ImagePicker();
   final List<XFile> _selectedEvidenceFiles = [];
   bool _addAnotherFile = false;
@@ -27,6 +43,169 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     _coordinatesController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  String _getUrgencyLevelByCategory(String category) {
+    switch (category) {
+      case "Fire Incident":
+      case "Medical Emergency":
+      case "Violence / Physical Fight":
+      case "Road Accident":
+        return "High Emergency";
+
+      case "Theft / Robbery":
+      case "Suspicious Activity":
+      case "Flood / Calamity":
+      case "Lost Item / Missing Person":
+      case "Other Emergency":
+        return "Medium Emergency";
+
+      case "Noise Complaint":
+        return "Low Emergency";
+
+      default:
+        return "Medium Emergency";
+    }
+  }
+
+  Color _getUrgencyColor(String urgency) {
+    switch (urgency) {
+      case "High Emergency":
+        return AppColors.danger;
+      case "Medium Emergency":
+        return Colors.orange;
+      case "Low Emergency":
+        return Colors.green;
+      default:
+        return AppColors.textLight;
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case "Fire Incident":
+        return Icons.local_fire_department;
+      case "Theft / Robbery":
+        return Icons.local_police;
+      case "Medical Emergency":
+        return Icons.medical_services;
+      case "Violence / Physical Fight":
+        return Icons.warning_amber_rounded;
+      case "Road Accident":
+        return Icons.car_crash;
+      case "Suspicious Activity":
+        return Icons.visibility;
+      case "Flood / Calamity":
+        return Icons.flood;
+      case "Lost Item / Missing Person":
+        return Icons.person_search;
+      case "Noise Complaint":
+        return Icons.volume_up;
+      default:
+        return Icons.report_problem;
+    }
+  }
+
+  List<String> _getSafetyGuidelines(String category) {
+    switch (category) {
+      case "Fire Incident":
+        return [
+          "Leave the burning area immediately. Do not try to save belongings.",
+          "Warn nearby people and help children, elderly, or persons with disability if safe.",
+          "Stay low if there is smoke and cover your nose/mouth with cloth.",
+          "Do not use elevators. Use stairs or the safest exit route.",
+          "Call the fire station or emergency hotline immediately.",
+          "Move to an open and safe area away from the fire.",
+        ];
+
+      case "Theft / Robbery":
+        return [
+          "Do not chase or confront the suspect.",
+          "Move to a safe and crowded area immediately.",
+          "Observe details only if safe: clothing, direction, vehicle plate, or appearance.",
+          "Call police or barangay responders right away.",
+          "Do not touch possible evidence in the area.",
+          "Wait for responders and provide clear information.",
+        ];
+
+      case "Medical Emergency":
+        return [
+          "Call an ambulance or emergency hotline immediately.",
+          "Keep the patient calm and do not move them unless the area is unsafe.",
+          "Check if the person is breathing and responsive.",
+          "If bleeding, apply gentle pressure using clean cloth.",
+          "Do not give food, water, or medicine unless advised by a medical professional.",
+          "Prepare important information: age, symptoms, allergies, and location.",
+        ];
+
+      case "Violence / Physical Fight":
+        return [
+          "Do not join or physically stop the fight if it is unsafe.",
+          "Move away from the violent area and protect yourself first.",
+          "Call barangay responders or police immediately.",
+          "If possible, guide other people away from the scene.",
+          "Remember important details like number of people involved and weapons seen.",
+          "Wait for authorities and avoid spreading unverified information.",
+        ];
+
+      case "Road Accident":
+        return [
+          "Move to a safe side of the road if you are not injured.",
+          "Do not move injured persons unless there is immediate danger.",
+          "Call emergency responders or ambulance immediately.",
+          "Turn on hazard lights or warn incoming vehicles if safe.",
+          "Take note of vehicle plate numbers and accident location.",
+          "Stay calm and wait for responders to arrive.",
+        ];
+
+      case "Suspicious Activity":
+        return [
+          "Do not confront the suspicious person directly.",
+          "Stay in a safe area and keep distance.",
+          "Observe details such as location, clothing, direction, and behavior.",
+          "Report to barangay or police immediately.",
+          "Avoid posting or accusing someone publicly without confirmation.",
+          "Wait for authorities to verify the situation.",
+        ];
+
+      case "Flood / Calamity":
+        return [
+          "Move to higher ground immediately.",
+          "Avoid walking or driving through floodwater.",
+          "Turn off electricity if safe before leaving the area.",
+          "Prepare emergency items like flashlight, water, phone, and medicine.",
+          "Stay updated through official barangay or government announcements.",
+          "Call responders if someone is trapped or in danger.",
+        ];
+
+      case "Lost Item / Missing Person":
+        return [
+          "Stay calm and remember the last known location.",
+          "Contact nearby barangay desk, police, or security personnel.",
+          "Provide a clear description, photo, clothing, and last seen details.",
+          "Do not spread incomplete information online without verification.",
+          "Check nearby CCTV areas or establishments if possible.",
+          "Keep your phone open for updates from responders.",
+        ];
+
+      case "Noise Complaint":
+        return [
+          "Avoid direct confrontation if it may lead to conflict.",
+          "Record the time, location, and type of noise if needed.",
+          "Report calmly to the barangay desk or proper authority.",
+          "Stay indoors if the situation feels unsafe.",
+          "Wait for barangay personnel to handle the concern.",
+        ];
+
+      default:
+        return [
+          "Move to a safe location first.",
+          "Call the proper emergency hotline if there is immediate danger.",
+          "Avoid touching evidence or confronting involved persons.",
+          "Provide accurate details to responders.",
+          "Stay calm and wait for official assistance.",
+        ];
+    }
   }
 
   Future<void> _chooseEvidenceFile() async {
@@ -136,7 +315,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 size: 28,
               ),
               const SizedBox(width: 12),
-              Text('Call $agencyName?'),
+              Expanded(child: Text('Call $agencyName?')),
             ],
           ),
           content: Text(
@@ -185,6 +364,327 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         );
       },
     );
+  }
+
+  void _showPostSubmitSafetyWindow() {
+    final String category = _selectedIncidentCategory ?? "Other Emergency";
+    final List<String> guidelines = _getSafetyGuidelines(category);
+    final Color urgencyColor = _getUrgencyColor(_selectedUrgencyLevel);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Container(
+            constraints: const BoxConstraints(maxHeight: 650),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          color: urgencyColor.withOpacity(0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _getCategoryIcon(category),
+                          color: urgencyColor,
+                          size: 28,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Report Submitted",
+                              style: TextStyle(
+                                color: AppColors.darkGreen,
+                                fontSize: 19,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              category,
+                              style: const TextStyle(
+                                color: AppColors.textDark,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: urgencyColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: urgencyColor.withOpacity(0.35)),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.priority_high_rounded,
+                          color: urgencyColor,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          "Priority Level:",
+                          style: TextStyle(
+                            color: AppColors.textDark,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _selectedUrgencyLevel,
+                            style: TextStyle(
+                              color: urgencyColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  const Text(
+                    "What should you do now?",
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  Column(
+                    children: guidelines.asMap().entries.map((entry) {
+                      final int index = entry.key + 1;
+                      final String text = entry.value;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 24,
+                              width: 24,
+                              decoration: const BoxDecoration(
+                                color: AppColors.darkGreen,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  index.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                text,
+                                style: const TextStyle(
+                                  color: AppColors.textDark,
+                                  fontSize: 13,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(13),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.danger.withOpacity(0.25),
+                      ),
+                    ),
+                    child: const Text(
+                      "Reminder: If there is immediate danger, call emergency responders right away. The report helps the admin monitor and prioritize the incident, but emergency hotlines should still be contacted for urgent situations.",
+                      style: TextStyle(
+                        color: AppColors.textDark,
+                        fontSize: 12.5,
+                        height: 1.4,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.danger,
+                            side: const BorderSide(color: AppColors.danger),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            _showEmergencyCallConfirmation(
+                              "Emergency Hotline",
+                              "911",
+                            );
+                          },
+                          icon: const Icon(Icons.phone_in_talk, size: 18),
+                          label: const Text(
+                            "Call 911",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.darkGreen,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            "I Understand",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _submitReport() {
+    if (_selectedIncidentCategory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Please select an incident category before submitting.",
+          ),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                "Submitting $_selectedIncidentCategory report with $_selectedUrgencyLevel level...",
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.darkGreen,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 900),
+      ),
+    );
+
+    // TODO: Connect this to your database/admin report saving logic.
+    // Save these values together with the report:
+    //
+    // category: _selectedIncidentCategory
+    // urgencyLevel: _selectedUrgencyLevel
+    // complainant: _selectedComplainant
+    // barangay: _selectedBarangay
+    // coordinates: _coordinatesController.text
+    // description: _descriptionController.text
+    // evidenceFiles: _selectedEvidenceFiles
+    // status: "Pending"
+    // createdAt: DateTime.now()
+
+    Future.delayed(const Duration(milliseconds: 950), () {
+      if (!mounted) return;
+      _showPostSubmitSafetyWindow();
+    });
   }
 
   @override
@@ -285,12 +785,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
-                "Immediate Threat? Emergency Hotlines",
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              const Expanded(
+                child: Text(
+                  "Immediate Threat? Emergency Hotlines",
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -391,9 +893,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       ),
       child: Column(
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
                 "Report Submission Process",
                 style: TextStyle(
@@ -477,8 +979,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 ? AppColors.textDark
                 : AppColors.textLight,
             fontSize: 11,
-            fontWeight:
-                isCompletedOrActive ? FontWeight.bold : FontWeight.normal,
+            fontWeight: isCompletedOrActive
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
         ),
       ],
@@ -525,7 +1028,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ),
           ),
           const SizedBox(height: 24),
-
+          _buildIncidentCategorySection(),
+          const SizedBox(height: 28),
           _buildSectionTitle(Icons.person_outline, "Reporter Information"),
           const SizedBox(height: 14),
           _buildDropdownBox(
@@ -538,9 +1042,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ],
             onChanged: (val) => setState(() => _selectedComplainant = val!),
           ),
-
           const SizedBox(height: 28),
-
           _buildSectionTitle(Icons.location_on_outlined, "Location Context"),
           const SizedBox(height: 14),
           _buildDropdownBox(
@@ -560,18 +1062,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             Icons.map_outlined,
             "Pin Exact Location on System Map",
           ),
-
           const SizedBox(height: 28),
-
-          _buildSectionTitle(
-            Icons.attach_file_outlined,
-            "Evidence Attachment",
-          ),
+          _buildSectionTitle(Icons.attach_file_outlined, "Evidence Attachment"),
           const SizedBox(height: 14),
           _buildClassicFileUploadBox(),
-
           const SizedBox(height: 28),
-
           _buildSectionTitle(
             Icons.description_outlined,
             "Incident Description",
@@ -613,9 +1108,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
             ),
           ),
-
           const SizedBox(height: 24),
-
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -629,31 +1122,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 elevation: 2,
                 shadowColor: AppColors.darkGreen.withOpacity(0.4),
               ),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Row(
-                      children: [
-                        SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Text(
-                          "Submitting safety incident report...",
-                          style: TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                    backgroundColor: AppColors.darkGreen,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              },
+              onPressed: _submitReport,
               child: const Text(
                 "Submit Report",
                 style: TextStyle(
@@ -666,6 +1135,115 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildIncidentCategorySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle(Icons.category_outlined, "Incident Category"),
+        const SizedBox(height: 14),
+        DropdownButtonFormField<String>(
+          value: _selectedIncidentCategory,
+          style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+          decoration: InputDecoration(
+            labelText: "Select Incident Category",
+            labelStyle: const TextStyle(
+              color: AppColors.textLight,
+              fontSize: 13,
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: AppColors.darkGreen,
+                width: 1.5,
+              ),
+            ),
+          ),
+          hint: const Text("Choose the type of incident"),
+          items: _incidentCategories.map((String category) {
+            return DropdownMenuItem<String>(
+              value: category,
+              child: Text(category),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value == null) return;
+
+            setState(() {
+              _selectedIncidentCategory = value;
+              _selectedUrgencyLevel = _getUrgencyLevelByCategory(value);
+            });
+          },
+        ),
+        const SizedBox(height: 14),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          decoration: BoxDecoration(
+            color: _getUrgencyColor(_selectedUrgencyLevel).withOpacity(0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _getUrgencyColor(_selectedUrgencyLevel).withOpacity(0.35),
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.priority_high_rounded,
+                color: _getUrgencyColor(_selectedUrgencyLevel),
+                size: 20,
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                "Urgency Level:",
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: _getUrgencyColor(_selectedUrgencyLevel),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _selectedUrgencyLevel,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -698,7 +1276,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ),
           ),
           const SizedBox(height: 8),
-
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 12,
@@ -720,14 +1297,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   onPressed: _chooseEvidenceFile,
                   child: const Text(
                     "Choose File",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-
               Text(
                 _getFileDisplayText(),
                 style: const TextStyle(
@@ -735,7 +1308,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   fontSize: 12,
                 ),
               ),
-
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -751,14 +1323,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
                   const Text(
                     "Add another?",
-                    style: TextStyle(
-                      color: AppColors.textDark,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: AppColors.textDark, fontSize: 12),
                   ),
                 ],
               ),
-
               SizedBox(
                 height: 34,
                 child: OutlinedButton.icon(
@@ -772,15 +1340,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
                   onPressed: _takeEvidencePhoto,
                   icon: const Icon(Icons.camera_alt_outlined, size: 15),
-                  label: const Text(
-                    "Camera",
-                    style: TextStyle(fontSize: 12),
-                  ),
+                  label: const Text("Camera", style: TextStyle(fontSize: 12)),
                 ),
               ),
             ],
           ),
-
           if (_selectedEvidenceFiles.length > 1) ...[
             const SizedBox(height: 10),
             Column(
@@ -829,12 +1393,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           child: Icon(icon, color: AppColors.darkGreen, size: 18),
         ),
         const SizedBox(width: 12),
-        Text(
-          title,
-          style: const TextStyle(
-            color: AppColors.textDark,
-            fontSize: 15,
-            fontWeight: FontWeight.bold,
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.textDark,
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],

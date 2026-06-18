@@ -20,6 +20,268 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
+  Color _getUrgencyColor(String urgency) {
+    switch (urgency) {
+      case "High":
+        return Colors.red;
+      case "Medium":
+        return Colors.orange;
+      case "Low":
+        return Colors.green;
+      default:
+        return AppColors.textLight;
+    }
+  }
+
+  IconData _getIncidentIcon(String category) {
+    switch (category) {
+      case "Fire Incident":
+        return Icons.local_fire_department;
+      case "Theft / Robbery":
+        return Icons.local_police;
+      case "Medical Emergency":
+        return Icons.medical_services;
+      case "Road Accident":
+        return Icons.car_crash;
+      case "Suspicious Activity":
+        return Icons.visibility;
+      case "Flood / Calamity":
+        return Icons.flood;
+      case "Noise Complaint":
+        return Icons.volume_up;
+      default:
+        return Icons.report_problem;
+    }
+  }
+
+  Widget _buildSampleReportCard({
+    required String category,
+    required String location,
+    required String time,
+    required String urgency,
+    required String description,
+    required String status,
+  }) {
+    final urgencyColor = _getUrgencyColor(urgency);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: urgencyColor.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _getIncidentIcon(category),
+              color: urgencyColor,
+              size: 25,
+            ),
+          ),
+          const SizedBox(width: 14),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          color: AppColors.textDark,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: urgencyColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "$urgency Priority",
+                        style: TextStyle(
+                          color: urgencyColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 6),
+
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 15,
+                      color: AppColors.textLight,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        location,
+                        style: const TextStyle(
+                          color: AppColors.textLight,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time,
+                      size: 15,
+                      color: AppColors.textLight,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  description,
+                  style: const TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentBg,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    status,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommunityReportsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Community Incident Updates",
+          style: TextStyle(
+            color: AppColors.textDark,
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 4),
+        const Text(
+          "Recent reports from nearby compounds and streets",
+          style: TextStyle(
+            color: AppColors.textLight,
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        _buildSampleReportCard(
+          category: "Fire Incident",
+          location: "St. Joseph Compound, Moonwalk",
+          time: "Reported 10 minutes ago",
+          urgency: "High",
+          description:
+              "A resident reported smoke coming from a house kitchen area. Nearby residents are advised to stay away from the affected area.",
+          status: "Responder Alerted",
+        ),
+
+        _buildSampleReportCard(
+          category: "Suspicious Activity",
+          location: "Sampaguita Street, Moonwalk",
+          time: "Reported 25 minutes ago",
+          urgency: "Medium",
+          description:
+              "A suspicious person was seen roaming near parked motorcycles. Residents are advised to secure their gates and vehicles.",
+          status: "Under Monitoring",
+        ),
+
+        _buildSampleReportCard(
+          category: "Road Accident",
+          location: "Moonwalk Main Road",
+          time: "Reported 40 minutes ago",
+          urgency: "High",
+          description:
+              "Minor road accident involving a motorcycle and private vehicle. Motorists are advised to slow down in the area.",
+          status: "In Progress",
+        ),
+
+        _buildSampleReportCard(
+          category: "Noise Complaint",
+          location: "Camella Compound, Moonwalk",
+          time: "Reported 1 hour ago",
+          urgency: "Low",
+          description:
+              "Loud music was reported by nearby residents. Barangay personnel may verify if the noise continues.",
+          status: "Pending Review",
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +315,7 @@ class DashboardPage extends StatelessWidget {
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(24),
@@ -116,6 +379,7 @@ class DashboardPage extends StatelessWidget {
                 ],
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Video Instructions Card
@@ -195,6 +459,7 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 24),
 
             // Report Incident CTA Button
@@ -226,6 +491,11 @@ class DashboardPage extends StatelessWidget {
                 },
               ),
             ),
+
+            const SizedBox(height: 28),
+
+            // Sample Reports Section
+            _buildCommunityReportsSection(),
           ],
         ),
       ),
