@@ -170,21 +170,7 @@ class WelcomePage extends StatelessWidget {
                 },
               ),
 
-              const SizedBox(height: 20),
 
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/admin/login');
-                },
-                child: const Text(
-                  'Access Admin Portal',
-                  style: TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.underline,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
 
               const Spacer(),
             ],

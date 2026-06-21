@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
@@ -10,11 +11,14 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/core/widgets/floating_chat_bot.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
   await Hive.initFlutter();
   await Hive.openBox('auth');
@@ -33,8 +37,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>(
-      create: (context) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+        ),
+        BlocProvider<IncidentBloc>(
+          create: (context) => sl<IncidentBloc>()..add(const FetchIncidentsRequested()),
+        ),
+      ],
       child: MaterialApp(
         title: 'ResQ',
         debugShowCheckedModeBanner: false,

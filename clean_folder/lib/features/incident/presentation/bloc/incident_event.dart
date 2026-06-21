@@ -13,3 +13,10 @@ class SubmitIncidentRequested extends IncidentEvent {
 class FetchIncidentsRequested extends IncidentEvent {
   const FetchIncidentsRequested();
 }
+
+class IncrementAffectedCountRequested extends IncidentEvent {
+  final String incidentId;
+  final String userId;
+
+  const IncrementAffectedCountRequested(this.incidentId, this.userId);
+}

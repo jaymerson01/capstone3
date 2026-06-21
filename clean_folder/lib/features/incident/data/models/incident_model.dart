@@ -10,7 +10,10 @@ class IncidentModel extends IncidentEntity {
     required super.longitude,
     super.photoUrl,
     required super.status,
+    required super.urgencyStatus,
     required super.timestamp,
+    super.affectedCount = 1,
+    super.affectedUserIds = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -22,7 +25,10 @@ class IncidentModel extends IncidentEntity {
       'longitude': longitude,
       'photoUrl': photoUrl,
       'status': status,
+      'urgencyStatus': urgencyStatus,
       'timestamp': timestamp.toIso8601String(),
+      'affectedCount': affectedCount,
+      'affectedUserIds': affectedUserIds,
     };
   }
 
@@ -45,7 +51,10 @@ class IncidentModel extends IncidentEntity {
       longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
       photoUrl: map['photoUrl'] as String?,
       status: map['status'] as String? ?? 'pending',
+      urgencyStatus: map['urgencyStatus'] as String? ?? 'MEDIUM',
       timestamp: parsedTimestamp,
+      affectedCount: map['affectedCount'] as int? ?? 1,
+      affectedUserIds: List<String>.from(map['affectedUserIds'] ?? []),
     );
   }
 }

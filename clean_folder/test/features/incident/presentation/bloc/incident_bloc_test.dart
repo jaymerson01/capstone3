@@ -38,6 +38,7 @@ void main() {
     longitude: 1.0,
     photoUrl: 'test_photo.jpg',
     status: 'pending',
+    urgencyStatus: 'MEDIUM',
     timestamp: DateTime.fromMillisecondsSinceEpoch(0),
   );
 

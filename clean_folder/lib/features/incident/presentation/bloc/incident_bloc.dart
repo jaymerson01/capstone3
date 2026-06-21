@@ -9,6 +9,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   IncidentBloc({required this.repository}) : super(IncidentInitial()) {
     on<SubmitIncidentRequested>(_onSubmitIncidentRequested);
     on<FetchIncidentsRequested>(_onFetchIncidentsRequested);
+    on<IncrementAffectedCountRequested>(_onIncrementAffectedCountRequested);
   }
 
   Future<void> _onSubmitIncidentRequested(
@@ -32,6 +33,17 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     result.fold(
       (failure) => emit(IncidentFetchFailure(failure.message)),
       (incidents) => emit(IncidentFetchSuccess(incidents)),
+    );
+  }
+
+  Future<void> _onIncrementAffectedCountRequested(
+    IncrementAffectedCountRequested event,
+    Emitter<IncidentState> emit,
+  ) async {
+    final result = await repository.incrementAffectedCount(event.incidentId, event.userId);
+    result.fold(
+      (failure) => emit(IncidentSubmitFailure(failure.message)), // Or create specific failure state
+      (_) => add(const FetchIncidentsRequested()), // Re-fetch to update map correctly
     );
   }
 }

@@ -31,9 +31,22 @@ class IncidentRepositoryImpl implements IncidentRepository {
         longitude: incident.longitude,
         photoUrl: incident.photoUrl,
         status: incident.status,
+        urgencyStatus: incident.urgencyStatus,
         timestamp: incident.timestamp,
+        affectedCount: incident.affectedCount,
+        affectedUserIds: incident.affectedUserIds,
       );
       await remoteDataSource.submitIncident(model);
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> incrementAffectedCount(String incidentId, String userId) async {
+    try {
+      await remoteDataSource.incrementAffectedCount(incidentId, userId);
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));

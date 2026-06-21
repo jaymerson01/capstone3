@@ -5,7 +5,9 @@ import 'package:community_safety_app/features/incident_reporting/presentation/wi
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
-
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
+import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/features/chat/presentation/widgets/floating_chat_bot.dart';
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -23,9 +25,247 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
+  Color _getUrgencyColor(String urgency) {
+    switch (urgency) {
+      case "High":
+        return Colors.red;
+      case "Medium":
+        return Colors.orange;
+      case "Low":
+        return Colors.green;
+      default:
+        return AppColors.textLight;
+    }
+  }
+
+  IconData _getIncidentIcon(String category) {
+    switch (category) {
+      case "Fire Incident":
+        return Icons.local_fire_department;
+      case "Theft / Robbery":
+        return Icons.local_police;
+      case "Medical Emergency":
+        return Icons.medical_services;
+      case "Road Accident":
+        return Icons.car_crash;
+      case "Suspicious Activity":
+        return Icons.visibility;
+      case "Flood / Calamity":
+        return Icons.flood;
+      case "Noise Complaint":
+        return Icons.volume_up;
+      default:
+        return Icons.report_problem;
+    }
+  }
+
+  Widget _buildSampleReportCard(IncidentEntity incident) {
+    final category = incident.title.length > 20 ? incident.title.substring(0, 20) : incident.title;
+    final urgency = "Medium"; 
+    final urgencyColor = _getUrgencyColor(urgency);
+    final location = "Coordinates: ${incident.latitude.toStringAsFixed(3)}, ${incident.longitude.toStringAsFixed(3)}";
+    final time = "${incident.timestamp.year}-${incident.timestamp.month.toString().padLeft(2, '0')}-${incident.timestamp.day.toString().padLeft(2, '0')} ${incident.timestamp.hour}:${incident.timestamp.minute.toString().padLeft(2, '0')}";
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppColors.border),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: urgencyColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _getIncidentIcon(category),
+              color: urgencyColor,
+              size: 25,
+            ),
+          ),
+          const SizedBox(width: 14),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          color: AppColors.textDark,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: urgencyColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        "$urgency Priority",
+                        style: TextStyle(
+                          color: urgencyColor,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 6),
+
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.location_on_outlined,
+                      size: 15,
+                      color: AppColors.textLight,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        location,
+                        style: const TextStyle(
+                          color: AppColors.textLight,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 4),
+
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time,
+                      size: 15,
+                      color: AppColors.textLight,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                Text(
+                  incident.description,
+                  style: const TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.accentBg,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    incident.status,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCommunityReportsSection() {
+    return BlocBuilder<IncidentBloc, IncidentState>(
+      builder: (context, state) {
+        if (state is IncidentFetchLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is IncidentFetchFailure) {
+          return Center(child: Text("Error: ${state.message}"));
+        } else if (state is IncidentFetchSuccess) {
+          if (state.incidents.isEmpty) {
+            return const Center(child: Text("No recent incidents reported."));
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Community Incident Updates",
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                "Recent reports from nearby compounds and streets",
+                style: TextStyle(
+                  color: AppColors.textLight,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 16),
+              ...state.incidents.map((incident) => _buildSampleReportCard(incident)),
+            ],
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Stack(
+      children: [
+        Scaffold(
       drawer: const SideMenu(),
       appBar: AppBar(
         backgroundColor: AppColors.primary,
@@ -232,9 +472,14 @@ class DashboardPage extends StatelessWidget {
                 },
               ),
             ),
+            const SizedBox(height: 28),
+            _buildCommunityReportsSection(),
           ],
         ),
       ),
-    );
-  }
+    ),
+    const FloatingChatBot(),
+  ],
+);
+}
 }
