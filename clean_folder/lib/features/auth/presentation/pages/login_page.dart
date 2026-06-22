@@ -42,13 +42,15 @@ class _LoginPageState extends State<LoginPage> {
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
       ),
-      child: Image.asset(
-        'assets/images/logo.png',
-        height: 100,
-        width: 100,
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.lock, size: 50, color: Colors.white),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/logo.png',
+          height: 100,
+          width: 100,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.lock, size: 50, color: Colors.white),
+        ),
       ),
     );
   }

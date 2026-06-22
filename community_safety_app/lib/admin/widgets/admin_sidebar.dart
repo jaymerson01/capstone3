@@ -67,28 +67,21 @@ class _AdminSidebarState extends State<AdminSidebar> {
                         ? MainAxisAlignment.center
                         : MainAxisAlignment.start,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 44,
                         height: 44,
-                        padding: const EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.14),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.20),
-                            width: 1.5,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.security,
+                                color: Colors.white,
+                                size: 22,
+                              );
+                            },
                           ),
-                        ),
-                        child: Image.asset(
-                          'assets/images/logo.png',
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.security,
-                              color: Colors.white,
-                              size: 22,
-                            );
-                          },
                         ),
                       ),
                       if (!widget.isCollapsed) ...[

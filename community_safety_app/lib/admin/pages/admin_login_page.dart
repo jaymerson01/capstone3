@@ -52,7 +52,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         } else {
           setState(() {
             _isLoading = false;
-            _errorMessage = "Invalid credentials. Use admin@safe.gov / admin123";
+            _errorMessage =
+                "Invalid credentials. Use admin@safe.gov / admin123";
           });
         }
       });
@@ -73,7 +74,10 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                 // Container wrapper with shadows for a modern aesthetic
                 Container(
                   width: 450,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 50,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -95,10 +99,17 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           onPressed: () {
                             Navigator.pushReplacementNamed(context, '/');
                           },
-                          icon: const Icon(Icons.arrow_back, size: 16, color: AdminColors.primaryGreen),
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            size: 16,
+                            color: AdminColors.primaryGreen,
+                          ),
                           label: const Text(
                             "Return to App Welcome",
-                            style: TextStyle(color: AdminColors.primaryGreen, fontSize: 13),
+                            style: TextStyle(
+                              color: AdminColors.primaryGreen,
+                              fontSize: 13,
+                            ),
                           ),
                           style: TextButton.styleFrom(padding: EdgeInsets.zero),
                         ),
@@ -147,16 +158,28 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                         if (_errorMessage != null)
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             margin: const EdgeInsets.only(bottom: 20),
                             decoration: BoxDecoration(
-                              color: AdminColors.dangerRed.withOpacity(0.1),
+                              color: AdminColors.dangerRed.withValues(
+                                alpha: 0.1,
+                              ),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AdminColors.dangerRed.withOpacity(0.3)),
+                              border: Border.all(
+                                color: AdminColors.dangerRed.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.error_outline, color: AdminColors.dangerRed),
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: AdminColors.dangerRed,
+                                ),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
@@ -193,18 +216,25 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.border),
+                              borderSide: const BorderSide(
+                                color: AdminColors.border,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.primaryGreen, width: 2),
+                              borderSide: const BorderSide(
+                                color: AdminColors.primaryGreen,
+                                width: 2,
+                              ),
                             ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Please enter your email";
                             }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                            if (!RegExp(
+                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            ).hasMatch(value)) {
                               return "Please enter a valid email format";
                             }
                             return null;
@@ -228,7 +258,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Demo Mode: Default password is 'admin123'"),
+                                    content: Text(
+                                      "Demo Mode: Default password is 'admin123'",
+                                    ),
                                     duration: Duration(seconds: 3),
                                   ),
                                 );
@@ -252,7 +284,9 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                                _obscurePassword
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
                                 color: Colors.grey,
                               ),
                               onPressed: () {
@@ -266,11 +300,16 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.border),
+                              borderSide: const BorderSide(
+                                color: AdminColors.border,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.primaryGreen, width: 2),
+                              borderSide: const BorderSide(
+                                color: AdminColors.primaryGreen,
+                                width: 2,
+                              ),
                             ),
                           ),
                           validator: (value) {

@@ -40,12 +40,7 @@ class MyApp extends StatelessWidget {
       },
       builder: (context, child) {
         return Scaffold(
-          body: Stack(
-            children: [
-              if (child != null) child,
-              const FloatingChatBot(),
-            ],
-          ),
+          body: Stack(children: [?child, const FloatingChatBot()]),
         );
       },
     );

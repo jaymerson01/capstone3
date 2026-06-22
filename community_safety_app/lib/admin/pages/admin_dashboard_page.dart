@@ -65,7 +65,7 @@ class AdminDashboardPage extends StatelessWidget {
                       border: Border.all(color: AdminColors.border),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.02),
+                          color: Colors.black.withValues(alpha: 0.02),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -136,15 +136,9 @@ class AdminDashboardPage extends StatelessWidget {
                 const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 6,
-                      child: CustomLineChart(),
-                    ),
+                    Expanded(flex: 6, child: CustomLineChart()),
                     SizedBox(width: 24),
-                    Expanded(
-                      flex: 4,
-                      child: CustomPieChart(),
-                    ),
+                    Expanded(flex: 4, child: CustomPieChart()),
                   ],
                 )
               else
@@ -167,7 +161,7 @@ class AdminDashboardPage extends StatelessWidget {
                   border: Border.all(color: AdminColors.border),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -229,18 +223,18 @@ class AdminDashboardPage extends StatelessWidget {
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: CircleAvatar(
-                            backgroundColor: report.statusColor.withOpacity(
-                              0.12,
+                            backgroundColor: report.statusColor.withValues(
+                              alpha: 0.12,
                             ),
                             radius: 20,
                             child: Icon(
                               report.status == IncidentStatus.solved
                                   ? Icons.check
-                                  : report.status ==
-                                          IncidentStatus.inProgress
-                                      ? Icons.rotate_right
-                                      : Icons.priority_high,
-                              color: report.statusColor ==
+                                  : report.status == IncidentStatus.inProgress
+                                  ? Icons.rotate_right
+                                  : Icons.priority_high,
+                              color:
+                                  report.statusColor ==
                                       AdminColors.pendingYellow
                                   ? Colors.orange.shade800
                                   : report.statusColor,
@@ -271,7 +265,7 @@ class AdminDashboardPage extends StatelessWidget {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: report.statusColor.withOpacity(0.12),
+                              color: report.statusColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -279,7 +273,8 @@ class AdminDashboardPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: report.statusColor ==
+                                color:
+                                    report.statusColor ==
                                         AdminColors.pendingYellow
                                     ? Colors.orange.shade800
                                     : report.statusColor,

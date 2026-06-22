@@ -35,18 +35,12 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget appLogo() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-      ),
+    return ClipOval(
       child: Image.asset(
         'assets/images/logo.png',
         height: 100,
         width: 100,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) =>
             const Icon(Icons.lock, size: 50, color: Colors.white),
       ),

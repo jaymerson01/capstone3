@@ -7,11 +7,13 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   Widget appLogo() {
-    return Image.asset(
-      'assets/images/logo.png',
-      height: 100,
-      width: 100,
-      fit: BoxFit.contain,
+    return ClipOval(
+      child: Image.asset(
+        'assets/images/logo.png',
+        height: 100,
+        width: 100,
+        fit: BoxFit.cover,
+      ),
     );
   }
 

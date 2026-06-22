@@ -19,13 +19,25 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   String _selectedLocation = "Moonwalk";
   String _selectedSeverity = "Medium";
   String _complainantChoice = "Anonymous";
-  
+
   final TextEditingController _customNameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _coordinatesController = TextEditingController();
 
-  final List<String> _categories = ["Theft", "Accident", "Fire", "Violence", "Suspicious Activity"];
-  final List<String> _locations = ["Moonwalk", "Jacinto", "Purok 7", "Doang Batang", "Pepa Compound"];
+  final List<String> _categories = [
+    "Theft",
+    "Accident",
+    "Fire",
+    "Violence",
+    "Suspicious Activity",
+  ];
+  final List<String> _locations = [
+    "Moonwalk",
+    "Jacinto",
+    "Purok 7",
+    "Doang Batang",
+    "Pepa Compound",
+  ];
   final List<String> _severities = ["Low", "Medium", "High"];
 
   final ImagePicker _imagePicker = ImagePicker();
@@ -47,9 +59,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     if (_selectedCategory.isNotEmpty) progress += 0.2;
     if (_selectedLocation.isNotEmpty) progress += 0.2;
     if (_selectedSeverity.isNotEmpty) progress += 0.2;
-    
+
     // Custom name filled check
-    if (_complainantChoice != "Other" || _customNameController.text.isNotEmpty) {
+    if (_complainantChoice != "Other" ||
+        _customNameController.text.isNotEmpty) {
       progress += 0.1;
     }
     return progress;
@@ -209,7 +222,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           : "Anonymous";
     }
 
-    final newId = "REP-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}";
+    final newId =
+        "REP-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}";
     final imagePath = _selectedEvidenceFiles.isNotEmpty
         ? _selectedEvidenceFiles.first.path
         : 'assets/images/logo.png';
@@ -248,7 +262,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
             const SizedBox(width: 10),
-            Expanded(child: Text("Incident $newId reported under '$reporterName'!")),
+            Expanded(
+              child: Text("Incident $newId reported under '$reporterName'!"),
+            ),
           ],
         ),
         backgroundColor: Colors.green.shade800,
@@ -271,7 +287,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -329,7 +345,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text("Ensure accurate data for priority responder handling."),
+                    content: Text(
+                      "Ensure accurate data for priority responder handling.",
+                    ),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -346,7 +364,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           children: [
             _buildEmergencyHotlinesSection(),
             const SizedBox(height: 24),
-            _buildStepperProgressHeader(progress, step1Active, step2Active, step3Active, step4Active),
+            _buildStepperProgressHeader(
+              progress,
+              step1Active,
+              step2Active,
+              step3Active,
+              step4Active,
+            ),
             const SizedBox(height: 24),
             _buildPrimaryFormContainer(progress),
           ],
@@ -361,10 +385,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border.withOpacity(0.8)),
+        border: Border.all(color: AppColors.border.withValues(alpha: 0.8)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -378,7 +402,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: AppColors.danger.withOpacity(0.1),
+                  color: AppColors.danger.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -407,10 +431,30 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  _buildHotlineButton("Call Police", Icons.local_police, "911", buttonWidth),
-                  _buildHotlineButton("Fire Station", Icons.local_fire_department, "112", buttonWidth),
-                  _buildHotlineButton("Ambulance / Med", Icons.medical_services, "143", buttonWidth),
-                  _buildHotlineButton("Barangay Desk", Icons.phone_in_talk, "888-9999", buttonWidth),
+                  _buildHotlineButton(
+                    "Call Police",
+                    Icons.local_police,
+                    "911",
+                    buttonWidth,
+                  ),
+                  _buildHotlineButton(
+                    "Fire Station",
+                    Icons.local_fire_department,
+                    "112",
+                    buttonWidth,
+                  ),
+                  _buildHotlineButton(
+                    "Ambulance / Med",
+                    Icons.medical_services,
+                    "143",
+                    buttonWidth,
+                  ),
+                  _buildHotlineButton(
+                    "Barangay Desk",
+                    Icons.phone_in_talk,
+                    "888-9999",
+                    buttonWidth,
+                  ),
                 ],
               );
             },
@@ -420,7 +464,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  Widget _buildHotlineButton(String name, IconData icon, String dialNum, double targetWidth) {
+  Widget _buildHotlineButton(
+    String name,
+    IconData icon,
+    String dialNum,
+    double targetWidth,
+  ) {
     return SizedBox(
       width: targetWidth,
       height: 44,
@@ -428,7 +477,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.danger,
           side: BorderSide(
-            color: AppColors.danger.withOpacity(0.5),
+            color: AppColors.danger.withValues(alpha: 0.5),
             width: 1.2,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -467,7 +516,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.01),
+            color: Colors.black.withValues(alpha: 0.01),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -525,13 +574,15 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             color: isCompletedOrActive ? AppColors.darkGreen : Colors.white,
             shape: BoxShape.circle,
             border: Border.all(
-              color: isCompletedOrActive ? AppColors.darkGreen : Colors.grey.shade300,
+              color: isCompletedOrActive
+                  ? AppColors.darkGreen
+                  : Colors.grey.shade300,
               width: 2,
             ),
             boxShadow: isCompletedOrActive
                 ? [
                     BoxShadow(
-                      color: AppColors.darkGreen.withOpacity(0.2),
+                      color: AppColors.darkGreen.withValues(alpha: 0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -555,9 +606,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         Text(
           label,
           style: TextStyle(
-            color: isCompletedOrActive ? AppColors.textDark : AppColors.textLight,
+            color: isCompletedOrActive
+                ? AppColors.textDark
+                : AppColors.textLight,
             fontSize: 11,
-            fontWeight: isCompletedOrActive ? FontWeight.bold : FontWeight.normal,
+            fontWeight: isCompletedOrActive
+                ? FontWeight.bold
+                : FontWeight.normal,
           ),
         ),
       ],
@@ -583,7 +638,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -678,7 +733,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
           const SizedBox(height: 28),
 
-          _buildSectionTitle(Icons.description_outlined, "Incident Description"),
+          _buildSectionTitle(
+            Icons.description_outlined,
+            "Incident Description",
+          ),
           const SizedBox(height: 14),
           TextField(
             controller: _descriptionController,
@@ -687,12 +745,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             onChanged: (_) => setState(() {}),
             style: const TextStyle(fontSize: 14, color: AppColors.textDark),
             decoration: InputDecoration(
-              hintText: "Describe the incident timeline, visible hazards, or actors involved in detail...",
-              hintStyle: const TextStyle(color: AppColors.textLight, fontSize: 13),
+              hintText:
+                  "Describe the incident timeline, visible hazards, or actors involved in detail...",
+              hintStyle: const TextStyle(
+                color: AppColors.textLight,
+                fontSize: 13,
+              ),
               filled: true,
               fillColor: Colors.grey.shade50,
               contentPadding: const EdgeInsets.all(16),
-              counterStyle: const TextStyle(fontSize: 11, color: AppColors.textLight),
+              counterStyle: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textLight,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.border),
@@ -703,7 +768,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.darkGreen, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.darkGreen,
+                  width: 1.5,
+                ),
               ),
             ),
           ),
@@ -721,7 +789,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 elevation: 2,
-                shadowColor: AppColors.darkGreen.withOpacity(0.4),
+                shadowColor: AppColors.darkGreen.withValues(alpha: 0.4),
               ),
               onPressed: _submitForm,
               child: const Text(
@@ -760,7 +828,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 fontWeight: FontWeight.bold,
               ),
               children: [
-                TextSpan(text: "(Optional)", style: TextStyle(color: AppColors.textLight, fontWeight: FontWeight.normal)),
+                TextSpan(
+                  text: "(Optional)",
+                  style: TextStyle(
+                    color: AppColors.textLight,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
               ],
             ),
           ),
@@ -794,7 +868,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
               Text(
                 _getFileDisplayText(),
-                style: const TextStyle(color: AppColors.textLight, fontSize: 12),
+                style: const TextStyle(
+                  color: AppColors.textLight,
+                  fontSize: 12,
+                ),
               ),
 
               Row(
@@ -810,7 +887,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       });
                     },
                   ),
-                  const Text("Add another?", style: TextStyle(color: AppColors.textDark, fontSize: 12)),
+                  const Text(
+                    "Add another?",
+                    style: TextStyle(color: AppColors.textDark, fontSize: 12),
+                  ),
                 ],
               ),
 
@@ -842,12 +922,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
                     children: [
-                      const Icon(Icons.insert_drive_file_outlined, size: 15, color: AppColors.textLight),
+                      const Icon(
+                        Icons.insert_drive_file_outlined,
+                        size: 15,
+                        color: AppColors.textLight,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           file.name,
-                          style: const TextStyle(color: AppColors.textLight, fontSize: 12),
+                          style: const TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 12,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -868,7 +955,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: AppColors.darkGreen.withOpacity(0.08),
+            color: AppColors.darkGreen.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: AppColors.darkGreen, size: 18),
@@ -893,7 +980,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       dropdownColor: Colors.white,
       style: const TextStyle(color: AppColors.textDark, fontSize: 14),
       decoration: InputDecoration(
@@ -901,7 +988,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         labelStyle: const TextStyle(color: AppColors.textLight, fontSize: 13),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),
@@ -937,7 +1027,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         hintStyle: const TextStyle(color: AppColors.textLight, fontSize: 13),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border),

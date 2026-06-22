@@ -292,10 +292,10 @@ During flood:
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.darkGreen.withOpacity(0.08),
+                      color: AppColors.darkGreen.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.darkGreen.withOpacity(0.25),
+                        color: AppColors.darkGreen.withValues(alpha: 0.25),
                       ),
                     ),
                     child: Text(

@@ -119,7 +119,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildSectionTitle("Preferences"),
                     const SizedBox(height: 12),
 
-                  
                     _buildSettingTile(
                       icon: Icons.notifications_none_outlined,
                       title: "Push Notifications",
@@ -127,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           "Instant local danger perimeter broadcast alerts",
                       trailing: Switch(
                         value: isNotificationEnabled,
-                        activeColor: AppColors.darkGreen,
+                        activeThumbColor: AppColors.darkGreen,
                         onChanged: (value) =>
                             setState(() => isNotificationEnabled = value),
                       ),
@@ -138,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       subtitle: "High contrast dark-mode viewing layer",
                       trailing: Switch(
                         value: isDarkMode,
-                        activeColor: AppColors.darkGreen,
+                        activeThumbColor: AppColors.darkGreen,
                         onChanged: (value) =>
                             setState(() => isDarkMode = value),
                       ),
@@ -245,7 +244,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -644,7 +643,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -694,7 +693,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-                if (trailing != null) trailing,
+                ?trailing,
                 if (onTap != null && trailing == null)
                   const Icon(
                     Icons.arrow_forward_ios_rounded,
@@ -793,7 +792,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         border: Border.all(color: Colors.white, width: 4),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -893,7 +892,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               /// BARANGAY ANCHOR DROPDOWN
               DropdownButtonFormField<String>(
-                value: _selectedBarangay,
+                initialValue: _selectedBarangay,
                 decoration: InputDecoration(
                   labelText: "Preferred Sector/Barangay jurisdiction",
                   prefixIcon: const Icon(
@@ -915,7 +914,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               /// REGIONAL LANGUAGE DROPDOWN
               DropdownButtonFormField<String>(
-                value: _selectedLanguage,
+                initialValue: _selectedLanguage,
                 decoration: InputDecoration(
                   labelText: "App Language Interface Locale",
                   prefixIcon: const Icon(
@@ -1140,7 +1139,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     style: TextStyle(fontSize: 12),
                   ),
                   value: isBiometricActive,
-                  activeColor: AppColors.darkGreen,
+                  activeThumbColor: AppColors.darkGreen,
                   onChanged: (bool value) =>
                       setState(() => isBiometricActive = value),
                 ),

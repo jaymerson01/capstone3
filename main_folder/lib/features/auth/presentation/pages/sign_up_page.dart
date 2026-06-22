@@ -30,9 +30,12 @@ class SignupPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
+        color: Colors.white.withValues(alpha: 0.12),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
       child: Image.asset(
         'assets/images/logo.png',
@@ -59,7 +62,10 @@ class SignupPage extends StatelessWidget {
         prefixIcon: Icon(icon, color: AppColors.textLight, size: 20),
         filled: true,
         fillColor: Colors.grey.shade50,
-        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Colors.grey.shade200),
@@ -82,9 +88,7 @@ class SignupPage extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.sunsetGradient,
-        ),
+        decoration: const BoxDecoration(gradient: AppColors.sunsetGradient),
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -119,7 +123,7 @@ class SignupPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                         ),
@@ -137,7 +141,10 @@ class SignupPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        inputBox(hint: "First Name", icon: Icons.person_outline),
+                        inputBox(
+                          hint: "First Name",
+                          icon: Icons.person_outline,
+                        ),
                         const SizedBox(height: 12),
                         inputBox(hint: "Last Name", icon: Icons.person_outline),
                         const SizedBox(height: 20),
@@ -153,11 +160,26 @@ class SignupPage extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Expanded(child: inputBox(hint: "Month", icon: Icons.calendar_today_outlined)),
+                            Expanded(
+                              child: inputBox(
+                                hint: "Month",
+                                icon: Icons.calendar_today_outlined,
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: inputBox(hint: "Day", icon: Icons.calendar_today_outlined)),
+                            Expanded(
+                              child: inputBox(
+                                hint: "Day",
+                                icon: Icons.calendar_today_outlined,
+                              ),
+                            ),
                             const SizedBox(width: 8),
-                            Expanded(child: inputBox(hint: "Year", icon: Icons.calendar_today_outlined)),
+                            Expanded(
+                              child: inputBox(
+                                hint: "Year",
+                                icon: Icons.calendar_today_outlined,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -171,9 +193,16 @@ class SignupPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        inputBox(hint: "Email or mobile number", icon: Icons.email_outlined),
+                        inputBox(
+                          hint: "Email or mobile number",
+                          icon: Icons.email_outlined,
+                        ),
                         const SizedBox(height: 12),
-                        inputBox(hint: "Password", icon: Icons.lock_outline, obscureText: true),
+                        inputBox(
+                          hint: "Password",
+                          icon: Icons.lock_outline,
+                          obscureText: true,
+                        ),
                         const SizedBox(height: 24),
 
                         // Register Button

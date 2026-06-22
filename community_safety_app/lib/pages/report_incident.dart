@@ -275,26 +275,16 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   }
 
   Widget _buildAppLogo() {
-    return Container(
+    return SizedBox(
       height: 34,
       width: 34,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Image.asset(
-        'assets/images/logo.png',
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.security, size: 18, color: AppColors.darkGreen),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.security, size: 18, color: AppColors.darkGreen),
+        ),
       ),
     );
   }

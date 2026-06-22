@@ -25,9 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<IncidentBloc>(
-          create: (context) => IncidentBloc(),
-        ),
+        BlocProvider<IncidentBloc>(create: (context) => IncidentBloc()),
       ],
       child: MaterialApp(
         title: 'ResQ',
@@ -43,12 +41,7 @@ class MyApp extends StatelessWidget {
         },
         builder: (context, child) {
           return Scaffold(
-            body: Stack(
-              children: [
-                if (child != null) child,
-                const FloatingChatBot(),
-              ],
-            ),
+            body: Stack(children: [?child, const FloatingChatBot()]),
           );
         },
       ),

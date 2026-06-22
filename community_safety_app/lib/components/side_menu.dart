@@ -34,17 +34,12 @@ class _SideMenuState extends State<SideMenu> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
               child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      shape: BoxShape.circle,
-                    ),
+                  ClipOval(
                     child: Image.asset(
                       'assets/images/logo.png',
                       height: 40,
                       width: 40,
-                      fit: BoxFit.contain,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(width: 14),

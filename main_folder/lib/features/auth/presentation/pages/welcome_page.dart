@@ -8,11 +8,21 @@ class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
   Widget appLogo() {
-    return Image.asset(
-      'assets/images/logo.png',
-      height: 100,
-      width: 100,
-      fit: BoxFit.contain,
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
+      ),
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/logo.png',
+          height: 100,
+          width: 100,
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 

@@ -14,7 +14,7 @@ class AdminDataService extends ChangeNotifier {
   }
 
   String _adminName = "Super Admin";
-  String _adminEmail = "admin@safe.gov";
+  final String _adminEmail = "admin@safe.gov";
   String _adminPassword = "admin123";
   String? _adminProfilePic;
 
@@ -160,19 +160,18 @@ class AdminDataService extends ChangeNotifier {
     ]);
 
     for (final report in _reports) {
-      _statusTimestamps[report.id] = {
-        IncidentStatus.pending: report.date,
-      };
+      _statusTimestamps[report.id] = {IncidentStatus.pending: report.date};
 
       if (report.status == IncidentStatus.inProgress ||
           report.status == IncidentStatus.solved) {
-        _statusTimestamps[report.id]![IncidentStatus.inProgress] =
-            report.date.add(const Duration(minutes: 12));
+        _statusTimestamps[report.id]![IncidentStatus.inProgress] = report.date
+            .add(const Duration(minutes: 12));
       }
 
       if (report.status == IncidentStatus.solved) {
-        _statusTimestamps[report.id]![IncidentStatus.solved] =
-            report.date.add(const Duration(minutes: 45));
+        _statusTimestamps[report.id]![IncidentStatus.solved] = report.date.add(
+          const Duration(minutes: 45),
+        );
       }
     }
 
@@ -262,10 +261,7 @@ class AdminDataService extends ChangeNotifier {
     return "${dateTime.month}/${dateTime.day}/${dateTime.year} $hour:$minute";
   }
 
-  void addAuditLog({
-    required String action,
-    required String details,
-  }) {
+  void addAuditLog({required String action, required String details}) {
     _auditLogs.insert(0, {
       "time": _formatDateTime(DateTime.now()),
       "admin": adminName,
@@ -297,16 +293,11 @@ class AdminDataService extends ChangeNotifier {
   void addReport(IncidentReport report) {
     _reports.insert(0, report);
 
-    _statusTimestamps[report.id] = {
-      IncidentStatus.pending: report.date,
-    };
+    _statusTimestamps[report.id] = {IncidentStatus.pending: report.date};
 
     _updateAreaCount(report.location, 1);
 
-    addAuditLog(
-      action: "Report Added",
-      details: "Added Report ${report.id}",
-    );
+    addAuditLog(action: "Report Added", details: "Added Report ${report.id}");
 
     notifyListeners();
   }
@@ -358,10 +349,7 @@ class AdminDataService extends ChangeNotifier {
       _reports[index].status = newStatus;
 
       _statusTimestamps.putIfAbsent(reportId, () => {});
-      _statusTimestamps[reportId]!.putIfAbsent(
-        newStatus,
-        () => DateTime.now(),
-      );
+      _statusTimestamps[reportId]!.putIfAbsent(newStatus, () => DateTime.now());
 
       addAuditLog(
         action: "Report Status Updated",
@@ -408,10 +396,7 @@ class AdminDataService extends ChangeNotifier {
   void addUser(UserProfile user) {
     _users.insert(0, user);
 
-    addAuditLog(
-      action: "User Added",
-      details: "Added user ${user.name}",
-    );
+    addAuditLog(action: "User Added", details: "Added user ${user.name}");
 
     notifyListeners();
   }
@@ -456,10 +441,7 @@ class AdminDataService extends ChangeNotifier {
 
       _users.removeAt(index);
 
-      addAuditLog(
-        action: "User Deleted",
-        details: "Deleted user $userName",
-      );
+      addAuditLog(action: "User Deleted", details: "Deleted user $userName");
 
       notifyListeners();
     }
@@ -527,10 +509,7 @@ class AdminDataService extends ChangeNotifier {
   void addArea(AreaInfo area) {
     _areas.add(area);
 
-    addAuditLog(
-      action: "Area Added",
-      details: "Added area ${area.name}",
-    );
+    addAuditLog(action: "Area Added", details: "Added area ${area.name}");
 
     notifyListeners();
   }
@@ -558,10 +537,7 @@ class AdminDataService extends ChangeNotifier {
 
       _areas.removeAt(index);
 
-      addAuditLog(
-        action: "Area Deleted",
-        details: "Deleted area $areaName",
-      );
+      addAuditLog(action: "Area Deleted", details: "Deleted area $areaName");
 
       notifyListeners();
     }

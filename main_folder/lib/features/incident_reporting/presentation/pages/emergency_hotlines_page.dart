@@ -4,7 +4,11 @@ import '../theme/app_colors.dart';
 class EmergencyHotlinesPage extends StatelessWidget {
   const EmergencyHotlinesPage({super.key});
 
-  void _showCallConfirmation(BuildContext context, String title, String number) {
+  void _showCallConfirmation(
+    BuildContext context,
+    String title,
+    String number,
+  ) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -49,7 +53,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
               ),
               onPressed: () {
                 Navigator.pop(context);
-                
+
                 // Simulation response
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -103,7 +107,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -117,14 +121,10 @@ class EmergencyHotlinesPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.danger.withOpacity(0.08),
+                color: AppColors.danger.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: AppColors.danger,
-                size: 28,
-              ),
+              child: Icon(icon, color: AppColors.danger, size: 28),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -195,7 +195,8 @@ class EmergencyHotlinesPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () => _showCallConfirmation(context, title, number),
+                        onPressed: () =>
+                            _showCallConfirmation(context, title, number),
                         icon: const Icon(Icons.call, size: 14),
                         label: const Text(
                           'CALL NOW',
@@ -237,7 +238,10 @@ class EmergencyHotlinesPage extends StatelessWidget {
             children: [
               // Custom Back Nav Bar
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     IconButton(
@@ -258,7 +262,10 @@ class EmergencyHotlinesPage extends StatelessWidget {
 
               // Page Title Description
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
@@ -289,11 +296,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
               Expanded(
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 24,
-                  ),
+                  padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
                   decoration: const BoxDecoration(
                     color: AppColors.background,
                     borderRadius: BorderRadius.vertical(
@@ -307,28 +310,32 @@ class EmergencyHotlinesPage extends StatelessWidget {
                         context,
                         title: 'Police Department Dispatch',
                         number: '911',
-                        description: 'Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.',
+                        description:
+                            'Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.',
                         icon: Icons.local_police_outlined,
                       ),
                       _buildHotlineCard(
                         context,
                         title: 'Fire Command Station',
                         number: '112',
-                        description: 'Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.',
+                        description:
+                            'Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.',
                         icon: Icons.local_fire_department_outlined,
                       ),
                       _buildHotlineCard(
                         context,
                         title: 'Ambulance Medical Team',
                         number: '143',
-                        description: 'Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.',
+                        description:
+                            'Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.',
                         icon: Icons.medical_services_outlined,
                       ),
                       _buildHotlineCard(
                         context,
                         title: 'Barangay Desk Center',
                         number: '888-9999',
-                        description: 'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.',
+                        description:
+                            'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.',
                         icon: Icons.phone_in_talk_outlined,
                       ),
                       const SizedBox(height: 40),

@@ -24,15 +24,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         final filteredReports = dataService.reports.where((report) {
           final matchesSearch =
               report.id.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                  report.incidentType
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase()) ||
-                  report.reporterName
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase()) ||
-                  report.location
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase());
+              report.incidentType.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              report.reporterName.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              report.location.toLowerCase().contains(searchQuery.toLowerCase());
 
           final matchesStatus =
               statusFilter == "All" || report.statusLabel == statusFilter;
@@ -58,11 +56,20 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 children: [
                   Expanded(
                     child: TextField(
-                      style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                      style: const TextStyle(
+                        color: AdminColors.textDark,
+                        fontSize: 14,
+                      ),
                       decoration: InputDecoration(
                         hintText: "Search reports...",
-                        hintStyle: const TextStyle(color: AdminColors.textLight, fontSize: 14),
-                        prefixIcon: const Icon(Icons.search, color: AdminColors.textLight),
+                        hintStyle: const TextStyle(
+                          color: AdminColors.textLight,
+                          fontSize: 14,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: AdminColors.textLight,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -78,10 +85,16 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   DropdownButton<String>(
                     value: statusFilter,
                     dropdownColor: Colors.white,
-                    style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                    style: const TextStyle(
+                      color: AdminColors.textDark,
+                      fontSize: 14,
+                    ),
                     items: const [
                       DropdownMenuItem(value: "All", child: Text("All")),
-                      DropdownMenuItem(value: "Pending", child: Text("Pending")),
+                      DropdownMenuItem(
+                        value: "Pending",
+                        child: Text("Pending"),
+                      ),
                       DropdownMenuItem(
                         value: "In Progress",
                         child: Text("In Progress"),
@@ -120,22 +133,113 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
                               columns: const [
-                                DataColumn(label: Text("Report ID", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text("Type", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text("Reporter", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text("Location", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text("Date", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text("Status", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                                DataColumn(label: Text("Actions", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                                DataColumn(
+                                  label: Text(
+                                    "Report ID",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Type",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Reporter",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Location",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Date",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Status",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                DataColumn(
+                                  label: Text(
+                                    "Actions",
+                                    style: TextStyle(
+                                      color: AdminColors.textDark,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ],
                               rows: filteredReports.map((report) {
                                 return DataRow(
                                   cells: [
-                                    DataCell(Text(report.id, style: const TextStyle(color: AdminColors.textDark))),
-                                    DataCell(Text(report.incidentType, style: const TextStyle(color: AdminColors.textDark))),
-                                    DataCell(Text(report.reporterName, style: const TextStyle(color: AdminColors.textDark))),
-                                    DataCell(Text(report.location, style: const TextStyle(color: AdminColors.textDark))),
-                                    DataCell(Text(_formatDate(report.date), style: const TextStyle(color: AdminColors.textDark))),
+                                    DataCell(
+                                      Text(
+                                        report.id,
+                                        style: const TextStyle(
+                                          color: AdminColors.textDark,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                        report.incidentType,
+                                        style: const TextStyle(
+                                          color: AdminColors.textDark,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                        report.reporterName,
+                                        style: const TextStyle(
+                                          color: AdminColors.textDark,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                        report.location,
+                                        style: const TextStyle(
+                                          color: AdminColors.textDark,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                        _formatDate(report.date),
+                                        style: const TextStyle(
+                                          color: AdminColors.textDark,
+                                        ),
+                                      ),
+                                    ),
                                     DataCell(
                                       Container(
                                         padding: const EdgeInsets.symmetric(
@@ -143,10 +247,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                           vertical: 5,
                                         ),
                                         decoration: BoxDecoration(
-                                          color:
-                                              report.statusColor.withOpacity(0.15),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          color: report.statusColor.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Text(
                                           report.statusLabel,
@@ -168,7 +274,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                             ),
                                             tooltip: "View Details",
                                             onPressed: () {
-                                              _showReportDetails(context, report);
+                                              _showReportDetails(
+                                                context,
+                                                report,
+                                              );
                                             },
                                           ),
                                           IconButton(
@@ -197,8 +306,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                 report.id,
                                               );
 
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
                                                     "Report ${report.id} marked as Spam",
@@ -215,7 +325,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                             ),
                                             tooltip: "Delete Report",
                                             onPressed: () {
-                                              dataService.deleteReport(report.id);
+                                              dataService.deleteReport(
+                                                report.id,
+                                              );
                                             },
                                           ),
                                         ],
@@ -249,10 +361,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     return "${date.month}/${date.day}/${date.year}, $hour:$minute";
   }
 
-  void _showEditReportDialog(
-    BuildContext context,
-    IncidentReport report,
-  ) {
+  void _showEditReportDialog(BuildContext context, IncidentReport report) {
     IncidentStatus selectedStatus = report.status;
 
     showDialog(
@@ -262,13 +371,19 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           builder: (context, setDialogState) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              title: Text("Update Report Status: ${report.id}", style: const TextStyle(color: AdminColors.textDark)),
+              title: Text(
+                "Update Report Status: ${report.id}",
+                style: const TextStyle(color: AdminColors.textDark),
+              ),
               content: SizedBox(
                 width: 400,
                 child: DropdownButtonFormField<IncidentStatus>(
-                  value: selectedStatus,
+                  initialValue: selectedStatus,
                   dropdownColor: Colors.white,
-                  style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                  style: const TextStyle(
+                    color: AdminColors.textDark,
+                    fontSize: 14,
+                  ),
                   decoration: const InputDecoration(
                     labelText: "Status",
                     labelStyle: TextStyle(color: AdminColors.textLight),
@@ -314,10 +429,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    dataService.updateReportStatus(
-                      report.id,
-                      selectedStatus,
-                    );
+                    dataService.updateReportStatus(report.id, selectedStatus);
 
                     Navigator.pop(context);
 
@@ -337,21 +449,23 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     );
   }
 
-  void _showReportDetails(
-    BuildContext context,
-    IncidentReport report,
-  ) {
+  void _showReportDetails(BuildContext context, IncidentReport report) {
     final submittedAt =
         dataService.getStatusTimestamp(report.id, IncidentStatus.pending) ??
-            report.date;
+        report.date;
 
-    final inProgressAt =
-        dataService.getStatusTimestamp(report.id, IncidentStatus.inProgress);
+    final inProgressAt = dataService.getStatusTimestamp(
+      report.id,
+      IncidentStatus.inProgress,
+    );
 
-    final solvedAt =
-        dataService.getStatusTimestamp(report.id, IncidentStatus.solved);
+    final solvedAt = dataService.getStatusTimestamp(
+      report.id,
+      IncidentStatus.solved,
+    );
 
-    final isInProgressActive = report.status == IncidentStatus.inProgress ||
+    final isInProgressActive =
+        report.status == IncidentStatus.inProgress ||
         report.status == IncidentStatus.solved;
 
     final isSolvedActive = report.status == IncidentStatus.solved;
@@ -361,7 +475,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          title: Text("Incident Details - ${report.id}", style: const TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold)),
+          title: Text(
+            "Incident Details - ${report.id}",
+            style: const TextStyle(
+              color: AdminColors.textDark,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: SizedBox(
             width: 540,
             child: SingleChildScrollView(
@@ -375,10 +495,16 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   const SizedBox(height: 15),
                   const Text(
                     "Description",
-                    style: TextStyle(fontWeight: FontWeight.bold, color: AdminColors.textDark),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AdminColors.textDark,
+                    ),
                   ),
                   const SizedBox(height: 5),
-                  Text(report.description, style: const TextStyle(color: AdminColors.textDark)),
+                  Text(
+                    report.description,
+                    style: const TextStyle(color: AdminColors.textDark),
+                  ),
                   const SizedBox(height: 30),
                   const Text(
                     "Status Timeline",
@@ -446,10 +572,18 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
             width: 120,
             child: Text(
               "$label:",
-              style: const TextStyle(fontWeight: FontWeight.bold, color: AdminColors.textDark),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: AdminColors.textDark,
+              ),
             ),
           ),
-          Expanded(child: Text(value, style: const TextStyle(color: AdminColors.textDark))),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(color: AdminColors.textDark),
+            ),
+          ),
         ],
       ),
     );
@@ -483,11 +617,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
             color: active ? activeColor : Colors.grey.shade300,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 18,
-          ),
+          child: Icon(icon, color: Colors.white, size: 18),
         ),
         const SizedBox(width: 15),
         Expanded(
@@ -504,9 +634,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               const SizedBox(height: 3),
               Text(
                 subtitle,
-                style: TextStyle(
-                  color: active ? Colors.black54 : Colors.grey,
-                ),
+                style: TextStyle(color: active ? Colors.black54 : Colors.grey),
               ),
             ],
           ),

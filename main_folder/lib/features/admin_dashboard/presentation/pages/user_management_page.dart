@@ -37,18 +37,24 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                    ),
+                    BoxShadow(color: Colors.black12, blurRadius: 4),
                   ],
                 ),
                 child: TextField(
-                  style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                  style: const TextStyle(
+                    color: AdminColors.textDark,
+                    fontSize: 14,
+                  ),
                   decoration: InputDecoration(
                     hintText: "Search users...",
-                    hintStyle: const TextStyle(color: AdminColors.textLight, fontSize: 14),
-                    prefixIcon: const Icon(Icons.search, color: AdminColors.textLight),
+                    hintStyle: const TextStyle(
+                      color: AdminColors.textLight,
+                      fontSize: 14,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.search,
+                      color: AdminColors.textLight,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -71,25 +77,103 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   child: SingleChildScrollView(
                     child: DataTable(
                       columns: const [
-                        DataColumn(label: Text("ID", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Name", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Email", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Role", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Status", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("Actions", style: TextStyle(color: AdminColors.textDark, fontWeight: FontWeight.bold))),
+                        DataColumn(
+                          label: Text(
+                            "ID",
+                            style: TextStyle(
+                              color: AdminColors.textDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "Name",
+                            style: TextStyle(
+                              color: AdminColors.textDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "Email",
+                            style: TextStyle(
+                              color: AdminColors.textDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "Role",
+                            style: TextStyle(
+                              color: AdminColors.textDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "Status",
+                            style: TextStyle(
+                              color: AdminColors.textDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        DataColumn(
+                          label: Text(
+                            "Actions",
+                            style: TextStyle(
+                              color: AdminColors.textDark,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                       rows: filteredUsers.map((user) {
                         return DataRow(
                           cells: [
-                            DataCell(Text(user.id, style: const TextStyle(color: AdminColors.textDark))),
-                            DataCell(Text(user.name, style: const TextStyle(color: AdminColors.textDark))),
-                            DataCell(Text(user.email, style: const TextStyle(color: AdminColors.textDark))),
-                            DataCell(Text(user.role, style: const TextStyle(color: AdminColors.textDark))),
+                            DataCell(
+                              Text(
+                                user.id,
+                                style: const TextStyle(
+                                  color: AdminColors.textDark,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                user.name,
+                                style: const TextStyle(
+                                  color: AdminColors.textDark,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                user.email,
+                                style: const TextStyle(
+                                  color: AdminColors.textDark,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                user.role,
+                                style: const TextStyle(
+                                  color: AdminColors.textDark,
+                                ),
+                              ),
+                            ),
                             DataCell(
                               Text(
                                 user.isActive ? "Active" : "Disabled",
                                 style: TextStyle(
-                                  color: user.isActive ? AdminColors.primaryGreen : Colors.red,
+                                  color: user.isActive
+                                      ? AdminColors.primaryGreen
+                                      : Colors.red,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -103,16 +187,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                       color: Colors.blue,
                                     ),
                                     onPressed: () {
-                                      _showEditUserDialog(
-                                        context,
-                                        user,
-                                      );
+                                      _showEditUserDialog(context, user);
                                     },
                                   ),
                                   IconButton(
                                     icon: Icon(
                                       user.isActive ? Icons.block : Icons.check,
-                                      color: user.isActive ? Colors.orange : Colors.green,
+                                      color: user.isActive
+                                          ? Colors.orange
+                                          : Colors.green,
                                     ),
                                     onPressed: () {
                                       dataService.toggleUserActive(user.id);
@@ -144,10 +227,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
     );
   }
 
-  void _showEditUserDialog(
-    BuildContext context,
-    UserProfile user,
-  ) {
+  void _showEditUserDialog(BuildContext context, UserProfile user) {
     String selectedRole = user.role;
 
     showDialog(
@@ -157,7 +237,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
           builder: (context, setDialogState) {
             return AlertDialog(
               backgroundColor: Colors.white,
-              title: const Text("Edit User Role", style: TextStyle(color: AdminColors.textDark)),
+              title: const Text(
+                "Edit User Role",
+                style: TextStyle(color: AdminColors.textDark),
+              ),
               content: SizedBox(
                 width: 400,
                 child: Column(
@@ -178,25 +261,29 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     ),
                     const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
-                      value: selectedRole,
+                      initialValue: selectedRole,
                       dropdownColor: Colors.white,
-                      style: const TextStyle(color: AdminColors.textDark, fontSize: 14),
+                      style: const TextStyle(
+                        color: AdminColors.textDark,
+                        fontSize: 14,
+                      ),
                       decoration: const InputDecoration(
                         labelText: "User Role",
                         labelStyle: TextStyle(color: AdminColors.textLight),
                         border: OutlineInputBorder(),
                       ),
-                      items: [
-                        "Reporter",
-                        "Barangay Official",
-                        "Security Officer",
-                        "System Admin",
-                      ].map((role) {
-                        return DropdownMenuItem(
-                          value: role,
-                          child: Text(role),
-                        );
-                      }).toList(),
+                      items:
+                          [
+                            "Reporter",
+                            "Barangay Official",
+                            "Security Officer",
+                            "System Admin",
+                          ].map((role) {
+                            return DropdownMenuItem(
+                              value: role,
+                              child: Text(role),
+                            );
+                          }).toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setDialogState(() {
@@ -221,10 +308,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    dataService.updateUserRole(
-                      user.id,
-                      selectedRole,
-                    );
+                    dataService.updateUserRole(user.id, selectedRole);
 
                     Navigator.pop(context);
 

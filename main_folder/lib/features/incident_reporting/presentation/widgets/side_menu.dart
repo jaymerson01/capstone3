@@ -37,7 +37,7 @@ class _SideMenuState extends State<SideMenu> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: Image.asset(
@@ -45,8 +45,11 @@ class _SideMenuState extends State<SideMenu> {
                       height: 40,
                       width: 40,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.security, size: 24, color: Colors.white),
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.security,
+                        size: 24,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -65,10 +68,7 @@ class _SideMenuState extends State<SideMenu> {
                         ),
                         Text(
                           "Citizen Portal",
-                          style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 11,
-                          ),
+                          style: TextStyle(color: Colors.white60, fontSize: 11),
                         ),
                       ],
                     ),
@@ -79,11 +79,37 @@ class _SideMenuState extends State<SideMenu> {
             const Divider(color: Colors.white12, height: 1),
             const SizedBox(height: 20),
 
-            menuItem(context, Icons.home_outlined, "User Dashboard", widget.currentPage == "User Dashboard" || currentRoute == '/dashboard'),
-            menuItem(context, Icons.warning_amber_rounded, "Report Incident", widget.currentPage == "Report Incident"),
-            menuItem(context, Icons.list_alt_rounded, "My Reports", widget.currentPage == "My Reports"),
-            menuItem(context, Icons.map_outlined, "Maps", widget.currentPage == "Maps"),
-            menuItem(context, Icons.settings_outlined, "Settings", widget.currentPage == "Settings"),
+            menuItem(
+              context,
+              Icons.home_outlined,
+              "User Dashboard",
+              widget.currentPage == "User Dashboard" ||
+                  currentRoute == '/dashboard',
+            ),
+            menuItem(
+              context,
+              Icons.warning_amber_rounded,
+              "Report Incident",
+              widget.currentPage == "Report Incident",
+            ),
+            menuItem(
+              context,
+              Icons.list_alt_rounded,
+              "My Reports",
+              widget.currentPage == "My Reports",
+            ),
+            menuItem(
+              context,
+              Icons.map_outlined,
+              "Maps",
+              widget.currentPage == "Maps",
+            ),
+            menuItem(
+              context,
+              Icons.settings_outlined,
+              "Settings",
+              widget.currentPage == "Settings",
+            ),
 
             const Spacer(),
             const Divider(color: Colors.white12, height: 1),
@@ -96,7 +122,12 @@ class _SideMenuState extends State<SideMenu> {
     );
   }
 
-  Widget menuItem(BuildContext context, IconData icon, String title, bool isSelected) {
+  Widget menuItem(
+    BuildContext context,
+    IconData icon,
+    String title,
+    bool isSelected,
+  ) {
     final bool isHovered = hoveredItem == title;
     final bool isLogout = title == "Logout";
 
@@ -106,16 +137,18 @@ class _SideMenuState extends State<SideMenu> {
     Color textColor = Colors.white70;
 
     if (isLogout) {
-      tileBgColor = isHovered ? AppColors.danger.withOpacity(0.3) : AppColors.danger.withOpacity(0.18);
+      tileBgColor = isHovered
+          ? AppColors.danger.withValues(alpha: 0.3)
+          : AppColors.danger.withValues(alpha: 0.18);
       iconColor = Colors.red.shade200;
       textColor = Colors.red.shade100;
     } else {
       if (isSelected) {
-        tileBgColor = Colors.white.withOpacity(0.15);
+        tileBgColor = Colors.white.withValues(alpha: 0.15);
         iconColor = Colors.white;
         textColor = Colors.white;
       } else if (isHovered) {
-        tileBgColor = Colors.white.withOpacity(0.08);
+        tileBgColor = Colors.white.withValues(alpha: 0.08);
         iconColor = Colors.white;
         textColor = Colors.white;
       }
@@ -143,18 +176,21 @@ class _SideMenuState extends State<SideMenu> {
           child: ListTile(
             dense: true,
             visualDensity: VisualDensity.compact,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-            leading: Icon(
-              icon,
-              color: iconColor,
-              size: 22,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 2,
+            ),
+            leading: Icon(icon, color: iconColor, size: 22),
             title: Text(
               title,
               style: TextStyle(
                 fontSize: 14,
-                fontWeight: (isSelected || isHovered) ? FontWeight.bold : FontWeight.w500,
+                fontWeight: (isSelected || isHovered)
+                    ? FontWeight.bold
+                    : FontWeight.w500,
                 color: textColor,
               ),
             ),

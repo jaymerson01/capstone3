@@ -24,15 +24,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         final filteredReports = dataService.reports.where((report) {
           final matchesSearch =
               report.id.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                  report.incidentType
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase()) ||
-                  report.reporterName
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase()) ||
-                  report.location
-                      .toLowerCase()
-                      .contains(searchQuery.toLowerCase());
+              report.incidentType.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              report.reporterName.toLowerCase().contains(
+                searchQuery.toLowerCase(),
+              ) ||
+              report.location.toLowerCase().contains(searchQuery.toLowerCase());
 
           final matchesStatus =
               statusFilter == "All" || report.statusLabel == statusFilter;
@@ -47,10 +45,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
             children: [
               const Text(
                 "Incident Reports",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               Row(
@@ -76,7 +71,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     value: statusFilter,
                     items: const [
                       DropdownMenuItem(value: "All", child: Text("All")),
-                      DropdownMenuItem(value: "Pending", child: Text("Pending")),
+                      DropdownMenuItem(
+                        value: "Pending",
+                        child: Text("Pending"),
+                      ),
                       DropdownMenuItem(
                         value: "In Progress",
                         child: Text("In Progress"),
@@ -103,9 +101,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: filteredReports.isEmpty
-                      ? const Center(
-                          child: Text("No incident reports found."),
-                        )
+                      ? const Center(child: Text("No incident reports found."))
                       : SingleChildScrollView(
                           scrollDirection: Axis.vertical,
                           child: SingleChildScrollView(
@@ -135,10 +131,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                           vertical: 5,
                                         ),
                                         decoration: BoxDecoration(
-                                          color:
-                                              report.statusColor.withOpacity(0.15),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          color: report.statusColor.withValues(
+                                            alpha: 0.15,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Text(
                                           report.statusLabel,
@@ -160,7 +158,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                             ),
                                             tooltip: "View Details",
                                             onPressed: () {
-                                              _showReportDetails(context, report);
+                                              _showReportDetails(
+                                                context,
+                                                report,
+                                              );
                                             },
                                           ),
                                           IconButton(
@@ -189,8 +190,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                 report.id,
                                               );
 
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
                                                 SnackBar(
                                                   content: Text(
                                                     "Report ${report.id} marked as Spam",
@@ -207,7 +209,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                             ),
                                             tooltip: "Delete Report",
                                             onPressed: () {
-                                              dataService.deleteReport(report.id);
+                                              dataService.deleteReport(
+                                                report.id,
+                                              );
                                             },
                                           ),
                                         ],
@@ -241,10 +245,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     return "${date.month}/${date.day}/${date.year}, $hour:$minute";
   }
 
-  void _showEditReportDialog(
-    BuildContext context,
-    IncidentReport report,
-  ) {
+  void _showEditReportDialog(BuildContext context, IncidentReport report) {
     IncidentStatus selectedStatus = report.status;
 
     showDialog(
@@ -257,7 +258,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               content: SizedBox(
                 width: 400,
                 child: DropdownButtonFormField<IncidentStatus>(
-                  value: selectedStatus,
+                  initialValue: selectedStatus,
                   decoration: const InputDecoration(
                     labelText: "Status",
                     border: OutlineInputBorder(),
@@ -302,10 +303,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    dataService.updateReportStatus(
-                      report.id,
-                      selectedStatus,
-                    );
+                    dataService.updateReportStatus(report.id, selectedStatus);
 
                     Navigator.pop(context);
 
@@ -325,21 +323,23 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     );
   }
 
-  void _showReportDetails(
-    BuildContext context,
-    IncidentReport report,
-  ) {
+  void _showReportDetails(BuildContext context, IncidentReport report) {
     final submittedAt =
         dataService.getStatusTimestamp(report.id, IncidentStatus.pending) ??
-            report.date;
+        report.date;
 
-    final inProgressAt =
-        dataService.getStatusTimestamp(report.id, IncidentStatus.inProgress);
+    final inProgressAt = dataService.getStatusTimestamp(
+      report.id,
+      IncidentStatus.inProgress,
+    );
 
-    final solvedAt =
-        dataService.getStatusTimestamp(report.id, IncidentStatus.solved);
+    final solvedAt = dataService.getStatusTimestamp(
+      report.id,
+      IncidentStatus.solved,
+    );
 
-    final isInProgressActive = report.status == IncidentStatus.inProgress ||
+    final isInProgressActive =
+        report.status == IncidentStatus.inProgress ||
         report.status == IncidentStatus.solved;
 
     final isSolvedActive = report.status == IncidentStatus.solved;
@@ -369,10 +369,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   const SizedBox(height: 30),
                   const Text(
                     "Status Timeline",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const SizedBox(height: 20),
                   _timelineTile(
@@ -469,11 +466,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
             color: active ? activeColor : Colors.grey.shade300,
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            icon,
-            color: Colors.white,
-            size: 18,
-          ),
+          child: Icon(icon, color: Colors.white, size: 18),
         ),
         const SizedBox(width: 15),
         Expanded(
@@ -490,9 +483,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               const SizedBox(height: 3),
               Text(
                 subtitle,
-                style: TextStyle(
-                  color: active ? Colors.black54 : Colors.grey,
-                ),
+                style: TextStyle(color: active ? Colors.black54 : Colors.grey),
               ),
             ],
           ),

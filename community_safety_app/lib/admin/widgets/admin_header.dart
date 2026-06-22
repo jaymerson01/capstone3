@@ -28,16 +28,13 @@ class AdminHeader extends StatelessWidget {
             color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
             ],
             border: const Border(
-              bottom: BorderSide(
-                color: AdminColors.border,
-                width: 1,
-              ),
+              bottom: BorderSide(color: AdminColors.border, width: 1),
             ),
           ),
           child: Row(
@@ -48,12 +45,20 @@ class AdminHeader extends StatelessWidget {
                 children: [
                   if (isMobile)
                     IconButton(
-                      icon: const Icon(Icons.menu, color: AdminColors.primaryGreen, size: 22),
+                      icon: const Icon(
+                        Icons.menu,
+                        color: AdminColors.primaryGreen,
+                        size: 22,
+                      ),
                       onPressed: onMenuPressed,
                     )
                   else
                     IconButton(
-                      icon: const Icon(Icons.menu_open, color: AdminColors.primaryGreen, size: 22),
+                      icon: const Icon(
+                        Icons.menu_open,
+                        color: AdminColors.primaryGreen,
+                        size: 22,
+                      ),
                       onPressed: onMenuPressed,
                       tooltip: "Toggle Sidebar",
                     ),
@@ -83,7 +88,11 @@ class AdminHeader extends StatelessWidget {
                           border: Border.all(color: Colors.grey.shade200),
                         ),
                         child: IconButton(
-                          icon: Icon(Icons.notifications_none_outlined, color: Colors.grey.shade700, size: 20),
+                          icon: Icon(
+                            Icons.notifications_none_outlined,
+                            color: Colors.grey.shade700,
+                            size: 20,
+                          ),
                           onPressed: () {},
                         ),
                       ),
@@ -98,19 +107,15 @@ class AdminHeader extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(width: 16),
-                  
+
                   // Divider
-                  Container(
-                    height: 24,
-                    width: 1,
-                    color: Colors.grey.shade200,
-                  ),
+                  Container(height: 24, width: 1, color: Colors.grey.shade200),
                   const SizedBox(width: 16),
-                  
+
                   // User info
                   if (!isMobile) ...[
                     Column(
@@ -138,7 +143,7 @@ class AdminHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 14),
                   ],
-                  
+
                   // Avatar
                   Container(
                     width: 38,
@@ -148,7 +153,9 @@ class AdminHeader extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AdminColors.primaryGreen.withOpacity(0.2),
+                          color: AdminColors.primaryGreen.withValues(
+                            alpha: 0.2,
+                          ),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -174,4 +181,3 @@ class AdminHeader extends StatelessWidget {
     );
   }
 }
-

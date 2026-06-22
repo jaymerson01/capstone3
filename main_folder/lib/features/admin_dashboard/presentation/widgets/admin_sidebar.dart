@@ -72,10 +72,10 @@ class _AdminSidebarState extends State<AdminSidebar> {
                         height: 44,
                         padding: const EdgeInsets.all(7),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.14),
+                          color: Colors.white.withValues(alpha: 0.14),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.20),
+                            color: Colors.white.withValues(alpha: 0.20),
                             width: 1.5,
                           ),
                         ),
@@ -150,10 +150,10 @@ class _AdminSidebarState extends State<AdminSidebar> {
                               duration: const Duration(milliseconds: 150),
                               decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Colors.white.withOpacity(0.12)
+                                    ? Colors.white.withValues(alpha: 0.12)
                                     : isHovered
-                                        ? Colors.white.withOpacity(0.06)
-                                        : Colors.transparent,
+                                    ? Colors.white.withValues(alpha: 0.06)
+                                    : Colors.transparent,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
@@ -169,12 +169,14 @@ class _AdminSidebarState extends State<AdminSidebar> {
                                   ),
                                   Expanded(
                                     child: ListTile(
-                                      minLeadingWidth:
-                                          widget.isCollapsed ? 0 : 25,
+                                      minLeadingWidth: widget.isCollapsed
+                                          ? 0
+                                          : 25,
                                       visualDensity: VisualDensity.compact,
                                       contentPadding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            widget.isCollapsed ? 12 : 16,
+                                        horizontal: widget.isCollapsed
+                                            ? 12
+                                            : 16,
                                         vertical: 2,
                                       ),
                                       leading: Icon(
@@ -224,12 +226,12 @@ class _AdminSidebarState extends State<AdminSidebar> {
                       decoration: BoxDecoration(
                         color: hoveredIndex == 99
                             ? AdminColors.dangerRed
-                            : AdminColors.dangerRed.withOpacity(0.12),
+                            : AdminColors.dangerRed.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: hoveredIndex == 99
                               ? Colors.transparent
-                              : AdminColors.dangerRed.withOpacity(0.3),
+                              : AdminColors.dangerRed.withValues(alpha: 0.3),
                         ),
                       ),
                       child: ListTile(

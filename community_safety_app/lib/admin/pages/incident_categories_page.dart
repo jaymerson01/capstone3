@@ -16,7 +16,9 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final int crossAxisCount = screenWidth >= 1000 ? 3 : (screenWidth >= 600 ? 2 : 1);
+    final int crossAxisCount = screenWidth >= 1000
+        ? 3
+        : (screenWidth >= 600 ? 2 : 1);
 
     return ListenableBuilder(
       listenable: dataService,
@@ -35,12 +37,19 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                     children: [
                       Text(
                         "Manage Incident Categories",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AdminColors.textDark),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AdminColors.textDark,
+                        ),
                       ),
                       SizedBox(height: 4),
                       Text(
                         "Define incident categories available in the mobile reporting app.",
-                        style: TextStyle(fontSize: 13, color: AdminColors.textLight),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AdminColors.textLight,
+                        ),
                       ),
                     ],
                   ),
@@ -48,12 +57,20 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AdminColors.primaryGreen,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     onPressed: () => _showAddCategoryDialog(context),
                     icon: const Icon(Icons.add, size: 18),
-                    label: const Text("Add Category", style: TextStyle(fontWeight: FontWeight.bold)),
+                    label: const Text(
+                      "Add Category",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -65,7 +82,10 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                     ? const Center(
                         child: Text(
                           "No incident categories defined yet.",
-                          style: TextStyle(color: AdminColors.textLight, fontSize: 15),
+                          style: TextStyle(
+                            color: AdminColors.textLight,
+                            fontSize: 15,
+                          ),
                         ),
                       )
                     : GridView.builder(
@@ -113,7 +133,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AdminColors.primaryGreen.withOpacity(0.1),
+                      color: AdminColors.primaryGreen.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -142,12 +162,16 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                     onPressed: () => _showEditCategoryDialog(context, category),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete, color: AdminColors.dangerRed, size: 18),
+                    icon: const Icon(
+                      Icons.delete,
+                      color: AdminColors.dangerRed,
+                      size: 18,
+                    ),
                     tooltip: "Delete Category",
                     onPressed: () => _confirmDeleteCategory(context, category),
                   ),
                 ],
-              )
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -195,7 +219,9 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                       hintText: "e.g. Environmental Hazard",
                       border: OutlineInputBorder(),
                     ),
-                    validator: (val) => val == null || val.isEmpty ? "Enter category name" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Enter category name"
+                        : null,
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
@@ -203,11 +229,14 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                     maxLines: 3,
                     decoration: const InputDecoration(
                       labelText: "Description",
-                      hintText: "Enter explanation of what this category covers...",
+                      hintText:
+                          "Enter explanation of what this category covers...",
                       border: OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),
-                    validator: (val) => val == null || val.isEmpty ? "Enter category explanation" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Enter category explanation"
+                        : null,
                   ),
                 ],
               ),
@@ -219,7 +248,10 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AdminColors.primaryGreen, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminColors.primaryGreen,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   final newCat = IncidentCategory(
@@ -230,7 +262,11 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   dataService.addCategory(newCat);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Category '${newCat.name}' created successfully")),
+                    SnackBar(
+                      content: Text(
+                        "Category '${newCat.name}' created successfully",
+                      ),
+                    ),
                   );
                 }
               },
@@ -243,7 +279,10 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
   }
 
   // Edit Category dialog popup
-  void _showEditCategoryDialog(BuildContext context, IncidentCategory category) {
+  void _showEditCategoryDialog(
+    BuildContext context,
+    IncidentCategory category,
+  ) {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: category.name);
     final descController = TextEditingController(text: category.description);
@@ -263,8 +302,13 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: "Category Name", border: OutlineInputBorder()),
-                    validator: (val) => val == null || val.isEmpty ? "Enter category name" : null,
+                    decoration: const InputDecoration(
+                      labelText: "Category Name",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Enter category name"
+                        : null,
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
@@ -275,7 +319,9 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                       border: OutlineInputBorder(),
                       alignLabelWithHint: true,
                     ),
-                    validator: (val) => val == null || val.isEmpty ? "Enter category explanation" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Enter category explanation"
+                        : null,
                   ),
                 ],
               ),
@@ -287,7 +333,10 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AdminColors.primaryGreen, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminColors.primaryGreen,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   final updated = category.copyWith(
@@ -316,19 +365,28 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text("Delete Category"),
-          content: Text("Are you sure you want to permanently delete category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions."),
+          content: Text(
+            "Are you sure you want to permanently delete category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions.",
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AdminColors.dangerRed, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminColors.dangerRed,
+                foregroundColor: Colors.white,
+              ),
               onPressed: () {
                 dataService.deleteCategory(category.id);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Category '${category.name}' deleted successfully")),
+                  SnackBar(
+                    content: Text(
+                      "Category '${category.name}' deleted successfully",
+                    ),
+                  ),
                 );
               },
               child: const Text("Delete"),

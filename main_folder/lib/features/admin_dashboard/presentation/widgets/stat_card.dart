@@ -31,7 +31,9 @@ class _StatCardState extends State<StatCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        transform: isHovered ? (Matrix4.identity()..translate(0, -5)) : Matrix4.identity(),
+        transform: isHovered
+            ? (Matrix4.identity()..translate(0, -5))
+            : Matrix4.identity(),
         decoration: BoxDecoration(
           color: widget.backgroundColor,
           borderRadius: BorderRadius.circular(12),
@@ -53,11 +55,7 @@ class _StatCardState extends State<StatCard> {
                 right: -20,
                 child: Opacity(
                   opacity: 0.15,
-                  child: Icon(
-                    widget.icon,
-                    size: 100,
-                    color: widget.textColor,
-                  ),
+                  child: Icon(widget.icon, size: 100, color: widget.textColor),
                 ),
               ),
               // Main content
@@ -72,7 +70,7 @@ class _StatCardState extends State<StatCard> {
                       children: [
                         Icon(
                           widget.icon,
-                          color: widget.textColor.withOpacity(0.9),
+                          color: widget.textColor.withValues(alpha: 0.9),
                           size: 28,
                         ),
                       ],
@@ -93,7 +91,7 @@ class _StatCardState extends State<StatCard> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: widget.textColor.withOpacity(0.8),
+                        color: widget.textColor.withValues(alpha: 0.8),
                         letterSpacing: 1.1,
                       ),
                     ),

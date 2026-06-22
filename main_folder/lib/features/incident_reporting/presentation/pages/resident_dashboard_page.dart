@@ -14,7 +14,10 @@ class ResidentDashboardPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
       ),
       child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
     );
@@ -70,7 +73,7 @@ class ResidentDashboardPage extends StatelessWidget {
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -127,7 +130,7 @@ class ResidentDashboardPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
+                    color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 15,
                     offset: const Offset(0, 8),
                   ),
@@ -150,7 +153,7 @@ class ResidentDashboardPage extends StatelessWidget {
                         height: 150,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.04),
+                          color: Colors.white.withValues(alpha: 0.04),
                         ),
                       ),
                     ),
@@ -207,7 +210,7 @@ class ResidentDashboardPage extends StatelessWidget {
                   backgroundColor: AppColors.accentBg,
                   foregroundColor: AppColors.primary,
                   elevation: 2,
-                  shadowColor: AppColors.primary.withOpacity(0.2),
+                  shadowColor: AppColors.primary.withValues(alpha: 0.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -232,7 +235,11 @@ class ResidentDashboardPage extends StatelessWidget {
             // Incomplete Reports Section
             const Text(
               "Incomplete Reports",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
             ),
             const SizedBox(height: 12),
             Container(
@@ -243,7 +250,7 @@ class ResidentDashboardPage extends StatelessWidget {
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -268,19 +275,33 @@ class ResidentDashboardPage extends StatelessWidget {
                         SizedBox(height: 6),
                         Row(
                           children: [
-                            Icon(Icons.access_time_filled_outlined, size: 14, color: AppColors.textLight),
+                            Icon(
+                              Icons.access_time_filled_outlined,
+                              size: 14,
+                              color: AppColors.textLight,
+                            ),
                             SizedBox(width: 4),
                             Text(
                               "16-03-2026",
-                              style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textLight,
+                              ),
                             ),
                             SizedBox(width: 12),
-                            Icon(Icons.location_on, size: 14, color: AppColors.textLight),
+                            Icon(
+                              Icons.location_on,
+                              size: 14,
+                              color: AppColors.textLight,
+                            ),
                             SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 "St. Francis Compound",
-                                style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textLight,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -297,7 +318,11 @@ class ResidentDashboardPage extends StatelessWidget {
             // Unsubmitted Reports Section
             const Text(
               "Unsubmitted Reports",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textDark),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
             ),
             const SizedBox(height: 12),
             Container(
@@ -309,7 +334,7 @@ class ResidentDashboardPage extends StatelessWidget {
                 border: Border.all(color: AppColors.border),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),

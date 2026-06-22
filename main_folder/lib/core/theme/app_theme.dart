@@ -12,7 +12,6 @@ class AppTheme {
       brightness: Brightness.light,
       useMaterial3: true,
       canvasColor: Colors.white,
-      dialogBackgroundColor: Colors.white,
       scaffoldBackgroundColor: const Color(0xFFF8FAFC),
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryBlue,
@@ -30,11 +29,10 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
+      dialogTheme: DialogThemeData(backgroundColor: Colors.white),
     );
   }
 

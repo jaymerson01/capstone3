@@ -12,18 +12,14 @@ class _MyReportsPageState extends State<MyReportsPage> {
   String selectedFilter = "ALL";
 
   Widget logoBox() {
-    return Container(
+    return SizedBox(
       height: 36,
       width: 36,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
-      ),
-      child: Image.asset(
-        'assets/images/logo.png',
-        fit: BoxFit.contain,
+      child: ClipOval(
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }

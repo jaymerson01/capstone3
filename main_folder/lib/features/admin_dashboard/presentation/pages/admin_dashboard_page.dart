@@ -13,7 +13,7 @@ class AdminDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final dataService = AdminDataService();
     final double screenWidth = MediaQuery.of(context).size.width;
-    
+
     // Breakpoints for charts and cards layout
     final bool isDesktop = screenWidth >= 1100;
     final bool isTablet = screenWidth >= 700 && screenWidth < 1100;
@@ -54,7 +54,10 @@ class AdminDashboardPage extends StatelessWidget {
                   ),
                   // Date indicator matching screenshot style
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -62,7 +65,11 @@ class AdminDashboardPage extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.calendar_today, size: 14, color: AdminColors.primaryGreen),
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: AdminColors.primaryGreen,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           "Today: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
@@ -92,25 +99,29 @@ class AdminDashboardPage extends StatelessWidget {
                     title: "Incident Reports",
                     value: dataService.totalIncidents.toString(),
                     icon: Icons.warning_amber_rounded,
-                    backgroundColor: AdminColors.cardRed, // Red color from mockup
+                    backgroundColor:
+                        AdminColors.cardRed, // Red color from mockup
                   ),
                   StatCard(
                     title: "Total Area",
                     value: dataService.totalAreas.toString(),
                     icon: Icons.map_outlined,
-                    backgroundColor: AdminColors.cardBlue, // Blue color from mockup
+                    backgroundColor:
+                        AdminColors.cardBlue, // Blue color from mockup
                   ),
                   StatCard(
                     title: "Solved Cases",
                     value: dataService.solvedCases.toString(),
                     icon: Icons.check_circle_outline,
-                    backgroundColor: AdminColors.cardGreen, // Green color from mockup
+                    backgroundColor:
+                        AdminColors.cardGreen, // Green color from mockup
                   ),
                   StatCard(
                     title: "Registered Users",
                     value: dataService.registeredUsers.toString(),
                     icon: Icons.people_alt_outlined,
-                    backgroundColor: AdminColors.cardYellow, // Yellow color from mockup
+                    backgroundColor:
+                        AdminColors.cardYellow, // Yellow color from mockup
                     textColor: Colors.black87,
                   ),
                 ],
@@ -122,15 +133,9 @@ class AdminDashboardPage extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Expanded(
-                      flex: 6,
-                      child: CustomLineChart(),
-                    ),
+                    const Expanded(flex: 6, child: CustomLineChart()),
                     const SizedBox(width: 20),
-                    const Expanded(
-                      flex: 4,
-                      child: CustomPieChart(),
-                    ),
+                    const Expanded(flex: 4, child: CustomPieChart()),
                   ],
                 )
               else
@@ -177,7 +182,9 @@ class AdminDashboardPage extends StatelessWidget {
                             // Quick tip: navigation handled inside the shell's stateful layout.
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Navigate to 'Incident Reports' tab from sidebar to view full list."),
+                                content: Text(
+                                  "Navigate to 'Incident Reports' tab from sidebar to view full list.",
+                                ),
                                 duration: Duration(seconds: 2),
                               ),
                             );
@@ -203,30 +210,42 @@ class AdminDashboardPage extends StatelessWidget {
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: CircleAvatar(
-                            backgroundColor: report.statusColor.withOpacity(0.15),
+                            backgroundColor: report.statusColor.withValues(
+                              alpha: 0.15,
+                            ),
                             child: Icon(
-                              report.status == IncidentStatus.solved 
-                                  ? Icons.check 
-                                  : report.status == IncidentStatus.inProgress 
-                                      ? Icons.rotate_right 
-                                      : Icons.priority_high,
-                              color: report.statusColor == AdminColors.pendingYellow 
-                                  ? Colors.orange.shade800 // Make yellow text readable on white
+                              report.status == IncidentStatus.solved
+                                  ? Icons.check
+                                  : report.status == IncidentStatus.inProgress
+                                  ? Icons.rotate_right
+                                  : Icons.priority_high,
+                              color:
+                                  report.statusColor ==
+                                      AdminColors.pendingYellow
+                                  ? Colors
+                                        .orange
+                                        .shade800 // Make yellow text readable on white
                                   : report.statusColor,
                             ),
                           ),
                           title: Text(
                             "${report.incidentType} - ${report.location}",
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           subtitle: Text(
                             "Reported by ${report.reporterName} • ${report.date.day}/${report.date.month}/${report.date.year}",
                             style: const TextStyle(fontSize: 12),
                           ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 5,
+                            ),
                             decoration: BoxDecoration(
-                              color: report.statusColor.withOpacity(0.15),
+                              color: report.statusColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -234,7 +253,9 @@ class AdminDashboardPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,
-                                color: report.statusColor == AdminColors.pendingYellow 
+                                color:
+                                    report.statusColor ==
+                                        AdminColors.pendingYellow
                                     ? Colors.orange.shade800
                                     : report.statusColor,
                               ),

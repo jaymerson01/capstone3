@@ -27,12 +27,12 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
       ),
-      child: Image.asset(
-        'assets/images/logo.png',
-        fit: BoxFit.contain,
-      ),
+      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
     );
   }
 
@@ -50,7 +50,11 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
             const SizedBox(width: 10),
             const Text(
               "My Reports",
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -74,11 +78,18 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
               children: [
                 const Text(
                   "Report Directory",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(color: AppColors.border),
@@ -88,7 +99,13 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
                     children: const [
                       Icon(Icons.search, size: 16, color: AppColors.textLight),
                       SizedBox(width: 6),
-                      Text("Search", style: TextStyle(fontSize: 12, color: AppColors.textLight)),
+                      Text(
+                        "Search",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textLight,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -102,7 +119,9 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
                   if (state is IncidentLoading || state is IncidentInitial) {
                     return const Center(
                       child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.darkGreen),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.darkGreen,
+                        ),
                       ),
                     );
                   }
@@ -137,21 +156,27 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
                                 context,
                                 text: "Pending",
                                 status: IncidentStatus.pending,
-                                isActive: state.selectedFilter == IncidentStatus.pending,
+                                isActive:
+                                    state.selectedFilter ==
+                                    IncidentStatus.pending,
                               ),
                               const SizedBox(width: 8),
                               filterChip(
                                 context,
                                 text: "In Progress",
                                 status: IncidentStatus.verified,
-                                isActive: state.selectedFilter == IncidentStatus.verified,
+                                isActive:
+                                    state.selectedFilter ==
+                                    IncidentStatus.verified,
                               ),
                               const SizedBox(width: 8),
                               filterChip(
                                 context,
                                 text: "Resolve",
                                 status: IncidentStatus.resolved,
-                                isActive: state.selectedFilter == IncidentStatus.resolved,
+                                isActive:
+                                    state.selectedFilter ==
+                                    IncidentStatus.resolved,
                               ),
                             ],
                           ),
@@ -161,11 +186,14 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
                         // Reports List
                         Expanded(
                           child: state.filteredIncidents.isEmpty
-                              ? emptyBox("No reports found under this status filter.")
+                              ? emptyBox(
+                                  "No reports found under this status filter.",
+                                )
                               : ListView.separated(
                                   physics: const BouncingScrollPhysics(),
                                   itemCount: state.filteredIncidents.length,
-                                  separatorBuilder: (context, index) => const SizedBox(height: 16),
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 16),
                                   itemBuilder: (context, index) {
                                     return IncidentCard(
                                       incident: state.filteredIncidents[index],
@@ -202,12 +230,14 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive ? AppColors.darkGreen : Colors.white,
-          border: Border.all(color: isActive ? AppColors.darkGreen : AppColors.border),
+          border: Border.all(
+            color: isActive ? AppColors.darkGreen : AppColors.border,
+          ),
           borderRadius: BorderRadius.circular(20),
           boxShadow: isActive
               ? [
                   BoxShadow(
-                    color: AppColors.darkGreen.withOpacity(0.2),
+                    color: AppColors.darkGreen.withValues(alpha: 0.2),
                     blurRadius: 6,
                     offset: const Offset(0, 3),
                   ),
@@ -233,7 +263,10 @@ class _IncidentOverviewPageState extends State<IncidentOverviewPage> {
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200, style: BorderStyle.solid),
+        border: Border.all(
+          color: Colors.grey.shade200,
+          style: BorderStyle.solid,
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

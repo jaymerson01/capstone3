@@ -13,7 +13,7 @@ class CustomLineChart extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -61,15 +61,16 @@ class CustomLineChart extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -93,7 +94,7 @@ class LineChartPainter extends CustomPainter {
 
     const int gridRows = 5;
     final List<String> yLabels = ['25%', '20%', '15%', '10%', '5%'];
-    
+
     // Available drawing area offset for labels
     const double leftMargin = 35.0;
     const double bottomMargin = 20.0;
@@ -103,11 +104,7 @@ class LineChartPainter extends CustomPainter {
     // Draw horizontal grid lines
     for (int i = 0; i < gridRows; i++) {
       double y = (graphHeight / gridRows) * i;
-      canvas.drawLine(
-        Offset(leftMargin, y),
-        Offset(width, y),
-        gridPaint,
-      );
+      canvas.drawLine(Offset(leftMargin, y), Offset(width, y), gridPaint);
 
       // Y-axis label text
       textPainter.text = TextSpan(
@@ -145,7 +142,10 @@ class LineChartPainter extends CustomPainter {
         ),
       );
       textPainter.layout();
-      textPainter.paint(canvas, Offset(x - (textPainter.width / 2), graphHeight + 6));
+      textPainter.paint(
+        canvas,
+        Offset(x - (textPainter.width / 2), graphHeight + 6),
+      );
     }
 
     // Available height function
@@ -158,16 +158,40 @@ class LineChartPainter extends CustomPainter {
     final List<double> bluePoints = [5.0, 10.0, 12.0, 8.0, 10.0, 9.0];
     final List<double> greenPoints = [2.0, 4.0, 6.0, 10.0, 19.0, 14.0];
 
-    drawLineGraph(canvas, orangePoints, Colors.orange, leftMargin, xSpacing, getCorrectY, graphHeight);
-    drawLineGraph(canvas, bluePoints, Colors.blue, leftMargin, xSpacing, getCorrectY, graphHeight);
-    drawLineGraph(canvas, greenPoints, Colors.green, leftMargin, xSpacing, getCorrectY, graphHeight);
+    drawLineGraph(
+      canvas,
+      orangePoints,
+      Colors.orange,
+      leftMargin,
+      xSpacing,
+      getCorrectY,
+      graphHeight,
+    );
+    drawLineGraph(
+      canvas,
+      bluePoints,
+      Colors.blue,
+      leftMargin,
+      xSpacing,
+      getCorrectY,
+      graphHeight,
+    );
+    drawLineGraph(
+      canvas,
+      greenPoints,
+      Colors.green,
+      leftMargin,
+      xSpacing,
+      getCorrectY,
+      graphHeight,
+    );
   }
 
   void drawLineGraph(
-    Canvas canvas, 
-    List<double> values, 
-    Color color, 
-    double leftMargin, 
+    Canvas canvas,
+    List<double> values,
+    Color color,
+    double leftMargin,
     double xSpacing,
     double Function(double) getY,
     double graphHeight,
@@ -215,7 +239,14 @@ class LineChartPainter extends CustomPainter {
         final controlY2 = p1.dy;
 
         path.cubicTo(controlX1, controlY1, controlX2, controlY2, p1.dx, p1.dy);
-        areaPath.cubicTo(controlX1, controlY1, controlX2, controlY2, p1.dx, p1.dy);
+        areaPath.cubicTo(
+          controlX1,
+          controlY1,
+          controlX2,
+          controlY2,
+          p1.dx,
+          p1.dy,
+        );
       }
 
       // Close Area Path for Gradient Fill
@@ -225,14 +256,17 @@ class LineChartPainter extends CustomPainter {
 
       // Draw Gradient Area
       final Paint areaPaint = Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            color.withOpacity(0.24),
-            color.withOpacity(0.0),
-          ],
-        ).createShader(Rect.fromLTRB(leftMargin, 0, points.last.dx, graphHeight))
+        ..shader =
+            LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                color.withValues(alpha: 0.24),
+                color.withValues(alpha: 0.0),
+              ],
+            ).createShader(
+              Rect.fromLTRB(leftMargin, 0, points.last.dx, graphHeight),
+            )
         ..style = PaintingStyle.fill;
 
       canvas.drawPath(areaPath, areaPaint);
@@ -251,4 +285,3 @@ class LineChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

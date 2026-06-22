@@ -31,7 +31,9 @@ class _StatCardState extends State<StatCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        transform: isHovered ? (Matrix4.identity()..translate(0, -6)) : Matrix4.identity(),
+        transform: isHovered
+            ? (Matrix4.identity()..translate(0, -6))
+            : Matrix4.identity(),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
@@ -39,14 +41,14 @@ class _StatCardState extends State<StatCard> {
             end: Alignment.bottomRight,
             colors: [
               widget.backgroundColor,
-              widget.backgroundColor.withOpacity(0.85),
+              widget.backgroundColor.withValues(alpha: 0.85),
             ],
           ),
           boxShadow: [
             BoxShadow(
-              color: isHovered 
-                  ? widget.backgroundColor.withOpacity(0.35) 
-                  : Colors.black.withOpacity(0.06),
+              color: isHovered
+                  ? widget.backgroundColor.withValues(alpha: 0.35)
+                  : Colors.black.withValues(alpha: 0.06),
               blurRadius: isHovered ? 16 : 8,
               offset: isHovered ? const Offset(0, 8) : const Offset(0, 4),
             ),
@@ -62,11 +64,7 @@ class _StatCardState extends State<StatCard> {
                 right: -24,
                 child: Opacity(
                   opacity: 0.12,
-                  child: Icon(
-                    widget.icon,
-                    size: 110,
-                    color: widget.textColor,
-                  ),
+                  child: Icon(widget.icon, size: 110, color: widget.textColor),
                 ),
               ),
               // Main content
@@ -82,7 +80,7 @@ class _StatCardState extends State<StatCard> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
+                            color: Colors.white.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
@@ -110,7 +108,7 @@ class _StatCardState extends State<StatCard> {
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.bold,
-                        color: widget.textColor.withOpacity(0.75),
+                        color: widget.textColor.withValues(alpha: 0.75),
                         letterSpacing: 1.1,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -125,4 +123,3 @@ class _StatCardState extends State<StatCard> {
     );
   }
 }
-

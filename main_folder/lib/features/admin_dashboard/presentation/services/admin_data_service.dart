@@ -15,7 +15,7 @@ class AdminDataService extends ChangeNotifier {
 
   // Admin Credentials
   String _adminName = "Super Admin";
-  String _adminEmail = "admin@safe.gov";
+  final String _adminEmail = "admin@safe.gov";
   String _adminPassword = "admin123";
   String? _adminProfilePic; // Simulated base64 or file path
 
@@ -47,7 +47,9 @@ class AdminDataService extends ChangeNotifier {
 
   // Live Statistics Getters
   int get totalIncidents => _baseIncidents + _reports.length;
-  int get solvedCases => _baseSolved + _reports.where((r) => r.status == IncidentStatus.solved).length;
+  int get solvedCases =>
+      _baseSolved +
+      _reports.where((r) => r.status == IncidentStatus.solved).length;
   int get registeredUsers => _baseUsers + _users.length;
   int get totalAreas => _baseAreas + _areas.length;
 
@@ -63,20 +65,73 @@ class AdminDataService extends ChangeNotifier {
 
     // 5 Detailed Users
     _users.addAll([
-      UserProfile(id: "USR-001", name: "Juan Dela Cruz", email: "juan.dc@email.com", role: "Reporter", isActive: true),
-      UserProfile(id: "USR-002", name: "Maria Santos", email: "maria.santos@email.com", role: "Reporter", isActive: true),
-      UserProfile(id: "USR-003", name: "Pedro Penduko", email: "pedro.p@email.com", role: "Barangay Official", isActive: true),
-      UserProfile(id: "USR-004", name: "Ana Go", email: "ana.go@email.com", role: "Reporter", isActive: false),
-      UserProfile(id: "USR-005", name: "John Doe", email: "john.doe@email.com", role: "Reporter", isActive: true),
+      UserProfile(
+        id: "USR-001",
+        name: "Juan Dela Cruz",
+        email: "juan.dc@email.com",
+        role: "Reporter",
+        isActive: true,
+      ),
+      UserProfile(
+        id: "USR-002",
+        name: "Maria Santos",
+        email: "maria.santos@email.com",
+        role: "Reporter",
+        isActive: true,
+      ),
+      UserProfile(
+        id: "USR-003",
+        name: "Pedro Penduko",
+        email: "pedro.p@email.com",
+        role: "Barangay Official",
+        isActive: true,
+      ),
+      UserProfile(
+        id: "USR-004",
+        name: "Ana Go",
+        email: "ana.go@email.com",
+        role: "Reporter",
+        isActive: false,
+      ),
+      UserProfile(
+        id: "USR-005",
+        name: "John Doe",
+        email: "john.doe@email.com",
+        role: "Reporter",
+        isActive: true,
+      ),
     ]);
 
     // 5 Categories
     _categories.addAll([
-      IncidentCategory(id: "CAT-001", name: "Theft", description: "Stealing of personal property, shoplifting, burglary"),
-      IncidentCategory(id: "CAT-002", name: "Accident", description: "Road vehicular collisions, slips, structural damage accidents"),
-      IncidentCategory(id: "CAT-003", name: "Fire", description: "Residential, commercial, forest, or open trash fires"),
-      IncidentCategory(id: "CAT-004", name: "Violence", description: "Fights, physical assault, domestic disputes, street altercations"),
-      IncidentCategory(id: "CAT-005", name: "Suspicious Activity", description: "Unidentified loitering, casing properties, unknown parked vehicles"),
+      IncidentCategory(
+        id: "CAT-001",
+        name: "Theft",
+        description: "Stealing of personal property, shoplifting, burglary",
+      ),
+      IncidentCategory(
+        id: "CAT-002",
+        name: "Accident",
+        description:
+            "Road vehicular collisions, slips, structural damage accidents",
+      ),
+      IncidentCategory(
+        id: "CAT-003",
+        name: "Fire",
+        description: "Residential, commercial, forest, or open trash fires",
+      ),
+      IncidentCategory(
+        id: "CAT-004",
+        name: "Violence",
+        description:
+            "Fights, physical assault, domestic disputes, street altercations",
+      ),
+      IncidentCategory(
+        id: "CAT-005",
+        name: "Suspicious Activity",
+        description:
+            "Unidentified loitering, casing properties, unknown parked vehicles",
+      ),
     ]);
 
     // 6 Detailed Areas (out of 12)
@@ -98,14 +153,22 @@ class AdminDataService extends ChangeNotifier {
       _reports.add(report);
 
       // Populate timestamps for reports
-      _statusTimestamps.putIfAbsent(report.id, () => {
-        IncidentStatus.pending: report.date,
-      });
-      if (report.status == IncidentStatus.inProgress || report.status == IncidentStatus.solved) {
-        _statusTimestamps[report.id]!.putIfAbsent(IncidentStatus.inProgress, () => report.date.add(const Duration(minutes: 12)));
+      _statusTimestamps.putIfAbsent(
+        report.id,
+        () => {IncidentStatus.pending: report.date},
+      );
+      if (report.status == IncidentStatus.inProgress ||
+          report.status == IncidentStatus.solved) {
+        _statusTimestamps[report.id]!.putIfAbsent(
+          IncidentStatus.inProgress,
+          () => report.date.add(const Duration(minutes: 12)),
+        );
       }
       if (report.status == IncidentStatus.solved) {
-        _statusTimestamps[report.id]!.putIfAbsent(IncidentStatus.solved, () => report.date.add(const Duration(minutes: 45)));
+        _statusTimestamps[report.id]!.putIfAbsent(
+          IncidentStatus.solved,
+          () => report.date.add(const Duration(minutes: 45)),
+        );
       }
     }
     _recalculateAreaCounts();
@@ -134,7 +197,11 @@ class AdminDataService extends ChangeNotifier {
 
     return IncidentReport(
       id: raw['id'] as String? ?? '',
-      incidentType: (raw['title'] as String? ?? '').split(' in ').first.split(' on ').first,
+      incidentType: (raw['title'] as String? ?? '')
+          .split(' in ')
+          .first
+          .split(' on ')
+          .first,
       reporterName: raw['reporterName'] as String? ?? 'Anonymous',
       location: raw['location'] as String? ?? 'Unknown',
       date: raw['timestamp'] != null
@@ -152,10 +219,7 @@ class AdminDataService extends ChangeNotifier {
     return "${dateTime.month}/${dateTime.day}/${dateTime.year} $hour:$minute";
   }
 
-  void addAuditLog({
-    required String action,
-    required String details,
-  }) {
+  void addAuditLog({required String action, required String details}) {
     _auditLogs.insert(0, {
       "time": _formatDateTime(DateTime.now()),
       "admin": adminName,
@@ -189,16 +253,23 @@ class AdminDataService extends ChangeNotifier {
     };
     for (var area in _areas) {
       final base = baseCounts[area.name] ?? 0;
-      final liveCount = _reports.where((r) => 
-        r.location.toLowerCase().contains(area.name.toLowerCase()) || 
-        area.name.toLowerCase().contains(r.location.toLowerCase())
-      ).length;
+      final liveCount = _reports
+          .where(
+            (r) =>
+                r.location.toLowerCase().contains(area.name.toLowerCase()) ||
+                area.name.toLowerCase().contains(r.location.toLowerCase()),
+          )
+          .length;
       area.incidentsCount = base + liveCount;
     }
   }
 
   // --- Profile Operations ---
-  void updateProfile({required String name, required String password, String? profilePic}) {
+  void updateProfile({
+    required String name,
+    required String password,
+    String? profilePic,
+  }) {
     _adminName = name;
     _adminPassword = password;
     if (profilePic != null) {
@@ -223,17 +294,14 @@ class AdminDataService extends ChangeNotifier {
       'status': report.status == IncidentStatus.pending
           ? 'pending'
           : (report.status == IncidentStatus.inProgress
-              ? 'inProgress'
-              : (report.status == IncidentStatus.solved ? 'solved' : 'spam')),
+                ? 'inProgress'
+                : (report.status == IncidentStatus.solved ? 'solved' : 'spam')),
       'severity': 'Medium',
       'latitude': 14.4796,
       'longitude': 121.0196,
       'imagePath': 'assets/images/logo.png',
     });
-    addAuditLog(
-      action: "Report Added",
-      details: "Added Report ${report.id}",
-    );
+    addAuditLog(action: "Report Added", details: "Added Report ${report.id}");
   }
 
   void editReport(IncidentReport updatedReport) {
@@ -247,8 +315,10 @@ class AdminDataService extends ChangeNotifier {
       'status': updatedReport.status == IncidentStatus.pending
           ? 'pending'
           : (updatedReport.status == IncidentStatus.inProgress
-              ? 'inProgress'
-              : (updatedReport.status == IncidentStatus.solved ? 'solved' : 'spam')),
+                ? 'inProgress'
+                : (updatedReport.status == IncidentStatus.solved
+                      ? 'solved'
+                      : 'spam')),
       'severity': 'Medium',
       'latitude': 14.4796,
       'longitude': 121.0196,
@@ -262,10 +332,7 @@ class AdminDataService extends ChangeNotifier {
 
   void deleteReport(String reportId) {
     SharedIncidentDatabase().deleteIncident(reportId);
-    addAuditLog(
-      action: "Report Deleted",
-      details: "Deleted Report $reportId",
-    );
+    addAuditLog(action: "Report Deleted", details: "Deleted Report $reportId");
   }
 
   void updateReportStatus(String reportId, IncidentStatus newStatus) {
@@ -276,8 +343,8 @@ class AdminDataService extends ChangeNotifier {
       updated['status'] = newStatus == IncidentStatus.pending
           ? 'pending'
           : (newStatus == IncidentStatus.inProgress
-              ? 'inProgress'
-              : (newStatus == IncidentStatus.solved ? 'solved' : 'spam'));
+                ? 'inProgress'
+                : (newStatus == IncidentStatus.solved ? 'solved' : 'spam'));
       SharedIncidentDatabase().saveIncident(updated);
 
       _statusTimestamps.putIfAbsent(reportId, () => {});
@@ -301,10 +368,7 @@ class AdminDataService extends ChangeNotifier {
   // --- User Operations ---
   void addUser(UserProfile user) {
     _users.insert(0, user);
-    addAuditLog(
-      action: "User Added",
-      details: "Added user ${user.name}",
-    );
+    addAuditLog(action: "User Added", details: "Added user ${user.name}");
     notifyListeners();
   }
 
@@ -338,10 +402,7 @@ class AdminDataService extends ChangeNotifier {
     if (index != -1) {
       final userName = _users[index].name;
       _users.removeAt(index);
-      addAuditLog(
-        action: "User Deleted",
-        details: "Deleted user $userName",
-      );
+      addAuditLog(action: "User Deleted", details: "Deleted user $userName");
       notifyListeners();
     }
   }
@@ -352,7 +413,8 @@ class AdminDataService extends ChangeNotifier {
       _users[index].isActive = !_users[index].isActive;
       addAuditLog(
         action: _users[index].isActive ? "User Enabled" : "User Disabled",
-        details: "${_users[index].isActive ? "Enabled" : "Disabled"} user ${_users[index].name}",
+        details:
+            "${_users[index].isActive ? "Enabled" : "Disabled"} user ${_users[index].name}",
       );
       notifyListeners();
     }
@@ -396,10 +458,7 @@ class AdminDataService extends ChangeNotifier {
   // --- Area Operations ---
   void addArea(AreaInfo area) {
     _areas.add(area);
-    addAuditLog(
-      action: "Area Added",
-      details: "Added area ${area.name}",
-    );
+    addAuditLog(action: "Area Added", details: "Added area ${area.name}");
     notifyListeners();
   }
 
@@ -420,10 +479,7 @@ class AdminDataService extends ChangeNotifier {
     if (index != -1) {
       final areaName = _areas[index].name;
       _areas.removeAt(index);
-      addAuditLog(
-        action: "Area Deleted",
-        details: "Deleted area $areaName",
-      );
+      addAuditLog(action: "Area Deleted", details: "Deleted area $areaName");
       notifyListeners();
     }
   }

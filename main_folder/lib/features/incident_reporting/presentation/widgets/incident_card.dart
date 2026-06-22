@@ -5,10 +5,7 @@ import '../theme/app_colors.dart';
 class IncidentCard extends StatelessWidget {
   final IncidentModel incident;
 
-  const IncidentCard({
-    super.key,
-    required this.incident,
-  });
+  const IncidentCard({super.key, required this.incident});
 
   String _getRelativeTime(DateTime timestamp) {
     final difference = DateTime.now().difference(timestamp);
@@ -64,7 +61,7 @@ class IncidentCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -109,7 +106,7 @@ class IncidentCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.15),
+              color: statusColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
