@@ -5,8 +5,26 @@ import '../theme/app_color.dart';
 import 'dashboard.dart';
 import 'sign_up.dart';
 
-class LoginPage extends StatelessWidget {
+import '../services/mock_database_service.dart';
+import '../admin/admin_panel_shell.dart';
+
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   // Safe external URI launcher wrapper
   Future<void> _launchAuthUrl(BuildContext context, String urlString) async {
@@ -112,6 +130,7 @@ class LoginPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         TextField(
+                          controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             hintText: "Email or mobile number",
@@ -150,6 +169,7 @@ class LoginPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         TextField(
+                          controller: _passwordController,
                           obscureText: true,
                           decoration: InputDecoration(
                             hintText: "Password",
@@ -192,16 +212,38 @@ class LoginPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            onPressed: () {
-                              // Store user session persistently in Hive box
-                              Hive.box('auth').put('isLoggedIn', true);
+                            onPressed: () async {
+                              final email = _emailController.text.trim();
+                              final password = _passwordController.text;
+                              if (email.isEmpty || password.isEmpty) return;
 
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const DashboardPage(),
-                                ),
-                              );
+                              final db = MockDatabaseService();
+                              final success = await db.login(email, password);
+
+                              if (success && context.mounted) {
+                                if (db.currentUser?.role.toLowerCase() == 'admin') {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const AdminPanelShell(),
+                                    ),
+                                  );
+                                } else {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const DashboardPage(),
+                                    ),
+                                  );
+                                }
+                              } else if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Invalid email or password. Or account is archived."),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
                             },
                             child: const Text(
                               "CONTINUE",

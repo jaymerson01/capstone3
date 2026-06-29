@@ -163,12 +163,12 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   ),
                   IconButton(
                     icon: const Icon(
-                      Icons.delete,
+                      Icons.archive,
                       color: AdminColors.dangerRed,
                       size: 18,
                     ),
-                    tooltip: "Delete Category",
-                    onPressed: () => _confirmDeleteCategory(context, category),
+                    tooltip: "Archive Category",
+                    onPressed: () => _confirmArchiveCategory(context, category),
                   ),
                 ],
               ),
@@ -358,15 +358,15 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Confirm delete category dialog popup
-  void _confirmDeleteCategory(BuildContext context, IncidentCategory category) {
+  // Confirm archive category dialog popup
+  void _confirmArchiveCategory(BuildContext context, IncidentCategory category) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Delete Category"),
+          title: const Text("Archive Category"),
           content: Text(
-            "Are you sure you want to permanently delete category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions.",
+            "Are you sure you want to archive category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions.",
           ),
           actions: [
             TextButton(
@@ -379,17 +379,17 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () {
-                dataService.deleteCategory(category.id);
+                dataService.archiveCategory(category.id);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      "Category '${category.name}' deleted successfully",
+                      "Category '${category.name}' archived successfully",
                     ),
                   ),
                 );
               },
-              child: const Text("Delete"),
+              child: const Text("Archive"),
             ),
           ],
         );

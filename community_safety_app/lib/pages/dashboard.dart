@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
 import '../components/side_menu.dart';
 import 'report_incident.dart';
+import '../services/mock_database_service.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -213,68 +214,51 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildCommunityReportsSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Community Incident Updates",
-          style: TextStyle(
-            color: AppColors.textDark,
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        const SizedBox(height: 4),
-        const Text(
-          "Recent reports from nearby compounds and streets",
-          style: TextStyle(
-            color: AppColors.textLight,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 16),
+    return ListenableBuilder(
+      listenable: MockDatabaseService(),
+      builder: (context, _) {
+        final recentReports = MockDatabaseService().reports.where((r) => !r.isArchived).toList();
+        recentReports.sort((a, b) => b.date.compareTo(a.date));
+        final topReports = recentReports.take(4).toList();
 
-        _buildSampleReportCard(
-          category: "Fire Incident",
-          location: "St. Joseph Compound, Moonwalk",
-          time: "Reported 10 minutes ago",
-          urgency: "High",
-          description:
-              "A resident reported smoke coming from a house kitchen area. Nearby residents are advised to stay away from the affected area.",
-          status: "Responder Alerted",
-        ),
-
-        _buildSampleReportCard(
-          category: "Suspicious Activity",
-          location: "Sampaguita Street, Moonwalk",
-          time: "Reported 25 minutes ago",
-          urgency: "Medium",
-          description:
-              "A suspicious person was seen roaming near parked motorcycles. Residents are advised to secure their gates and vehicles.",
-          status: "Under Monitoring",
-        ),
-
-        _buildSampleReportCard(
-          category: "Road Accident",
-          location: "Moonwalk Main Road",
-          time: "Reported 40 minutes ago",
-          urgency: "High",
-          description:
-              "Minor road accident involving a motorcycle and private vehicle. Motorists are advised to slow down in the area.",
-          status: "In Progress",
-        ),
-
-        _buildSampleReportCard(
-          category: "Noise Complaint",
-          location: "Camella Compound, Moonwalk",
-          time: "Reported 1 hour ago",
-          urgency: "Low",
-          description:
-              "Loud music was reported by nearby residents. Barangay personnel may verify if the noise continues.",
-          status: "Pending Review",
-        ),
-      ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Community Incident Updates",
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontSize: 20,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              "Recent reports from nearby compounds and streets",
+              style: TextStyle(
+                color: AppColors.textLight,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (topReports.isEmpty)
+              const Text("No recent reports.")
+            else
+              ...topReports.map((r) {
+                final dateStr = "${r.date.month}/${r.date.day}/${r.date.year}";
+                return _buildSampleReportCard(
+                  category: r.incidentType,
+                  location: r.location,
+                  time: "Reported $dateStr",
+                  urgency: r.urgencyLevel,
+                  description: r.description,
+                  status: r.statusLabel,
+                );
+              }),
+          ],
+        );
+      },
     );
   }
 

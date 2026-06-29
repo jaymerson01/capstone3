@@ -15,6 +15,8 @@ class IncidentReport {
   final DateTime date;
   IncidentStatus status;
   String description;
+  final String urgencyLevel;
+  bool isArchived;
 
   IncidentReport({
     required this.id,
@@ -24,6 +26,8 @@ class IncidentReport {
     required this.date,
     required this.status,
     required this.description,
+    required this.urgencyLevel,
+    this.isArchived = false,
   });
 
   String get statusLabel {
@@ -60,6 +64,8 @@ class IncidentReport {
     DateTime? date,
     IncidentStatus? status,
     String? description,
+    String? urgencyLevel,
+    bool? isArchived,
   }) {
     return IncidentReport(
       id: id ?? this.id,
@@ -69,6 +75,39 @@ class IncidentReport {
       date: date ?? this.date,
       status: status ?? this.status,
       description: description ?? this.description,
+      urgencyLevel: urgencyLevel ?? this.urgencyLevel,
+      isArchived: isArchived ?? this.isArchived,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'incidentType': incidentType,
+      'reporterName': reporterName,
+      'location': location,
+      'date': date.toIso8601String(),
+      'status': status.name,
+      'description': description,
+      'urgencyLevel': urgencyLevel,
+      'isArchived': isArchived,
+    };
+  }
+
+  factory IncidentReport.fromJson(Map<String, dynamic> json) {
+    return IncidentReport(
+      id: json['id'],
+      incidentType: json['incidentType'],
+      reporterName: json['reporterName'],
+      location: json['location'],
+      date: DateTime.parse(json['date']),
+      status: IncidentStatus.values.firstWhere(
+        (e) => e.name == json['status'],
+        orElse: () => IncidentStatus.pending,
+      ),
+      description: json['description'],
+      urgencyLevel: json['urgencyLevel'],
+      isArchived: json['isArchived'] ?? false,
     );
   }
 }

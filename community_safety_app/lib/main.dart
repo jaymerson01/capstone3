@@ -6,11 +6,14 @@ import 'admin/pages/admin_login_page.dart';
 import 'admin/admin_panel_shell.dart';
 import 'widgets/floating_chat_bot.dart';
 
+import 'services/mock_database_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
   await Hive.openBox('auth');
+  await MockDatabaseService().init();
 
   runApp(const MyApp());
 }

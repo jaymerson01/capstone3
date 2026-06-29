@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme/app_color.dart';
+import '../admin/models/incident_report.dart';
+import '../services/mock_database_service.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -16,7 +18,15 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   String _selectedComplainant = "Anonymous";
-  String _selectedBarangay = "Moonwalk";
+  late final String _currentUserName;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentUserName = MockDatabaseService().currentUser?.name ?? "Anonymous";
+    _selectedComplainant = _currentUserName;
+  }
+  String _selectedBarangay = "Area 1";
 
   String? _selectedIncidentCategory;
   String _selectedUrgencyLevel = "Medium Emergency";
@@ -658,18 +668,17 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       ),
     );
 
-    // TODO: Connect this to your database/admin report saving logic.
-    // Save these values together with the report:
-    //
-    // category: _selectedIncidentCategory
-    // urgencyLevel: _selectedUrgencyLevel
-    // complainant: _selectedComplainant
-    // barangay: _selectedBarangay
-    // coordinates: _coordinatesController.text
-    // description: _descriptionController.text
-    // evidenceFiles: _selectedEvidenceFiles
-    // status: "Pending"
-    // createdAt: DateTime.now()
+    final newReport = IncidentReport(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      incidentType: _selectedIncidentCategory!,
+      reporterName: _selectedComplainant ?? MockDatabaseService().currentUser?.name ?? "Anonymous",
+      location: _selectedBarangay ?? "Unknown Area",
+      date: DateTime.now(),
+      status: IncidentStatus.pending,
+      description: _descriptionController.text.isNotEmpty ? _descriptionController.text : "No description provided",
+      urgencyLevel: _selectedUrgencyLevel,
+    );
+    MockDatabaseService().addReport(newReport);
 
     Future.delayed(const Duration(milliseconds: 950), () {
       if (!mounted) return;
@@ -1026,9 +1035,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             label: "Complainant Name",
             value: _selectedComplainant,
             options: [
-              "Anonymous",
-              "Verified Account Profile",
-              "Confidential Third-Party",
+              _currentUserName,
+              if (_currentUserName != "Anonymous") "Anonymous",
             ],
             onChanged: (val) => setState(() => _selectedComplainant = val!),
           ),
@@ -1038,7 +1046,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           _buildDropdownBox(
             label: "Barangay",
             value: _selectedBarangay,
-            options: ["Moonwalk", "Don Bosco", "Sun Valley", "Merville"],
+            options: ["Area 1", "Area 2", "Area 3", "Area 4", "Area 5"],
             onChanged: (val) => setState(() => _selectedBarangay = val!),
           ),
           const SizedBox(height: 14),

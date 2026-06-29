@@ -2,8 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_color.dart';
 
-class SignUpPage extends StatelessWidget {
+import '../services/mock_database_service.dart';
+import 'dashboard.dart';
+
+class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
+
+  @override
+  State<SignUpPage> createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   Future<void> _launchAuthUrl(BuildContext context, String urlString) async {
     final Uri url = Uri.parse(urlString);
@@ -73,6 +93,30 @@ class SignUpPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
+                          "Full Name",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _nameController,
+                          decoration: InputDecoration(
+                            hintText: "Enter your full name",
+                            prefixIcon: const Icon(
+                              Icons.person_outline,
+                              color: AppColors.textLight,
+                              size: 20,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
                           "Email Address",
                           style: TextStyle(
                             fontSize: 13,
@@ -82,6 +126,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         TextField(
+                          controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             hintText: "Enter your email",
@@ -106,6 +151,7 @@ class SignUpPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         TextField(
+                          controller: _passwordController,
                           obscureText: true,
                           decoration: InputDecoration(
                             hintText: "Create a password",
@@ -131,7 +177,24 @@ class SignUpPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () async {
+                              final name = _nameController.text.trim();
+                              final email = _emailController.text.trim();
+                              final password = _passwordController.text;
+                              if (name.isEmpty || email.isEmpty || password.isEmpty) return;
+
+                              final success = await MockDatabaseService().signUp(name, email, password, "Reporter");
+                              if (success && context.mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const DashboardPage()),
+                                );
+                              } else if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Registration failed. Email might already exist."), backgroundColor: Colors.red),
+                                );
+                              }
+                            },
                             child: const Text(
                               "REGISTER",
                               style: TextStyle(fontWeight: FontWeight.bold),

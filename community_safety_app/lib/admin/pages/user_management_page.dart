@@ -31,29 +31,48 @@ class _UserManagementPageState extends State<UserManagementPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black12, blurRadius: 4),
-                  ],
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Search users...",
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(color: Colors.black12, blurRadius: 4),
+                        ],
+                      ),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "Search users...",
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            searchQuery = value;
+                          });
+                        },
+                      ),
                     ),
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      searchQuery = value;
-                    });
-                  },
-                ),
+                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      const Text("Show Archived"),
+                      Switch(
+                        value: dataService.showArchivedUsers,
+                        onChanged: (val) {
+                          dataService.toggleArchivedUsers();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
 
               const SizedBox(height: 20),
@@ -114,11 +133,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
                                   IconButton(
                                     icon: const Icon(
-                                      Icons.delete,
+                                      Icons.archive,
                                       color: Colors.red,
                                     ),
                                     onPressed: () {
-                                      dataService.deleteUser(user.id);
+                                      dataService.archiveUser(user.id);
                                     },
                                   ),
                                 ],

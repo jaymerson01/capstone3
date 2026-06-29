@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
+import '../services/mock_database_service.dart';
+import '../admin/models/incident_report.dart';
 
 class MyReportsPage extends StatefulWidget {
   const MyReportsPage({super.key});
@@ -104,21 +106,51 @@ class _MyReportsPageState extends State<MyReportsPage> {
             
             // List of Reports
             Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  if (selectedFilter == "ALL" || selectedFilter == "Pending")
-                    reportBox(
-                      title: "House Fire on St. Francis Compound",
-                      time: "5 mins ago",
-                      status: "Pending",
-                      statusColor: AppColors.pending,
-                    ),
-                  const SizedBox(height: 16),
-                  emptyBox("No additional active reports under this status filter."),
-                  const SizedBox(height: 16),
-                  emptyBox("Draft saved: Water Leakage near Purok 5 (Tap to resume)"),
-                ],
+              child: ListenableBuilder(
+                listenable: MockDatabaseService(),
+                builder: (context, _) {
+                  final currentUser = MockDatabaseService().currentUser;
+                  if (currentUser == null) {
+                    return const Center(child: Text("Not logged in."));
+                  }
+
+                  final allReports = MockDatabaseService().reports;
+                  final myReports = allReports.where((r) => r.reporterName == currentUser.name && !r.isArchived).toList();
+                  
+                  // Sort by most recent
+                  myReports.sort((a, b) => b.date.compareTo(a.date));
+
+                  final filteredReports = myReports.where((r) {
+                    if (selectedFilter == "ALL") return true;
+                    if (selectedFilter == "Pending") return r.statusLabel.toLowerCase() == "pending";
+                    if (selectedFilter == "In Progress") return r.statusLabel.toLowerCase() == "in progress";
+                    if (selectedFilter == "Resolve") return r.statusLabel.toLowerCase() == "solved";
+                    return true;
+                  }).toList();
+
+                  if (filteredReports.isEmpty) {
+                    return ListView(
+                      children: [emptyBox("No reports found under this status filter.")],
+                    );
+                  }
+
+                  return ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: filteredReports.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final report = filteredReports[index];
+                      // Just a quick format for date
+                      final dateStr = "${report.date.month}/${report.date.day}/${report.date.year}";
+                      return reportBox(
+                        title: report.incidentType,
+                        time: dateStr,
+                        status: report.statusLabel,
+                        statusColor: report.statusColor,
+                      );
+                    },
+                  );
+                },
               ),
             ),
           ],

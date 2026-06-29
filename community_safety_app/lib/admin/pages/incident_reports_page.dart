@@ -43,9 +43,25 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Incident Reports",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Incident Reports",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
+                  Row(
+                    children: [
+                      const Text("Show Archived"),
+                      Switch(
+                        value: dataService.showArchivedReports,
+                        onChanged: (val) {
+                          dataService.toggleArchivedReports();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               Row(
@@ -110,6 +126,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               columns: const [
                                 DataColumn(label: Text("Report ID")),
                                 DataColumn(label: Text("Type")),
+                                DataColumn(label: Text("Urgency")),
                                 DataColumn(label: Text("Reporter")),
                                 DataColumn(label: Text("Location")),
                                 DataColumn(label: Text("Date")),
@@ -121,6 +138,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   cells: [
                                     DataCell(Text(report.id)),
                                     DataCell(Text(report.incidentType)),
+                                    DataCell(Text(report.urgencyLevel)),
                                     DataCell(Text(report.reporterName)),
                                     DataCell(Text(report.location)),
                                     DataCell(Text(_formatDate(report.date))),
@@ -203,13 +221,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                           ),
                                           IconButton(
                                             icon: const Icon(
-                                              Icons.delete,
+                                              Icons.archive,
                                               color: Colors.red,
                                               size: 20,
                                             ),
-                                            tooltip: "Delete Report",
+                                            tooltip: "Archive Report",
                                             onPressed: () {
-                                              dataService.deleteReport(
+                                              dataService.archiveReport(
                                                 report.id,
                                               );
                                             },

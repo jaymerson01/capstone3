@@ -40,24 +40,36 @@ class _AreaManagementPageState
                     ),
                   ),
 
-                  ElevatedButton.icon(
-                    style:
-                        ElevatedButton.styleFrom(
-                      backgroundColor:
-                          AdminColors
-                              .primaryGreen,
-                      foregroundColor:
-                          Colors.white,
-                    ),
-                    onPressed: () {
-                      _showAddAreaDialog(
-                          context);
-                    },
-                    icon: const Icon(
-                        Icons.add),
-                    label: const Text(
-                      "Add New Area",
-                    ),
+                  Row(
+                    children: [
+                      const Text("Show Archived"),
+                      Switch(
+                        value: dataService.showArchivedAreas,
+                        onChanged: (val) {
+                          dataService.toggleArchivedAreas();
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        style:
+                            ElevatedButton.styleFrom(
+                          backgroundColor:
+                              AdminColors
+                                  .primaryGreen,
+                          foregroundColor:
+                              Colors.white,
+                        ),
+                        onPressed: () {
+                          _showAddAreaDialog(
+                              context);
+                        },
+                        icon: const Icon(
+                            Icons.add),
+                        label: const Text(
+                          "Add New Area",
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -133,14 +145,14 @@ class _AreaManagementPageState
                                       icon:
                                           const Icon(
                                         Icons
-                                            .delete,
+                                            .archive,
                                         color: Colors
                                             .red,
                                       ),
                                       onPressed:
                                           () {
                                         dataService
-                                            .deleteArea(
+                                            .archiveArea(
                                           area.id,
                                         );
                                       },

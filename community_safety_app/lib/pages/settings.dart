@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../theme/app_color.dart';
 import 'welcome_page.dart';
+import '../services/mock_database_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -162,7 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     _buildSettingTile(
                       icon: Icons.help_outline_rounded,
-                      title: "Help Desk & Customer Support",
+                      title: "Barangay Help Desk",
                       subtitle: "Get live system guidance or read user guides",
                       onTap: () => _showModalInformation(
                         context,
@@ -268,22 +269,22 @@ class _SettingsPageState extends State<SettingsPage> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "John David Echano",
-                  style: TextStyle(
+                  MockDatabaseService().currentUser?.name ?? "Unknown User",
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "johnechano@gmail.com",
-                  style: TextStyle(fontSize: 13, color: AppColors.textLight),
+                  MockDatabaseService().currentUser?.email ?? "No email provided",
+                  style: const TextStyle(fontSize: 13, color: AppColors.textLight),
                 ),
-                SizedBox(height: 2),
-                Text(
+                const SizedBox(height: 2),
+                const Text(
                   "Verified Resident • Parañaque City",
                   style: TextStyle(
                     fontSize: 11,
@@ -500,10 +501,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () {
               Navigator.pop(context);
               if (contextTitle == "Logout") {
-                // Clear user persistent session state from Hive
-                Hive.box('auth').put('isLoggedIn', false);
-
-                // Navigate back to welcome page clearing screen stack
+                MockDatabaseService().logout();
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const WelcomePage()),
@@ -513,7 +511,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      "Action '$contextTitle' processed successfully.",
+                      "Action '\$contextTitle' processed successfully.",
                     ),
                   ),
                 );
@@ -735,15 +733,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     text: "Bldg 4, St. Francis Compound, Moonwalk",
   );
 
-  String _selectedBarangay = 'Moonwalk';
+  String _selectedBarangay = 'Area 1';
   String _selectedLanguage = 'English (PH)';
 
   final List<String> _barangayList = [
-    'Moonwalk',
-    'Don Bosco',
-    'Sun Valley',
-    'San Martin De Porres',
-    'Sto. Niño',
+    'Area 1',
+    'Area 2',
+    'Area 3',
+    'Area 4',
+    'Area 5',
   ];
   final List<String> _languages = [
     'English (PH)',
