@@ -1,9 +1,8 @@
-import 'package:dartz/dartz.dart';
-import '../../../../core/error/failures.dart';
+import 'dart:async';
+
 import '../entities/incident_entity.dart';
 
 abstract class IncidentRepository {
-  Future<Either<Failure, void>> submitIncident(IncidentEntity incident);
-  Future<Either<Failure, List<IncidentEntity>>> getIncidents();
-  Future<Either<Failure, void>> incrementAffectedCount(String incidentId, String userId);
+  Stream<List<IncidentEntity>> streamActiveIncidents();
+  Future<void> submitIncidentReport(IncidentEntity incident);
 }

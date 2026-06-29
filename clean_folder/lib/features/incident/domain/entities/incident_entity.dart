@@ -1,27 +1,29 @@
 class IncidentEntity {
   final String id;
-  final String title;
+  final String reporterId;
   final String description;
-  final double latitude;
-  final double longitude;
+  final String category;
   final String? photoUrl;
   final String status;
-  final String urgencyStatus;
   final DateTime timestamp;
-  final int affectedCount;
-  final List<String> affectedUserIds;
+  final double latitude;
+  final double longitude;
+  final String? resolvedAddress;
+  final int upvoteCount;
+  final List<String> validatedUserIds;
 
   const IncidentEntity({
     required this.id,
-    required this.title,
+    required this.reporterId,
     required this.description,
-    required this.latitude,
-    required this.longitude,
+    required this.category,
     this.photoUrl,
     required this.status,
-    required this.urgencyStatus,
     required this.timestamp,
-    this.affectedCount = 1,
-    this.affectedUserIds = const [],
+    required this.latitude,
+    required this.longitude,
+    this.resolvedAddress,
+    this.upvoteCount = 0,
+    this.validatedUserIds = const [],
   });
 }

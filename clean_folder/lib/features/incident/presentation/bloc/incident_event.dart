@@ -4,19 +4,24 @@ abstract class IncidentEvent {
   const IncidentEvent();
 }
 
-class SubmitIncidentRequested extends IncidentEvent {
+class StreamActiveIncidentsRequested extends IncidentEvent {
+  const StreamActiveIncidentsRequested();
+}
+
+class IncidentsUpdated extends IncidentEvent {
+  final List<IncidentEntity> incidents;
+
+  const IncidentsUpdated(this.incidents);
+}
+
+class IncidentsError extends IncidentEvent {
+  final String message;
+
+  const IncidentsError(this.message);
+}
+
+class SubmitIncidentReportRequested extends IncidentEvent {
   final IncidentEntity incident;
 
-  const SubmitIncidentRequested(this.incident);
-}
-
-class FetchIncidentsRequested extends IncidentEvent {
-  const FetchIncidentsRequested();
-}
-
-class IncrementAffectedCountRequested extends IncidentEvent {
-  final String incidentId;
-  final String userId;
-
-  const IncrementAffectedCountRequested(this.incidentId, this.userId);
+  const SubmitIncidentReportRequested(this.incident);
 }

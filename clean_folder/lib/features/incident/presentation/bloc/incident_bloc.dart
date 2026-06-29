@@ -1,49 +1,72 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../domain/repositories/incident_repository.dart';
 import 'incident_event.dart';
 import 'incident_state.dart';
 
 class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   final IncidentRepository repository;
+  StreamSubscription? _incidentStreamSubscription;
 
   IncidentBloc({required this.repository}) : super(IncidentInitial()) {
-    on<SubmitIncidentRequested>(_onSubmitIncidentRequested);
-    on<FetchIncidentsRequested>(_onFetchIncidentsRequested);
-    on<IncrementAffectedCountRequested>(_onIncrementAffectedCountRequested);
+    on<StreamActiveIncidentsRequested>(_onStreamActiveIncidentsRequested);
+    on<IncidentsUpdated>(_onIncidentsUpdated);
+    on<IncidentsError>(_onIncidentsError);
+    on<SubmitIncidentReportRequested>(_onSubmitIncidentReportRequested);
   }
 
-  Future<void> _onSubmitIncidentRequested(
-    SubmitIncidentRequested event,
+  void _onStreamActiveIncidentsRequested(
+    StreamActiveIncidentsRequested event,
+    Emitter<IncidentState> emit,
+  ) {
+    emit(IncidentLoading());
+    _incidentStreamSubscription?.cancel();
+    
+    // Connect to the Domain Repository Stream
+    _incidentStreamSubscription = repository.streamActiveIncidents().listen(
+      (incidents) {
+        add(IncidentsUpdated(incidents));
+      },
+      onError: (error) {
+        add(IncidentsError(error.toString()));
+      },
+    );
+  }
+
+  void _onIncidentsUpdated(
+    IncidentsUpdated event,
+    Emitter<IncidentState> emit,
+  ) {
+    emit(IncidentLoaded(event.incidents));
+  }
+
+  void _onIncidentsError(
+    IncidentsError event,
+    Emitter<IncidentState> emit,
+  ) {
+    emit(IncidentError(event.message));
+  }
+
+  Future<void> _onSubmitIncidentReportRequested(
+    SubmitIncidentReportRequested event,
     Emitter<IncidentState> emit,
   ) async {
     emit(IncidentSubmitLoading());
-    final result = await repository.submitIncident(event.incident);
-    result.fold(
-      (failure) => emit(IncidentSubmitFailure(failure.message)),
-      (_) => emit(IncidentSubmitSuccess()),
-    );
+    try {
+      await repository.submitIncidentReport(event.incident);
+      emit(IncidentSubmitSuccess());
+      // Upon successful submission, the Firestore Snapshot listener will automatically
+      // detect the new document, trigger the stream, and map the UI into IncidentLoaded.
+    } catch (e) {
+      emit(IncidentSubmitFailure(e.toString()));
+    }
   }
 
-  Future<void> _onFetchIncidentsRequested(
-    FetchIncidentsRequested event,
-    Emitter<IncidentState> emit,
-  ) async {
-    emit(IncidentFetchLoading());
-    final result = await repository.getIncidents();
-    result.fold(
-      (failure) => emit(IncidentFetchFailure(failure.message)),
-      (incidents) => emit(IncidentFetchSuccess(incidents)),
-    );
-  }
-
-  Future<void> _onIncrementAffectedCountRequested(
-    IncrementAffectedCountRequested event,
-    Emitter<IncidentState> emit,
-  ) async {
-    final result = await repository.incrementAffectedCount(event.incidentId, event.userId);
-    result.fold(
-      (failure) => emit(IncidentSubmitFailure(failure.message)), // Or create specific failure state
-      (_) => add(const FetchIncidentsRequested()), // Re-fetch to update map correctly
-    );
+  @override
+  Future<void> close() {
+    _incidentStreamSubscription?.cancel();
+    return super.close();
   }
 }
