@@ -25,3 +25,9 @@ class SubmitIncidentReportRequested extends IncidentEvent {
 
   const SubmitIncidentReportRequested(this.incident);
 }
+
+class AnalyzeIncidentNarrativeEvent extends IncidentEvent {
+  final String description;
+
+  const AnalyzeIncidentNarrativeEvent(this.description);
+}

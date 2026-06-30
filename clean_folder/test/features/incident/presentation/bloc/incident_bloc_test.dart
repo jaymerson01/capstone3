@@ -1,21 +1,22 @@
+import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:community_safety_app/core/error/failures.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
+import 'package:community_safety_app/features/incident/domain/usecases/triage_incident_usecase.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 
 class MockIncidentRepository extends Mock implements IncidentRepository {}
-
+class MockTriageIncidentUseCase extends Mock implements TriageIncidentUseCase {}
 class FakeIncidentEntity extends Fake implements IncidentEntity {}
 
 void main() {
   late IncidentBloc incidentBloc;
   late MockIncidentRepository mockIncidentRepository;
+  late MockTriageIncidentUseCase mockTriageIncidentUseCase;
 
   setUpAll(() {
     registerFallbackValue(FakeIncidentEntity());
@@ -23,7 +24,11 @@ void main() {
 
   setUp(() {
     mockIncidentRepository = MockIncidentRepository();
-    incidentBloc = IncidentBloc(repository: mockIncidentRepository);
+    mockTriageIncidentUseCase = MockTriageIncidentUseCase();
+    incidentBloc = IncidentBloc(
+      repository: mockIncidentRepository,
+      triageIncidentUseCase: mockTriageIncidentUseCase,
+    );
   });
 
   tearDown(() {
@@ -32,7 +37,8 @@ void main() {
 
   final tIncident = IncidentEntity(
     id: '1',
-    title: 'Test Incident',
+    reporterId: 'dummy_reporter',
+    category: 'Test Category',
     description: 'Test Description',
     latitude: 1.0,
     longitude: 1.0,
@@ -46,74 +52,74 @@ void main() {
     expect(incidentBloc.state, isA<IncidentInitial>());
   });
 
-  group('SubmitIncidentRequested', () {
+  group('SubmitIncidentReportRequested', () {
     blocTest<IncidentBloc, IncidentState>(
       'should emit [IncidentSubmitLoading, IncidentSubmitSuccess] when submission is successful',
       build: () {
-        when(() => mockIncidentRepository.submitIncident(any()))
-            .thenAnswer((_) async => const Right(null));
+        when(() => mockIncidentRepository.submitIncidentReport(any()))
+            .thenAnswer((_) async => Future.value());
         return incidentBloc;
       },
-      act: (bloc) => bloc.add(SubmitIncidentRequested(tIncident)),
+      act: (bloc) => bloc.add(SubmitIncidentReportRequested(tIncident)),
       expect: () => [
         isA<IncidentSubmitLoading>(),
         isA<IncidentSubmitSuccess>(),
       ],
       verify: (_) {
-        verify(() => mockIncidentRepository.submitIncident(tIncident)).called(1);
+        verify(() => mockIncidentRepository.submitIncidentReport(tIncident)).called(1);
       },
     );
 
     blocTest<IncidentBloc, IncidentState>(
       'should emit [IncidentSubmitLoading, IncidentSubmitFailure] when submission fails',
       build: () {
-        when(() => mockIncidentRepository.submitIncident(any()))
-            .thenAnswer((_) async => const Left(ServerFailure('Firestore Error')));
+        when(() => mockIncidentRepository.submitIncidentReport(any()))
+            .thenThrow(Exception('Firestore Error'));
         return incidentBloc;
       },
-      act: (bloc) => bloc.add(SubmitIncidentRequested(tIncident)),
+      act: (bloc) => bloc.add(SubmitIncidentReportRequested(tIncident)),
       expect: () => [
         isA<IncidentSubmitLoading>(),
-        isA<IncidentSubmitFailure>().having((state) => state.message, 'message', 'Firestore Error'),
+        isA<IncidentSubmitFailure>().having((state) => state.message, 'message', 'Exception: Firestore Error'),
       ],
       verify: (_) {
-        verify(() => mockIncidentRepository.submitIncident(tIncident)).called(1);
+        verify(() => mockIncidentRepository.submitIncidentReport(tIncident)).called(1);
       },
     );
   });
 
-  group('FetchIncidentsRequested', () {
+  group('StreamActiveIncidentsRequested', () {
     blocTest<IncidentBloc, IncidentState>(
-      'should emit [IncidentFetchLoading, IncidentFetchSuccess] when fetch is successful',
+      'should emit [IncidentLoading, IncidentLoaded] when stream emits data',
       build: () {
-        when(() => mockIncidentRepository.getIncidents())
-            .thenAnswer((_) async => Right([tIncident]));
+        when(() => mockIncidentRepository.streamActiveIncidents())
+            .thenAnswer((_) => Stream.value([tIncident]));
         return incidentBloc;
       },
-      act: (bloc) => bloc.add(const FetchIncidentsRequested()),
+      act: (bloc) => bloc.add(const StreamActiveIncidentsRequested()),
       expect: () => [
-        isA<IncidentFetchLoading>(),
-        isA<IncidentFetchSuccess>().having((state) => state.incidents, 'incidents', [tIncident]),
+        isA<IncidentLoading>(),
+        isA<IncidentLoaded>().having((state) => state.incidents, 'incidents', [tIncident]),
       ],
       verify: (_) {
-        verify(() => mockIncidentRepository.getIncidents()).called(1);
+        verify(() => mockIncidentRepository.streamActiveIncidents()).called(1);
       },
     );
 
     blocTest<IncidentBloc, IncidentState>(
-      'should emit [IncidentFetchLoading, IncidentFetchFailure] when fetch fails',
+      'should emit [IncidentLoading, IncidentError] when stream emits error',
       build: () {
-        when(() => mockIncidentRepository.getIncidents())
-            .thenAnswer((_) async => const Left(ServerFailure('Firestore Fetch Error')));
+        when(() => mockIncidentRepository.streamActiveIncidents())
+            .thenAnswer((_) => Stream.error(Exception('Firestore Fetch Error')));
         return incidentBloc;
       },
-      act: (bloc) => bloc.add(const FetchIncidentsRequested()),
+      act: (bloc) => bloc.add(const StreamActiveIncidentsRequested()),
       expect: () => [
-        isA<IncidentFetchLoading>(),
-        isA<IncidentFetchFailure>().having((state) => state.message, 'message', 'Firestore Fetch Error'),
+        isA<IncidentLoading>(),
+        isA<IncidentError>().having((state) => state.message, 'message', 'Exception: Firestore Fetch Error'),
       ],
       verify: (_) {
-        verify(() => mockIncidentRepository.getIncidents()).called(1);
+        verify(() => mockIncidentRepository.streamActiveIncidents()).called(1);
       },
     );
   });

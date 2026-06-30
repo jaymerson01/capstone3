@@ -6,8 +6,12 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/widge
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_dashboard_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_reports_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/user_management_page.dart';
-import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_categories_page.dart';
-import 'package:community_safety_app/features/admin_dashboard/presentation/pages/area_management_page.dart';
+// TODO: Wire to BLoC
+// // TODO: Wire to BLoC
+// import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_categories_page.dart';
+// TODO: Wire to BLoC
+// // TODO: Wire to BLoC
+// import 'package:community_safety_app/features/admin_dashboard/presentation/pages/area_management_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_audit_logs_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/profile_settings_page.dart';
 
@@ -43,9 +47,9 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       case 2:
         return const UserManagementPage();
       case 3:
-        return const IncidentCategoriesPage();
+        return const Center(child: Text('TODO: Wire to BLoC')); // const IncidentCategoriesPage();
       case 4:
-        return const AreaManagementPage();
+        return const Center(child: Text('TODO: Wire to BLoC')); // const AreaManagementPage();
       case 5:
         return const AdminAuditLogsPage();
       case 6:

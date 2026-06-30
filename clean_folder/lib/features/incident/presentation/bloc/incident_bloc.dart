@@ -3,18 +3,24 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/repositories/incident_repository.dart';
+import '../../domain/usecases/triage_incident_usecase.dart';
 import 'incident_event.dart';
 import 'incident_state.dart';
 
 class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
   final IncidentRepository repository;
+  final TriageIncidentUseCase triageIncidentUseCase;
   StreamSubscription? _incidentStreamSubscription;
 
-  IncidentBloc({required this.repository}) : super(IncidentInitial()) {
+  IncidentBloc({
+    required this.repository,
+    required this.triageIncidentUseCase,
+  }) : super(IncidentInitial()) {
     on<StreamActiveIncidentsRequested>(_onStreamActiveIncidentsRequested);
     on<IncidentsUpdated>(_onIncidentsUpdated);
     on<IncidentsError>(_onIncidentsError);
     on<SubmitIncidentReportRequested>(_onSubmitIncidentReportRequested);
+    on<AnalyzeIncidentNarrativeEvent>(_onAnalyzeIncidentNarrativeEvent);
   }
 
   void _onStreamActiveIncidentsRequested(
@@ -62,6 +68,19 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
     } catch (e) {
       emit(IncidentSubmitFailure(e.toString()));
     }
+  }
+
+  Future<void> _onAnalyzeIncidentNarrativeEvent(
+    AnalyzeIncidentNarrativeEvent event,
+    Emitter<IncidentState> emit,
+  ) async {
+    emit(IncidentTriageLoading());
+    final result = await triageIncidentUseCase.call(event.description);
+    
+    result.fold(
+      (failure) => emit(IncidentTriageError(failure.message)),
+      (triageResult) => emit(IncidentTriageLoaded(triageResult)),
+    );
   }
 
   @override

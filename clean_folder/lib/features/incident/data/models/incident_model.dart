@@ -50,6 +50,10 @@ class IncidentModel extends IncidentEntity {
   @override
   final String status;
 
+  @HiveField(12)
+  @override
+  final String? urgencyStatus;
+
   @HiveField(6)
   @override
   final DateTime timestamp;
@@ -81,6 +85,7 @@ class IncidentModel extends IncidentEntity {
     required this.category,
     this.photoUrl,
     required this.status,
+    this.urgencyStatus,
     required this.timestamp,
     required this.latitude,
     required this.longitude,
@@ -94,6 +99,7 @@ class IncidentModel extends IncidentEntity {
           category: category,
           photoUrl: photoUrl,
           status: status,
+          urgencyStatus: urgencyStatus,
           timestamp: timestamp,
           latitude: latitude,
           longitude: longitude,
@@ -128,6 +134,7 @@ class IncidentModel extends IncidentEntity {
       category: data['category'] as String? ?? '',
       photoUrl: data['photoUrl'] as String?,
       status: mappedStatus,
+      urgencyStatus: data['urgencyStatus'] as String?,
       timestamp: parsedTimestamp,
       latitude: (data['latitude'] as num?)?.toDouble() ?? 0.0,
       longitude: (data['longitude'] as num?)?.toDouble() ?? 0.0,
@@ -145,6 +152,7 @@ class IncidentModel extends IncidentEntity {
       'category': category,
       'photoUrl': photoUrl,
       'status': mappedStatus,
+      'urgencyStatus': urgencyStatus,
       'timestamp': Timestamp.fromDate(timestamp),
       'latitude': latitude,
       'longitude': longitude,

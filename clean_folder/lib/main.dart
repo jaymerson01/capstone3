@@ -7,12 +7,14 @@ import 'package:community_safety_app/features/auth/presentation/pages/welcome_pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_reports_page.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/core/widgets/floating_chat_bot.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
+import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 
@@ -21,7 +23,9 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   await Hive.initFlutter();
+  Hive.registerAdapter(IncidentModelAdapter());
   await Hive.openBox('auth');
+  await Hive.openBox<IncidentModel>('incidents');
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -43,7 +47,7 @@ class MyApp extends StatelessWidget {
           create: (context) => sl<AuthBloc>()..add(const AuthCheckRequested()),
         ),
         BlocProvider<IncidentBloc>(
-          create: (context) => sl<IncidentBloc>()..add(const FetchIncidentsRequested()),
+          create: (context) => sl<IncidentBloc>()..add(const StreamActiveIncidentsRequested()),
         ),
       ],
       child: MaterialApp(
@@ -53,7 +57,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
           useMaterial3: true,
         ),
-        home: const AuthWrapper(),
+        home: const IncidentReportsPage(),
         routes: {
           '/welcome': (context) => const WelcomePage(),
           '/dashboard': (context) => const DashboardPage(),

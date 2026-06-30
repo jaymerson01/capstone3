@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:community_safety_app/core/theme/admin_colors.dart';
-import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_data_service.dart';
+// import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_data_service.dart';
 
 class AdminHeader extends StatelessWidget {
   final String title;
@@ -16,6 +15,10 @@ class AdminHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Wire to BLoC
+    return const Center(child: Text('TODO: Wire to BLoC'));
+    /*
+
     final adminService = AdminDataService();
 
     return ListenableBuilder(
@@ -173,4 +176,8 @@ class AdminHeader extends StatelessWidget {
       },
     );
   }
+*/
 }
+
+}
+

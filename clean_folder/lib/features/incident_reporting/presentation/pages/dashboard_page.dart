@@ -60,8 +60,8 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildSampleReportCard(IncidentEntity incident) {
-    final category = incident.title.length > 20 ? incident.title.substring(0, 20) : incident.title;
-    final urgency = "Medium"; 
+    final category = incident.category.length > 20 ? incident.category.substring(0, 20) : incident.category;
+    final urgency = incident.urgencyStatus ?? "MEDIUM"; 
     final urgencyColor = _getUrgencyColor(urgency);
     final location = "Coordinates: ${incident.latitude.toStringAsFixed(3)}, ${incident.longitude.toStringAsFixed(3)}";
     final time = "${incident.timestamp.year}-${incident.timestamp.month.toString().padLeft(2, '0')}-${incident.timestamp.day.toString().padLeft(2, '0')} ${incident.timestamp.hour}:${incident.timestamp.minute.toString().padLeft(2, '0')}";
@@ -223,11 +223,11 @@ class DashboardPage extends StatelessWidget {
   Widget _buildCommunityReportsSection() {
     return BlocBuilder<IncidentBloc, IncidentState>(
       builder: (context, state) {
-        if (state is IncidentFetchLoading) {
+        if (state is IncidentLoading) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is IncidentFetchFailure) {
+        } else if (state is IncidentError) {
           return Center(child: Text("Error: ${state.message}"));
-        } else if (state is IncidentFetchSuccess) {
+        } else if (state is IncidentLoaded) {
           if (state.incidents.isEmpty) {
             return const Center(child: Text("No recent incidents reported."));
           }

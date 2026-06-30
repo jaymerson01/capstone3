@@ -9,6 +9,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/features/incident/presentation/widgets/hidden_ai_trigger.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -25,6 +26,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   String _selectedComplainant = "Anonymous";
   String _selectedBarangay = "Moonwalk";
+  
+  bool isAiTriageEnabled = false;
 
   String? _selectedIncidentCategory;
   final List<String> _incidentCategories = [
@@ -162,6 +165,26 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     }
   }
 
+  void _executeStandardSubmit({String urgencyStatus = 'PENDING'}) {
+    final double lat = _latitude ?? 0.0;
+    final double lng = _longitude ?? 0.0;
+
+    final incident = IncidentEntity(
+      id: '',
+      reporterId: 'anonymous', // Adding required parameter
+      category: _selectedIncidentCategory ?? 'Unknown Incident',
+      description: _descriptionController.text.trim(),
+      latitude: lat,
+      longitude: lng,
+      photoUrl: _photoUrl,
+      status: 'Pending',
+      urgencyStatus: urgencyStatus,
+      timestamp: DateTime.now(),
+    );
+
+    context.read<IncidentBloc>().add(SubmitIncidentReportRequested(incident));
+  }
+
   void _submitReport() {
     if (_selectedIncidentCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -185,22 +208,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       return;
     }
 
-    final double lat = _latitude ?? 0.0;
-    final double lng = _longitude ?? 0.0;
-
-    final incident = IncidentEntity(
-      id: '',
-      title: _selectedIncidentCategory ?? 'Unknown Incident',
-      description: description,
-      latitude: lat,
-      longitude: lng,
-      photoUrl: _photoUrl,
-      status: 'Pending',
-      urgencyStatus: 'PENDING',
-      timestamp: DateTime.now(),
-    );
-
-    context.read<IncidentBloc>().add(SubmitIncidentRequested(incident));
+    if (isAiTriageEnabled) {
+      context.read<IncidentBloc>().add(AnalyzeIncidentNarrativeEvent(description));
+    } else {
+      _executeStandardSubmit();
+    }
   }
 
   String _getFileDisplayText() {
@@ -214,26 +226,33 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   }
 
   Widget _buildAppLogo() {
-    return Container(
-      height: 34,
-      width: 34,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Image.asset(
-        'assets/images/logo.png',
-        fit: BoxFit.contain,
-        errorBuilder: (context, error, stackTrace) =>
-            const Icon(Icons.security, size: 18, color: AppColors.darkGreen),
+    return HiddenAiTrigger(
+      onTriggered: () {
+        setState(() {
+          isAiTriageEnabled = true;
+        });
+      },
+      child: Container(
+        height: 34,
+        width: 34,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.security, size: 18, color: AppColors.darkGreen),
+        ),
       ),
     );
   }
@@ -317,6 +336,58 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               content: Text("Failed to submit: ${state.message}"),
               backgroundColor: AppColors.danger,
               behavior: SnackBarBehavior.floating,
+            ),
+          );
+        } else if (state is IncidentTriageLoading) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const Center(
+              child: Card(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: AppColors.darkGreen),
+                      SizedBox(height: 16),
+                      Text("Gemini AI Engine is analyzing incident threat levels..."),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        } else if (state is IncidentTriageError) {
+          Navigator.of(context).pop(); // dismiss loading
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("AI Evaluation failed. Defaulting to MEDIUM priority."),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          _executeStandardSubmit(urgencyStatus: 'MEDIUM');
+        } else if (state is IncidentTriageLoaded) {
+          Navigator.of(context).pop(); // dismiss loading
+          
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: const Text("AI Urgency Assessment"),
+              content: Text("${state.triageResult.urgency} - ${state.triageResult.justification}"),
+              actions: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.darkGreen, foregroundColor: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _executeStandardSubmit(urgencyStatus: state.triageResult.urgency);
+                  },
+                  child: const Text("Proceed to Submit"),
+                ),
+              ],
             ),
           );
         }
@@ -792,10 +863,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 elevation: 2,
                 shadowColor: AppColors.darkGreen.withValues(alpha: 0.4),
               ),
-              onPressed: (state is IncidentSubmitLoading || _isUploadingImage)
+              onPressed: (state is IncidentSubmitLoading || state is IncidentTriageLoading || _isUploadingImage)
                   ? null
                   : _submitReport,
-              child: state is IncidentSubmitLoading
+              child: (state is IncidentSubmitLoading || state is IncidentTriageLoading)
                   ? const SizedBox(
                       width: 20,
                       height: 20,

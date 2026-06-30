@@ -18,7 +18,7 @@ class _MyReportsPageState extends State<MyReportsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<IncidentBloc>().add(const FetchIncidentsRequested());
+    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
   }
 
   Color _getStatusColor(String status) {
@@ -143,22 +143,22 @@ class _MyReportsPageState extends State<MyReportsPage> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  context.read<IncidentBloc>().add(const FetchIncidentsRequested());
+                  context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
                 },
                 child: BlocBuilder<IncidentBloc, IncidentState>(
                   builder: (context, state) {
-                    if (state is IncidentFetchLoading) {
+                    if (state is IncidentLoading) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (state is IncidentFetchFailure) {
+                    } else if (state is IncidentError) {
                       return ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         children: [
                           emptyBox("Error fetching reports: ${state.message}"),
                         ],
                       );
-                    } else if (state is IncidentFetchSuccess) {
+                    } else if (state is IncidentLoaded) {
                       final incidents = state.incidents;
 
                       final filteredIncidents = incidents.where((incident) {
@@ -190,7 +190,7 @@ class _MyReportsPageState extends State<MyReportsPage> {
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 16.0),
                             child: reportBox(
-                              title: incident.title,
+                              title: incident.category,
                               time: formattedTime,
                               status: incident.status,
                               statusColor: _getStatusColor(incident.status),

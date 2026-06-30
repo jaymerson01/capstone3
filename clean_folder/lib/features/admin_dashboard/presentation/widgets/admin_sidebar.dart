@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:community_safety_app/core/theme/admin_colors.dart';
-import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_data_service.dart';
+// import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_data_service.dart';
 
 class AdminSidebar extends StatefulWidget {
   final int selectedIndex;
@@ -35,6 +34,11 @@ class _AdminSidebarState extends State<AdminSidebar> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: Wire to BLoC
+    return const Center(child: Text('TODO: Wire to BLoC'));
+  }
+    /*
+
     final adminService = AdminDataService();
     final double width = widget.isCollapsed ? 80.0 : 270.0;
 
@@ -277,6 +281,8 @@ class _AdminSidebarState extends State<AdminSidebar> {
       },
     );
   }
+}
+*/
 }
 
 class SidebarItem {

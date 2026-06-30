@@ -28,7 +28,7 @@ class _MapsPageState extends State<MapsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<IncidentBloc>().add(const FetchIncidentsRequested());
+    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
   }
 
   Widget appLogo() {
@@ -48,7 +48,7 @@ class _MapsPageState extends State<MapsPage> {
   Set<Marker> _buildMarkers(List<IncidentEntity> incidents) {
     return incidents.map((incident) {
       double hue;
-      switch (incident.title.toLowerCase()) {
+      switch (incident.category.toLowerCase()) {
         case 'fire':
           hue = BitmapDescriptor.hueRed;
           break;
@@ -91,7 +91,7 @@ class _MapsPageState extends State<MapsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                incident.title,
+                incident.category,
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
@@ -116,7 +116,7 @@ class _MapsPageState extends State<MapsPage> {
                   const Icon(Icons.people, color: AppColors.darkGreen, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    "Affected: ${incident.affectedCount}",
+                    "Affected: ${incident.upvoteCount}",
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ],
@@ -129,7 +129,7 @@ class _MapsPageState extends State<MapsPage> {
                     userId = authState.user.id;
                   }
 
-                  final bool hasVoted = userId != null && incident.affectedUserIds.contains(userId);
+                  final bool hasVoted = userId != null && incident.validatedUserIds.contains(userId);
 
                   return SizedBox(
                     width: double.infinity,
@@ -145,9 +145,9 @@ class _MapsPageState extends State<MapsPage> {
                       onPressed: hasVoted || userId == null
                           ? null
                           : () {
-                              context.read<IncidentBloc>().add(
-                                IncrementAffectedCountRequested(incident.id, userId!),
-                              );
+                              // context.read<IncidentBloc>().add(
+                              //   IncrementAffectedCountRequested(incident.id, userId!),
+                              // );
                               Navigator.pop(bottomSheetContext);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -204,7 +204,7 @@ class _MapsPageState extends State<MapsPage> {
       body: BlocBuilder<IncidentBloc, IncidentState>(
         builder: (context, state) {
           List<IncidentEntity> activeIncidents = [];
-          if (state is IncidentFetchSuccess) {
+          if (state is IncidentLoaded) {
             activeIncidents = state.incidents;
           }
 
@@ -218,7 +218,7 @@ class _MapsPageState extends State<MapsPage> {
                 onMapCreated: (controller) => _mapController = controller,
                 markers: _buildMarkers(activeIncidents),
               ),
-              if (state is IncidentFetchLoading)
+              if (state is IncidentLoading)
                 const Center(
                   child: CircularProgressIndicator(color: AppColors.primary),
                 ),

@@ -5,6 +5,7 @@ class IncidentEntity {
   final String category;
   final String? photoUrl;
   final String status;
+  final String? urgencyStatus;
   final DateTime timestamp;
   final double latitude;
   final double longitude;
@@ -19,6 +20,7 @@ class IncidentEntity {
     required this.category,
     this.photoUrl,
     required this.status,
+    this.urgencyStatus,
     required this.timestamp,
     required this.latitude,
     required this.longitude,
