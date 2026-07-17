@@ -6,6 +6,7 @@ import 'dashboard.dart';
 import 'sign_up.dart';
 
 import '../services/mock_database_service.dart';
+import '../widgets/auth_modals.dart';
 import '../admin/admin_panel_shell.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,8 +17,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
+  bool _obscurePassword = true;
+  bool _rememberMe = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -117,144 +123,239 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Email Address",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            hintText: "Email or mobile number",
-                            prefixIcon: const Icon(
-                              Icons.email_outlined,
-                              color: AppColors.textLight,
-                              size: 20,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade200,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade200,
-                              ),
+                    child: Form(
+                      key: _formKey,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Email Address",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "Password",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: "Password",
-                            prefixIcon: const Icon(
-                              Icons.lock_outline,
-                              color: AppColors.textLight,
-                              size: 20,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade200,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: Colors.grey.shade200,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Main Continuation Action Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            onPressed: () async {
-                              final email = _emailController.text.trim();
-                              final password = _passwordController.text;
-                              if (email.isEmpty || password.isEmpty) return;
-
-                              final db = MockDatabaseService();
-                              final success = await db.login(email, password);
-
-                              if (success && context.mounted) {
-                                if (db.currentUser?.role.toLowerCase() == 'admin') {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const AdminPanelShell(),
-                                    ),
-                                  );
-                                } else {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const DashboardPage(),
-                                    ),
-                                  );
-                                }
-                              } else if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Invalid email or password. Or account is archived."),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "Email is required.";
                               }
+                              final emailRegex = RegExp(r'^[\w-\.]+@gmail\.com$');
+                              if (!emailRegex.hasMatch(value.trim().toLowerCase())) {
+                                return "Enter a valid Gmail address.";
+                              }
+                              return null;
                             },
-                            child: const Text(
-                              "CONTINUE",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.8,
+                            decoration: InputDecoration(
+                              hintText: "e.g. juan@gmail.com",
+                              prefixIcon: const Icon(
+                                Icons.email_outlined,
+                                color: AppColors.textLight,
+                                size: 20,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade200,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade200,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          const Text(
+                            "Password",
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Password is required.";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              hintText: "e.g. Moonwalk#01",
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: AppColors.textLight,
+                                size: 20,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                  color: AppColors.textLight,
+                                  size: 20,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade200,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade200,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: Checkbox(
+                                  value: _rememberMe,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _rememberMe = value ?? false;
+                                    });
+                                  },
+                                  activeColor: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                "Remember Me",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+  
+                          // Main Continuation Action Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: _isLoading ? null : () async {
+                                if (!_formKey.currentState!.validate()) return;
+                                
+                                setState(() {
+                                  _isLoading = true;
+                                });
+  
+                                final email = _emailController.text.trim();
+                                final password = _passwordController.text;
+  
+                                final db = MockDatabaseService();
+                                final errorMessage = await db.login(email, password);
+  
+                                if (!context.mounted) return;
+                                
+                                setState(() {
+                                  _isLoading = false;
+                                });
+  
+                                if (errorMessage == null) {
+                                  await showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) => AlertDialog(
+                                      title: const Text("Success"),
+                                      content: const Text("You have successfully logged in!"),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text("OK", style: TextStyle(color: AppColors.primary)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (context.mounted) {
+                                    if (db.currentUser?.role.toLowerCase() == 'admin') {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const AdminPanelShell(),
+                                        ),
+                                      );
+                                    } else {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const DashboardPage(),
+                                        ),
+                                      );
+                                    }
+                                  }
+                                } else {
+                                  if (errorMessage.contains("locked")) {
+                                    final expiration = db.getLockoutExpiration(email);
+                                    if (expiration != null) {
+                                      AuthModals.showAccountLocked(context, expiration);
+                                    } else {
+                                      AuthModals.showInvalidCredentials(context);
+                                    }
+                                  } else {
+                                    AuthModals.showInvalidCredentials(context);
+                                  }
+                                }
+                              },
+                              child: _isLoading 
+                                ? const SizedBox(
+                                    width: 20, 
+                                    height: 20, 
+                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                  )
+                                : const Text(
+                                    "CONTINUE",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.8,
+                                    ),
+                                  ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),

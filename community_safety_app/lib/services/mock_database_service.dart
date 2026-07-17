@@ -24,6 +24,9 @@ class MockDatabaseService extends ChangeNotifier {
   
   UserProfile? _currentUser;
   
+  final Map<String, int> _failedAttempts = {};
+  final Map<String, DateTime> _lockouts = {};
+  
   List<IncidentReport> get reports => _reports;
   List<UserProfile> get users => _users;
   List<IncidentCategory> get categories => _categories;
@@ -76,6 +79,21 @@ class MockDatabaseService extends ChangeNotifier {
       _currentUser = UserProfile.fromJson(jsonDecode(currentUserJson));
     }
     
+    final String? attemptsJson = _dataBox.get('failedAttempts');
+    if (attemptsJson != null) {
+      _failedAttempts.clear();
+      _failedAttempts.addAll(Map<String, int>.from(jsonDecode(attemptsJson)));
+    }
+    
+    final String? lockoutsJson = _dataBox.get('lockouts');
+    if (lockoutsJson != null) {
+      final Map decoded = jsonDecode(lockoutsJson);
+      _lockouts.clear();
+      decoded.forEach((k, v) {
+        _lockouts[k] = DateTime.parse(v);
+      });
+    }
+    
     notifyListeners();
   }
 
@@ -89,6 +107,13 @@ class MockDatabaseService extends ChangeNotifier {
     final List<Map<String, dynamic>> jsonList = _users.map((e) => e.toJson()).toList();
     _dataBox.put('users', jsonEncode(jsonList));
     notifyListeners();
+  }
+  
+  void _saveSecurityState() {
+    _dataBox.put('failedAttempts', jsonEncode(_failedAttempts));
+    final lockoutsMap = {};
+    _lockouts.forEach((k, v) => lockoutsMap[k] = v.toIso8601String());
+    _dataBox.put('lockouts', jsonEncode(lockoutsMap));
   }
 
   void _saveCategories() {
@@ -104,42 +129,88 @@ class MockDatabaseService extends ChangeNotifier {
   }
 
   // Auth Methods
-  Future<bool> signUp(String name, String email, String password, String role) async {
-    // Basic duplicate check
-    if (_users.any((u) => u.email == email)) {
-      return false; // Email exists
+  Future<String?> signUp(String name, String email, String password, String role) async {
+    // Basic duplicate check (case-insensitive)
+    final normalizedEmail = email.toLowerCase().trim();
+    if (_users.any((u) => u.email.toLowerCase().trim() == normalizedEmail)) {
+      return "Email is already registered.";
     }
     
     final newUser = UserProfile(
       id: "USR-${DateTime.now().millisecondsSinceEpoch}",
       name: name,
-      email: email,
+      email: normalizedEmail,
       role: role,
+      password: password,
       isActive: true,
       isArchived: false,
     );
     _users.add(newUser);
     _saveUsers();
     
-    _currentUser = newUser;
-    _authBox.put('currentUser', jsonEncode(newUser.toJson()));
-    _authBox.put('isLoggedIn', true);
     notifyListeners();
-    return true;
+    return null; // success
   }
 
-  Future<bool> login(String email, String password) async {
+  DateTime? getLockoutExpiration(String email) {
+    final normalizedEmail = email.toLowerCase().trim();
+    if (_lockouts.containsKey(normalizedEmail)) {
+      final lockoutTime = _lockouts[normalizedEmail]!;
+      final expiration = lockoutTime.add(const Duration(minutes: 15));
+      if (DateTime.now().isBefore(expiration)) {
+        return expiration;
+      }
+    }
+    return null;
+  }
+
+  Future<String?> login(String email, String password) async {
+    final normalizedEmail = email.toLowerCase().trim();
+    
+    // Check if account is locked
+    if (_lockouts.containsKey(normalizedEmail)) {
+      final lockoutTime = _lockouts[normalizedEmail]!;
+      if (DateTime.now().difference(lockoutTime).inMinutes < 15) {
+        return "Your account has been locked due to too many failed login attempts. Please try again in 15 minutes.";
+      } else {
+        // Lockout expired
+        _lockouts.remove(normalizedEmail);
+        _failedAttempts[normalizedEmail] = 0;
+        _saveSecurityState();
+      }
+    }
+
     try {
-      final user = _users.firstWhere((u) => u.email == email && !u.isArchived);
-      // We are skipping password check for mock
+      final user = _users.firstWhere((u) => u.email.toLowerCase().trim() == normalizedEmail && !u.isArchived);
+      
+      if (user.password != password) {
+        throw Exception("Invalid password");
+      }
+      
       _currentUser = user;
       _authBox.put('currentUser', jsonEncode(user.toJson()));
       _authBox.put('isLoggedIn', true);
+      
+      // Reset failed attempts on success
+      _failedAttempts.remove(normalizedEmail);
+      _lockouts.remove(normalizedEmail);
+      _saveSecurityState();
+      
       notifyListeners();
-      return true;
+      return null; // success
     } catch (e) {
-      // User not found
-      return false;
+      // User not found or incorrect password simulation
+      final attempts = (_failedAttempts[normalizedEmail] ?? 0) + 1;
+      _failedAttempts[normalizedEmail] = attempts;
+      
+      if (attempts >= 5) {
+        _lockouts[normalizedEmail] = DateTime.now();
+        _saveSecurityState();
+        return "Your account has been locked due to too many failed login attempts. Please try again in 15 minutes.";
+      }
+      
+      _saveSecurityState();
+      return "Invalid email or password.";
     }
   }
 
