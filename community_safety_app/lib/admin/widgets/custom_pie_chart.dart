@@ -1,104 +1,158 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../theme/app_color.dart';
 
-class CustomPieChart extends StatelessWidget {
+/// RESQ Command Center — Premium Animated Donut Chart
+class CustomPieChart extends StatefulWidget {
   const CustomPieChart({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Dataset aligned with screenshot:
-    // Moonwalk: 35%, Jacinto: 20%, Purok 7: 15%, Doang Batang: 10%, Pepa Compound: 20%
-    final List<PieSliceData> data = [
-      PieSliceData("Moonwalk", 35, Colors.blue.shade400),
-      PieSliceData("Jacinto", 20, Colors.orange.shade300),
-      PieSliceData("Purok 7", 15, Colors.teal.shade300),
-      PieSliceData("Doang Batang", 10, Colors.lightBlue.shade200),
-      PieSliceData("Pepa Compound", 20, Colors.amber.shade300),
-    ];
+  State<CustomPieChart> createState() => _CustomPieChartState();
+}
 
+class _CustomPieChartState extends State<CustomPieChart>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _sweepController;
+  late Animation<double> _sweepAnim;
+
+  final List<_PieSlice> data = [
+    _PieSlice("Moonwalk", 35, Color(0xFF0A84FF)),
+    _PieSlice("Jacinto", 20, Color(0xFFFF9F0A)),
+    _PieSlice("Purok 7", 15, Color(0xFF00D4FF)),
+    _PieSlice("Doang Batang", 10, Color(0xFF6E40C9)),
+    _PieSlice("Pepa Compound", 20, Color(0xFF30D158)),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _sweepController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    );
+    _sweepAnim = CurvedAnimation(
+      parent: _sweepController,
+      curve: Curves.easeOutCubic,
+    );
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _sweepController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _sweepController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       height: 270,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF0D1627),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF1E2D4A)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
-        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Incidents by Area Distribution",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Color(0xFF1E293B),
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.pie_chart_outline,
+                    color: Color(0xFF0A84FF), size: 16),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                "Incidents by Area",
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  color: Color(0xFFE8F0FE),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           Expanded(
             child: Row(
               children: [
                 Expanded(
                   flex: 5,
-                  child: CustomPaint(
-                    size: Size.infinite,
-                    painter: DonutChartPainter(data),
+                  child: AnimatedBuilder(
+                    animation: _sweepAnim,
+                    builder: (context, _) {
+                      return CustomPaint(
+                        size: Size.infinite,
+                        painter: _PremiumDonutPainter(
+                            data: data, progress: _sweepAnim.value),
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 16),
                 Expanded(
                   flex: 6,
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: data.map((d) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: d.color,
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  d.label,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1E293B),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: data.map((d) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: d.color,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: d.color.withValues(alpha: 0.5),
+                                    blurRadius: 6,
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                ],
                               ),
-                              Text(
-                                "${d.percentage}%",
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                d.label,
                                 style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF64748B),
+                                  fontSize: 11,
+                                  color: Color(0xFF7B8DB0),
+                                  fontWeight: FontWeight.w600,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                            ),
+                            Text(
+                              "${d.value}%",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: d.color,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ],
@@ -110,61 +164,126 @@ class CustomPieChart extends StatelessWidget {
   }
 }
 
-class PieSliceData {
+class _PieSlice {
   final String label;
-  final double percentage;
+  final double value;
   final Color color;
-
-  PieSliceData(this.label, this.percentage, this.color);
+  _PieSlice(this.label, this.value, this.color);
 }
 
-class DonutChartPainter extends CustomPainter {
-  final List<PieSliceData> data;
+class _PremiumDonutPainter extends CustomPainter {
+  final List<_PieSlice> data;
+  final double progress;
 
-  DonutChartPainter(this.data);
+  _PremiumDonutPainter({required this.data, required this.progress});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double center = min(size.width, size.height) / 2;
-    final Offset centerPoint = Offset(size.width / 2, size.height / 2);
-    final double radius = center * 0.9;
-    final double thickness = radius * 0.45; // Width of donut ring
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = min(size.width, size.height) / 2 - 8;
+    const strokeWidth = 22.0;
+    const gapAngle = 0.04;
 
-    final Rect rect = Rect.fromCircle(
-      center: centerPoint,
-      radius: radius - (thickness / 2),
-    );
+    final total = data.fold<double>(0, (sum, d) => sum + d.value);
+    double startAngle = -pi / 2;
 
-    double startAngle = -pi / 2; // Start drawing from the top (12 o'clock)
-    const double gapAngle = 0.04; // Small gap between slices
+    for (final slice in data) {
+      final sweepAngle =
+          (slice.value / total) * 2 * pi * progress - gapAngle;
+      if (sweepAngle <= 0) continue;
 
-    for (var slice in data) {
-      final double sweepAngle = (slice.percentage / 100.0) * 2 * pi;
+      // Glow layer
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        Paint()
+          ..color = slice.color.withValues(alpha: 0.3)
+          ..strokeWidth = strokeWidth + 8
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+      );
 
-      final Paint paint = Paint()
-        ..color = slice.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = thickness
-        ..strokeCap = StrokeCap.round
-        ..isAntiAlias = true;
+      // Main arc
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        Paint()
+          ..color = slice.color
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round,
+      );
 
-      // Draw arc with a small gap
-      if (sweepAngle > gapAngle * 2) {
-        canvas.drawArc(
-          rect,
-          startAngle + gapAngle,
-          sweepAngle - gapAngle * 2,
-          false,
-          paint,
-        );
-      } else {
-        canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
-      }
+      startAngle += sweepAngle + gapAngle;
+    }
 
-      startAngle += sweepAngle;
+    // Center text
+    if (progress > 0.8) {
+      final tp = TextPainter(
+        text: const TextSpan(
+          text: "100%",
+          style: TextStyle(
+            color: Color(0xFFE8F0FE),
+            fontSize: 16,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      tp.layout();
+      tp.paint(canvas,
+          Offset(center.dx - tp.width / 2, center.dy - tp.height / 2 - 8));
+
+      final tp2 = TextPainter(
+        text: const TextSpan(
+          text: "Coverage",
+          style: TextStyle(
+            color: Color(0xFF7B8DB0),
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      tp2.layout();
+      tp2.paint(canvas,
+          Offset(center.dx - tp2.width / 2, center.dy + tp.height / 2 - 4));
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _PremiumDonutPainter old) =>
+      old.progress != progress;
+}
+
+// Legacy alias kept for backward compat
+class PieSliceData {
+  final String label;
+  final double value;
+  final Color color;
+  PieSliceData(this.label, this.value, this.color);
+}
+
+class DonutChartPainter extends CustomPainter {
+  final List<PieSliceData> data;
+  DonutChartPainter(this.data);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final painter = _PremiumDonutPainter(
+      data: data
+          .map((d) => _PieSlice(d.label, d.value, d.color))
+          .toList(),
+      progress: 1.0,
+    );
+    painter.paint(canvas, size);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

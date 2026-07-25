@@ -24,61 +24,81 @@ class _AdminSidebarState extends State<AdminSidebar> {
   int hoveredIndex = -1;
 
   final List<SidebarItem> menuItems = [
-    SidebarItem(Icons.analytics_outlined, "Overview Dashboard"),
-    SidebarItem(Icons.assignment_late_outlined, "Incident Reports"),
-    SidebarItem(Icons.manage_accounts_outlined, "User Management"),
-    SidebarItem(Icons.dashboard_customize_outlined, "Incident Categories"),
-    SidebarItem(Icons.map_outlined, "Area Management"),
-    SidebarItem(Icons.history_outlined, "Admin Audit Logs"),
-    SidebarItem(Icons.admin_panel_settings_outlined, "Profile Settings"),
+    SidebarItem(Icons.analytics_outlined, Icons.analytics, "Overview Dashboard"),
+    SidebarItem(Icons.assignment_late_outlined, Icons.assignment_late, "Incident Reports"),
+    SidebarItem(Icons.manage_accounts_outlined, Icons.manage_accounts, "User Management"),
+    SidebarItem(Icons.dashboard_customize_outlined, Icons.dashboard_customize, "Categories"),
+    SidebarItem(Icons.map_outlined, Icons.map, "Area Management"),
+    SidebarItem(Icons.history_outlined, Icons.history, "Audit Logs"),
+    SidebarItem(Icons.admin_panel_settings_outlined, Icons.admin_panel_settings, "Profile"),
   ];
 
   @override
   Widget build(BuildContext context) {
     final adminService = AdminDataService();
-    final double width = widget.isCollapsed ? 80.0 : 270.0;
+    final double width = widget.isCollapsed ? 72.0 : 260.0;
 
     return ListenableBuilder(
       listenable: adminService,
       builder: (context, _) {
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
           width: width,
-          decoration: const BoxDecoration(
-            color: AdminColors.primaryGreen,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+            ),
+            border: const Border(
+              right: BorderSide(color: Color(0xFF1E2D4A), width: 1),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                offset: Offset(4, 0),
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(4, 0),
               ),
             ],
           ),
           child: SafeArea(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
+                // ── Header ───────────────────────────────────────────────
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  padding: EdgeInsets.symmetric(
                     vertical: 24,
-                    horizontal: 16,
+                    horizontal: widget.isCollapsed ? 12 : 20,
                   ),
                   child: Row(
                     mainAxisAlignment: widget.isCollapsed
                         ? MainAxisAlignment.center
                         : MainAxisAlignment.start,
                     children: [
-                      SizedBox(
+                      Container(
                         width: 44,
                         height: 44,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0A84FF).withValues(alpha: 0.4),
+                              blurRadius: 16,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
                         child: ClipOval(
                           child: Image.asset(
                             'assets/images/logo.png',
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return const Icon(
-                                Icons.security,
-                                color: Colors.white,
-                                size: 22,
+                              return Container(
+                                color: const Color(0xFF0A84FF),
+                                child: const Icon(Icons.security,
+                                    color: Colors.white, size: 22),
                               );
                             },
                           ),
@@ -86,27 +106,33 @@ class _AdminSidebarState extends State<AdminSidebar> {
                       ),
                       if (!widget.isCollapsed) ...[
                         const SizedBox(width: 14),
-                        const Expanded(
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                "ADMIN PORTAL",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 14,
-                                  letterSpacing: 1.2,
+                              ShaderMask(
+                                shaderCallback: (bounds) =>
+                                    const LinearGradient(
+                                  colors: [Color(0xFF00D4FF), Color(0xFF0A84FF)],
+                                ).createShader(bounds),
+                                blendMode: BlendMode.srcIn,
+                                child: const Text(
+                                  "RESQ",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 16,
+                                    letterSpacing: 2,
+                                  ),
                                 ),
                               ),
-                              SizedBox(height: 2),
-                              Text(
-                                "RESQ",
+                              const Text(
+                                "COMMAND CENTER",
                                 style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.8,
+                                  color: Color(0xFF7B8DB0),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.5,
                                 ),
                               ),
                             ],
@@ -117,9 +143,13 @@ class _AdminSidebarState extends State<AdminSidebar> {
                   ),
                 ),
 
-                const Divider(color: Colors.white12, height: 1),
-                const SizedBox(height: 15),
+                Container(
+                  height: 1,
+                  color: const Color(0xFF1E2D4A),
+                ),
+                const SizedBox(height: 12),
 
+                // ── Menu Items ───────────────────────────────────────────
                 Expanded(
                   child: ListView.builder(
                     physics: const BouncingScrollPhysics(),
@@ -127,74 +157,109 @@ class _AdminSidebarState extends State<AdminSidebar> {
                     itemBuilder: (context, index) {
                       final item = menuItems[index];
                       final bool isSelected = widget.selectedIndex == index;
-                      final bool isHovered = hoveredIndex == index;
+                      final bool isHov = hoveredIndex == index;
 
                       return MouseRegion(
                         onEnter: (_) => setState(() => hoveredIndex = index),
                         onExit: (_) => setState(() => hoveredIndex = -1),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: widget.isCollapsed ? 10 : 12,
+                            vertical: 3,
                           ),
                           child: Tooltip(
                             message: widget.isCollapsed ? item.title : "",
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 150),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Colors.white.withOpacity(0.12)
-                                    : isHovered
-                                        ? Colors.white.withOpacity(0.06)
+                            child: GestureDetector(
+                              onTap: () => widget.onItemSelected(index),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: widget.isCollapsed ? 4 : 14,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFF0A84FF).withValues(alpha: 0.15)
+                                      : isHov
+                                          ? Colors.white.withValues(alpha: 0.05)
+                                          : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(0xFF0A84FF).withValues(alpha: 0.35)
                                         : Colors.transparent,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                children: [
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    width: 4,
-                                    height: isSelected ? 24 : 0,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(2),
-                                    ),
                                   ),
-                                  Expanded(
-                                    child: ListTile(
-                                      minLeadingWidth:
-                                          widget.isCollapsed ? 0 : 25,
-                                      visualDensity: VisualDensity.compact,
-                                      contentPadding: EdgeInsets.symmetric(
-                                        horizontal:
-                                            widget.isCollapsed ? 12 : 16,
-                                        vertical: 2,
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: const Color(0xFF0A84FF)
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 12,
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Selection indicator
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 200),
+                                      width: isSelected ? 3 : 0,
+                                      height: 20,
+                                      margin: EdgeInsets.only(
+                                          right: isSelected ? 10 : 0),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF0A84FF),
+                                        borderRadius: BorderRadius.circular(2),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(0xFF0A84FF)
+                                                .withValues(alpha: 0.5),
+                                            blurRadius: 8,
+                                          ),
+                                        ],
                                       ),
-                                      leading: Icon(
-                                        item.icon,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.white60,
-                                        size: 22,
-                                      ),
-                                      title: widget.isCollapsed
-                                          ? null
-                                          : Text(
-                                              item.title,
-                                              style: TextStyle(
-                                                color: isSelected
-                                                    ? Colors.white
-                                                    : Colors.white60,
-                                                fontWeight: isSelected
-                                                    ? FontWeight.bold
-                                                    : FontWeight.w500,
-                                                fontSize: 13.5,
-                                              ),
-                                            ),
-                                      onTap: () => widget.onItemSelected(index),
                                     ),
-                                  ),
-                                ],
+                                    Icon(
+                                      isSelected ? item.iconFilled : item.iconOutlined,
+                                      color: isSelected
+                                          ? const Color(0xFF0A84FF)
+                                          : isHov
+                                              ? const Color(0xFFE8F0FE)
+                                              : const Color(0xFF7B8DB0),
+                                      size: 20,
+                                    ),
+                                    if (!widget.isCollapsed) ...[
+                                      const SizedBox(width: 13),
+                                      Expanded(
+                                        child: Text(
+                                          item.title,
+                                          style: TextStyle(
+                                            color: isSelected
+                                                ? const Color(0xFF0A84FF)
+                                                : isHov
+                                                    ? const Color(0xFFE8F0FE)
+                                                    : const Color(0xFF7B8DB0),
+                                            fontWeight: isSelected
+                                                ? FontWeight.w800
+                                                : FontWeight.w500,
+                                            fontSize: 13,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      if (isSelected)
+                                        Container(
+                                          width: 6,
+                                          height: 6,
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Color(0xFF0A84FF),
+                                          ),
+                                        ),
+                                    ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -204,59 +269,57 @@ class _AdminSidebarState extends State<AdminSidebar> {
                   ),
                 ),
 
-                const Divider(color: Colors.white12, height: 1),
+                Container(height: 1, color: const Color(0xFF1E2D4A)),
                 const SizedBox(height: 10),
 
+                // ── Logout Button ──────────────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   child: MouseRegion(
                     onEnter: (_) => setState(() => hoveredIndex = 99),
                     onExit: (_) => setState(() => hoveredIndex = -1),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      decoration: BoxDecoration(
-                        color: hoveredIndex == 99
-                            ? AdminColors.dangerRed
-                            : AdminColors.dangerRed.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: hoveredIndex == 99
-                              ? Colors.transparent
-                              : AdminColors.dangerRed.withOpacity(0.3),
-                        ),
-                      ),
-                      child: ListTile(
-                        visualDensity: VisualDensity.compact,
-                        contentPadding: EdgeInsets.symmetric(
+                    child: GestureDetector(
+                      onTap: widget.onLogout,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: EdgeInsets.symmetric(
                           horizontal: widget.isCollapsed ? 12 : 16,
-                          vertical: 2,
+                          vertical: 12,
                         ),
-                        leading: Icon(
-                          Icons.logout,
+                        decoration: BoxDecoration(
                           color: hoveredIndex == 99
-                              ? Colors.white
-                              : AdminColors.dangerRed,
-                          size: 20,
+                              ? const Color(0xFFFF3B30).withValues(alpha: 0.2)
+                              : const Color(0xFFFF3B30).withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
+                          ),
                         ),
-                        title: widget.isCollapsed
-                            ? null
-                            : Text(
+                        child: Row(
+                          mainAxisAlignment: widget.isCollapsed
+                              ? MainAxisAlignment.center
+                              : MainAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.logout_rounded,
+                                color: Color(0xFFFF3B30), size: 18),
+                            if (!widget.isCollapsed) ...[
+                              const SizedBox(width: 12),
+                              const Text(
                                 "Logout Portal",
                                 style: TextStyle(
-                                  color: hoveredIndex == 99
-                                      ? Colors.white
-                                      : AdminColors.dangerRed,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.5,
+                                  color: Color(0xFFFF3B30),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
                                 ),
                               ),
-                        onTap: widget.onLogout,
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -267,8 +330,8 @@ class _AdminSidebarState extends State<AdminSidebar> {
 }
 
 class SidebarItem {
-  final IconData icon;
+  final IconData iconOutlined;
+  final IconData iconFilled;
   final String title;
-
-  SidebarItem(this.icon, this.title);
+  SidebarItem(this.iconOutlined, this.iconFilled, this.title);
 }

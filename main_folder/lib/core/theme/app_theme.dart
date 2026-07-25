@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color primaryBlue = Color(0xFF0A4174);
-  static const Color secondaryBlue = Color(0xFF7BBDE8);
-  static const Color darkNavy = Color(0xFF001D39);
+  static const Color primaryGreen = Color(0xFF2E7D32);
+  static const Color secondaryGreen = Color(0xFF43A047);
+  static const Color darkGreenNavy = Color(0xFF1B4D20);
   static const Color backgroundDark = Color(0xFF121212);
   static const Color surfaceDark = Color(0xFF1E1E1E);
 
@@ -12,27 +12,32 @@ class AppTheme {
       brightness: Brightness.light,
       useMaterial3: true,
       canvasColor: Colors.white,
-      scaffoldBackgroundColor: const Color(0xFFF8FAFC),
+      scaffoldBackgroundColor: const Color(0xFFF8FAF8),
       colorScheme: ColorScheme.fromSeed(
-        seedColor: primaryBlue,
+        seedColor: primaryGreen,
         brightness: Brightness.light,
-        primary: primaryBlue,
-        secondary: secondaryBlue,
+        primary: primaryGreen,
+        secondary: secondaryGreen,
         surface: Colors.white,
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: primaryBlue,
+        backgroundColor: primaryGreen,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.black,
+          backgroundColor: primaryGreen,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 4,
+          shadowColor: primaryGreen.withValues(alpha: 0.35),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         ),
       ),
-      dialogTheme: DialogThemeData(backgroundColor: Colors.white),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      ),
     );
   }
 
@@ -40,8 +45,8 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.dark(
-        primary: secondaryBlue,
-        secondary: darkNavy,
+        primary: secondaryGreen,
+        secondary: darkGreenNavy,
         surface: backgroundDark,
       ),
       appBarTheme: const AppBarTheme(

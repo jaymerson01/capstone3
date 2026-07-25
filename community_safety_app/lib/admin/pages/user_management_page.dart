@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/user_profile.dart';
 import '../services/admin_data_service.dart';
 import '../constants/admin_colors.dart';
+import '../../widgets/custom_3d_card.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -36,20 +37,35 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 4),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
                         ],
                       ),
                       child: TextField(
                         decoration: InputDecoration(
-                          hintText: "Search users...",
-                          prefixIcon: const Icon(Icons.search),
+                          hintText: "Search registered users...",
+                          prefixIcon: const Icon(Icons.search, color: AdminColors.textLight),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: AdminColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: AdminColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: AdminColors.primaryRose, width: 2),
                           ),
                         ),
                         onChanged: (value) {
@@ -63,9 +79,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   const SizedBox(width: 16),
                   Row(
                     children: [
-                      const Text("Show Archived"),
+                      const Text("Show Archived", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AdminColors.textDark)),
                       Switch(
                         value: dataService.showArchivedUsers,
+                        activeThumbColor: AdminColors.primaryRose,
                         onChanged: (val) {
                           dataService.toggleArchivedUsers();
                         },
@@ -78,34 +95,44 @@ class _UserManagementPageState extends State<UserManagementPage> {
               const SizedBox(height: 20),
 
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                child: Custom3dCard(
+                  padding: const EdgeInsets.all(12),
+                  borderRadius: 22,
                   child: SingleChildScrollView(
                     child: DataTable(
+                      headingRowHeight: 48,
                       columns: const [
-                        DataColumn(label: Text("ID")),
-                        DataColumn(label: Text("Name")),
-                        DataColumn(label: Text("Email")),
-                        DataColumn(label: Text("Role")),
-                        DataColumn(label: Text("Status")),
-                        DataColumn(label: Text("Actions")),
+                        DataColumn(label: Text("ID", style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Name", style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Email", style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Role", style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Status", style: TextStyle(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold))),
                       ],
                       rows: filteredUsers.map((user) {
                         return DataRow(
                           cells: [
-                            DataCell(Text(user.id)),
+                            DataCell(Text(user.id, style: const TextStyle(fontWeight: FontWeight.bold))),
                             DataCell(Text(user.name)),
                             DataCell(Text(user.email)),
                             DataCell(Text(user.role)),
-
                             DataCell(
-                              Text(user.isActive ? "Active" : "Disabled"),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: (user.isActive ? AdminColors.solvedGreen : AdminColors.dangerRed).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Text(
+                                  user.isActive ? "Active" : "Disabled",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: user.isActive ? AdminColors.solvedGreen : AdminColors.dangerRed,
+                                  ),
+                                ),
+                              ),
                             ),
-
                             DataCell(
                               Row(
                                 children: [
@@ -118,19 +145,17 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                       _showEditUserDialog(context, user);
                                     },
                                   ),
-
                                   IconButton(
                                     icon: Icon(
                                       user.isActive ? Icons.block : Icons.check,
                                       color: user.isActive
                                           ? Colors.orange
-                                          : Colors.green,
+                                          : AdminColors.solvedGreen,
                                     ),
                                     onPressed: () {
                                       dataService.toggleUserActive(user.id);
                                     },
                                   ),
-
                                   IconButton(
                                     icon: const Icon(
                                       Icons.archive,
@@ -157,7 +182,6 @@ class _UserManagementPageState extends State<UserManagementPage> {
     );
   }
 
-  // ROLE ONLY EDIT
   void _showEditUserDialog(BuildContext context, UserProfile user) {
     String selectedRole = user.role;
 
@@ -167,7 +191,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: Text("Edit User Role"),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text("Edit User Role", style: TextStyle(fontWeight: FontWeight.bold)),
               content: SizedBox(
                 width: 400,
                 child: Column(
@@ -178,31 +203,28 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       "Name: ${user.name}",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-
                     const SizedBox(height: 10),
-
                     Text("Email: ${user.email}"),
-
                     const SizedBox(height: 20),
-
                     DropdownButtonFormField<String>(
                       initialValue: selectedRole,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "User Role",
-                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: AdminColors.background,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       ),
-                      items:
-                          [
-                            "Reporter",
-                            "Barangay Official",
-                            "Security Officer",
-                            "System Admin",
-                          ].map((role) {
-                            return DropdownMenuItem(
-                              value: role,
-                              child: Text(role),
-                            );
-                          }).toList(),
+                      items: [
+                        "Reporter",
+                        "Barangay Official",
+                        "Security Officer",
+                        "System Admin",
+                      ].map((role) {
+                        return DropdownMenuItem(
+                          value: role,
+                          child: Text(role),
+                        );
+                      }).toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setDialogState(() {
@@ -221,11 +243,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   },
                   child: const Text("Cancel"),
                 ),
-
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AdminColors.primaryGreen,
+                    backgroundColor: AdminColors.primaryRose,
                     foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),
                   onPressed: () {
                     dataService.updateUserRole(user.id, selectedRole);
@@ -235,6 +257,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("User role updated successfully"),
+                        behavior: SnackBarBehavior.floating,
                       ),
                     );
                   },

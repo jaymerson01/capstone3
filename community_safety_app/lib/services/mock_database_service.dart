@@ -55,6 +55,27 @@ class MockDatabaseService extends ChangeNotifier {
       _users.clear();
       _users.addAll(dynamicList.map((e) => UserProfile.fromJson(e)).toList());
     }
+    
+    // Ensure admin exists and has correct credentials
+    final existingAdminIndex = _users.indexWhere((u) => u.email == 'admin@safe.gov');
+    if (existingAdminIndex == -1) {
+      _users.add(UserProfile(
+        id: "USR-ADMIN-001",
+        name: "Super Admin",
+        email: "admin@safe.gov",
+        role: "admin",
+        password: "admin123",
+        isActive: true,
+        isArchived: false,
+      ));
+    } else {
+      // Forcefully upgrade the user to admin if they registered manually
+      _users[existingAdminIndex] = _users[existingAdminIndex].copyWith(
+        role: "admin",
+        password: "admin123",
+      );
+    }
+    _saveUsers();
 
     final String? categoriesJson = _dataBox.get('categories');
     if (categoriesJson != null) {
@@ -94,6 +115,11 @@ class MockDatabaseService extends ChangeNotifier {
       });
     }
     
+    // Reset any active lockouts for debugging purposes
+    _lockouts.clear();
+    _failedAttempts.clear();
+    _saveSecurityState();
+
     notifyListeners();
   }
 

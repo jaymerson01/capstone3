@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../services/admin_data_service.dart';
 import '../constants/admin_colors.dart';
+import '../../widgets/custom_3d_card.dart';
 
 class IncidentCategoriesPage extends StatefulWidget {
   const IncidentCategoriesPage({super.key});
@@ -28,7 +29,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header actions bar
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -38,8 +38,8 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                       Text(
                         "Manage Incident Categories",
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
                           color: AdminColors.textDark,
                         ),
                       ),
@@ -55,15 +55,16 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   ),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AdminColors.primaryGreen,
+                      backgroundColor: AdminColors.primaryRose,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(14),
                       ),
+                      elevation: 3,
                     ),
                     onPressed: () => _showAddCategoryDialog(context),
                     icon: const Icon(Icons.add, size: 18),
@@ -76,7 +77,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               ),
               const SizedBox(height: 25),
 
-              // Categories Grid
               Expanded(
                 child: dataService.categories.isEmpty
                     ? const Center(
@@ -111,49 +111,41 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
   }
 
   Widget _buildCategoryCard(BuildContext context, IncidentCategory category) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-        border: Border.all(color: AdminColors.border),
-      ),
-      padding: const EdgeInsets.all(16),
+    return Custom3dCard(
+      margin: EdgeInsets.zero,
+      padding: const EdgeInsets.all(18),
+      borderRadius: 20,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Icon + Name
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AdminColors.primaryGreen.withValues(alpha: 0.1),
+                      color: AdminColors.primaryRose.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.folder_open_outlined,
-                      color: AdminColors.primaryGreen,
-                      size: 20,
+                      color: AdminColors.primaryRose,
+                      size: 22,
                     ),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     category.name,
                     style: const TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                       fontSize: 16,
                       color: AdminColors.textDark,
                     ),
                   ),
                 ],
               ),
-              // Option triggers
               Row(
                 children: [
                   IconButton(
@@ -175,7 +167,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
             ],
           ),
           const SizedBox(height: 12),
-          // Description
           Expanded(
             child: Text(
               category.description,
@@ -184,7 +175,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               style: const TextStyle(
                 fontSize: 13,
                 color: AdminColors.textLight,
-                height: 1.3,
+                height: 1.35,
               ),
             ),
           ),
@@ -193,7 +184,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Add Category dialog popup
   void _showAddCategoryDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
@@ -203,7 +193,8 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Add New Incident Category"),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text("Add New Category", style: TextStyle(fontWeight: FontWeight.bold)),
           content: SizedBox(
             width: 400,
             child: Form(
@@ -214,10 +205,12 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Category Name",
                       hintText: "e.g. Environmental Hazard",
-                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: AdminColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     validator: (val) => val == null || val.isEmpty
                         ? "Enter category name"
@@ -227,11 +220,12 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   TextFormField(
                     controller: descController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Description",
-                      hintText:
-                          "Enter explanation of what this category covers...",
-                      border: OutlineInputBorder(),
+                      hintText: "Enter explanation of what this category covers...",
+                      filled: true,
+                      fillColor: AdminColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       alignLabelWithHint: true,
                     ),
                     validator: (val) => val == null || val.isEmpty
@@ -249,8 +243,9 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AdminColors.primaryGreen,
+                backgroundColor: AdminColors.primaryRose,
                 foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
@@ -266,6 +261,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                       content: Text(
                         "Category '${newCat.name}' created successfully",
                       ),
+                      behavior: SnackBarBehavior.floating,
                     ),
                   );
                 }
@@ -278,7 +274,6 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Edit Category dialog popup
   void _showEditCategoryDialog(
     BuildContext context,
     IncidentCategory category,
@@ -291,7 +286,8 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Edit Category: ${category.name}"),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text("Edit Category: ${category.name}", style: const TextStyle(fontWeight: FontWeight.bold)),
           content: SizedBox(
             width: 400,
             child: Form(
@@ -302,9 +298,11 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Category Name",
-                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: AdminColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                     ),
                     validator: (val) => val == null || val.isEmpty
                         ? "Enter category name"
@@ -314,9 +312,11 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   TextFormField(
                     controller: descController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Description",
-                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: AdminColors.background,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
                       alignLabelWithHint: true,
                     ),
                     validator: (val) => val == null || val.isEmpty
@@ -334,8 +334,9 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AdminColors.primaryGreen,
+                backgroundColor: AdminColors.primaryRose,
                 foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () {
                 if (formKey.currentState!.validate()) {
@@ -346,7 +347,10 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   dataService.editCategory(updated);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Category successfully updated")),
+                    const SnackBar(
+                      content: Text("Category successfully updated"),
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
                 }
               },
@@ -358,13 +362,13 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
     );
   }
 
-  // Confirm archive category dialog popup
   void _confirmArchiveCategory(BuildContext context, IncidentCategory category) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Archive Category"),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text("Archive Category", style: TextStyle(fontWeight: FontWeight.bold)),
           content: Text(
             "Are you sure you want to archive category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions.",
           ),
@@ -377,6 +381,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AdminColors.dangerRed,
                 foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
               ),
               onPressed: () {
                 dataService.archiveCategory(category.id);
@@ -386,6 +391,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                     content: Text(
                       "Category '${category.name}' archived successfully",
                     ),
+                    behavior: SnackBarBehavior.floating,
                   ),
                 );
               },

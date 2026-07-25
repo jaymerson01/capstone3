@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/admin_colors.dart';
 import '../services/admin_data_service.dart';
 
-class AdminHeader extends StatelessWidget {
+class AdminHeader extends StatefulWidget {
   final String title;
   final VoidCallback onMenuPressed;
   final bool isMobile;
@@ -15,6 +15,29 @@ class AdminHeader extends StatelessWidget {
   });
 
   @override
+  State<AdminHeader> createState() => _AdminHeaderState();
+}
+
+class _AdminHeaderState extends State<AdminHeader>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _notifPulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _notifPulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _notifPulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final adminService = AdminDataService();
 
@@ -22,102 +45,131 @@ class AdminHeader extends StatelessWidget {
       listenable: adminService,
       builder: (context, _) {
         return Container(
-          height: 70,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          height: 68,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: const Color(0xFF0D1627),
+            border: const Border(
+              bottom: BorderSide(color: Color(0xFF1E2D4A), width: 1),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.black.withValues(alpha: 0.25),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
             ],
-            border: const Border(
-              bottom: BorderSide(color: AdminColors.border, width: 1),
-            ),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Left: Title and Toggle Menu Menu Icon
-              Row(
-                children: [
-                  if (isMobile)
-                    IconButton(
-                      icon: const Icon(
-                        Icons.menu,
-                        color: AdminColors.primaryGreen,
-                        size: 22,
-                      ),
-                      onPressed: onMenuPressed,
-                    )
-                  else
-                    IconButton(
-                      icon: const Icon(
-                        Icons.menu_open,
-                        color: AdminColors.primaryGreen,
-                        size: 22,
-                      ),
-                      onPressed: onMenuPressed,
-                      tooltip: "Toggle Sidebar",
-                    ),
-                  const SizedBox(width: 12),
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AdminColors.textDark,
-                      letterSpacing: 0.5,
-                    ),
+              // ── Menu toggle ──────────────────────────────────────────────
+              GestureDetector(
+                onTap: widget.onMenuPressed,
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0A84FF).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: const Color(0xFF0A84FF).withValues(alpha: 0.2)),
                   ),
-                ],
+                  child: Icon(
+                    widget.isMobile ? Icons.menu : Icons.menu_open,
+                    color: const Color(0xFF0A84FF),
+                    size: 20,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // ── Page Title ──────────────────────────────────────────────
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFFE8F0FE),
+                        letterSpacing: 0.3,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const Text(
+                      "RESQ Admin Command Center",
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Color(0xFF7B8DB0),
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
-              // Right: Profile Avatar and Admin Title
+              // ── Right Actions ─────────────────────────────────────────
               Row(
                 children: [
-                  // Quick notifications (decorative)
-                  Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.notifications_none_outlined,
-                            color: Colors.grey.shade700,
-                            size: 20,
+                  // Notification bell with animated pulse badge
+                  AnimatedBuilder(
+                    animation: _notifPulse,
+                    builder: (context, _) {
+                      return Stack(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1A2540),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: const Color(0xFF1E2D4A)),
+                            ),
+                            child: const Icon(
+                              Icons.notifications_none_outlined,
+                              color: Color(0xFF7B8DB0),
+                              size: 20,
+                            ),
                           ),
-                          onPressed: () {},
-                        ),
-                      ),
-                      Positioned(
-                        right: 4,
-                        top: 4,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AdminColors.dangerRed,
-                            shape: BoxShape.circle,
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFFF3B30),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFFFF3B30).withValues(
+                                        alpha: 0.7 * _notifPulse.value),
+                                    blurRadius: 8,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
 
-                  // Divider
-                  Container(height: 24, width: 1, color: Colors.grey.shade200),
-                  const SizedBox(width: 16),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    color: const Color(0xFF1E2D4A),
+                  ),
+                  const SizedBox(width: 12),
 
-                  // User info
-                  if (!isMobile) ...[
+                  if (!widget.isMobile) ...[
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.end,
@@ -125,49 +177,52 @@ class AdminHeader extends StatelessWidget {
                         Text(
                           adminService.adminName,
                           style: const TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.bold,
-                            color: AdminColors.textDark,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFFE8F0FE),
                           ),
                         ),
-                        const SizedBox(height: 2),
                         const Text(
                           "System Admin",
                           style: TextStyle(
-                            fontSize: 11,
-                            color: AdminColors.textLight,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 10,
+                            color: Color(0xFF0A84FF),
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 12),
                   ],
 
                   // Avatar
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
-                      color: AdminColors.primaryGreen,
                       shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF0A84FF), Color(0xFF00D4FF)],
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AdminColors.primaryGreen.withValues(
-                            alpha: 0.2,
-                          ),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
+                          color: const Color(0xFF0A84FF).withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          spreadRadius: 2,
                         ),
                       ],
                     ),
                     child: Center(
                       child: Text(
-                        adminService.adminName.substring(0, 1).toUpperCase(),
+                        adminService.adminName.isNotEmpty
+                            ? adminService.adminName[0].toUpperCase()
+                            : 'A',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
-                          fontSize: 14,
+                          fontSize: 16,
                         ),
                       ),
                     ),

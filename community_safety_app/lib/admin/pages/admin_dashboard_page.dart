@@ -5,6 +5,8 @@ import '../widgets/stat_card.dart';
 import '../widgets/custom_line_chart.dart';
 import '../widgets/custom_pie_chart.dart';
 import '../constants/admin_colors.dart';
+import '../../widgets/custom_3d_card.dart';
+import '../../theme/app_color.dart';
 
 class AdminDashboardPage extends StatelessWidget {
   const AdminDashboardPage({super.key});
@@ -13,7 +15,6 @@ class AdminDashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final dataService = AdminDataService();
     final double screenWidth = MediaQuery.of(context).size.width;
-
     final bool isDesktop = screenWidth >= 1100;
     final bool isTablet = screenWidth >= 700 && screenWidth < 1100;
 
@@ -26,118 +27,179 @@ class AdminDashboardPage extends StatelessWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Welcome back, Admin!",
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900,
-                            color: AdminColors.textDark,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "Monitor community safety alerts and safety dispatch statuses in Moonwalk.",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AdminColors.textLight,
-                          ),
-                        ),
-                      ],
-                    ),
+              // ── Welcome Header ──────────────────────────────────────────
+              Container(
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
                   ),
-                  const SizedBox(width: 16),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.2)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      blurRadius: 24,
+                      offset: const Offset(0, 8),
                     ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AdminColors.border),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.02),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 14,
-                          color: AdminColors.primaryGreen,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          "Today: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AdminColors.textDark,
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            "Welcome back, Admin!",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.textDark,
+                              letterSpacing: -0.3,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 5),
+                          const Text(
+                            "Monitor community safety alerts and dispatch statuses in Moonwalk.",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textLight,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          // Live status pill
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: AppColors.solved.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                  color:
+                                      AppColors.solved.withValues(alpha: 0.25)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 7,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: AppColors.solved,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.solved
+                                            .withValues(alpha: 0.6),
+                                        blurRadius: 6,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 7),
+                                const Text(
+                                  "Command Center Online",
+                                  style: TextStyle(
+                                    color: AppColors.solved,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 20),
+                    // Date badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                            color: AppColors.primary.withValues(alpha: 0.2)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.calendar_today_outlined,
+                              size: 18, color: AppColors.primary),
+                          const SizedBox(height: 6),
+                          Text(
+                            "${DateTime.now().day}",
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          Text(
+                            _monthName(DateTime.now().month),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textLight,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-
               const SizedBox(height: 28),
 
+              // ── Stat Cards ──────────────────────────────────────────────
               GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-                childAspectRatio: 1.6,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.5,
                 children: [
                   StatCard(
                     title: "Incident Reports",
                     value: dataService.totalIncidents.toString(),
                     icon: Icons.warning_amber_rounded,
-                    backgroundColor: const Color(0xFF49769F),
+                    backgroundColor: const Color(0xFFFF3B30),
                   ),
                   StatCard(
                     title: "Total Areas",
                     value: dataService.totalAreas.toString(),
                     icon: Icons.map_outlined,
-                    backgroundColor: const Color(0xFF3F6B91),
+                    backgroundColor: const Color(0xFF0A84FF),
                   ),
                   StatCard(
                     title: "Solved Cases",
                     value: dataService.solvedCases.toString(),
                     icon: Icons.check_circle_outline,
-                    backgroundColor: const Color(0xFF5C8DB4),
+                    backgroundColor: const Color(0xFF30D158),
                   ),
                   StatCard(
                     title: "Registered Users",
                     value: dataService.registeredUsers.toString(),
                     icon: Icons.people_alt_outlined,
-                    backgroundColor: const Color(0xFF6FA4CC),
+                    backgroundColor: const Color(0xFF6E40C9),
                   ),
                 ],
               ),
-
               const SizedBox(height: 28),
 
+              // ── Charts ──────────────────────────────────────────────────
               if (isDesktop)
                 const Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(flex: 6, child: CustomLineChart()),
-                    SizedBox(width: 24),
+                    SizedBox(width: 20),
                     Expanded(flex: 4, child: CustomPieChart()),
                   ],
                 )
@@ -145,151 +207,239 @@ class AdminDashboardPage extends StatelessWidget {
                 const Column(
                   children: [
                     CustomLineChart(),
-                    SizedBox(height: 24),
+                    SizedBox(height: 20),
                     CustomPieChart(),
                   ],
                 ),
 
               const SizedBox(height: 28),
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AdminColors.border),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
+              // ── Recent Incidents Table ──────────────────────────────────
+              Custom3dCard(
+                padding: const EdgeInsets.all(22),
+                borderRadius: 22,
+                margin: EdgeInsets.zero,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          "Recent Urgent Incidents",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AdminColors.textDark,
-                          ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.bolt_outlined,
+                                  color: AppColors.primary, size: 16),
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              "Recent Urgent Incidents",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ],
                         ),
                         TextButton.icon(
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Navigate to 'Incident Reports' tab from sidebar to view the full list.",
+                              SnackBar(
+                                content: const Row(
+                                  children: [
+                                    Icon(Icons.info_outline,
+                                        color: Colors.white, size: 16),
+                                    SizedBox(width: 10),
+                                    Text(
+                                        "Navigate to 'Incident Reports' from sidebar."),
+                                  ],
                                 ),
-                                duration: Duration(seconds: 2),
+                                backgroundColor: AppColors.surface,
                                 behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: const BorderSide(
+                                      color: AppColors.border),
+                                ),
                               ),
                             );
                           },
-                          icon: const Icon(
-                            Icons.arrow_forward,
-                            size: 16,
-                            color: AdminColors.primaryGreen,
-                          ),
+                          icon: const Icon(Icons.arrow_forward,
+                              size: 14, color: AppColors.primary),
                           label: const Text(
-                            "View All Reports",
+                            "View All",
                             style: TextStyle(
-                              color: AdminColors.primaryGreen,
-                              fontWeight: FontWeight.bold,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
                             ),
                           ),
                         ),
                       ],
                     ),
-
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
+                    Container(height: 1, color: AppColors.border),
+                    const SizedBox(height: 12),
 
                     ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: dataService.reports.take(3).length,
-                      separatorBuilder: (context, index) =>
-                          const Divider(color: Color(0xFFF1F5F9), height: 24),
+                      itemCount: dataService.reports.take(4).length,
+                      separatorBuilder: (context, index) => Container(
+                        height: 1,
+                        color: AppColors.border,
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                      ),
                       itemBuilder: (context, index) {
                         final report = dataService.reports[index];
+                        final statusClr =
+                            AppColors.statusColor(report.statusLabel);
 
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: CircleAvatar(
-                            backgroundColor: report.statusColor.withValues(
-                              alpha: 0.12,
-                            ),
-                            radius: 20,
-                            child: Icon(
-                              report.status == IncidentStatus.solved
-                                  ? Icons.check
-                                  : report.status == IncidentStatus.inProgress
-                                  ? Icons.rotate_right
-                                  : Icons.priority_high,
-                              color:
-                                  report.statusColor ==
-                                      AdminColors.pendingYellow
-                                  ? Colors.orange.shade800
-                                  : report.statusColor,
-                              size: 20,
-                            ),
-                          ),
-                          title: Text(
-                            "${report.incidentType} - ${report.location}",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: AdminColors.textDark,
-                            ),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              "Reported by ${report.reporterName} • ${report.date.day}/${report.date.month}/${report.date.year}",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: AdminColors.textLight,
-                              ),
-                            ),
-                          ),
-                          trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: report.statusColor.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              report.statusLabel,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    report.statusColor ==
-                                        AdminColors.pendingYellow
-                                    ? Colors.orange.shade800
-                                    : report.statusColor,
-                              ),
-                            ),
-                          ),
+                        return _IncidentRow(
+                          report: report,
+                          statusColor: statusClr,
                         );
                       },
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
             ],
           );
         },
+      ),
+    );
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return months[month];
+  }
+}
+
+class _IncidentRow extends StatefulWidget {
+  final dynamic report;
+  final Color statusColor;
+
+  const _IncidentRow({required this.report, required this.statusColor});
+
+  @override
+  State<_IncidentRow> createState() => _IncidentRowState();
+}
+
+class _IncidentRowState extends State<_IncidentRow> {
+  bool _hovered = false;
+
+  IconData _getIcon(IncidentStatus status) {
+    switch (status) {
+      case IncidentStatus.solved:
+        return Icons.check_circle_outline;
+      case IncidentStatus.inProgress:
+        return Icons.sync;
+      default:
+        return Icons.hourglass_empty;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final report = widget.report;
+    final statusClr = widget.statusColor;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: _hovered
+              ? AppColors.primary.withValues(alpha: 0.05)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: statusClr.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: statusClr.withValues(alpha: 0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Icon(
+                _getIcon(report.status),
+                color: statusClr,
+                size: 19,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${report.incidentType} — ${report.location}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      color: AppColors.textDark,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    "By ${report.reporterName} · ${report.date.day}/${report.date.month}/${report.date.year}",
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              decoration: BoxDecoration(
+                color: statusClr.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: statusClr.withValues(alpha: 0.3)),
+                boxShadow: [
+                  BoxShadow(
+                    color: statusClr.withValues(alpha: 0.18),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Text(
+                report.statusLabel,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: statusClr,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

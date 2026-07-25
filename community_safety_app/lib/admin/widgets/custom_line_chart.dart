@@ -1,7 +1,39 @@
 import 'package:flutter/material.dart';
 
-class CustomLineChart extends StatelessWidget {
+/// RESQ Command Center — Premium Animated Line Chart
+class CustomLineChart extends StatefulWidget {
   const CustomLineChart({super.key});
+
+  @override
+  State<CustomLineChart> createState() => _CustomLineChartState();
+}
+
+class _CustomLineChartState extends State<CustomLineChart>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _drawController;
+  late Animation<double> _drawProgress;
+
+  @override
+  void initState() {
+    super.initState();
+    _drawController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
+    _drawProgress = CurvedAnimation(
+      parent: _drawController,
+      curve: Curves.easeOutCubic,
+    );
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) _drawController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _drawController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,45 +41,64 @@ class CustomLineChart extends StatelessWidget {
       height: 270,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFF0D1627),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF1E2D4A)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
-        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Monthly Incidents Trend",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Color(0xFF1E293B),
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.trending_up,
+                    color: Color(0xFF0A84FF), size: 16),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                "Monthly Incidents Trend",
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  color: Color(0xFFE8F0FE),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Expanded(
-            child: CustomPaint(
-              size: Size.infinite,
-              painter: LineChartPainter(),
+            child: AnimatedBuilder(
+              animation: _drawProgress,
+              builder: (context, _) {
+                return CustomPaint(
+                  size: Size.infinite,
+                  painter: _PremiumLineChartPainter(
+                      drawProgress: _drawProgress.value),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 15),
-          // Chart Legend
+          const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              legendItem("Theft", Colors.orange),
-              const SizedBox(width: 24),
-              legendItem("Accident", Colors.blue),
-              const SizedBox(width: 24),
-              legendItem("Fire/Violence", Colors.green),
+              _legendItem("Theft", const Color(0xFFFF9F0A)),
+              const SizedBox(width: 20),
+              _legendItem("Accident", const Color(0xFF0A84FF)),
+              const SizedBox(width: 20),
+              _legendItem("Fire/Violence", const Color(0xFF30D158)),
             ],
           ),
         ],
@@ -55,21 +106,30 @@ class CustomLineChart extends StatelessWidget {
     );
   }
 
-  Widget legendItem(String title, Color color) {
+  Widget _legendItem(String title, Color color) {
     return Row(
       children: [
         Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          width: 24,
+          height: 3,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.5),
+                blurRadius: 6,
+              ),
+            ],
+          ),
         ),
         const SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF64748B),
-            fontWeight: FontWeight.w500,
+            fontSize: 11,
+            color: Color(0xFF7B8DB0),
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -77,117 +137,76 @@ class CustomLineChart extends StatelessWidget {
   }
 }
 
-class LineChartPainter extends CustomPainter {
+class _PremiumLineChartPainter extends CustomPainter {
+  final double drawProgress;
+
+  _PremiumLineChartPainter({required this.drawProgress});
+
   @override
   void paint(Canvas canvas, Size size) {
-    final double width = size.width;
-    final double height = size.height;
+    const double leftMargin = 38.0;
+    const double bottomMargin = 22.0;
+    final double graphWidth = size.width - leftMargin;
+    final double graphHeight = size.height - bottomMargin;
 
-    // Draw Grid Lines and Y-Axis labels
-    final Paint gridPaint = Paint()
-      ..color = Colors.grey.shade100
-      ..strokeWidth = 1.0;
+    // ── Grid lines ──────────────────────────────────────────────────────
+    final gridPaint = Paint()
+      ..color = const Color(0xFF1E2D4A)
+      ..strokeWidth = 0.8;
 
-    final TextPainter textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final tp = TextPainter(textDirection: TextDirection.ltr);
+    final yLabels = ['25', '20', '15', '10', '5'];
+    const gridRows = 5;
 
-    const int gridRows = 5;
-    final List<String> yLabels = ['25%', '20%', '15%', '10%', '5%'];
-
-    // Available drawing area offset for labels
-    const double leftMargin = 35.0;
-    const double bottomMargin = 20.0;
-    final double graphWidth = width - leftMargin;
-    final double graphHeight = height - bottomMargin;
-
-    // Draw horizontal grid lines
     for (int i = 0; i < gridRows; i++) {
       double y = (graphHeight / gridRows) * i;
-      canvas.drawLine(Offset(leftMargin, y), Offset(width, y), gridPaint);
-
-      // Y-axis label text
-      textPainter.text = TextSpan(
+      canvas.drawLine(Offset(leftMargin, y), Offset(size.width, y), gridPaint);
+      tp.text = TextSpan(
         text: yLabels[i],
-        style: TextStyle(
-          color: Colors.grey.shade400,
-          fontSize: 9,
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(
+            color: Color(0xFF4A5568), fontSize: 9, fontWeight: FontWeight.w500),
       );
-      textPainter.layout();
-      textPainter.paint(canvas, Offset(5, y - 6));
+      tp.layout();
+      tp.paint(canvas, Offset(2, y - 6));
     }
 
-    // X-axis baseline
+    // ── X-axis ──────────────────────────────────────────────────────────
     canvas.drawLine(
       Offset(leftMargin, graphHeight),
-      Offset(width, graphHeight),
+      Offset(size.width, graphHeight),
       Paint()
-        ..color = Colors.grey.shade200
+        ..color = const Color(0xFF1E2D4A)
         ..strokeWidth = 1.0,
     );
 
-    // Draw X-axis labels (months)
-    final List<String> xLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    final double xSpacing = graphWidth / (xLabels.length - 1);
+    final xLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+    final xSpacing = graphWidth / (xLabels.length - 1);
     for (int i = 0; i < xLabels.length; i++) {
-      double x = leftMargin + (xSpacing * i);
-      textPainter.text = TextSpan(
+      double x = leftMargin + xSpacing * i;
+      tp.text = TextSpan(
         text: xLabels[i],
-        style: TextStyle(
-          color: Colors.grey.shade400,
-          fontSize: 9,
-          fontWeight: FontWeight.w500,
-        ),
+        style: const TextStyle(
+            color: Color(0xFF4A5568), fontSize: 9, fontWeight: FontWeight.w500),
       );
-      textPainter.layout();
-      textPainter.paint(
-        canvas,
-        Offset(x - (textPainter.width / 2), graphHeight + 6),
-      );
+      tp.layout();
+      tp.paint(canvas, Offset(x - tp.width / 2, graphHeight + 6));
     }
 
-    // Available height function
-    double getCorrectY(double percentage) {
-      double pctFactor = percentage / 25.0;
-      return graphHeight - (graphHeight * pctFactor);
+    // ── Data Series ──────────────────────────────────────────────────────
+    double getY(double pct) {
+      double factor = pct / 25.0;
+      return graphHeight - graphHeight * factor;
     }
 
-    final List<double> orangePoints = [10.0, 18.0, 21.0, 20.0, 25.0, 32.0];
-    final List<double> bluePoints = [5.0, 10.0, 12.0, 8.0, 10.0, 9.0];
-    final List<double> greenPoints = [2.0, 4.0, 6.0, 10.0, 19.0, 14.0];
-
-    drawLineGraph(
-      canvas,
-      orangePoints,
-      Colors.orange,
-      leftMargin,
-      xSpacing,
-      getCorrectY,
-      graphHeight,
-    );
-    drawLineGraph(
-      canvas,
-      bluePoints,
-      Colors.blue,
-      leftMargin,
-      xSpacing,
-      getCorrectY,
-      graphHeight,
-    );
-    drawLineGraph(
-      canvas,
-      greenPoints,
-      Colors.green,
-      leftMargin,
-      xSpacing,
-      getCorrectY,
-      graphHeight,
-    );
+    _drawSeries(canvas, [10, 18, 21, 20, 25, 32], const Color(0xFFFF9F0A),
+        leftMargin, xSpacing, getY, graphHeight, size, drawProgress);
+    _drawSeries(canvas, [5, 10, 12, 8, 10, 9], const Color(0xFF0A84FF),
+        leftMargin, xSpacing, getY, graphHeight, size, drawProgress);
+    _drawSeries(canvas, [2, 4, 6, 10, 19, 14], const Color(0xFF30D158),
+        leftMargin, xSpacing, getY, graphHeight, size, drawProgress);
   }
 
-  void drawLineGraph(
+  void _drawSeries(
     Canvas canvas,
     List<double> values,
     Color color,
@@ -195,93 +214,95 @@ class LineChartPainter extends CustomPainter {
     double xSpacing,
     double Function(double) getY,
     double graphHeight,
+    Size size,
+    double progress,
   ) {
-    final Paint linePaint = Paint()
-      ..color = color
-      ..strokeWidth = 3.0
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..isAntiAlias = true;
-
-    final Paint dotPaint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
-
-    final Paint borderDotPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-
-    final Path path = Path();
-    final Path areaPath = Path();
-
-    // Generate Points List
     List<Offset> points = [];
     for (int i = 0; i < values.length; i++) {
-      double x = leftMargin + (xSpacing * i);
-      double y = getY(values[i]);
-      points.add(Offset(x, y));
+      points.add(Offset(leftMargin + xSpacing * i, getY(values[i])));
     }
 
-    // Bezier Draw Method
+    // Build full bezier path
+    final fullPath = Path();
+    final areaPath = Path();
     if (points.isNotEmpty) {
-      path.moveTo(points[0].dx, points[0].dy);
+      fullPath.moveTo(points[0].dx, points[0].dy);
       areaPath.moveTo(points[0].dx, points[0].dy);
-
       for (int i = 0; i < points.length - 1; i++) {
         final p0 = points[i];
         final p1 = points[i + 1];
-
-        // Smooth wave controls
-        final controlX1 = p0.dx + (p1.dx - p0.dx) / 2;
-        final controlY1 = p0.dy;
-        final controlX2 = p0.dx + (p1.dx - p0.dx) / 2;
-        final controlY2 = p1.dy;
-
-        path.cubicTo(controlX1, controlY1, controlX2, controlY2, p1.dx, p1.dy);
-        areaPath.cubicTo(
-          controlX1,
-          controlY1,
-          controlX2,
-          controlY2,
-          p1.dx,
-          p1.dy,
-        );
+        final cpx = p0.dx + (p1.dx - p0.dx) / 2;
+        fullPath.cubicTo(cpx, p0.dy, cpx, p1.dy, p1.dx, p1.dy);
+        areaPath.cubicTo(cpx, p0.dy, cpx, p1.dy, p1.dx, p1.dy);
       }
-
-      // Close Area Path for Gradient Fill
       areaPath.lineTo(points.last.dx, graphHeight);
       areaPath.lineTo(points.first.dx, graphHeight);
       areaPath.close();
-
-      // Draw Gradient Area
-      final Paint areaPaint = Paint()
-        ..shader =
-            LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                color.withValues(alpha: 0.24),
-                color.withValues(alpha: 0.0),
-              ],
-            ).createShader(
-              Rect.fromLTRB(leftMargin, 0, points.last.dx, graphHeight),
-            )
-        ..style = PaintingStyle.fill;
-
-      canvas.drawPath(areaPath, areaPaint);
     }
 
-    // Draw the main line
-    canvas.drawPath(path, linePaint);
+    // Extract partial path based on drawProgress
+    final metrics = fullPath.computeMetrics().toList();
+    if (metrics.isEmpty) return;
+    final totalLen = metrics.first.length;
+    final drawnPath = metrics.first.extractPath(0, totalLen * progress);
 
-    // Draw indicator dots on each node
-    for (var point in points) {
-      canvas.drawCircle(point, 5.0, dotPaint);
-      canvas.drawCircle(point, 5.0, borderDotPaint);
+    // Area gradient fill
+    final areaPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          color.withValues(alpha: 0.18),
+          color.withValues(alpha: 0.0),
+        ],
+      ).createShader(Rect.fromLTRB(leftMargin, 0, size.width, graphHeight))
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(areaPath, areaPaint);
+
+    // Line
+    canvas.drawPath(
+      drawnPath,
+      Paint()
+        ..color = color
+        ..strokeWidth = 2.5
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.solid, 0),
+    );
+
+    // Glow line
+    canvas.drawPath(
+      drawnPath,
+      Paint()
+        ..color = color.withValues(alpha: 0.3)
+        ..strokeWidth = 6
+        ..style = PaintingStyle.stroke
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+
+    // Dots at each node (only drawn up to progress)
+    final visibleCount = (points.length * progress).round().clamp(0, points.length);
+    for (int i = 0; i < visibleCount; i++) {
+      final pt = points[i];
+      canvas.drawCircle(pt, 5,
+          Paint()..color = color..style = PaintingStyle.fill);
+      canvas.drawCircle(pt, 5,
+          Paint()
+            ..color = Colors.white.withValues(alpha: 0.15)
+            ..strokeWidth = 2
+            ..style = PaintingStyle.stroke);
+      canvas.drawCircle(
+        pt,
+        5,
+        Paint()
+          ..color = color.withValues(alpha: 0.5)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+      );
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _PremiumLineChartPainter old) =>
+      old.drawProgress != drawProgress;
 }
