@@ -222,53 +222,59 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.start,
                                   children: [
-                                    Custom3dTextField(
-                                      controller: _emailController,
-                                      labelText: "Email Address",
-                                      hintText: "e.g. juan@gmail.com",
-                                      prefixIcon: Icons.email_outlined,
-                                      keyboardType:
-                                          TextInputType.emailAddress,
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return "Email is required.";
-                                        }
-                                        final emailRegex = RegExp(
-                                            r'^[\w-\.]+@gmail\.com$');
-                                        if (!emailRegex.hasMatch(
-                                            value.trim().toLowerCase())) {
-                                          return "Enter a valid Gmail address.";
-                                        }
-                                        return null;
-                                      },
+                                    Semantics(
+                                      label: 'email_input',
+                                      child: Custom3dTextField(
+                                        controller: _emailController,
+                                        labelText: "Email Address",
+                                        hintText: "e.g. juan@gmail.com",
+                                        prefixIcon: Icons.email_outlined,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return "Email is required.";
+                                          }
+                                          final emailRegex = RegExp(
+                                              r'^[\w-\.]+@gmail\.com$');
+                                          if (!emailRegex.hasMatch(
+                                              value.trim().toLowerCase())) {
+                                            return "Enter a valid Gmail address.";
+                                          }
+                                          return null;
+                                        },
+                                      ),
                                     ),
 
-                                    Custom3dTextField(
-                                      controller: _passwordController,
-                                      labelText: "Password",
-                                      hintText: "e.g. Moonwalk#01",
-                                      prefixIcon: Icons.lock_outline,
-                                      obscureText: _obscurePassword,
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePassword
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
-                                          color: AppColors.textLight,
-                                          size: 20,
+                                    Semantics(
+                                      label: 'password_input',
+                                      child: Custom3dTextField(
+                                        controller: _passwordController,
+                                        labelText: "Password",
+                                        hintText: "e.g. Moonwalk#01",
+                                        prefixIcon: Icons.lock_outline,
+                                        obscureText: _obscurePassword,
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                            _obscurePassword
+                                                ? Icons.visibility_off
+                                                : Icons.visibility,
+                                            color: AppColors.textLight,
+                                            size: 20,
+                                          ),
+                                          onPressed: () => setState(() =>
+                                              _obscurePassword =
+                                                  !_obscurePassword),
                                         ),
-                                        onPressed: () => setState(() =>
-                                            _obscurePassword =
-                                                !_obscurePassword),
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.isEmpty) {
+                                            return "Password is required.";
+                                          }
+                                          return null;
+                                        },
                                       ),
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty) {
-                                          return "Password is required.";
-                                        }
-                                        return null;
-                                      },
                                     ),
 
                                     // Remember Me
@@ -304,90 +310,94 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     ),
                                     const SizedBox(height: 22),
 
-                                    Custom3dButton(
-                                      text: _isLoading
-                                          ? "SIGNING IN..."
-                                          : "CONTINUE",
-                                      icon: _isLoading
-                                          ? null
-                                          : Icons.arrow_forward_rounded,
-                                      gradient: AppColors.primaryGradient,
-                                      onPressed: _isLoading
-                                          ? null
-                                          : () async {
-                                              if (!_formKey.currentState!
-                                                  .validate()) return;
-                                              setState(() =>
-                                                  _isLoading = true);
-
-                                              final email = _emailController
-                                                  .text
-                                                  .trim();
-                                              final password =
-                                                  _passwordController.text;
-                                              final db =
-                                                  MockDatabaseService();
-                                              final errorMessage =
-                                                  await db.login(
-                                                      email, password);
-
-                                              if (!context.mounted) return;
-                                              setState(
-                                                  () => _isLoading = false);
-
-                                              if (errorMessage == null) {
-                                                await showDialog(
-                                                  context: context,
-                                                  barrierDismissible: false,
-                                                  builder: (_) =>
-                                                      _SuccessDialog(),
-                                                );
-                                                if (context.mounted) {
-                                                  if (db.currentUser?.role
-                                                          .toLowerCase() ==
-                                                      'admin') {
-                                                    Navigator
-                                                        .pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            const AdminPanelShell(),
-                                                      ),
-                                                    );
-                                                  } else {
-                                                    Navigator
-                                                        .pushReplacement(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (_) =>
-                                                            const DashboardPage(),
-                                                      ),
-                                                    );
+                                    Semantics(
+                                      label: 'login_button',
+                                      button: true,
+                                      child: Custom3dButton(
+                                        text: _isLoading
+                                            ? "SIGNING IN..."
+                                            : "CONTINUE",
+                                        icon: _isLoading
+                                            ? null
+                                            : Icons.arrow_forward_rounded,
+                                        gradient: AppColors.primaryGradient,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : () async {
+                                                if (!_formKey.currentState!
+                                                    .validate()) return;
+                                                setState(() =>
+                                                    _isLoading = true);
+  
+                                                final email = _emailController
+                                                    .text
+                                                    .trim();
+                                                final password =
+                                                    _passwordController.text;
+                                                final db =
+                                                    MockDatabaseService();
+                                                final errorMessage =
+                                                    await db.login(
+                                                        email, password);
+  
+                                                if (!context.mounted) return;
+                                                setState(
+                                                    () => _isLoading = false);
+  
+                                                if (errorMessage == null) {
+                                                  await showDialog(
+                                                    context: context,
+                                                    barrierDismissible: false,
+                                                    builder: (_) =>
+                                                        _SuccessDialog(),
+                                                  );
+                                                  if (context.mounted) {
+                                                    if (db.currentUser?.role
+                                                            .toLowerCase() ==
+                                                        'admin') {
+                                                      Navigator
+                                                          .pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (_) =>
+                                                              const AdminPanelShell(),
+                                                        ),
+                                                      );
+                                                    } else {
+                                                      Navigator
+                                                          .pushReplacement(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (_) =>
+                                                              const DashboardPage(),
+                                                        ),
+                                                      );
+                                                    }
                                                   }
-                                                }
-                                              } else {
-                                                if (errorMessage
-                                                    .contains("locked")) {
-                                                  final expiration = db
-                                                      .getLockoutExpiration(
-                                                          email);
-                                                  if (expiration != null) {
-                                                    AuthModals
-                                                        .showAccountLocked(
-                                                            context,
-                                                            expiration);
+                                                } else {
+                                                  if (errorMessage
+                                                      .contains("locked")) {
+                                                    final expiration = db
+                                                        .getLockoutExpiration(
+                                                            email);
+                                                    if (expiration != null) {
+                                                      AuthModals
+                                                          .showAccountLocked(
+                                                              context,
+                                                              expiration);
+                                                    } else {
+                                                      AuthModals
+                                                          .showInvalidCredentials(
+                                                              context);
+                                                    }
                                                   } else {
                                                     AuthModals
                                                         .showInvalidCredentials(
                                                             context);
                                                   }
-                                                } else {
-                                                  AuthModals
-                                                      .showInvalidCredentials(
-                                                          context);
                                                 }
-                                              }
-                                            },
+                                              },
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -455,19 +465,23 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               "Don't have an account? ",
                               style: TextStyle(color: AppColors.textLight),
                             ),
-                            GestureDetector(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const SignUpPage()),
-                              ),
-                              child: const Text(
-                                "Sign Up",
-                                style: TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColors.primary,
+                            Semantics(
+                              button: true,
+                              label: 'nav_to_signup',
+                              child: GestureDetector(
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const SignUpPage()),
+                                ),
+                                child: const Text(
+                                  "Sign Up",
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColors.primary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -582,9 +596,12 @@ class _SuccessDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         side: const BorderSide(color: AppColors.solved),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
@@ -619,16 +636,21 @@ class _SuccessDialog extends StatelessWidget {
               style: TextStyle(color: AppColors.textLight, fontSize: 14),
             ),
             const SizedBox(height: 24),
-            Custom3dButton(
-              text: "Continue",
-              gradient: const LinearGradient(
-                colors: [AppColors.solved, Color(0xFF00A843)],
+            Semantics(
+              label: 'continue_dialog_button',
+              button: true,
+              child: Custom3dButton(
+                text: "Continue",
+                gradient: const LinearGradient(
+                  colors: [AppColors.solved, Color(0xFF00A843)],
+                ),
+                height: 48,
+                onPressed: () => Navigator.pop(context),
               ),
-              height: 48,
-              onPressed: () => Navigator.pop(context),
             ),
           ],
         ),
+      ),
       ),
     );
   }

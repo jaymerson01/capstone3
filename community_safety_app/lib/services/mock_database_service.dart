@@ -75,6 +75,23 @@ class MockDatabaseService extends ChangeNotifier {
         password: "admin123",
       );
     }
+
+    // Add sample test user for Selenium Activity
+    final testUserIndex = _users.indexWhere((u) => u.email == 'test@gmail.com');
+    if (testUserIndex == -1) {
+      _users.add(UserProfile(
+        id: "USR-TEST-002",
+        name: "Test User",
+        email: "test@gmail.com",
+        role: "user",
+        password: "password123",
+        isActive: true,
+        isArchived: false,
+      ));
+    } else {
+      _users[testUserIndex] = _users[testUserIndex].copyWith(password: "password123");
+    }
+
     _saveUsers();
 
     final String? categoriesJson = _dataBox.get('categories');
@@ -137,7 +154,7 @@ class MockDatabaseService extends ChangeNotifier {
   
   void _saveSecurityState() {
     _dataBox.put('failedAttempts', jsonEncode(_failedAttempts));
-    final lockoutsMap = {};
+    final Map<String, dynamic> lockoutsMap = {};
     _lockouts.forEach((k, v) => lockoutsMap[k] = v.toIso8601String());
     _dataBox.put('lockouts', jsonEncode(lockoutsMap));
   }

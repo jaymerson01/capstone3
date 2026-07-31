@@ -210,12 +210,16 @@ class _WelcomePageState extends State<WelcomePage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          _GlassTopButton(
-                            text: 'Login',
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const LoginPage()),
+                          Semantics(
+                            label: 'nav_login_button',
+                            button: true,
+                            child: _GlassTopButton(
+                              text: 'Login',
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => const LoginPage()),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -596,9 +600,12 @@ class _PremiumDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         side: const BorderSide(color: AppColors.border),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
@@ -637,6 +644,7 @@ class _PremiumDialog extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -649,11 +657,15 @@ class _DialogButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Custom3dButton(
-      text: label,
-      height: 44,
-      onPressed: onTap,
-      gradient: AppColors.primaryGradient,
+    return Semantics(
+      button: true,
+      label: 'dialog_button_$label',
+      child: Custom3dButton(
+        text: label,
+        height: 44,
+        onPressed: onTap,
+        gradient: AppColors.primaryGradient,
+      ),
     );
   }
 }

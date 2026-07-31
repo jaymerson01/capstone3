@@ -82,8 +82,11 @@ class _PremiumDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
@@ -185,6 +188,7 @@ class _PremiumDialog extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

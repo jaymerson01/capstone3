@@ -62,6 +62,9 @@ class _Custom3dButtonState extends State<Custom3dButton>
 
   void _onTapUp(TapUpDetails _) {
     setState(() => _isPressed = false);
+  }
+
+  void _onTap() {
     widget.onPressed?.call();
   }
 
@@ -89,19 +92,27 @@ class _Custom3dButtonState extends State<Custom3dButton>
     return GestureDetector(
       onTapDown: isDisabled ? null : _onTapDown,
       onTapUp: isDisabled ? null : _onTapUp,
+      onTap: isDisabled ? null : _onTap,
       onTapCancel: isDisabled ? null : _onTapCancel,
-      child: AnimatedBuilder(
-        animation: _glowAnimation,
-        builder: (context, child) {
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 120),
-            curve: Curves.easeOutBack,
-            width: widget.width ?? double.infinity,
-            height: widget.height,
-            transform: Matrix4.identity()
-              ..scale(_isPressed ? 0.96 : 1.0, _isPressed ? 0.96 : 1.0),
-            transformAlignment: Alignment.center,
-            decoration: BoxDecoration(
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: widget.width ?? double.infinity,
+        height: widget.height,
+        color: Colors.transparent,
+        alignment: Alignment.center,
+        child: AnimatedBuilder(
+          animation: _glowAnimation,
+          builder: (context, child) {
+            return AnimatedScale(
+              scale: _isPressed ? 0.96 : 1.0,
+              duration: const Duration(milliseconds: 120),
+              curve: Curves.easeOutBack,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                curve: Curves.easeOutBack,
+                width: widget.width ?? double.infinity,
+                height: widget.height,
+                decoration: BoxDecoration(
               color: effectiveGradient == null ? effectiveBgColor : null,
               gradient: effectiveGradient,
               borderRadius: BorderRadius.circular(widget.borderRadius),
@@ -130,10 +141,11 @@ class _Custom3dButtonState extends State<Custom3dButton>
                           ),
                         ],
             ),
-            child: child,
+              child: child,
+            ),
           );
         },
-        child: ClipRRect(
+          child: ClipRRect(
           borderRadius: BorderRadius.circular(widget.borderRadius),
           child: Stack(
             children: [
@@ -157,18 +169,11 @@ class _Custom3dButtonState extends State<Custom3dButton>
                 ),
               ),
               // Button content
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                  splashColor: Colors.white.withValues(alpha: 0.12),
-                  highlightColor: Colors.transparent,
-                  onTap: isDisabled ? null : () {},
-                  child: Center(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                         if (widget.icon != null) ...[
                           AnimatedContainer(
                             duration: const Duration(milliseconds: 120),
@@ -198,12 +203,11 @@ class _Custom3dButtonState extends State<Custom3dButton>
                         ),
                       ],
                     ),
-                  ),
                 ),
-              ),
             ],
           ),
         ),
+      ),
       ),
     );
   }

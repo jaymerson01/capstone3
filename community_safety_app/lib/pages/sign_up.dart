@@ -206,9 +206,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Custom3dTextField(
-                                    controller: _nameController,
-                                    labelText: "Full Name",
+                                  Semantics(
+                                    label: 'name_input',
+                                    child: Custom3dTextField(
+                                      controller: _nameController,
+                                      labelText: "Full Name",
                                     hintText: "Enter your full name",
                                     prefixIcon: Icons.person_outline,
                                     validator: (v) {
@@ -220,9 +222,12 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       return null;
                                     },
                                   ),
-                                  Custom3dTextField(
-                                    controller: _emailController,
-                                    labelText: "Email Address",
+                                  ),
+                                  Semantics(
+                                    label: 'email_input',
+                                    child: Custom3dTextField(
+                                      controller: _emailController,
+                                      labelText: "Email Address",
                                     hintText: "e.g. juan@gmail.com",
                                     prefixIcon: Icons.email_outlined,
                                     keyboardType: TextInputType.emailAddress,
@@ -236,9 +241,12 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       return null;
                                     },
                                   ),
-                                  Custom3dTextField(
-                                    controller: _passwordController,
-                                    labelText: "Password",
+                                  ),
+                                  Semantics(
+                                    label: 'password_input',
+                                    child: Custom3dTextField(
+                                      controller: _passwordController,
+                                      labelText: "Password",
                                     hintText: "e.g. Moonwalk#01",
                                     prefixIcon: Icons.lock_outline,
                                     obscureText: _obscurePassword,
@@ -265,9 +273,12 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       return null;
                                     },
                                   ),
-                                  Custom3dTextField(
-                                    controller: _confirmPasswordController,
-                                    labelText: "Confirm Password",
+                                  ),
+                                  Semantics(
+                                    label: 'confirm_password_input',
+                                    child: Custom3dTextField(
+                                      controller: _confirmPasswordController,
+                                      labelText: "Confirm Password",
                                     hintText: "Repeat your password",
                                     prefixIcon: Icons.lock_outline,
                                     obscureText: _obscurePassword,
@@ -279,12 +290,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       return null;
                                     },
                                   ),
+                                  ),
 
                                   // ── Terms Checkbox ─────────────────────────
-                                  GestureDetector(
-                                    onTap: () => setState(
-                                        () => _termsAccepted = !_termsAccepted),
-                                    child: Container(
+                                  Semantics(
+                                    button: true,
+                                    label: 'terms_checkbox',
+                                    child: GestureDetector(
+                                      onTap: () => setState(
+                                          () => _termsAccepted = !_termsAccepted),
+                                      child: Container(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 14, vertical: 12),
                                       decoration: BoxDecoration(
@@ -352,12 +367,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                       ),
                                     ),
                                   ),
+                                  ),
                                   const SizedBox(height: 20),
 
-                                  Custom3dButton(
-                                    text: _isLoading
-                                        ? "REGISTERING..."
-                                        : "CREATE ACCOUNT",
+                                  Semantics(
+                                    button: true,
+                                    label: 'register_button',
+                                    child: Custom3dButton(
+                                      text: _isLoading
+                                          ? "REGISTERING..."
+                                          : "CREATE ACCOUNT",
                                     icon: _isLoading
                                         ? null
                                         : Icons.check_circle_outline,
@@ -405,6 +424,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                               ));
                                             }
                                           },
+                                    ),
                                   ),
                                 ],
                               ),
@@ -492,72 +512,76 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
             borderRadius: BorderRadius.circular(24),
             side: BorderSide(
                 color: AppColors.solved.withValues(alpha: 0.3))),
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.solved.withValues(alpha: 0.12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.solved.withValues(alpha: 0.4),
-                      blurRadius: 24,
-                      spreadRadius: 4,
-                    )
-                  ],
-                ),
-                child: const Icon(Icons.check_circle_outline,
-                    color: AppColors.solved, size: 38),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                "Account Created!",
-                style: TextStyle(
-                    color: AppColors.textDark,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "You have successfully registered. Please log in to continue.",
-                style: TextStyle(
-                    color: AppColors.textLight, fontSize: 13, height: 1.5),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: Container(
-                  height: 48,
+        child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          child: Padding(
+            padding: const EdgeInsets.all(28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 72,
+                  height: 72,
                   decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: AppColors.primaryGlowShadow,
+                    shape: BoxShape.circle,
+                    color: AppColors.solved.withValues(alpha: 0.12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.solved.withValues(alpha: 0.4),
+                        blurRadius: 24,
+                        spreadRadius: 4,
+                      )
+                    ],
                   ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
+                  child: const Icon(Icons.check_circle_outline,
+                      color: AppColors.solved, size: 38),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  "Account Created!",
+                  style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "You have successfully registered. Please log in to continue.",
+                  style: TextStyle(
+                      color: AppColors.textLight, fontSize: 13, height: 1.5),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
                       borderRadius: BorderRadius.circular(14),
-                      onTap: () => Navigator.pop(ctx),
-                      child: const Center(
-                        child: Text(
-                          "Proceed to Login",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15),
+                      boxShadow: AppColors.primaryGlowShadow,
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () => Navigator.pop(ctx),
+                        child: const Center(
+                          child: Text(
+                            "Proceed to Login",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15),
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

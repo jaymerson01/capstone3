@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
 
 class FloatingChatBot extends StatefulWidget {
@@ -167,44 +167,36 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 280),
-          curve: Curves.easeOutCubic,
-          right: 16,
-          bottom: 16,
-          width: _isOpen ? 340 : 60,
-          height: _isOpen ? 520 : 60,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 280),
-            curve: Curves.easeOutCubic,
-            decoration: BoxDecoration(
-              color: _isOpen ? AppColors.surface : Colors.transparent,
-              borderRadius: BorderRadius.circular(_isOpen ? 24 : 30),
-              border: _isOpen
-                  ? Border.all(color: AppColors.border)
-                  : null,
-              boxShadow: _isOpen
-                  ? [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ]
-                  : [],
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: _isOpen ? _buildChatWindow() : _buildFAB(),
-          ),
+    return Positioned(
+      right: 16.0,
+      bottom: 16.0,
+      child: AnimatedContainer(
+        width: _isOpen ? 340 : 60,
+        height: _isOpen ? 520 : 60,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: _isOpen ? AppColors.surface : Colors.transparent,
+          borderRadius: BorderRadius.circular(_isOpen ? 24 : 30),
+          border: _isOpen ? Border.all(color: AppColors.border) : null,
+          boxShadow: _isOpen
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : [],
         ),
-      ],
+        clipBehavior: Clip.antiAlias,
+        child: _isOpen ? _buildChatWindow() : _buildFAB(),
+      ),
     );
   }
 
@@ -223,7 +215,8 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withValues(
-                      alpha: 0.4 + 0.25 * _fabPulse.value),
+                    alpha: 0.4 + 0.25 * _fabPulse.value,
+                  ),
                   blurRadius: 16 + 8 * _fabPulse.value,
                   spreadRadius: 1 + _fabPulse.value,
                 ),
@@ -241,13 +234,20 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
   }
 
   Widget _buildChatWindow() {
-    return Column(
-      children: [
-        _buildHeader(),
-        _buildQuickChips(),
-        Expanded(child: _buildMessages()),
-        _buildInputBar(),
-      ],
+    return OverflowBox(
+      minWidth: 340,
+      maxWidth: 340,
+      minHeight: 520,
+      maxHeight: 520,
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildQuickChips(),
+          Expanded(child: _buildMessages()),
+          _buildInputBar(),
+        ],
+      ),
     );
   }
 
@@ -273,8 +273,11 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
               shape: BoxShape.circle,
               color: Colors.white.withValues(alpha: 0.2),
             ),
-            child: const Icon(Icons.smart_toy_rounded,
-                color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.smart_toy_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -309,8 +312,11 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.15),
               ),
-              child:
-                  const Icon(Icons.refresh_rounded, color: Colors.white, size: 16),
+              child: const Icon(
+                Icons.refresh_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -361,12 +367,15 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
                       _sendMessage(selectedQuestion: _suggestedQuestions[i]),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.25)),
+                        color: AppColors.primary.withValues(alpha: 0.25),
+                      ),
                     ),
                     child: Text(
                       _suggestedQuestions[i],
@@ -399,7 +408,9 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
           }
           final msg = _messages[index];
           return _messageBubble(
-              text: msg['text'] as String, isUser: msg['isUser'] as bool);
+            text: msg['text'] as String,
+            isUser: msg['isUser'] as bool,
+          );
         },
       ),
     );
@@ -419,9 +430,7 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
             bottomRight: isUser ? Radius.zero : const Radius.circular(16),
             topLeft: isUser ? const Radius.circular(16) : Radius.zero,
           ),
-          border: isUser
-              ? null
-              : Border.all(color: AppColors.border),
+          border: isUser ? null : Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
               color: isUser
@@ -452,7 +461,9 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16).copyWith(topLeft: Radius.zero),
+          borderRadius: BorderRadius.circular(
+            16,
+          ).copyWith(topLeft: Radius.zero),
           border: Border.all(color: AppColors.border),
         ),
         child: Row(
@@ -487,14 +498,17 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
               ),
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(
-                    fontSize: 13, color: AppColors.textDark),
+                style: const TextStyle(fontSize: 13, color: AppColors.textDark),
                 decoration: const InputDecoration(
                   hintText: 'Type your safety concern...',
                   hintStyle: TextStyle(
-                      color: AppColors.textLight, fontSize: 12),
+                    color: AppColors.textLight,
+                    fontSize: 12,
+                  ),
                   contentPadding: EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 9),
+                    horizontal: 14,
+                    vertical: 9,
+                  ),
                   border: InputBorder.none,
                 ),
                 onSubmitted: (_) => _sendMessage(),
@@ -518,8 +532,11 @@ During flood: Move to higher ground. Avoid floodwater. Follow barangay announcem
                   ),
                 ],
               ),
-              child: const Icon(Icons.send_rounded,
-                  color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.send_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           ),
         ],
@@ -546,9 +563,13 @@ class _TypingDotState extends State<_TypingDot>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
-    _anim = Tween<double>(begin: 0, end: -6).animate(
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _anim = Tween<double>(
+      begin: 0,
+      end: -6,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
     Future.delayed(Duration(milliseconds: widget.delay), () {
       if (mounted) _ctrl.repeat(reverse: true);
     });
@@ -581,3 +602,4 @@ class _TypingDotState extends State<_TypingDot>
     );
   }
 }
+*/

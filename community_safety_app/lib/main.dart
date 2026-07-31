@@ -10,8 +10,11 @@ import 'theme/app_color.dart';
 
 import 'services/mock_database_service.dart';
 
+import 'package:flutter/semantics.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SemanticsBinding.instance.ensureSemantics();
 
   await Hive.initFlutter();
   await Hive.openBox('auth');
@@ -178,7 +181,7 @@ class MyApp extends StatelessWidget {
       },
       builder: (context, child) {
         return Scaffold(
-          body: Stack(children: [?child, const FloatingChatBot()]),
+          body: Stack(children: [child!]),
         );
       },
     );
