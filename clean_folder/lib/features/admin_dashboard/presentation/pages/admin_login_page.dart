@@ -1,5 +1,8 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/admin_colors.dart';
+import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
+import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -8,8 +11,8 @@ class AdminLoginPage extends StatefulWidget {
   State<AdminLoginPage> createState() => _AdminLoginPageState();
 }
 
-class _AdminLoginPageState extends State<AdminLoginPage> {
-  // Form keys and controller for fields validation
+class _AdminLoginPageState extends State<AdminLoginPage>
+    with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -18,43 +21,68 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   String? _errorMessage;
   bool _isLoading = false;
 
+  late AnimationController _bgController;
+  late AnimationController _cardController;
+  late Animation<double> _cardFade;
+  late Animation<Offset> _cardSlide;
+
+  @override
+  void initState() {
+    super.initState();
+    _bgController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 10),
+    )..repeat(reverse: true);
+
+    _cardController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _cardFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _cardController, curve: Curves.easeOut),
+    );
+    _cardSlide = Tween<Offset>(
+      begin: const Offset(0, 0.12),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _cardController, curve: Curves.easeOutCubic),
+    );
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) _cardController.forward();
+    });
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _bgController.dispose();
+    _cardController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    setState(() {
-      _errorMessage = null;
-    });
+  Future<void> _handleLogin() async {
+    setState(() => _errorMessage = null);
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
 
-    if (_formKey.currentState!.validate()) {
+    await Future.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    // Verify simulated credentials from clean_folder implementation
+    if (email == "admin@safe.gov" && password == "admin123") {
       setState(() {
-        _isLoading = true;
+        _isLoading = false;
       });
-
-      // Simulate a small delay for premium feels
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        if (!mounted) return;
-
-        final email = _emailController.text.trim();
-        final password = _passwordController.text;
-
-        // Verify simulated credentials
-        if (email == "admin@safe.gov" && password == "admin123") {
-          setState(() {
-            _isLoading = false;
-          });
-          // Redirect to the Admin Dashboard Shell using routing
-          Navigator.pushReplacementNamed(context, '/admin/dashboard');
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = "Invalid credentials. Use admin@safe.gov / admin123";
-          });
-        }
+      // Redirect to the Admin Dashboard Shell using routing
+      Navigator.pushReplacementNamed(context, '/admin/dashboard');
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Invalid credentials. Use admin@safe.gov / admin123";
       });
     }
   }
@@ -62,268 +90,345 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AdminColors.background,
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Container wrapper with shadows for a modern aesthetic
-                Container(
-                  width: 450,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 15,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
+      backgroundColor: AppColors.background,
+      body: Stack(
+        children: [
+          // ── Animated Background ──────────────────────────────────────────
+          AnimatedBuilder(
+            animation: _bgController,
+            builder: (context, _) {
+              return Stack(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                        gradient: AppColors.commandGradient),
                   ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Back to Portal button
-                        TextButton.icon(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/');
-                          },
-                          icon: const Icon(Icons.arrow_back, size: 16, color: AdminColors.primaryGreen),
-                          label: const Text(
-                            "Return to App Welcome",
-                            style: TextStyle(color: AdminColors.primaryGreen, fontSize: 13),
-                          ),
-                          style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                        ),
-                        const SizedBox(height: 20),
+                  // Ambient orbs
+                  Positioned(
+                    top: -60 + (50 * _bgController.value),
+                    right: -40,
+                    child: _Orb(
+                        size: 300,
+                        color: AppColors.primary.withValues(alpha: 0.08)),
+                  ),
+                  Positioned(
+                    bottom: -80,
+                    left: -60 + (30 * (1 - _bgController.value)),
+                    child: _Orb(
+                        size: 350,
+                        color: AppColors.secondary.withValues(alpha: 0.06)),
+                  ),
+                  Positioned(
+                    top: MediaQuery.of(context).size.height * 0.5,
+                    right: MediaQuery.of(context).size.width * 0.15,
+                    child: _Orb(
+                        size: 200,
+                        color: AppColors.accent.withValues(alpha: 0.05)),
+                  ),
+                  // Grid
+                  CustomPaint(
+                    size: Size(
+                      MediaQuery.of(context).size.width,
+                      MediaQuery.of(context).size.height,
+                    ),
+                    painter: _GridPainter(),
+                  ),
+                ],
+              );
+            },
+          ),
 
-                        // Title Header
-                        Center(
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: const BoxDecoration(
-                                  color: AdminColors.primaryGreen,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.admin_panel_settings,
-                                  color: Colors.white,
-                                  size: 40,
-                                ),
+          // ── Main Content ─────────────────────────────────────────────────
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: FadeTransition(
+                  opacity: _cardFade,
+                  child: SlideTransition(
+                    position: _cardSlide,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Back button
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: () =>
+                                Navigator.pushReplacementNamed(context, '/'),
+                            icon: const Icon(Icons.arrow_back,
+                                size: 16, color: AppColors.textLight),
+                            label: const Text(
+                              "Return to App Welcome",
+                              style: TextStyle(
+                                color: AppColors.textLight,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
                               ),
-                              const SizedBox(height: 16),
-                              const Text(
-                                "ADMIN PORTAL",
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: AdminColors.primaryGreen,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Text(
-                                "Community Safety Incident Management",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AdminColors.textLight,
-                                ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Admin shield icon
+                        Container(
+                          width: 90,
+                          height: 90,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [Color(0xFF0A84FF), Color(0xFF00D4FF)],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.primary.withValues(alpha: 0.45),
+                                blurRadius: 28,
+                                spreadRadius: 4,
                               ),
                             ],
                           ),
-                        ),
-                        const SizedBox(height: 35),
-
-                        // Alert error prompt if any
-                        if (_errorMessage != null)
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            margin: const EdgeInsets.only(bottom: 20),
-                            decoration: BoxDecoration(
-                              color: AdminColors.dangerRed.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: AdminColors.dangerRed.withValues(alpha: 0.3)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.error_outline, color: AdminColors.dangerRed),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    _errorMessage!,
-                                    style: const TextStyle(
-                                      color: AdminColors.dangerRed,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                          child: const Icon(
+                            Icons.admin_panel_settings,
+                            color: Colors.white,
+                            size: 44,
                           ),
-
-                        // Email Field
-                        const Text(
-                          "Email Address",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AdminColors.textDark,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            hintText: "Enter admin email (e.g. admin@safe.gov)",
-                            prefixIcon: const Icon(Icons.email_outlined),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.border),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.primaryGreen, width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter your email";
-                            }
-                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                              return "Please enter a valid email format";
-                            }
-                            return null;
-                          },
                         ),
                         const SizedBox(height: 20),
 
-                        // Password Field
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Password",
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: AdminColors.textDark,
-                              ),
+                        ShaderMask(
+                          shaderCallback: (bounds) =>
+                              AppColors.cyanGradient.createShader(bounds),
+                          blendMode: BlendMode.srcIn,
+                          child: const Text(
+                            "ADMIN PORTAL",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 28,
+                              letterSpacing: 4,
                             ),
-                            TextButton(
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Demo Mode: Default password is 'admin123'"),
-                                    duration: Duration(seconds: 3),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          "Barangay Safety & Incident Command Center",
+                          style: TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 28),
+
+                        // ── Glass Card Form ─────────────────────────────────
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 480),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(24),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(
+                                  sigmaX: 16, sigmaY: 16),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.06),
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.1),
                                   ),
-                                );
-                              },
-                              child: const Text(
-                                "Forgot Password?",
-                                style: TextStyle(
-                                  color: AdminColors.primaryGreen,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 32, vertical: 36),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Error alert
+                                      if (_errorMessage != null) ...[
+                                        Container(
+                                          width: double.infinity,
+                                          padding: const EdgeInsets.all(14),
+                                          margin: const EdgeInsets.only(
+                                              bottom: 16),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.danger
+                                                .withValues(alpha: 0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(14),
+                                            border: Border.all(
+                                              color: AppColors.danger
+                                                  .withValues(alpha: 0.3),
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.error_outline,
+                                                  color: AppColors.danger,
+                                                  size: 18),
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: Text(
+                                                  _errorMessage!,
+                                                  style: const TextStyle(
+                                                    color: AppColors.danger,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+
+                                      Custom3dTextField(
+                                        controller: _emailController,
+                                        labelText: "Admin Email",
+                                        hintText: "e.g. admin@safe.gov",
+                                        prefixIcon: Icons.email_outlined,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
+                                        validator: (v) {
+                                          if (v == null || v.isEmpty)
+                                            return "Email required.";
+                                          if (!RegExp(
+                                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                              .hasMatch(v))
+                                            return "Enter valid email.";
+                                          return null;
+                                        },
+                                      ),
+
+                                      Custom3dTextField(
+                                        controller: _passwordController,
+                                        labelText: "Admin Password",
+                                        hintText: "e.g. admin123",
+                                        prefixIcon: Icons.lock_outline,
+                                        obscureText: _obscurePassword,
+                                        suffixIcon: IconButton(
+                                          icon: Icon(
+                                            _obscurePassword
+                                                ? Icons.visibility_off_outlined
+                                                : Icons.visibility_outlined,
+                                            color: AppColors.textLight,
+                                            size: 20,
+                                          ),
+                                          onPressed: () => setState(() =>
+                                              _obscurePassword =
+                                                  !_obscurePassword),
+                                        ),
+                                        validator: (v) {
+                                          if (v == null || v.isEmpty)
+                                            return "Password required.";
+                                          return null;
+                                        },
+                                      ),
+
+                                      const SizedBox(height: 8),
+
+                                      Custom3dButton(
+                                        text: _isLoading
+                                            ? "VERIFYING..."
+                                            : "LOGIN TO DASHBOARD",
+                                        icon: _isLoading
+                                            ? null
+                                            : Icons.login_rounded,
+                                        gradient: AppColors.primaryGradient,
+                                        onPressed: _isLoading
+                                            ? null
+                                            : _handleLogin,
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      // Credentials hint
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.08),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          border: Border.all(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.15)),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                                Icons.info_outline,
+                                                color: AppColors.primary,
+                                                size: 15),
+                                            const SizedBox(width: 8),
+                                            const Expanded(
+                                              child: Text(
+                                                "Demo: admin@safe.gov · admin123",
+                                                style: TextStyle(
+                                                  color: AppColors.textLight,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            hintText: "Enter password (e.g. admin123)",
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.border),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: AdminColors.primaryGreen, width: 2),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter your password";
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 30),
-
-                        // Submit Button
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AdminColors.primaryGreen,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              elevation: 2,
-                            ),
-                            onPressed: _isLoading ? null : _handleLogin,
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2.5,
-                                    ),
-                                  )
-                                : const Text(
-                                    "LOGIN TO DASHBOARD",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      letterSpacing: 1.1,
-                                    ),
-                                  ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
+}
+
+class _Orb extends StatelessWidget {
+  final double size;
+  final Color color;
+  const _Orb({required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: [color, Colors.transparent]),
+      ),
+    );
+  }
+}
+
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.025)
+      ..strokeWidth = 0.5;
+    const spacing = 50.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += spacing) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
 }

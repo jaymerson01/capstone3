@@ -14,18 +14,9 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   // Global State Variables for Toggles
-
   bool isNotificationEnabled = true;
   bool isDarkMode = false;
   bool isBiometricsEnabled = true;
-
-  final BoxDecoration kAppBackgroundGradient = const BoxDecoration(
-    gradient: LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [Color(0xFF7BBDE8), Color(0xFF001D39)],
-    ),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +43,9 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: kAppBackgroundGradient,
+        decoration: const BoxDecoration(
+          gradient: AppColors.sunsetGradient,
+        ),
         child: SafeArea(
           bottom: false,
           child: Column(
@@ -121,7 +114,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     _buildSectionTitle("Preferences"),
                     const SizedBox(height: 12),
 
-
                     _buildSettingTile(
                       icon: Icons.notifications_none_outlined,
                       title: "Push Notifications",
@@ -129,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           "Instant local danger perimeter broadcast alerts",
                       trailing: Switch(
                         value: isNotificationEnabled,
-                        activeThumbColor: AppColors.darkGreen,
+                        activeThumbColor: AppColors.primary,
                         onChanged: (value) =>
                             setState(() => isNotificationEnabled = value),
                       ),
@@ -140,7 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       subtitle: "High contrast dark-mode viewing layer",
                       trailing: Switch(
                         value: isDarkMode,
-                        activeThumbColor: AppColors.darkGreen,
+                        activeThumbColor: AppColors.primary,
                         onChanged: (value) =>
                             setState(() => isDarkMode = value),
                       ),
@@ -156,16 +148,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: "About Application",
                       subtitle:
                           "App versions, platform structural mandates, guidelines",
-                      onTap: () => Navigator.push(
+                      onTap: () => _showModalInformation(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const AboutAppPage(),
-                        ),
+                        "About Application",
+                        "ResQ Enterprise is a community resilience platform designed for critical emergency coordination.",
                       ),
                     ),
                     _buildSettingTile(
                       icon: Icons.help_outline_rounded,
-                      title: "Help Desk & Customer Support",
+                      title: "Barangay Help Desk",
                       subtitle: "Get live system guidance or read user guides",
                       onTap: () => _showModalInformation(
                         context,
@@ -228,28 +219,56 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-        color: Colors.white,
-        letterSpacing: 0.6,
-      ),
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 16,
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.5),
+                blurRadius: 8,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          title.toUpperCase(),
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w900,
+            color: AppColors.textLight,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildProfileHeaderCard() {
+    final String name = "John David Echano";
+    final String email = "johnechano@gmail.com";
+    final String initials = "J";
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: AppColors.primary.withValues(alpha: 0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -257,13 +276,29 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           Hero(
             tag: 'avatar_profile',
-            child: CircleAvatar(
-              radius: 34,
-              backgroundColor: AppColors.accentGreenBg,
-              child: const Icon(
-                Icons.person,
-                size: 40,
-                color: AppColors.darkGreen,
+            child: Container(
+              width: 68,
+              height: 68,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppColors.primaryGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.45),
+                    blurRadius: 18,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  initials,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ),
             ),
           ),
@@ -271,27 +306,58 @@ class _SettingsPageState extends State<SettingsPage> {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "John David Echano",
-                  style: TextStyle(
-                    fontSize: 18,
+                  name,
+                  style: const TextStyle(
+                    fontSize: 17,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "johnechano@gmail.com",
-                  style: TextStyle(fontSize: 13, color: AppColors.textLight),
+                  email,
+                  style: const TextStyle(
+                      fontSize: 12, color: AppColors.textLight),
                 ),
-                SizedBox(height: 2),
-                Text(
-                  "Verified Resident • Parañaque City",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppColors.darkGreen,
-                    fontWeight: FontWeight.w600,
+                const SizedBox(height: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.solved.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: AppColors.solved.withValues(alpha: 0.25)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.solved,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.solved.withValues(alpha: 0.6),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        "Verified Resident",
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.solved,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -348,26 +414,36 @@ class _SettingsPageState extends State<SettingsPage> {
   ) {
     return SizedBox(
       width: targetWidth,
-      height: 46,
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFFEE2E2),
-          foregroundColor: Colors.red.shade800,
-          elevation: 0,
-          side: BorderSide(color: Colors.red.shade200, width: 1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
+        onTap: () => _triggerEmergencyCall(agency, dialNum),
+        child: Container(
+          height: 52,
+          decoration: BoxDecoration(
+            color: AppColors.danger.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.danger.withValues(alpha: 0.25)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.danger.withValues(alpha: 0.12),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-        ),
-        onPressed: () => _triggerEmergencyCall(agency, dialNum),
-        icon: Icon(icon, size: 16, color: Colors.red.shade700),
-        label: Text(
-          agency.split(' ')[0],
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 13,
-            letterSpacing: -0.2,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: AppColors.danger),
+              const SizedBox(width: 7),
+              Text(
+                agency.split(' ')[0],
+                style: const TextStyle(
+                  color: AppColors.danger,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -377,44 +453,127 @@ class _SettingsPageState extends State<SettingsPage> {
   void _triggerEmergencyCall(String target, String number) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: const [
-            Icon(Icons.warning_rounded, color: AppColors.danger),
-            SizedBox(width: 8),
-            Text("Emergency System Outbound"),
-          ],
+      builder: (ctx) => Dialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: AppColors.danger.withValues(alpha: 0.3)),
         ),
-        content: Text(
-          "Are you completely sure you want to dial the dispatch line for $target ($number)?",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("ABORT"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              // Implementation using url_launcher logic wrapper string format:
-              // launchUrl(Uri.parse('tel:$number'));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    "Initiating secure dial routing to: $number...",
-                  ),
-                  backgroundColor: AppColors.danger,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.danger.withValues(alpha: 0.1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.danger.withValues(alpha: 0.35),
+                      blurRadius: 20,
+                      spreadRadius: 3,
+                    ),
+                  ],
                 ),
-              );
-            },
-            child: const Text("DIAL CALL"),
+                child: const Icon(Icons.call, color: AppColors.danger, size: 30),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                "Emergency Dispatch",
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Dial the official hotline for $target ($number) now?",
+                style: const TextStyle(
+                    color: AppColors.textLight, fontSize: 13, height: 1.5),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Center(
+                          child: Text("Cancel",
+                              style: TextStyle(
+                                  color: AppColors.textLight,
+                                  fontWeight: FontWeight.w700)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Row(
+                              children: [
+                                const Icon(Icons.call,
+                                    color: Colors.white, size: 16),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    "Connecting to $target ($number)...",
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            backgroundColor: AppColors.surface,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(
+                                  color: AppColors.danger
+                                      .withValues(alpha: 0.3)),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.emergencyGradient,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: AppColors.dangerGlowShadow,
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "Call Now",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -422,43 +581,59 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildDestructiveActionButtons() {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.white,
-              side: const BorderSide(color: Colors.white60, width: 1.5),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
+        GestureDetector(
+          onTap: () => _triggerAccountActionDialog(
+            "Logout",
+            "Are you sure you want to exit your profile dashboard session safely?",
+            false,
+          ),
+          child: Container(
+            width: double.infinity,
+            height: 52,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceLight,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-            onPressed: () => _triggerAccountActionDialog(
-              "Logout",
-              "Are you sure you want to exit your profile dashboard session safely?",
-              false,
-            ),
-            icon: const Icon(Icons.logout, size: 18),
-            label: const Text(
-              "SECURE DASHBOARD LOGOUT",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.logout, color: AppColors.textLight, size: 18),
+                SizedBox(width: 10),
+                Text(
+                  "Secure Dashboard Logout",
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         const SizedBox(height: 12),
-        TextButton.icon(
-          style: TextButton.styleFrom(foregroundColor: Colors.red.shade100),
+        TextButton(
           onPressed: () => _triggerAccountActionDialog(
             "Delete Profile Account",
-            "CRITICAL WARNING: Purging your file credentials wipes all location histories, filed safety status streams, and account backups completely from governance directories. This process is fully irreversible.",
+            "CRITICAL WARNING: Purging your credentials wipes all location histories, filed safety status streams, and account backups completely. This is irreversible.",
             true,
           ),
-          icon: const Icon(Icons.delete_forever, size: 16),
-          label: const Text(
-            "Permanently Delete Citizen Account Profile",
+          child: const Text(
+            "Permanently Delete Citizen Account",
             style: TextStyle(
+              color: AppColors.danger,
               decoration: TextDecoration.underline,
+              decorationColor: AppColors.danger,
               fontSize: 12,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -471,59 +646,135 @@ class _SettingsPageState extends State<SettingsPage> {
     String briefMsg,
     bool isSevereDestructive,
   ) {
+    final actionColor =
+        isSevereDestructive ? AppColors.danger : AppColors.primary;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          contextTitle,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: isSevereDestructive
-                ? Colors.red.shade900
-                : AppColors.textDark,
-          ),
+      builder: (ctx) => Dialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(color: actionColor.withValues(alpha: 0.3)),
         ),
-        content: Text(
-          briefMsg,
-          style: const TextStyle(fontSize: 13, height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("CANCEL"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isSevereDestructive
-                  ? Colors.red
-                  : AppColors.darkGreen,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-              if (contextTitle == "Logout") {
-                context.read<AuthBloc>().add(const LogoutRequested());
-
-                // Navigate back to welcome page clearing screen stack
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const WelcomePage()),
-                  (route) => false,
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Action '$contextTitle' processed successfully.",
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: actionColor.withValues(alpha: 0.1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: actionColor.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      spreadRadius: 3,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  isSevereDestructive
+                      ? Icons.delete_forever
+                      : Icons.logout_rounded,
+                  color: actionColor,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                contextTitle,
+                style: const TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                briefMsg,
+                style: const TextStyle(
+                    color: AppColors.textLight, fontSize: 12, height: 1.5),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Center(
+                          child: Text("Cancel",
+                              style: TextStyle(
+                                  color: AppColors.textLight,
+                                  fontWeight: FontWeight.w700)),
+                        ),
+                      ),
                     ),
                   ),
-                );
-              }
-            },
-            child: const Text("CONFIRM"),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(ctx);
+                        if (contextTitle == "Logout") {
+                          context.read<AuthBloc>().add(const LogoutRequested());
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const WelcomePage()),
+                            (route) => false,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  "Action '$contextTitle' processed."),
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color: actionColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                              color: actionColor.withValues(alpha: 0.4)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: actionColor.withValues(alpha: 0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Confirm",
+                            style: TextStyle(
+                              color: actionColor,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -531,43 +782,80 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showModalInformation(BuildContext ctx, String head, String paragraph) {
     showModalBottomSheet(
       context: ctx,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        side: BorderSide(color: AppColors.border),
       ),
       builder: (context) => Padding(
-        padding: const EdgeInsets.all(28.0),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              head,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: AppColors.textDark,
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.info_outline,
+                      color: AppColors.primary, size: 18),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  head,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
             Text(
               paragraph,
               style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
+                fontSize: 13,
+                height: 1.6,
                 color: AppColors.textLight,
               ),
             ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.darkGreen,
-                  foregroundColor: Colors.white,
+            GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                width: double.infinity,
+                height: 50,
+                decoration: BoxDecoration(
+                  gradient: AppColors.primaryGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppColors.primaryGlowShadow,
                 ),
-                onPressed: () => Navigator.pop(context),
-                child: const Text("CLOSE WINDOW"),
+                child: const Center(
+                  child: Text(
+                    "Close",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -580,53 +868,63 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           "Submit App Review / Bug",
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark),
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Text(
-                "Your technical system logs will be paired automatically to accelerate troubleshooting queues.",
-                style: TextStyle(fontSize: 12, color: AppColors.textLight),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Text(
+              "Your technical system logs will be paired automatically to accelerate troubleshooting queues.",
+              style: TextStyle(fontSize: 12, color: AppColors.textLight),
+            ),
+            SizedBox(height: 12),
+            TextField(
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText:
+                    "Describe your system performance issue or operational feature request...",
+                border: OutlineInputBorder(),
+                hintStyle: TextStyle(fontSize: 13),
               ),
-              SizedBox(height: 12),
-              TextField(
-                maxLines: 4,
-                decoration: InputDecoration(
-                  hintText:
-                      "Describe your system performance issue or operational feature request...",
-                  border: OutlineInputBorder(),
-                  hintStyle: TextStyle(fontSize: 13),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("DISMISS"),
+            child: const Text("DISMISS", style: TextStyle(color: AppColors.textLight)),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.darkGreen,
-              foregroundColor: Colors.white,
+          Container(
+            decoration: BoxDecoration(
+              gradient: AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: AppColors.primaryGlowShadow,
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    "Feedback logs queued for developer team dispatch!",
-                  ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              );
-            },
-            child: const Text("SUBMIT TICKET"),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      "Feedback logs queued for developer team dispatch!",
+                    ),
+                  ),
+                );
+              },
+              child: const Text("SUBMIT TICKET"),
+            ),
           ),
         ],
       ),
@@ -643,15 +941,9 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: AppColors.border),
       ),
       child: Material(
         color: Colors.transparent,
@@ -665,11 +957,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 Container(
                   width: 42,
                   height: 42,
-                  decoration: const BoxDecoration(
-                    color: AppColors.accentGreenBg,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, size: 20, color: AppColors.darkGreen),
+                  child: Icon(icon, size: 20, color: AppColors.primary),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -697,7 +989,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-                // ignore: use_null_aware_elements
                 if (trailing != null) trailing,
                 if (onTap != null && trailing == null)
                   const Icon(
@@ -740,15 +1031,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
     text: "Bldg 4, St. Francis Compound, Moonwalk",
   );
 
-  String _selectedBarangay = 'Moonwalk';
+  String _selectedBarangay = 'Area 1';
   String _selectedLanguage = 'English (PH)';
 
   final List<String> _barangayList = [
-    'Moonwalk',
-    'Don Bosco',
-    'Sun Valley',
-    'San Martin De Porres',
-    'Sto. Niño',
+    'Area 1',
+    'Area 2',
+    'Area 3',
+    'Area 4',
+    'Area 5',
   ];
   final List<String> _languages = [
     'English (PH)',
@@ -771,11 +1062,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.primaryGradient,
+          ),
+        ),
         title: const Text(
           'Edit Identity Profile',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
-        backgroundColor: AppColors.darkGreen,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -797,43 +1093,49 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         border: Border.all(color: Colors.white, width: 4),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                            blurRadius: 15,
+                            spreadRadius: 2,
                           ),
                         ],
                       ),
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 52,
-                        backgroundColor: AppColors.accentGreenBg,
-                        child: const Icon(
+                        backgroundColor: Colors.transparent,
+                        child: Icon(
                           Icons.person,
                           size: 60,
-                          color: AppColors.darkGreen,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
                     Positioned(
                       bottom: 0,
                       right: 4,
-                      child: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: AppColors.darkGreen,
-                        child: IconButton(
-                          icon: const Icon(
-                            Icons.edit_rounded,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Triggering system filesystem photo upload asset index selector...",
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: AppColors.primaryGradient,
+                        ),
+                        child: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.transparent,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.edit_rounded,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Triggering system filesystem photo upload asset index selector...",
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
@@ -908,8 +1210,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.surface,
                 ),
+                dropdownColor: AppColors.surface,
+                style: const TextStyle(color: AppColors.textDark),
                 items: _barangayList
                     .map((b) => DropdownMenuItem(value: b, child: Text(b)))
                     .toList(),
@@ -930,8 +1234,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.surface,
                 ),
+                dropdownColor: AppColors.surface,
+                style: const TextStyle(color: AppColors.textDark),
                 items: _languages
                     .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                     .toList(),
@@ -943,34 +1249,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
               SizedBox(
                 width: double.infinity,
                 height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.darkGreen,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    elevation: 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppColors.primaryGradient,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: AppColors.primaryGlowShadow,
                   ),
-                  onPressed: () {
-                    if (_profileFormKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Profile modifications updated successfully into internal system storage.',
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    onPressed: () {
+                      if (_profileFormKey.currentState!.validate()) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Account login security configurations updated successfully!",
+                            ),
+                            backgroundColor: AppColors.primary,
                           ),
-                          backgroundColor: AppColors.darkGreen,
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text(
-                    'SAVE PROFILE CHANGES',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text(
+                      'SAVE PROFILE CHANGES',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ),
                 ),
@@ -1006,12 +1318,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(color: AppColors.textLight),
         prefixIcon: Icon(icon, color: AppColors.textLight),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.surface,
         errorStyle: const TextStyle(fontWeight: FontWeight.bold),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
+      style: const TextStyle(color: AppColors.textDark),
     );
   }
 }
@@ -1049,11 +1366,16 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.primaryGradient,
+          ),
+        ),
         title: const Text(
           'Privacy & Security Suite',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
-        backgroundColor: AppColors.darkGreen,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -1073,36 +1395,35 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border),
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: ListTile(
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: AppColors.accentGreenBg,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.lock_reset_rounded,
-                    color: AppColors.darkGreen,
-                    size: 20,
-                  ),
+            child: ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
                 ),
-                title: const Text(
-                  'Update Secret Password',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: const Icon(
+                  Icons.lock_reset_rounded,
+                  color: AppColors.primary,
+                  size: 20,
                 ),
-                subtitle: const Text(
-                  'Perform routine rotation changes for credentials protection',
-                  style: TextStyle(fontSize: 12),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                onTap: () => _displayChangePasswordSheet(context),
               ),
+              title: const Text(
+                'Update Secret Password',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: AppColors.textDark),
+              ),
+              subtitle: const Text(
+                'Perform routine rotation changes for credentials protection',
+                style: TextStyle(fontSize: 12, color: AppColors.textLight),
+              ),
+              trailing:
+                  const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textLight),
+              onTap: () => _displayChangePasswordSheet(context),
             ),
           ),
 
@@ -1119,42 +1440,42 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border),
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    secondary: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: AppColors.accentGreenBg,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.fingerprint_rounded,
-                        color: AppColors.darkGreen,
-                        size: 20,
-                      ),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  secondary: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
                     ),
-                    title: const Text(
-                      'Biometric ID Gateway Lock',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    child: const Icon(
+                      Icons.fingerprint_rounded,
+                      color: AppColors.primary,
+                      size: 20,
                     ),
-                    subtitle: const Text(
-                      'Authorize fingerprint or face scans before dashboard opens',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    value: isBiometricActive,
-                    activeThumbColor: AppColors.darkGreen,
-                    onChanged: (bool value) =>
-                        setState(() => isBiometricActive = value),
                   ),
-                ],
-              ),
+                  title: const Text(
+                    'Biometric ID Gateway Lock',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: AppColors.textDark),
+                  ),
+                  subtitle: const Text(
+                    'Authorize fingerprint or face scans before dashboard opens',
+                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                  ),
+                  value: isBiometricActive,
+                  activeThumbColor: AppColors.primary,
+                  onChanged: (bool value) =>
+                      setState(() => isBiometricActive = value),
+                ),
+              ],
             ),
           ),
         ],
@@ -1166,8 +1487,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
       ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
@@ -1177,237 +1500,148 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
             top: 24,
             bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
-          child: SingleChildScrollView(
-            child: Form(
-              key: _passFormKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Reset Account Password',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textDark,
-                    ),
+          child: Form(
+            key: _passFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Reset Account Password',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textDark,
                   ),
-                  const SizedBox(height: 20),
+                ),
+                const SizedBox(height: 20),
 
-                  TextFormField(
-                    controller: _currentPassCtrl,
-                    obscureText: _obscureCurrent,
-                    validator: (val) => val!.isEmpty
-                        ? "Input verification of your operational password sequence"
-                        : null,
-                    decoration: InputDecoration(
-                      labelText: 'Current Password String',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureCurrent
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed: () => setModalState(
-                          () => _obscureCurrent = !_obscureCurrent,
-                        ),
+                TextFormField(
+                  controller: _currentPassCtrl,
+                  obscureText: _obscureCurrent,
+                  style: const TextStyle(color: AppColors.textDark),
+                  validator: (val) => val!.isEmpty
+                      ? "Input verification of your operational password sequence"
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: 'Current Password String',
+                    labelStyle: const TextStyle(color: AppColors.textLight),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureCurrent
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: () => setModalState(
+                        () => _obscureCurrent = !_obscureCurrent,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 16),
 
-                  TextFormField(
-                    controller: _newPassCtrl,
-                    obscureText: _obscureNew,
-                    validator: (val) => val!.length < 6
-                        ? "New password string dimensions must cross 6 symbols minimum"
-                        : null,
-                    decoration: InputDecoration(
-                      labelText: 'New Structural Password',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureNew ? Icons.visibility_off : Icons.visibility,
-                        ),
-                        onPressed: () =>
-                            setModalState(() => _obscureNew = !_obscureNew),
+                TextFormField(
+                  controller: _newPassCtrl,
+                  obscureText: _obscureNew,
+                  style: const TextStyle(color: AppColors.textDark),
+                  validator: (val) => val!.length < 6
+                      ? "New password string dimensions must cross 6 symbols minimum"
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: 'New Structural Password',
+                    labelStyle: const TextStyle(color: AppColors.textLight),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureNew ? Icons.visibility_off : Icons.visibility,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: () =>
+                          setModalState(() => _obscureNew = !_obscureNew),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                TextFormField(
+                  controller: _confirmPassCtrl,
+                  obscureText: _obscureConfirm,
+                  style: const TextStyle(color: AppColors.textDark),
+                  validator: (val) => val != _newPassCtrl.text
+                      ? "Mismatch detected across structural verification input matrices"
+                      : null,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm New Structural Password',
+                    labelStyle: const TextStyle(color: AppColors.textLight),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirm
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.textLight,
+                      ),
+                      onPressed: () => setModalState(
+                        () => _obscureConfirm = !_obscureConfirm,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                ),
+                const SizedBox(height: 24),
 
-                  TextFormField(
-                    controller: _confirmPassCtrl,
-                    obscureText: _obscureConfirm,
-                    validator: (val) => val != _newPassCtrl.text
-                        ? "Mismatch detected across structural verification input matrices"
-                        : null,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm New Structural Password',
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureConfirm
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed: () => setModalState(
-                          () => _obscureConfirm = !_obscureConfirm,
-                        ),
-                      ),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: AppColors.primaryGradient,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: AppColors.primaryGlowShadow,
                     ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.darkGreen,
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
                         foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       onPressed: () {
                         if (_passFormKey.currentState!.validate()) {
-                          _currentPassCtrl.clear();
-                          _newPassCtrl.clear();
-                          _confirmPassCtrl.clear();
                           Navigator.pop(context);
-                          ScaffoldMessenger.of(ctx).showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
-                                "Account login security configurations updated successfully!",
+                                "Account cryptographic key updated successfully",
                               ),
+                              backgroundColor: AppColors.primary,
                             ),
                           );
                         }
                       },
-                      child: const Text("PROCEED UPDATE EXECUTION"),
+                      child: const Text(
+                        'ENGAGE SECURITY OVERRIDE',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ================= SUB PAGE: GENERAL APPLICATION POLICIES ARCHIVE =================
-class AboutAppPage extends StatelessWidget {
-  const AboutAppPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text(
-          'Platform Legal Framework',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        backgroundColor: AppColors.darkGreen,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
-            const Center(
-              child: Icon(
-                Icons.health_and_safety_rounded,
-                size: 76,
-                color: AppColors.darkGreen,
-              ),
-            ),
-            const SizedBox(height: 12),
-            const Center(
-              child: Text(
-                'ResQ Environment',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textDark,
                 ),
-              ),
+              ],
             ),
-            const Center(
-              child: Text(
-                'Version 1.0.4 Premium Architecture Build',
-                style: TextStyle(fontSize: 12, color: AppColors.textLight),
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            _buildLegalGlossaryCard(
-              "Barangay Moonwalk Emergency Hotlines",
-              "• Barangay Hall / Desk: 888-9999\n"
-                  "• Local Police Station: 911\n"
-                  "• Fire Department: 112\n"
-                  "• Medical Response: 143\n\n"
-                  "Keep these numbers saved for direct dialing in case of emergency application connectivity issues.",
-            ),
-            const SizedBox(height: 16),
-
-            _buildLegalGlossaryCard(
-              "Terms of Service: Anti-Fake Reporting",
-              "By using ResQ, you agree to submit only genuine, factual emergency incident reports.\n\n"
-                  "WARNING: Fake reporting and malicious false alarms are statutory offenses punishable by law. "
-                  "While the 1987 Constitution of the Philippines guarantees fundamental rights like freedom of speech, it does not protect malicious falsehoods or public disturbances. "
-                  "Under Article 154 of the Revised Penal Code (Unlawful use of means of publication and unlawful utterances) and relevant Presidential Decrees (e.g., P.D. 1727) regarding false alarms, perpetrators of fake emergency reports will be subject to account termination, heavy fines, and legal prosecution.",
-            ),
-            const SizedBox(height: 16),
-
-            _buildLegalGlossaryCard(
-              "Privacy Policy: GPS Geolocation Data",
-              "Your privacy is a fundamental priority. The ResQ platform strictly collects and transmits your real-time GPS geolocation data ONLY when you actively submit an incident report or trigger an SOS function. "
-                  "This spatial data is routed directly to local dispatch consoles to expedite perimeter checks and direct emergency response teams to your exact coordinates. "
-                  "Your background location history is securely encrypted, never sold to third parties, and is managed strictly under municipal privacy compliance and the Data Privacy Act of 2012.",
-            ),
-          ],
+          ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildLegalGlossaryCard(String heading, String detailedBody) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            heading,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: AppColors.darkGreen,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            detailedBody,
-            textAlign: TextAlign
-                .justify, // ADED THIS LINE to justify the text alignment
-            style: const TextStyle(
-              fontSize: 12.5,
-              height: 1.5,
-              color: AppColors.textDark,
-            ),
-          ),
-        ],
       ),
     );
   }

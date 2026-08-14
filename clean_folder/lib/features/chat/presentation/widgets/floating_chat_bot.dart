@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/app_colors.dart';
 
 class FloatingChatBot extends StatefulWidget {
   const FloatingChatBot({super.key});
@@ -8,12 +8,15 @@ class FloatingChatBot extends StatefulWidget {
   State<FloatingChatBot> createState() => _FloatingChatBotState();
 }
 
-class _FloatingChatBotState extends State<FloatingChatBot> {
+class _FloatingChatBotState extends State<FloatingChatBot>
+    with SingleTickerProviderStateMixin {
   bool _isOpen = false;
   bool _isBotTyping = false;
 
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  late AnimationController _fabPulse;
 
   final List<Map<String, dynamic>> _messages = [
     {
@@ -25,21 +28,30 @@ class _FloatingChatBotState extends State<FloatingChatBot> {
 
   final List<String> _suggestedQuestions = [
     "What should I do during a fire?",
-    "What should I do if someone is following me?",
-    "What should I prepare during flood?",
+    "What if someone is following me?",
+    "What to prepare during flood?",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _fabPulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+  }
 
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _fabPulse.dispose();
     super.dispose();
   }
 
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 150), () {
       if (!_scrollController.hasClients) return;
-
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 250),
@@ -49,67 +61,56 @@ class _FloatingChatBotState extends State<FloatingChatBot> {
   }
 
   String _getHardcodedAnswer(String message) {
-    // TODO: Connect to future AI endpoint (e.g. Gemini API) to evaluate message and return response dynamically.
     final text = message.toLowerCase();
 
     if (text.contains('fire') || text.contains('burning')) {
-      return '''
-During a fire:
+      return '''During a fire:
 
-1. Stay calm and leave the area immediately.
+1. Stay calm and leave immediately.
 2. Do not try to save belongings.
-3. Warn nearby people if it is safe.
+3. Warn nearby people if safe.
 4. Stay low if there is smoke.
-5. Cover your nose and mouth with cloth.
+5. Cover your nose and mouth.
 6. Do not use elevators.
-7. Call fire station, barangay, or emergency hotline.
-8. Move to an open and safe area.
+7. Call fire station or emergency hotline.
+8. Move to an open safe area.
 
-Important: Do not go back inside the burning house or building.
-''';
+Important: Do not go back inside.''';
     }
 
     if (text.contains('following') ||
         text.contains('stalking') ||
         text.contains('stranger')) {
-      return '''
-If someone is following you:
+      return '''If someone is following you:
 
 1. Stay calm.
 2. Do not go home directly.
-3. Go to a crowded or well-lit place.
-4. Enter a nearby store, barangay outpost, or guard post.
-5. Call a trusted person and share your location.
-6. Avoid isolated streets or shortcuts.
+3. Go to a crowded, well-lit place.
+4. Enter a store or barangay outpost.
+5. Call a trusted person.
+6. Avoid isolated streets.
 7. Do not confront the person.
-8. Call police or barangay if the person continues following you.
+8. Call police or barangay if needed.
 
-Important: Go where there are people and ask for help.
-''';
+Important: Go where there are people.''';
     }
 
     if (text.contains('flood') ||
         text.contains('bagyo') ||
         text.contains('rain') ||
         text.contains('calamity')) {
-      return '''
-Prepare these before or during flood:
+      return '''Prepare before/during flood:
 
 1. Drinking water.
 2. Ready-to-eat food.
-3. Flashlight and extra batteries.
-4. Power bank and charged phone.
+3. Flashlight and batteries.
+4. Charged phone and power bank.
 5. First-aid kit and medicines.
-6. Important documents in waterproof bag.
+6. Documents in waterproof bag.
 7. Extra clothes and hygiene items.
-8. Emergency contact list and cash.
+8. Emergency contacts and cash.
 
-During flood:
-- Move to higher ground.
-- Avoid floodwater.
-- Turn off electricity if safe.
-- Follow barangay announcements.
-''';
+During flood: Move to higher ground. Avoid floodwater. Follow barangay announcements.''';
     }
 
     if (text.contains('hello') || text.contains('hi')) {
@@ -117,7 +118,7 @@ During flood:
     }
 
     if (text.contains('report') || text.contains('incident')) {
-      return "To report an incident, tap the Report Incident button on your dashboard, choose the category, add location/details, then submit.";
+      return "To report an incident, tap Report Incident on your dashboard, choose the category, add location/details, then submit.";
     }
 
     if (text.contains('emergency') || text.contains('help')) {
@@ -129,21 +130,17 @@ During flood:
 
   void _sendMessage({String? selectedQuestion}) {
     final userMessage = selectedQuestion ?? _messageController.text.trim();
-
     if (userMessage.isEmpty) return;
 
     setState(() {
       _messages.add({'text': userMessage, 'isUser': true});
-
       _messageController.clear();
       _isBotTyping = true;
     });
-
     _scrollToBottom();
 
-    Future.delayed(const Duration(milliseconds: 600), () {
+    Future.delayed(const Duration(milliseconds: 700), () {
       if (!mounted) return;
-
       setState(() {
         _isBotTyping = false;
         _messages.add({
@@ -151,106 +148,188 @@ During flood:
           'isUser': false,
         });
       });
-
       _scrollToBottom();
     });
   }
 
   void _clearChat() {
     setState(() {
-      _messages.clear();
-      _messages.add({
-        'text':
-            'Hello! I am your Community Safety Assistant. Choose a question below or type your safety concern.',
-        'isUser': false,
-      });
+      _messages
+        ..clear()
+        ..add({
+          'text':
+              'Hello! I am your Community Safety Assistant. Choose a question below or type your safety concern.',
+          'isUser': false,
+        });
     });
-
     _scrollToBottom();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 250),
-          curve: Curves.easeInOut,
-          right: 16,
-          bottom: 16,
-          width: _isOpen ? 340 : 56,
-          height: _isOpen ? 500 : 56,
-          child: Material(
-            elevation: 8,
-            borderRadius: BorderRadius.circular(_isOpen ? 18 : 28),
-            clipBehavior: Clip.antiAlias,
-            color: _isOpen ? Colors.white : AppColors.darkGreen,
-            child: _isOpen ? _buildChatWindow() : _buildChatButton(),
-          ),
+    return Positioned(
+      right: 16.0,
+      bottom: 16.0,
+      child: AnimatedContainer(
+        width: _isOpen ? 340 : 60,
+        height: _isOpen ? 520 : 60,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: _isOpen ? AppColors.surface : Colors.transparent,
+          borderRadius: BorderRadius.circular(_isOpen ? 24 : 30),
+          border: _isOpen ? Border.all(color: AppColors.border) : null,
+          boxShadow: _isOpen
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : [],
         ),
-      ],
-    );
-  }
-
-  Widget _buildChatButton() {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _isOpen = true;
-        });
-      },
-      child: const Center(
-        child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 28),
+        clipBehavior: Clip.antiAlias,
+        child: _isOpen ? _buildChatWindow() : _buildFAB(),
       ),
     );
   }
 
+  Widget _buildFAB() {
+    return AnimatedBuilder(
+      animation: _fabPulse,
+      builder: (context, child) {
+        return GestureDetector(
+          onTap: () => setState(() => _isOpen = true),
+          child: Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: AppColors.primaryGradient,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(
+                    alpha: 0.4 + 0.25 * _fabPulse.value,
+                  ),
+                  blurRadius: 16 + 8 * _fabPulse.value,
+                  spreadRadius: 1 + _fabPulse.value,
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.smart_toy_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildChatWindow() {
-    return Column(
-      children: [
-        _buildHeader(),
-        _buildQuestionButtons(),
-        Expanded(child: _buildMessages()),
-        _buildInputArea(),
-      ],
+    return OverflowBox(
+      minWidth: 340,
+      maxWidth: 340,
+      minHeight: 520,
+      maxHeight: 520,
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildQuickChips(),
+          Expanded(child: _buildMessages()),
+          _buildInputBar(),
+        ],
+      ),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      color: AppColors.darkGreen,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: AppColors.primaryGradient,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Row(
         children: [
-          const Icon(Icons.smart_toy_rounded, color: Colors.white, size: 22),
-          const SizedBox(width: 8),
-          const Expanded(
-            child: Text(
-              'Safety Assistant',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
-              ),
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.2),
             ),
-          ),
-          InkWell(
-            onTap: _clearChat,
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.refresh_rounded, color: Colors.white, size: 20),
+            child: const Icon(
+              Icons.smart_toy_rounded,
+              color: Colors.white,
+              size: 20,
             ),
           ),
           const SizedBox(width: 10),
-          InkWell(
-            onTap: () {
-              setState(() {
-                _isOpen = false;
-              });
-            },
-            child: const Padding(
-              padding: EdgeInsets.all(4),
-              child: Icon(Icons.close, color: Colors.white, size: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "Safety Assistant",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  "Always here to help",
+                  style: TextStyle(
+                    color: Colors.white60,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: _clearChat,
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.15),
+              ),
+              child: const Icon(
+                Icons.refresh_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => setState(() => _isOpen = false),
+            child: Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.15),
+              ),
+              child: const Icon(Icons.close, color: Colors.white, size: 16),
             ),
           ),
         ],
@@ -258,52 +337,51 @@ During flood:
     );
   }
 
-  Widget _buildQuestionButtons() {
+  Widget _buildQuickChips() {
     return Container(
       width: double.infinity,
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+      color: AppColors.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
             "Quick Questions",
             style: TextStyle(
-              color: AppColors.textDark,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+              color: AppColors.textLight,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 7),
           SizedBox(
-            height: 38,
+            height: 32,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _suggestedQuestions.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final question = _suggestedQuestions[index];
-
-                return InkWell(
-                  onTap: () => _sendMessage(selectedQuestion: question),
-                  borderRadius: BorderRadius.circular(20),
+              separatorBuilder: (_, __) => const SizedBox(width: 7),
+              itemBuilder: (context, i) {
+                return GestureDetector(
+                  onTap: () =>
+                      _sendMessage(selectedQuestion: _suggestedQuestions[i]),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
-                      vertical: 8,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.darkGreen.withValues(alpha: 0.08),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.darkGreen.withValues(alpha: 0.25),
+                        color: AppColors.primary.withValues(alpha: 0.25),
                       ),
                     ),
                     child: Text(
-                      question,
+                      _suggestedQuestions[i],
                       style: const TextStyle(
-                        color: AppColors.darkGreen,
-                        fontSize: 11.5,
+                        color: AppColors.primary,
+                        fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -319,105 +397,116 @@ During flood:
 
   Widget _buildMessages() {
     return Container(
-      color: const Color(0xFFF7F9FA),
+      color: AppColors.background,
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.all(12),
         itemCount: _messages.length + (_isBotTyping ? 1 : 0),
         itemBuilder: (context, index) {
           if (_isBotTyping && index == _messages.length) {
-            return _buildTypingBubble();
+            return _typingBubble();
           }
-
-          final message = _messages[index];
-          final bool isUser = message['isUser'] as bool;
-
-          return _buildMessageBubble(
-            text: message['text'] as String,
-            isUser: isUser,
+          final msg = _messages[index];
+          return _messageBubble(
+            text: msg['text'] as String,
+            isUser: msg['isUser'] as bool,
           );
         },
       ),
     );
   }
 
-  Widget _buildMessageBubble({required String text, required bool isUser}) {
+  Widget _messageBubble({required String text, required bool isUser}) {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        constraints: const BoxConstraints(maxWidth: 260),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        constraints: const BoxConstraints(maxWidth: 265),
         decoration: BoxDecoration(
-          color: isUser ? AppColors.darkGreen : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(12).copyWith(
-            bottomRight: isUser
-                ? const Radius.circular(0)
-                : const Radius.circular(12),
-            topLeft: !isUser
-                ? const Radius.circular(0)
-                : const Radius.circular(12),
+          gradient: isUser ? AppColors.primaryGradient : null,
+          color: isUser ? null : AppColors.surfaceLight,
+          borderRadius: BorderRadius.circular(16).copyWith(
+            bottomRight: isUser ? Radius.zero : const Radius.circular(16),
+            topLeft: isUser ? const Radius.circular(16) : Radius.zero,
           ),
+          border: isUser ? null : Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: isUser
+                  ? AppColors.primary.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Text(
           text,
           style: TextStyle(
-            color: isUser ? Colors.white : Colors.black87,
-            fontSize: 13,
-            height: 1.35,
+            color: isUser ? Colors.white : AppColors.textDark,
+            fontSize: 12.5,
+            height: 1.4,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildTypingBubble() {
+  Widget _typingBubble() {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.grey.shade200,
+          color: AppColors.surfaceLight,
           borderRadius: BorderRadius.circular(
-            12,
-          ).copyWith(topLeft: const Radius.circular(0)),
+            16,
+          ).copyWith(topLeft: Radius.zero),
+          border: Border.all(color: AppColors.border),
         ),
-        child: const Text(
-          "Assistant is typing...",
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 13,
-            fontStyle: FontStyle.italic,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _TypingDot(delay: 0),
+            const SizedBox(width: 4),
+            _TypingDot(delay: 200),
+            const SizedBox(width: 4),
+            _TypingDot(delay: 400),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildInputArea() {
+  Widget _buildInputBar() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Colors.grey.shade200)),
+        color: AppColors.surface,
+        border: const Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF7F9FA),
+                color: AppColors.surfaceLight,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.border),
               ),
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 13, color: AppColors.textDark),
                 decoration: const InputDecoration(
                   hintText: 'Type your safety concern...',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 12.5),
+                  hintStyle: TextStyle(
+                    color: AppColors.textLight,
+                    fontSize: 12,
+                  ),
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12,
+                    horizontal: 14,
                     vertical: 9,
                   ),
                   border: InputBorder.none,
@@ -426,15 +515,22 @@ During flood:
               ),
             ),
           ),
-          const SizedBox(width: 6),
-          InkWell(
-            onTap: () => _sendMessage(),
-            borderRadius: BorderRadius.circular(20),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: _sendMessage,
             child: Container(
-              padding: const EdgeInsets.all(9),
-              decoration: const BoxDecoration(
-                color: AppColors.darkGreen,
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                gradient: AppColors.primaryGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.35),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: const Icon(
                 Icons.send_rounded,
@@ -444,6 +540,64 @@ During flood:
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Animated typing dot
+class _TypingDot extends StatefulWidget {
+  final int delay;
+  const _TypingDot({required this.delay});
+
+  @override
+  State<_TypingDot> createState() => _TypingDotState();
+}
+
+class _TypingDotState extends State<_TypingDot>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _anim = Tween<double>(
+      begin: 0,
+      end: -6,
+    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) _ctrl.repeat(reverse: true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, child) {
+        return Transform.translate(
+          offset: Offset(0, _anim.value),
+          child: child,
+        );
+      },
+      child: Container(
+        width: 7,
+        height: 7,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.primary.withValues(alpha: 0.6),
+        ),
       ),
     );
   }

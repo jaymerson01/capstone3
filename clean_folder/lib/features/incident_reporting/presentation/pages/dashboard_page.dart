@@ -8,31 +8,55 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/chat/presentation/widgets/floating_chat_bot.dart';
-class DashboardPage extends StatelessWidget {
+import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
+import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
+
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
-  Widget logoBox() {
-    return Container(
-      height: 36,
-      width: 36,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
-      ),
-      child: Image.asset('assets/images/logo.png', fit: BoxFit.contain),
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage>
+    with TickerProviderStateMixin {
+  late AnimationController _entranceController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
     );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _entranceController, curve: Curves.easeOut),
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _entranceController, curve: Curves.easeOutCubic),
+    );
+    _entranceController.forward();
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
   }
 
   Color _getUrgencyColor(String urgency) {
     switch (urgency) {
       case "High":
-        return Colors.red;
+        return AppColors.danger;
       case "Medium":
-        return Colors.orange;
+        return AppColors.pending;
       case "Low":
-        return Colors.green;
+        return AppColors.solved;
       default:
         return AppColors.textLight;
     }
@@ -60,45 +84,41 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _buildSampleReportCard(IncidentEntity incident) {
-    final category = incident.category.length > 20 ? incident.category.substring(0, 20) : incident.category;
-    final urgency = incident.urgencyStatus ?? "MEDIUM"; 
+    final category = incident.category;
+    final urgency = incident.urgencyStatus ?? "Medium";
     final urgencyColor = _getUrgencyColor(urgency);
+    final statusClr = AppColors.statusColor(incident.status);
     final location = "Coordinates: ${incident.latitude.toStringAsFixed(3)}, ${incident.longitude.toStringAsFixed(3)}";
-    final time = "${incident.timestamp.year}-${incident.timestamp.month.toString().padLeft(2, '0')}-${incident.timestamp.day.toString().padLeft(2, '0')} ${incident.timestamp.hour}:${incident.timestamp.minute.toString().padLeft(2, '0')}";
+    final time =
+        "Reported ${incident.timestamp.month}/${incident.timestamp.day}/${incident.timestamp.year}";
 
-    return Container(
+    return Custom3dCard(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: AppColors.border),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(18),
+      borderRadius: 20,
+      glowColor: urgencyColor,
+      enableHoverLift: true,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 46,
-            width: 46,
+            height: 50,
+            width: 50,
             decoration: BoxDecoration(
               color: urgencyColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: urgencyColor.withValues(alpha: 0.25),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            child: Icon(
-              _getIncidentIcon(category),
-              color: urgencyColor,
-              size: 25,
-            ),
+            child: Icon(_getIncidentIcon(category),
+                color: urgencyColor, size: 24),
           ),
           const SizedBox(width: 14),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,107 +131,72 @@ class DashboardPage extends StatelessWidget {
                         style: const TextStyle(
                           color: AppColors.textDark,
                           fontSize: 15,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 4,
-                      ),
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: urgencyColor.withValues(alpha: 0.12),
+                        color: urgencyColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: urgencyColor.withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         "$urgency Priority",
                         style: TextStyle(
                           color: urgencyColor,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 6),
-
                 Row(
                   children: [
-                    const Icon(
-                      Icons.location_on_outlined,
-                      size: 15,
-                      color: AppColors.textLight,
-                    ),
+                    const Icon(Icons.location_on_outlined,
+                        size: 13, color: AppColors.textLight),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         location,
                         style: const TextStyle(
                           color: AppColors.textLight,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 4),
-
+                const SizedBox(height: 3),
                 Row(
                   children: [
-                    const Icon(
-                      Icons.access_time,
-                      size: 15,
-                      color: AppColors.textLight,
-                    ),
+                    const Icon(Icons.access_time,
+                        size: 13, color: AppColors.textLight),
                     const SizedBox(width: 4),
                     Text(
                       time,
                       style: const TextStyle(
-                        color: AppColors.textLight,
-                        fontSize: 12,
-                      ),
+                          color: AppColors.textLight, fontSize: 11),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 10),
-
                 Text(
                   incident.description,
                   style: const TextStyle(
-                    color: AppColors.textDark,
+                    color: AppColors.textLight,
                     fontSize: 13,
-                    height: 1.35,
+                    height: 1.4,
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.accentBg,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    incident.status,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+                _StatusChip(status: incident.status, color: statusClr),
               ],
             ),
           ),
@@ -220,266 +205,680 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCommunityReportsSection() {
-    return BlocBuilder<IncidentBloc, IncidentState>(
-      builder: (context, state) {
-        if (state is IncidentLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is IncidentError) {
-          return Center(child: Text("Error: ${state.message}"));
-        } else if (state is IncidentLoaded) {
-          if (state.incidents.isEmpty) {
-            return const Center(child: Text("No recent incidents reported."));
-          }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  @override
+  Widget build(BuildContext context) {
+    const String userName = "Resident"; // Simplified for BLoC integration
+
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: AppColors.background,
+          drawer: const SideMenu(),
+          appBar: const _PremiumAppBar(userName: userName),
+          body: FadeTransition(
+            opacity: _fadeAnimation,
+            child: SlideTransition(
+              position: _slideAnimation,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(20),
+                child: BlocBuilder<IncidentBloc, IncidentState>(
+                  builder: (context, state) {
+                    List<IncidentEntity> incidents = [];
+                    if (state is IncidentLoaded) {
+                      incidents = state.incidents;
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // ── Welcome Hero Card ──────────────────────────────────────
+                        const _WelcomeHeroCard(userName: userName),
+                        const SizedBox(height: 18),
+
+                        // ── Quick Stats Row ────────────────────────────────────────
+                        _QuickStatsRow(incidents: incidents),
+                        const SizedBox(height: 18),
+
+                        // ── Video / Info Banner ────────────────────────────────────
+                        const _InfoBanner(),
+                        const SizedBox(height: 20),
+
+                        // ── Report Button ──────────────────────────────────────────
+                        Custom3dButton(
+                          icon: Icons.warning_amber_rounded,
+                          text: "Report Incident",
+                          gradient: AppColors.emergencyGradient,
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: sl<IncidentBloc>(),
+                                child: const ReportIncidentPage(),
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 28),
+
+                        // ── Community Reports ──────────────────────────────────────
+                        _buildCommunityReportsSection(state),
+                        const SizedBox(height: 30),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        const FloatingChatBot(),
+      ],
+    );
+  }
+
+  Widget _buildCommunityReportsSection(IncidentState state) {
+    if (state is IncidentLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    } else if (state is IncidentError) {
+      return Center(
+        child: Text("Error: ${state.message}",
+            style: const TextStyle(color: AppColors.danger)),
+      );
+    } else if (state is IncidentLoaded) {
+      final recentReports = List<IncidentEntity>.from(state.incidents);
+      recentReports.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      final topReports = recentReports.take(4).toList();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
               const Text(
-                "Community Incident Updates",
+                "Community Incidents",
                 style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 4),
-              const Text(
-                "Recent reports from nearby compounds and streets",
-                style: TextStyle(
-                  color: AppColors.textLight,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.25)),
+                ),
+                child: Text(
+                  "${topReports.length} Active",
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              ...state.incidents.map((incident) => _buildSampleReportCard(incident)),
             ],
-          );
-        }
-        return const SizedBox.shrink();
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
-      drawer: const SideMenu(),
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
-        titleSpacing: 0,
-        title: Row(
-          children: [
-            logoBox(),
-            const SizedBox(width: 10),
-            const Text(
-              "RESQ",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 15),
-            child: CircleAvatar(
-              backgroundColor: Colors.white24,
-              foregroundColor: Colors.white,
-              child: Icon(Icons.person),
-            ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Welcome Header Card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "Welcome Back!",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "Moonwalk Paranaque",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: AppColors.accentBg,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.verified_user_outlined,
-                      color: AppColors.primary,
-                      size: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Video Instructions Card
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF0F172A), AppColors.primary],
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Stack(
+          const SizedBox(height: 4),
+          const Text(
+            "Recent reports from nearby compounds and streets",
+            style: TextStyle(
+                color: AppColors.textLight,
+                fontSize: 12,
+                fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 16),
+          if (topReports.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
                   children: [
-                    Positioned(
-                      right: -30,
-                      top: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.04),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.play_arrow,
-                              color: AppColors.primary,
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            "Video Instructions",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            "How to report safety issues in Moonwalk",
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
+                    Icon(Icons.check_circle_outline,
+                        color: AppColors.solved.withValues(alpha: 0.5),
+                        size: 48),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "No active incidents",
+                      style: TextStyle(
+                          color: AppColors.textLight,
+                          fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
+            )
+          else
+            ...topReports.asMap().entries.map((entry) {
+              final i = entry.key;
+              final r = entry.value;
+              return _AnimatedCardEntrance(
+                delay: Duration(milliseconds: 100 * i),
+                child: _buildSampleReportCard(r),
+              );
+            }),
+        ],
+      );
+    }
+    return const SizedBox.shrink();
+  }
+}
 
-            // Report Incident CTA Button
-            SizedBox(
-              width: double.infinity,
-              height: 58,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.accentBg,
-                  foregroundColor: AppColors.primary,
-                  elevation: 2,
-                  shadowColor: AppColors.primary.withValues(alpha: 0.2),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+// ─── Supporting Widgets ───────────────────────────────────────────────────────
+
+class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String userName;
+  const _PremiumAppBar({required this.userName});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(64);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64 + MediaQuery.of(context).padding.top,
+      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: const Border(
+            bottom: BorderSide(color: AppColors.border, width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.menu, color: AppColors.textDark),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
+            const SizedBox(width: 4),
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: AppColors.primary,
+                    child: const Icon(Icons.shield,
+                        color: Colors.white, size: 16),
                   ),
                 ),
-                icon: const Icon(Icons.warning_amber_rounded, size: 24),
-                label: const Text(
-                  "Report Incident",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider.value(
-                        value: sl<IncidentBloc>(),
-                        child: const ReportIncidentPage(),
-                      ),
-                    ),
-                  );
-                },
               ),
             ),
-            const SizedBox(height: 28),
-            _buildCommunityReportsSection(),
+            const SizedBox(width: 10),
+            ShaderMask(
+              shaderCallback: (bounds) =>
+                  AppColors.cyanGradient.createShader(bounds),
+              blendMode: BlendMode.srcIn,
+              child: const Text(
+                "RESQ",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+            const Spacer(),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primary.withValues(alpha: 0.15),
+                border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.3)),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  userName.isNotEmpty ? userName[0].toUpperCase() : 'R',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
-    ),
-    const FloatingChatBot(),
-  ],
-);
+    );
+  }
 }
+
+class _WelcomeHeroCard extends StatelessWidget {
+  final String userName;
+  const _WelcomeHeroCard({required this.userName});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A1628), Color(0xFF0D1F3C)],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.15),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Welcome back,",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textLight,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  userName,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.solved.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                        color: AppColors.solved.withValues(alpha: 0.25)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.solved,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.solved.withValues(alpha: 0.6),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        "Barangay Moonwalk — Online",
+                        style: TextStyle(
+                            color: AppColors.solved,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  blurRadius: 16,
+                ),
+              ],
+            ),
+            child: const Icon(Icons.verified_user_outlined,
+                color: AppColors.primary, size: 28),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickStatsRow extends StatelessWidget {
+  final List<IncidentEntity> incidents;
+  const _QuickStatsRow({required this.incidents});
+
+  @override
+  Widget build(BuildContext context) {
+    final pending =
+        incidents.where((r) => r.status.toLowerCase() == 'pending').length;
+    final inProgress =
+        incidents.where((r) => r.status.toLowerCase() == 'in progress').length;
+    final solved =
+        incidents.where((r) => r.status.toLowerCase() == 'solved').length;
+
+    return Row(
+      children: [
+        _MiniStatCard(
+          label: "Pending",
+          value: pending.toString(),
+          color: AppColors.pending,
+          icon: Icons.hourglass_empty,
+        ),
+        const SizedBox(width: 10),
+        _MiniStatCard(
+          label: "Active",
+          value: inProgress.toString(),
+          color: AppColors.progress,
+          icon: Icons.sync,
+        ),
+        const SizedBox(width: 10),
+        _MiniStatCard(
+          label: "Solved",
+          value: solved.toString(),
+          color: AppColors.solved,
+          icon: Icons.check_circle,
+        ),
+      ],
+    );
+  }
+}
+
+class _MiniStatCard extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  final IconData icon;
+
+  const _MiniStatCard({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.12),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 6),
+            Text(
+              value,
+              style: TextStyle(
+                color: color,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                color: AppColors.textLight,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoBanner extends StatefulWidget {
+  const _InfoBanner();
+  @override
+  State<_InfoBanner> createState() => _InfoBannerState();
+}
+
+class _InfoBannerState extends State<_InfoBanner>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
+        ),
+        border:
+            Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Stack(
+          children: [
+            Positioned(
+              right: -40,
+              top: -40,
+              child: Container(
+                width: 180,
+                height: 180,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Spacer(),
+                  AnimatedBuilder(
+                    animation: _pulseController,
+                    builder: (context, child) {
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withValues(
+                                  alpha: 0.5 * _pulseController.value),
+                              blurRadius: 20,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: const Icon(Icons.play_arrow,
+                            color: Colors.white, size: 26),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    "Video Instructions",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "How to report safety issues in Moonwalk",
+                    style: TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  final String status;
+  final Color color;
+  const _StatusChip({required this.status, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Text(
+        status,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
+class _AnimatedCardEntrance extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+  const _AnimatedCardEntrance({required this.child, required this.delay});
+
+  @override
+  State<_AnimatedCardEntrance> createState() => _AnimatedCardEntranceState();
+}
+
+class _AnimatedCardEntranceState extends State<_AnimatedCardEntrance>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _fade;
+  late Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 400));
+    _fade = Tween<double>(begin: 0, end: 1)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOut));
+    _slide = Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    Future.delayed(widget.delay, () {
+      if (mounted) _ctrl.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(position: _slide, child: widget.child),
+    );
+  }
 }

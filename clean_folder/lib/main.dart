@@ -7,7 +7,6 @@ import 'package:community_safety_app/features/auth/presentation/pages/welcome_pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
-import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_reports_page.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
@@ -55,9 +54,10 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
+          scaffoldBackgroundColor: const Color(0xFF060D1A),
           useMaterial3: true,
         ),
-        home: const IncidentReportsPage(),
+        home: const AuthWrapper(),
         routes: {
           '/welcome': (context) => const WelcomePage(),
           '/dashboard': (context) => const DashboardPage(),
@@ -88,7 +88,11 @@ class AuthWrapper extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is Authenticated) {
-          return const DashboardPage();
+          if (state.user.email.toLowerCase().contains('admin')) {
+            return const AdminPanelShell();
+          } else {
+            return const DashboardPage();
+          }
         }
         return const WelcomePage();
       },
