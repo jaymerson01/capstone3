@@ -90,21 +90,28 @@ class MockDatabaseService extends ChangeNotifier {
         _currentUser = serverUser;
         _authBox.put('currentUser', jsonEncode(serverUser.toJson()));
         _authBox.put('isLoggedIn', true);
-
-        // Fetch live reports from backend
-        final liveReports = _currentUser?.role.toLowerCase() == 'admin'
-            ? await ApiService().getIncidents()
-            : await ApiService().getMyIncidents();
-
-        if (liveReports.isNotEmpty) {
-          _reports.clear();
-          _reports.addAll(liveReports);
-          _saveReports();
-        }
       }
-      notifyListeners();
-    } catch (_) {
-      // If network is offline, retain Hive cached state for viewing
+
+      if (ApiService().token != null && _currentUser != null) {
+        final previousIds = _reports.map((r) => r.id).toSet();
+        final List<IncidentReport> liveReports = await ApiService().getIncidents();
+
+        debugPrint('[DEBUG GEO MAP] Number of incidents fetched: ${liveReports.length}');
+
+        for (var report in liveReports) {
+          if (!previousIds.contains(report.id)) {
+            debugPrint('[DEBUG GEO MAP] New incident received: ID ${report.id}, Type: ${report.incidentType}, Lat: ${report.latitude}, Lng: ${report.longitude}');
+          }
+        }
+
+        _reports.clear();
+        _reports.addAll(liveReports);
+        _saveReports();
+      } else {
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('[DEBUG GEO ADMIN] syncWithBackend exception: $e');
     }
   }
 
@@ -181,6 +188,7 @@ class MockDatabaseService extends ChangeNotifier {
 
   // Data Manipulation
   Future<void> addReport(IncidentReport report) async {
+    debugPrint('[DEBUG GEO] MockDatabaseService.addReport called with lat=${report.latitude}, lng=${report.longitude}');
     try {
       final serverReport = await ApiService().createIncident(
         incidentType: report.incidentType,
@@ -188,13 +196,17 @@ class MockDatabaseService extends ChangeNotifier {
         location: report.location,
         description: report.description,
         urgencyLevel: report.urgencyLevel,
+        latitude: report.latitude,
+        longitude: report.longitude,
       );
+      debugPrint('[DEBUG GEO] Server returned IncidentReport with lat=${serverReport.latitude}, lng=${serverReport.longitude}');
 
       // Insert canonical server report to prevent duplicates
       _reports.insert(0, serverReport);
       _updateAreaCount(serverReport.location, 1);
       _saveReports();
     } catch (e) {
+      debugPrint('[DEBUG GEO] MockDatabaseService.addReport exception: $e');
       // Offline fallback caching
       _reports.insert(0, report);
       _updateAreaCount(report.location, 1);

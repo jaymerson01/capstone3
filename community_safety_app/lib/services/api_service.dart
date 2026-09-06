@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:hive_flutter/hive_flutter.dart';
 import '../config/api_config.dart';
@@ -143,19 +144,27 @@ class ApiService {
     required String location,
     required String description,
     required String urgencyLevel,
+    double? latitude,
+    double? longitude,
   }) async {
+    final payload = {
+      'incidentType': incidentType,
+      'reporterName': reporterName,
+      'location': location,
+      'description': description,
+      'urgencyLevel': urgencyLevel,
+      'latitude': latitude,
+      'longitude': longitude,
+    };
+    debugPrint('[DEBUG GEO] ApiService.createIncident payload: lat=$latitude, lng=$longitude, json=${jsonEncode(payload)}');
+
     final data = await _handleRequest(() => http.post(
           Uri.parse('$_baseUrl/incidents'),
           headers: _getHeaders(requireAuth: true),
-          body: jsonEncode({
-            'incidentType': incidentType,
-            'reporterName': reporterName,
-            'location': location,
-            'description': description,
-            'urgencyLevel': urgencyLevel,
-          }),
+          body: jsonEncode(payload),
         ));
 
+    debugPrint('[DEBUG GEO] ApiService.createIncident response: ${data['incident']}');
     return IncidentReport.fromJson(data['incident']);
   }
 

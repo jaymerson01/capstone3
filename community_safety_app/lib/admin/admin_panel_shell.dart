@@ -5,6 +5,7 @@ import 'widgets/admin_header.dart';
 
 import 'pages/admin_dashboard_page.dart';
 import 'pages/incident_reports_page.dart';
+import 'pages/admin_map_page.dart';
 import 'pages/user_management_page.dart';
 import 'pages/incident_categories_page.dart';
 import 'pages/area_management_page.dart';
@@ -27,6 +28,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
   final List<String> _pageTitles = [
     "Overview Dashboard",
     "Incident Reports Management",
+    "Incidents Command Map",
     "User Management",
     "Incident Categories",
     "Area Management",
@@ -41,14 +43,16 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       case 1:
         return const IncidentReportsPage();
       case 2:
-        return const UserManagementPage();
+        return const AdminMapPage();
       case 3:
-        return const IncidentCategoriesPage();
+        return const UserManagementPage();
       case 4:
-        return const AreaManagementPage();
+        return const IncidentCategoriesPage();
       case 5:
-        return const AdminAuditLogsPage();
+        return const AreaManagementPage();
       case 6:
+        return const AdminAuditLogsPage();
+      case 7:
         return const ProfileSettingsPage();
       default:
         return const AdminDashboardPage();

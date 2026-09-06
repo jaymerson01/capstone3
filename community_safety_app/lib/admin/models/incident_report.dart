@@ -12,6 +12,8 @@ class IncidentReport {
   final String incidentType;
   final String reporterName;
   final String location;
+  final double? latitude;
+  final double? longitude;
   final DateTime date;
   IncidentStatus status;
   String description;
@@ -23,6 +25,8 @@ class IncidentReport {
     required this.incidentType,
     required this.reporterName,
     required this.location,
+    this.latitude,
+    this.longitude,
     required this.date,
     required this.status,
     required this.description,
@@ -61,6 +65,8 @@ class IncidentReport {
     String? incidentType,
     String? reporterName,
     String? location,
+    double? latitude,
+    double? longitude,
     DateTime? date,
     IncidentStatus? status,
     String? description,
@@ -72,6 +78,8 @@ class IncidentReport {
       incidentType: incidentType ?? this.incidentType,
       reporterName: reporterName ?? this.reporterName,
       location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       date: date ?? this.date,
       status: status ?? this.status,
       description: description ?? this.description,
@@ -86,6 +94,8 @@ class IncidentReport {
       'incidentType': incidentType,
       'reporterName': reporterName,
       'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'date': date.toIso8601String(),
       'status': status.name,
       'description': description,
@@ -100,6 +110,8 @@ class IncidentReport {
       incidentType: json['incidentType'],
       reporterName: json['reporterName'],
       location: json['location'],
+      latitude: json['latitude'] != null ? (json['latitude'] as num).toDouble() : null,
+      longitude: json['longitude'] != null ? (json['longitude'] as num).toDouble() : null,
       date: DateTime.parse(json['date']),
       status: IncidentStatus.values.firstWhere(
         (e) => e.name == json['status'],

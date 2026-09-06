@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import '../theme/app_color.dart';
 import '../widgets/custom_3d_button.dart';
@@ -26,6 +28,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   String? _selectedIncidentCategory;
   String _selectedUrgencyLevel = "Medium Emergency";
+
+  // Location & Map Preview State
+  GoogleMapController? _formMapController;
+  double? _selectedLatitude;
+  double? _selectedLongitude;
+  bool _isFetchingLocation = false;
+  String? _locationErrorMessage;
+  LatLng _mapCenter = const LatLng(14.4793, 121.0198); // Moonwalk Manila default
 
   final List<String> _incidentCategories = [
     "Fire Incident",
@@ -697,7 +707,93 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
-  void _submitReport() {
+  Future<void> _fetchCurrentLocation() async {
+    setState(() {
+      _isFetchingLocation = true;
+      _locationErrorMessage = null;
+    });
+
+    try {
+      debugPrint('[DEBUG GEO] Checking location service enabled...');
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        setState(() {
+          _locationErrorMessage = "Location services are disabled on your device. Please turn on GPS.";
+          _isFetchingLocation = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Location services are disabled. Please enable GPS."),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        setState(() {
+          _locationErrorMessage = "Location permission denied. Please grant permission to select location.";
+          _isFetchingLocation = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Location permission denied."),
+              backgroundColor: AppColors.danger,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        return;
+      }
+
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+
+      debugPrint('[DEBUG GEO] Position acquired: lat=${position.latitude}, lng=${position.longitude}');
+      final newCenter = LatLng(position.latitude, position.longitude);
+
+      setState(() {
+        _selectedLatitude = position.latitude;
+        _selectedLongitude = position.longitude;
+        _mapCenter = newCenter;
+        _locationErrorMessage = null;
+        _isFetchingLocation = false;
+      });
+
+      if (_formMapController != null) {
+        _formMapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(newCenter, 16.0),
+        );
+      }
+    } catch (e) {
+      debugPrint('[DEBUG GEO] Error fetching current location: $e');
+      setState(() {
+        _locationErrorMessage = "Failed to retrieve location: $e";
+        _isFetchingLocation = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to retrieve location: $e"),
+            backgroundColor: AppColors.danger,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _submitReport() async {
     if (_selectedIncidentCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -711,16 +807,38 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       return;
     }
 
+    if (_selectedLatitude == null || _selectedLongitude == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.location_off, color: Colors.white, size: 18),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  "Location coordinates are required to submit an incident report. Please tap 'Use My Current Location'.",
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
-          children: [
-            const Icon(Icons.send_rounded, color: Colors.white, size: 16),
-            const SizedBox(width: 16),
+          children: const [
+            Icon(Icons.send_rounded, color: Colors.white, size: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Text(
-                "Submitting $_selectedIncidentCategory report...",
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                "Submitting report...",
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -735,17 +853,21 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       ),
     );
 
+    debugPrint('[DEBUG GEO] Creating IncidentReport with lat=$_selectedLatitude, lng=$_selectedLongitude');
+
     final newReport = IncidentReport(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       incidentType: _selectedIncidentCategory!,
       reporterName: _selectedComplainant,
       location: _selectedBarangay,
+      latitude: _selectedLatitude,
+      longitude: _selectedLongitude,
       date: DateTime.now(),
       status: IncidentStatus.pending,
       description: _descriptionController.text.isNotEmpty ? _descriptionController.text : "No description provided",
       urgencyLevel: _selectedUrgencyLevel,
     );
-    MockDatabaseService().addReport(newReport);
+    await MockDatabaseService().addReport(newReport);
 
     Future.delayed(const Duration(milliseconds: 950), () {
       if (!mounted) return;
@@ -1016,6 +1138,160 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ],
             onChanged: (val) => setState(() => _selectedBarangay = val ?? "Area 1"),
           ),
+
+          const SizedBox(height: 18),
+
+          // Incident Location Section
+          const Text(
+            "Incident Location & GPS Map",
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
+          ),
+          const SizedBox(height: 8),
+
+          // 3D "Use My Current Location" button
+          GestureDetector(
+            onTap: _isFetchingLocation ? null : _fetchCurrentLocation,
+            child: Container(
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: AppColors.primaryGlowShadow,
+              ),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (_isFetchingLocation)
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    else
+                      const Icon(Icons.my_location, color: Colors.white, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      _isFetchingLocation ? "ACQUIRING GPS..." : "USE MY CURRENT LOCATION",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Interactive Google Map Preview inside report form
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              height: 190,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(target: _mapCenter, zoom: 15.0),
+                onMapCreated: (controller) => _formMapController = controller,
+                markers: _selectedLatitude != null && _selectedLongitude != null
+                    ? {
+                        Marker(
+                          markerId: const MarkerId('selected_incident_location'),
+                          position: LatLng(_selectedLatitude!, _selectedLongitude!),
+                          infoWindow: const InfoWindow(title: 'Selected Location'),
+                        ),
+                      }
+                    : {},
+                myLocationEnabled: true,
+                zoomControlsEnabled: false,
+                mapToolbarEnabled: false,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          // Selected Coordinates / Error Message Display Card
+          if (_selectedLatitude != null && _selectedLongitude != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.solved.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.solved.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle_outline, color: AppColors.solved, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "GPS Coordinates: ${_selectedLatitude!.toStringAsFixed(6)}, ${_selectedLongitude!.toStringAsFixed(6)}",
+                      style: const TextStyle(
+                        color: AppColors.solved,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (_locationErrorMessage != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.danger.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.danger.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: AppColors.danger, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      _locationErrorMessage!,
+                      style: const TextStyle(
+                        color: AppColors.danger,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.accentBg,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                children: const [
+                  Icon(Icons.info_outline, color: AppColors.textLight, size: 18),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      "Tap 'Use My Current Location' above to acquire GPS coordinates.",
+                      style: TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           const SizedBox(height: 16),
 
