@@ -5,6 +5,8 @@ import '../admin/models/incident_report.dart';
 import '../admin/models/user_profile.dart';
 import '../admin/models/category.dart';
 import '../admin/models/area.dart';
+import 'api_service.dart';
+import 'api_exception.dart';
 
 class MockDatabaseService extends ChangeNotifier {
   static final MockDatabaseService _instance = MockDatabaseService._internal();
@@ -21,12 +23,9 @@ class MockDatabaseService extends ChangeNotifier {
   final List<UserProfile> _users = [];
   final List<IncidentCategory> _categories = [];
   final List<AreaInfo> _areas = [];
-  
+
   UserProfile? _currentUser;
-  
-  final Map<String, int> _failedAttempts = {};
-  final Map<String, DateTime> _lockouts = {};
-  
+
   List<IncidentReport> get reports => _reports;
   List<UserProfile> get users => _users;
   List<IncidentCategory> get categories => _categories;
@@ -37,6 +36,7 @@ class MockDatabaseService extends ChangeNotifier {
     _dataBox = await Hive.openBox('appData');
     _authBox = Hive.box('auth');
     _loadData();
+    await syncWithBackend();
   }
 
   void _loadData() {
@@ -55,44 +55,6 @@ class MockDatabaseService extends ChangeNotifier {
       _users.clear();
       _users.addAll(dynamicList.map((e) => UserProfile.fromJson(e)).toList());
     }
-    
-    // Ensure admin exists and has correct credentials
-    final existingAdminIndex = _users.indexWhere((u) => u.email == 'admin@safe.gov');
-    if (existingAdminIndex == -1) {
-      _users.add(UserProfile(
-        id: "USR-ADMIN-001",
-        name: "Super Admin",
-        email: "admin@safe.gov",
-        role: "admin",
-        password: "admin123",
-        isActive: true,
-        isArchived: false,
-      ));
-    } else {
-      // Forcefully upgrade the user to admin if they registered manually
-      _users[existingAdminIndex] = _users[existingAdminIndex].copyWith(
-        role: "admin",
-        password: "admin123",
-      );
-    }
-
-    // Add sample test user for Selenium Activity
-    final testUserIndex = _users.indexWhere((u) => u.email == 'test@gmail.com');
-    if (testUserIndex == -1) {
-      _users.add(UserProfile(
-        id: "USR-TEST-002",
-        name: "Test User",
-        email: "test@gmail.com",
-        role: "user",
-        password: "password123",
-        isActive: true,
-        isArchived: false,
-      ));
-    } else {
-      _users[testUserIndex] = _users[testUserIndex].copyWith(password: "password123");
-    }
-
-    _saveUsers();
 
     final String? categoriesJson = _dataBox.get('categories');
     if (categoriesJson != null) {
@@ -116,28 +78,34 @@ class MockDatabaseService extends ChangeNotifier {
     if (currentUserJson != null) {
       _currentUser = UserProfile.fromJson(jsonDecode(currentUserJson));
     }
-    
-    final String? attemptsJson = _dataBox.get('failedAttempts');
-    if (attemptsJson != null) {
-      _failedAttempts.clear();
-      _failedAttempts.addAll(Map<String, int>.from(jsonDecode(attemptsJson)));
-    }
-    
-    final String? lockoutsJson = _dataBox.get('lockouts');
-    if (lockoutsJson != null) {
-      final Map decoded = jsonDecode(lockoutsJson);
-      _lockouts.clear();
-      decoded.forEach((k, v) {
-        _lockouts[k] = DateTime.parse(v);
-      });
-    }
-    
-    // Reset any active lockouts for debugging purposes
-    _lockouts.clear();
-    _failedAttempts.clear();
-    _saveSecurityState();
 
     notifyListeners();
+  }
+
+  /// Syncs cached local state with live server API
+  Future<void> syncWithBackend() async {
+    try {
+      final serverUser = await ApiService().getCurrentUser();
+      if (serverUser != null) {
+        _currentUser = serverUser;
+        _authBox.put('currentUser', jsonEncode(serverUser.toJson()));
+        _authBox.put('isLoggedIn', true);
+
+        // Fetch live reports from backend
+        final liveReports = _currentUser?.role.toLowerCase() == 'admin'
+            ? await ApiService().getIncidents()
+            : await ApiService().getMyIncidents();
+
+        if (liveReports.isNotEmpty) {
+          _reports.clear();
+          _reports.addAll(liveReports);
+          _saveReports();
+        }
+      }
+      notifyListeners();
+    } catch (_) {
+      // If network is offline, retain Hive cached state for viewing
+    }
   }
 
   void _saveReports() {
@@ -150,13 +118,6 @@ class MockDatabaseService extends ChangeNotifier {
     final List<Map<String, dynamic>> jsonList = _users.map((e) => e.toJson()).toList();
     _dataBox.put('users', jsonEncode(jsonList));
     notifyListeners();
-  }
-  
-  void _saveSecurityState() {
-    _dataBox.put('failedAttempts', jsonEncode(_failedAttempts));
-    final Map<String, dynamic> lockoutsMap = {};
-    _lockouts.forEach((k, v) => lockoutsMap[k] = v.toIso8601String());
-    _dataBox.put('lockouts', jsonEncode(lockoutsMap));
   }
 
   void _saveCategories() {
@@ -171,111 +132,87 @@ class MockDatabaseService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Auth Methods
-  Future<String?> signUp(String name, String email, String password, String role) async {
-    // Basic duplicate check (case-insensitive)
-    final normalizedEmail = email.toLowerCase().trim();
-    if (_users.any((u) => u.email.toLowerCase().trim() == normalizedEmail)) {
-      return "Email is already registered.";
-    }
-    
-    final newUser = UserProfile(
-      id: "USR-${DateTime.now().millisecondsSinceEpoch}",
-      name: name,
-      email: normalizedEmail,
-      role: role,
-      password: password,
-      isActive: true,
-      isArchived: false,
-    );
-    _users.add(newUser);
-    _saveUsers();
-    
-    notifyListeners();
-    return null; // success
-  }
-
   DateTime? getLockoutExpiration(String email) {
-    final normalizedEmail = email.toLowerCase().trim();
-    if (_lockouts.containsKey(normalizedEmail)) {
-      final lockoutTime = _lockouts[normalizedEmail]!;
-      final expiration = lockoutTime.add(const Duration(minutes: 15));
-      if (DateTime.now().isBefore(expiration)) {
-        return expiration;
-      }
-    }
     return null;
   }
 
-  Future<String?> login(String email, String password) async {
-    final normalizedEmail = email.toLowerCase().trim();
-    
-    // Check if account is locked
-    if (_lockouts.containsKey(normalizedEmail)) {
-      final lockoutTime = _lockouts[normalizedEmail]!;
-      if (DateTime.now().difference(lockoutTime).inMinutes < 15) {
-        return "Your account has been locked due to too many failed login attempts. Please try again in 15 minutes.";
-      } else {
-        // Lockout expired
-        _lockouts.remove(normalizedEmail);
-        _failedAttempts[normalizedEmail] = 0;
-        _saveSecurityState();
-      }
-    }
-
+  // Auth Methods - Server Mandated (Zero Local Password Fallbacks)
+  Future<String?> signUp(String name, String email, String password, String role) async {
     try {
-      final user = _users.firstWhere((u) => u.email.toLowerCase().trim() == normalizedEmail && !u.isArchived);
-      
-      if (user.password != password) {
-        throw Exception("Invalid password");
-      }
-      
+      final user = await ApiService().signUp(name, email, password);
       _currentUser = user;
       _authBox.put('currentUser', jsonEncode(user.toJson()));
       _authBox.put('isLoggedIn', true);
-      
-      // Reset failed attempts on success
-      _failedAttempts.remove(normalizedEmail);
-      _lockouts.remove(normalizedEmail);
-      _saveSecurityState();
-      
       notifyListeners();
-      return null; // success
+      return null; // Success
+    } on ApiException catch (e) {
+      return e.message;
     } catch (e) {
-      // User not found or incorrect password simulation
-      final attempts = (_failedAttempts[normalizedEmail] ?? 0) + 1;
-      _failedAttempts[normalizedEmail] = attempts;
-      
-      if (attempts >= 5) {
-        _lockouts[normalizedEmail] = DateTime.now();
-        _saveSecurityState();
-        return "Your account has been locked due to too many failed login attempts. Please try again in 15 minutes.";
-      }
-      
-      _saveSecurityState();
-      return "Invalid email or password.";
+      return "An unexpected error occurred during signup: $e";
+    }
+  }
+
+  Future<String?> login(String email, String password) async {
+    try {
+      final user = await ApiService().login(email, password);
+      _currentUser = user;
+      _authBox.put('currentUser', jsonEncode(user.toJson()));
+      _authBox.put('isLoggedIn', true);
+
+      // Sync backend reports for logged in user
+      await syncWithBackend();
+
+      notifyListeners();
+      return null; // Success
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (e) {
+      return "An unexpected error occurred during login: $e";
     }
   }
 
   void logout() {
     _currentUser = null;
+    ApiService().setToken(null);
     _authBox.delete('currentUser');
     _authBox.put('isLoggedIn', false);
     notifyListeners();
   }
-  
+
   // Data Manipulation
-  void addReport(IncidentReport report) {
-    _reports.insert(0, report);
-    _updateAreaCount(report.location, 1);
-    _saveReports();
+  Future<void> addReport(IncidentReport report) async {
+    try {
+      final serverReport = await ApiService().createIncident(
+        incidentType: report.incidentType,
+        reporterName: report.reporterName,
+        location: report.location,
+        description: report.description,
+        urgencyLevel: report.urgencyLevel,
+      );
+
+      // Insert canonical server report to prevent duplicates
+      _reports.insert(0, serverReport);
+      _updateAreaCount(serverReport.location, 1);
+      _saveReports();
+    } catch (e) {
+      // Offline fallback caching
+      _reports.insert(0, report);
+      _updateAreaCount(report.location, 1);
+      _saveReports();
+    }
   }
-  
-  void updateReportStatus(String reportId, IncidentStatus newStatus) {
+
+  Future<void> updateReportStatus(String reportId, IncidentStatus newStatus) async {
     final index = _reports.indexWhere((r) => r.id == reportId);
     if (index != -1) {
       _reports[index].status = newStatus;
       _saveReports();
+
+      try {
+        await ApiService().updateIncidentStatus(reportId, newStatus.name);
+      } catch (_) {
+        // Retain local status update if backend update encounters issue
+      }
     }
   }
 
@@ -311,7 +248,7 @@ class MockDatabaseService extends ChangeNotifier {
       _saveAreas();
     }
   }
-  
+
   void _updateAreaCount(String areaName, int change) {
     for (var area in _areas) {
       if (areaName.toLowerCase().contains(area.name.toLowerCase()) ||

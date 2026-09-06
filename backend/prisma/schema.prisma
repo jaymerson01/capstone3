@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(uuid())
+  name         String
+  email        String           @unique
+  password     String
+  role         String           @default("user") // "user" | "admin"
+  isActive     Boolean          @default(true)
+  isArchived   Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  reports      IncidentReport[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@map("categories")
+}
+
+model Area {
+  id             String   @id @default(uuid())
+  name           String   @unique
+  incidentsCount Int      @default(0)
+  isArchived     Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@map("areas")
+}
+
+model IncidentReport {
+  id           String   @id @default(uuid())
+  incidentType String
+  reporterName String
+  reporterId   String?
+  reporter     User?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+  location     String
+  date         DateTime @default(now())
+  status       String   @default("pending") // "pending" | "inProgress" | "solved" | "spam"
+  description  String
+  urgencyLevel String
+  isArchived   Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("incident_reports")
+}
