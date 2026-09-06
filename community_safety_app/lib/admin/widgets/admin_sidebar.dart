@@ -26,9 +26,10 @@ class _AdminSidebarState extends State<AdminSidebar> {
   final List<SidebarItem> menuItems = [
     SidebarItem(Icons.analytics_outlined, Icons.analytics, "Overview Dashboard"),
     SidebarItem(Icons.assignment_late_outlined, Icons.assignment_late, "Incident Reports"),
+    SidebarItem(Icons.map_outlined, Icons.map, "Incidents Map"),
     SidebarItem(Icons.manage_accounts_outlined, Icons.manage_accounts, "User Management"),
     SidebarItem(Icons.dashboard_customize_outlined, Icons.dashboard_customize, "Categories"),
-    SidebarItem(Icons.map_outlined, Icons.map, "Area Management"),
+    SidebarItem(Icons.location_city_outlined, Icons.location_city, "Area Management"),
     SidebarItem(Icons.history_outlined, Icons.history, "Audit Logs"),
     SidebarItem(Icons.admin_panel_settings_outlined, Icons.admin_panel_settings, "Profile"),
   ];

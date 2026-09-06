@@ -49,6 +49,8 @@ model IncidentReport {
   reporterId   String?
   reporter     User?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
   location     String
+  latitude     Float?   // New nullable latitude
+  longitude    Float?   // New nullable longitude
   date         DateTime @default(now())
   status       String   @default("pending") // "pending" | "inProgress" | "solved" | "spam"
   description  String

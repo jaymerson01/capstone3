@@ -109,7 +109,7 @@ class _Custom3dButtonState extends State<Custom3dButton>
               curve: Curves.easeOutBack,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 120),
-                curve: Curves.easeOutBack,
+                curve: Curves.easeOutCubic,
                 width: widget.width ?? double.infinity,
                 height: widget.height,
                 decoration: BoxDecoration(

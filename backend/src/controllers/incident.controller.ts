@@ -4,7 +4,9 @@ import { AuthenticatedRequest } from '../middleware/auth.middleware';
 
 export const createIncident = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { incidentType, reporterName, location, description, urgencyLevel } = req.body;
+    const { incidentType, reporterName, location, description, urgencyLevel, latitude, longitude } = req.body;
+
+    console.log(`[DEBUG GEO BACKEND] Received createIncident request body: latitude=${latitude} (${typeof latitude}), longitude=${longitude} (${typeof longitude})`);
 
     if (!incidentType || !location || !description || !urgencyLevel) {
       return res.status(400).json({
@@ -15,6 +17,11 @@ export const createIncident = async (req: AuthenticatedRequest, res: Response) =
     const reporterId = req.user?.userId || null;
     const finalReporterName = reporterName || req.user?.email || 'Anonymous';
 
+    const parsedLat = latitude !== undefined && latitude !== null && latitude !== '' && !isNaN(Number(latitude)) ? Number(latitude) : null;
+    const parsedLng = longitude !== undefined && longitude !== null && longitude !== '' && !isNaN(Number(longitude)) ? Number(longitude) : null;
+
+    console.log(`[DEBUG GEO BACKEND] Parsed coordinates for Prisma: latitude=${parsedLat}, longitude=${parsedLng}`);
+
     const incident = await prisma.incidentReport.create({
       data: {
         incidentType,
@@ -23,9 +30,13 @@ export const createIncident = async (req: AuthenticatedRequest, res: Response) =
         location,
         description,
         urgencyLevel,
+        latitude: parsedLat,
+        longitude: parsedLng,
         status: 'pending',
       },
     });
+
+    console.log(`[DEBUG GEO BACKEND] Saved incident ID ${incident.id} with latitude=${incident.latitude}, longitude=${incident.longitude}`);
 
     // Automatically update area count if location matches an area
     const matchingArea = await prisma.area.findFirst({

@@ -7,7 +7,8 @@ exports.updateIncidentStatus = exports.getMyIncidents = exports.getIncidents = e
 const db_1 = __importDefault(require("../config/db"));
 const createIncident = async (req, res) => {
     try {
-        const { incidentType, reporterName, location, description, urgencyLevel } = req.body;
+        const { incidentType, reporterName, location, description, urgencyLevel, latitude, longitude } = req.body;
+        console.log(`[DEBUG GEO BACKEND] Received createIncident request body: latitude=${latitude} (${typeof latitude}), longitude=${longitude} (${typeof longitude})`);
         if (!incidentType || !location || !description || !urgencyLevel) {
             return res.status(400).json({
                 error: 'incidentType, location, description, and urgencyLevel are required.',
@@ -15,6 +16,9 @@ const createIncident = async (req, res) => {
         }
         const reporterId = req.user?.userId || null;
         const finalReporterName = reporterName || req.user?.email || 'Anonymous';
+        const parsedLat = latitude !== undefined && latitude !== null && latitude !== '' && !isNaN(Number(latitude)) ? Number(latitude) : null;
+        const parsedLng = longitude !== undefined && longitude !== null && longitude !== '' && !isNaN(Number(longitude)) ? Number(longitude) : null;
+        console.log(`[DEBUG GEO BACKEND] Parsed coordinates for Prisma: latitude=${parsedLat}, longitude=${parsedLng}`);
         const incident = await db_1.default.incidentReport.create({
             data: {
                 incidentType,
@@ -23,9 +27,12 @@ const createIncident = async (req, res) => {
                 location,
                 description,
                 urgencyLevel,
+                latitude: parsedLat,
+                longitude: parsedLng,
                 status: 'pending',
             },
         });
+        console.log(`[DEBUG GEO BACKEND] Saved incident ID ${incident.id} with latitude=${incident.latitude}, longitude=${incident.longitude}`);
         // Automatically update area count if location matches an area
         const matchingArea = await db_1.default.area.findFirst({
             where: {
