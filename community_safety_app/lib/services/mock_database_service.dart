@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../admin/models/incident_report.dart';
 import '../admin/models/user_profile.dart';
+import '../admin/models/app_notification.dart';
 import '../admin/models/category.dart';
 import '../admin/models/area.dart';
 import 'api_service.dart';
@@ -23,6 +24,7 @@ class MockDatabaseService extends ChangeNotifier {
   final List<UserProfile> _users = [];
   final List<IncidentCategory> _categories = [];
   final List<AreaInfo> _areas = [];
+  final List<AppNotification> _notifications = [];
 
   UserProfile? _currentUser;
 
@@ -30,6 +32,8 @@ class MockDatabaseService extends ChangeNotifier {
   List<UserProfile> get users => _users;
   List<IncidentCategory> get categories => _categories;
   List<AreaInfo> get areas => _areas;
+  List<AppNotification> get notifications => _notifications;
+  int get unreadNotificationsCount => _notifications.where((n) => !n.isRead).length;
   UserProfile? get currentUser => _currentUser;
 
   Future<void> init() async {
@@ -107,6 +111,26 @@ class MockDatabaseService extends ChangeNotifier {
         _reports.clear();
         _reports.addAll(liveReports);
         _saveReports();
+
+        // Sync Users for Admin Panel
+        try {
+          final List<UserProfile> liveUsers = await ApiService().getUsers();
+          _users.clear();
+          _users.addAll(liveUsers);
+          _saveUsers();
+        } catch (e) {
+          debugPrint('[DEBUG GEO ADMIN] Failed to fetch users: $e');
+        }
+
+        // Sync Notifications
+        try {
+          final List<AppNotification> liveNotifications = await ApiService().getNotifications();
+          _notifications.clear();
+          _notifications.addAll(liveNotifications);
+          notifyListeners();
+        } catch (e) {
+          debugPrint('[DEBUG GEO ADMIN] Failed to fetch notifications: $e');
+        }
       } else {
         notifyListeners();
       }
@@ -228,20 +252,84 @@ class MockDatabaseService extends ChangeNotifier {
     }
   }
 
-  void archiveReport(String reportId) {
+  Future<void> archiveReport(String reportId) async {
     final index = _reports.indexWhere((r) => r.id == reportId);
     if (index != -1) {
       _reports[index].isArchived = true;
       _updateAreaCount(_reports[index].location, -1);
       _saveReports();
+
+      try {
+        await ApiService().archiveIncident(reportId);
+      } catch (e) {
+        debugPrint('[DEBUG GEO] Failed to archive incident on backend: $e');
+      }
     }
   }
 
-  void archiveUser(String userId) {
+
+  Future<void> archiveUser(String userId) async {
     final index = _users.indexWhere((u) => u.id == userId);
     if (index != -1) {
       _users[index].isArchived = true;
       _saveUsers();
+      try {
+        await ApiService().archiveUser(userId);
+      } catch (e) {
+        debugPrint('[DEBUG GEO ADMIN] Failed to archive user on backend: $e');
+      }
+    }
+  }
+
+  Future<void> toggleUserActive(String userId) async {
+    final index = _users.indexWhere((u) => u.id == userId);
+    if (index != -1) {
+      final newStatus = !_users[index].isActive;
+      _users[index].isActive = newStatus;
+      _saveUsers();
+      try {
+        await ApiService().updateUserStatus(userId, newStatus ? 'active' : 'inactive');
+      } catch (e) {
+        debugPrint('[DEBUG GEO ADMIN] Failed to toggle user status on backend: $e');
+      }
+    }
+  }
+
+  Future<void> updateUserRole(String userId, String newRole) async {
+    final index = _users.indexWhere((u) => u.id == userId);
+    if (index != -1) {
+      _users[index] = _users[index].copyWith(role: newRole);
+      _saveUsers();
+      try {
+        await ApiService().updateUserRole(userId, newRole);
+      } catch (e) {
+        debugPrint('[DEBUG GEO ADMIN] Failed to update user role on backend: $e');
+      }
+    }
+  }
+
+  Future<void> markNotificationAsRead(String notificationId) async {
+    final index = _notifications.indexWhere((n) => n.id == notificationId);
+    if (index != -1) {
+      _notifications[index].isRead = true;
+      notifyListeners();
+      try {
+        await ApiService().markNotificationAsRead(notificationId);
+      } catch (e) {
+        debugPrint('[DEBUG GEO ADMIN] Failed to mark notification read: $e');
+      }
+    }
+  }
+
+  Future<void> markAllNotificationsAsRead() async {
+    for (var n in _notifications) {
+      n.isRead = true;
+    }
+    notifyListeners();
+    try {
+      await ApiService().markAllNotificationsAsRead();
+    } catch (e) {
+      debugPrint('[DEBUG GEO ADMIN] Failed to mark all notifications read: $e');
     }
   }
 

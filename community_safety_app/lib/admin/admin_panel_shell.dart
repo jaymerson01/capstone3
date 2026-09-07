@@ -12,6 +12,8 @@ import 'pages/area_management_page.dart';
 import 'pages/admin_audit_logs_page.dart';
 import 'pages/profile_settings_page.dart';
 
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 class AdminPanelShell extends StatefulWidget {
   const AdminPanelShell({super.key});
 
@@ -22,6 +24,7 @@ class AdminPanelShell extends StatefulWidget {
 class _AdminPanelShellState extends State<AdminPanelShell> {
   int _selectedIndex = 0;
   bool _isSidebarCollapsed = false;
+  LatLng? _mapFocusLocation;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -41,9 +44,16 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       case 0:
         return const AdminDashboardPage();
       case 1:
-        return const IncidentReportsPage();
+        return IncidentReportsPage(
+          onNavigateToMap: (lat, lng) {
+            setState(() {
+              _mapFocusLocation = LatLng(lat, lng);
+              _selectedIndex = 2;
+            });
+          },
+        );
       case 2:
-        return const AdminMapPage();
+        return AdminMapPage(focusLocation: _mapFocusLocation);
       case 3:
         return const UserManagementPage();
       case 4:
@@ -58,6 +68,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
         return const AdminDashboardPage();
     }
   }
+
 
   void _handleLogout() {
     showGeneralDialog(
@@ -245,6 +256,11 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                 AdminHeader(
                   title: _pageTitles[_selectedIndex],
                   isMobile: isMobile,
+                  onNotificationSelected: (incidentId) {
+                    setState(() {
+                      _selectedIndex = 1;
+                    });
+                  },
                   onMenuPressed: () {
                     if (isMobile) {
                       _scaffoldKey.currentState?.openDrawer();

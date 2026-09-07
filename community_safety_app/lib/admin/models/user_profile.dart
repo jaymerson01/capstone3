@@ -6,6 +6,7 @@ class UserProfile {
   final String password;
   bool isActive;
   bool isArchived;
+  final DateTime? createdAt;
 
   UserProfile({
     required this.id,
@@ -15,6 +16,7 @@ class UserProfile {
     this.password = 'Moonwalk#01', // Default for mock users
     required this.isActive,
     this.isArchived = false,
+    this.createdAt,
   });
 
   UserProfile copyWith({
@@ -25,6 +27,7 @@ class UserProfile {
     String? password,
     bool? isActive,
     bool? isArchived,
+    DateTime? createdAt,
   }) {
     return UserProfile(
       id: id ?? this.id,
@@ -34,6 +37,7 @@ class UserProfile {
       password: password ?? this.password,
       isActive: isActive ?? this.isActive,
       isArchived: isArchived ?? this.isArchived,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -46,6 +50,7 @@ class UserProfile {
       'password': password,
       'isActive': isActive,
       'isArchived': isArchived,
+      if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
     };
   }
 
@@ -58,6 +63,10 @@ class UserProfile {
       password: json['password'] ?? 'Moonwalk#01',
       isActive: json['isActive'],
       isArchived: json['isArchived'] ?? false,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
     );
   }
 }
+

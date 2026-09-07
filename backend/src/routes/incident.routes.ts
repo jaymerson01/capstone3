@@ -4,6 +4,7 @@ import {
   getIncidents,
   getMyIncidents,
   updateIncidentStatus,
+  archiveIncident,
 } from '../controllers/incident.controller';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 
@@ -16,5 +17,7 @@ router.get('/my-reports', authenticate, getMyIncidents);
 
 // Admin incident routes
 router.patch('/:id/status', authenticate, requireAdmin, updateIncidentStatus);
+router.patch('/:id/archive', authenticate, requireAdmin, archiveIncident);
 
 export default router;
+

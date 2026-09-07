@@ -201,250 +201,251 @@ class _WelcomePageState extends State<WelcomePage>
 
               // ── Main Content ────────────────────────────────────────────────
               SafeArea(
-                child: Column(
-                  children: [
-                    // Top bar with Login / Sign Up
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Semantics(
-                            label: 'nav_login_button',
-                            button: true,
-                            child: _GlassTopButton(
-                              text: 'Login',
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Column(
+                    children: [
+                      // Top bar with Login / Sign Up
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Semantics(
+                              label: 'nav_login_button',
+                              button: true,
+                              child: _GlassTopButton(
+                                text: 'Login',
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => const LoginPage()),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            _GlassTopButton(
+                              text: 'Sign Up',
+                              filled: true,
                               onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) => const LoginPage()),
+                                    builder: (_) => const SignUpPage()),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          _GlassTopButton(
-                            text: 'Sign Up',
-                            filled: true,
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const SignUpPage()),
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
 
-                    const Spacer(),
+                      const SizedBox(height: 16),
 
-                    // ── Animated Logo ──────────────────────────────────────────
-                    ScaleTransition(
-                      scale: _logoScale,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Outer pulse ring
-                          AnimatedBuilder(
-                            animation: _pulseController,
-                            builder: (context, _) {
-                              return Container(
-                                width: 140 + (20 * _pulseController.value),
-                                height: 140 + (20 * _pulseController.value),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.primary.withValues(
-                                        alpha: 0.3 *
-                                            (1 - _pulseController.value)),
-                                    width: 2,
+                      // ── Animated Logo ──────────────────────────────────────────
+                      ScaleTransition(
+                        scale: _logoScale,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Outer pulse ring
+                            AnimatedBuilder(
+                              animation: _pulseController,
+                              builder: (context, _) {
+                                return Container(
+                                  width: 140 + (20 * _pulseController.value),
+                                  height: 140 + (20 * _pulseController.value),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.primary.withValues(
+                                          alpha: 0.3 *
+                                              (1 - _pulseController.value)),
+                                      width: 2,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                          // Middle ring
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  AppColors.primary.withValues(alpha: 0.08),
-                              border: Border.all(
+                                );
+                              },
+                            ),
+                            // Middle ring
+                            Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
                                 color:
-                                    AppColors.primary.withValues(alpha: 0.3),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
+                                    AppColors.primary.withValues(alpha: 0.08),
+                                border: Border.all(
                                   color:
                                       AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 30,
-                                  spreadRadius: 5,
+                                  width: 1.5,
                                 ),
-                              ],
-                            ),
-                          ),
-                          // Logo
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
-                                  color: AppColors.primary,
-                                  child: const Icon(Icons.shield,
-                                      color: Colors.white, size: 48),
-                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        AppColors.primary.withValues(alpha: 0.3),
+                                    blurRadius: 30,
+                                    spreadRadius: 5,
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // ── Hero Text ──────────────────────────────────────────────
-                    FadeTransition(
-                      opacity: _contentFade,
-                      child: SlideTransition(
-                        position: _contentSlide,
-                        child: Column(
-                          children: [
-                            // RESQ title with gradient
-                            ShaderMask(
-                              shaderCallback: (bounds) =>
-                                  AppColors.cyanGradient.createShader(bounds),
-                              blendMode: BlendMode.srcIn,
-                              child: const Text(
-                                'RESQ',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 52,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 8,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
+                            // Logo
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 7),
+                              width: 100,
+                              height: 100,
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.3)),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
                               ),
-                              child: const Text(
-                                'Smart Barangay Command System',
-                                style: TextStyle(
-                                  color: AppColors.secondary,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 48),
-                              child: Text(
-                                'Your safety and community trust are our priority',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.textLight,
-                                  fontSize: 14,
-                                  height: 1.5,
+                              child: ClipOval(
+                                child: Image.asset(
+                                  'assets/images/logo.png',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Container(
+                                    color: AppColors.primary,
+                                    child: const Icon(Icons.shield,
+                                        color: Colors.white, size: 48),
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
 
-                    const SizedBox(height: 48),
+                      const SizedBox(height: 28),
 
-                    // ── Action Buttons (Staggered) ──────────────────────────────
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      child: Column(
-                        children: [
-                          FadeTransition(
-                            opacity: _btn1Fade,
-                            child: Custom3dButton(
-                              icon: Icons.warning_amber_rounded,
-                              text: 'Report an Incident',
-                              gradient: AppColors.emergencyGradient,
-                              onPressed: () => _showLoginRequired(context),
-                            ),
+                      // ── Hero Text ──────────────────────────────────────────────
+                      FadeTransition(
+                        opacity: _contentFade,
+                        child: SlideTransition(
+                          position: _contentSlide,
+                          child: Column(
+                            children: [
+                              // RESQ title with gradient
+                              ShaderMask(
+                                shaderCallback: (bounds) =>
+                                    AppColors.cyanGradient.createShader(bounds),
+                                blendMode: BlendMode.srcIn,
+                                child: const Text(
+                                  'RESQ',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 52,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 8,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                      color: AppColors.primary
+                                          .withValues(alpha: 0.3)),
+                                ),
+                                child: const Text(
+                                  'Smart Barangay Command System',
+                                  style: TextStyle(
+                                    color: AppColors.secondary,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 1.0,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 48),
+                                child: Text(
+                                  'Your safety and community trust are our priority',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: AppColors.textLight,
+                                    fontSize: 14,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 14),
-                          FadeTransition(
-                            opacity: _btn2Fade,
-                            child: Custom3dButton(
-                              icon: Icons.call,
-                              text: 'Emergency Hotlines',
-                              gradient: AppColors.cyanGradient,
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        const EmergencyHotlinesPage()),
+                        ),
+                      ),
+
+                      const SizedBox(height: 36),
+
+                      // ── Action Buttons (Staggered) ──────────────────────────────
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 28),
+                        child: Column(
+                          children: [
+                            FadeTransition(
+                              opacity: _btn1Fade,
+                              child: Custom3dButton(
+                                icon: Icons.warning_amber_rounded,
+                                text: 'Report an Incident',
+                                gradient: AppColors.emergencyGradient,
+                                onPressed: () => _showLoginRequired(context),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    FadeTransition(
-                      opacity: _btn3Fade,
-                      child: TextButton.icon(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/admin/login'),
-                        icon: const Icon(
-                          Icons.admin_panel_settings_outlined,
-                          color: AppColors.textLight,
-                          size: 16,
+                            const SizedBox(height: 14),
+                            FadeTransition(
+                              opacity: _btn2Fade,
+                              child: Custom3dButton(
+                                icon: Icons.call,
+                                text: 'Emergency Hotlines',
+                                gradient: AppColors.cyanGradient,
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) =>
+                                          const EmergencyHotlinesPage()),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        label: const Text(
-                          'Access Admin Portal',
-                          style: TextStyle(
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      FadeTransition(
+                        opacity: _btn3Fade,
+                        child: TextButton.icon(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/admin/login'),
+                          icon: const Icon(
+                            Icons.admin_panel_settings_outlined,
                             color: AppColors.textLight,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColors.textLight,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                            size: 16,
+                          ),
+                          label: const Text(
+                            'Access Admin Portal',
+                            style: TextStyle(
+                              color: AppColors.textLight,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColors.textLight,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
-                    ),
 
-                    const Spacer(),
+                      const SizedBox(height: 24),
 
-                    // Status bar
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Row(
+                      // Status bar
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
@@ -471,8 +472,8 @@ class _WelcomePageState extends State<WelcomePage>
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

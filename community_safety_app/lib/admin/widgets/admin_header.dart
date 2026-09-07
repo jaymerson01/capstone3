@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import '../constants/admin_colors.dart';
 import '../services/admin_data_service.dart';
 
+import 'notifications_modal.dart';
+
 class AdminHeader extends StatefulWidget {
   final String title;
   final VoidCallback onMenuPressed;
   final bool isMobile;
+  final Function(String incidentId)? onNotificationSelected;
 
   const AdminHeader({
     super.key,
     required this.title,
     required this.onMenuPressed,
     required this.isMobile,
+    this.onNotificationSelected,
   });
 
   @override
@@ -44,6 +48,8 @@ class _AdminHeaderState extends State<AdminHeader>
     return ListenableBuilder(
       listenable: adminService,
       builder: (context, _) {
+        final unreadCount = adminService.unreadNotificationsCount;
+
         return Container(
           height: 68,
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -116,49 +122,77 @@ class _AdminHeaderState extends State<AdminHeader>
               Row(
                 children: [
                   // Notification bell with animated pulse badge
-                  AnimatedBuilder(
-                    animation: _notifPulse,
-                    builder: (context, _) {
-                      return Stack(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1A2540),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: const Color(0xFF1E2D4A)),
-                            ),
-                            child: const Icon(
-                              Icons.notifications_none_outlined,
-                              color: Color(0xFF7B8DB0),
-                              size: 20,
-                            ),
-                          ),
-                          Positioned(
-                            right: 6,
-                            top: 6,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xFFFF3B30),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFFFF3B30).withValues(
-                                        alpha: 0.7 * _notifPulse.value),
-                                    blurRadius: 8,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+                  GestureDetector(
+                    onTap: () {
+                      NotificationsModal.show(
+                        context,
+                        onIncidentSelected: widget.onNotificationSelected,
                       );
                     },
+                    child: AnimatedBuilder(
+                      animation: _notifPulse,
+                      builder: (context, _) {
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1A2540),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                    color: unreadCount > 0
+                                        ? const Color(0xFF0A84FF).withValues(alpha: 0.5)
+                                        : const Color(0xFF1E2D4A)),
+                              ),
+                              child: Icon(
+                                unreadCount > 0
+                                    ? Icons.notifications_active_rounded
+                                    : Icons.notifications_none_outlined,
+                                color: unreadCount > 0
+                                    ? const Color(0xFF0A84FF)
+                                    : const Color(0xFF7B8DB0),
+                                size: 20,
+                              ),
+                            ),
+                            if (unreadCount > 0)
+                              Positioned(
+                                right: -2,
+                                top: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: const Color(0xFFFF3B30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFFFF3B30).withValues(
+                                            alpha: 0.7 * _notifPulse.value),
+                                        blurRadius: 8,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 16,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    unreadCount > 99 ? '99+' : '$unreadCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                   const SizedBox(width: 12),
 
