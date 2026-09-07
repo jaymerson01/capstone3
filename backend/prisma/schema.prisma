@@ -8,16 +8,23 @@ datasource db {
 }
 
 model User {
-  id           String           @id @default(uuid())
-  name         String
-  email        String           @unique
-  password     String
-  role         String           @default("user") // "user" | "admin"
-  isActive     Boolean          @default(true)
-  isArchived   Boolean          @default(false)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  reports      IncidentReport[]
+  id                   String           @id @default(uuid())
+  name                 String
+  email                String           @unique
+  password             String
+  role                 String           @default("user") // "user" | "admin"
+  phone                String?
+  emergencyContact     String?
+  savedAddress         String?
+  avatarUrl            String?
+  language             String           @default("en")
+  theme                String           @default("dark")
+  notificationsEnabled Boolean          @default(true)
+  isActive             Boolean          @default(true)
+  isArchived           Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  reports              IncidentReport[]
 
   @@map("users")
 }

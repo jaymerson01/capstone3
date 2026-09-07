@@ -138,6 +138,62 @@ class ApiService {
     }
   }
 
+  Future<UserProfile> updateProfile({
+    String? name,
+    String? phone,
+    String? emergencyContact,
+    String? savedAddress,
+    String? avatarUrl,
+  }) async {
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (phone != null) body['phone'] = phone;
+    if (emergencyContact != null) body['emergencyContact'] = emergencyContact;
+    if (savedAddress != null) body['savedAddress'] = savedAddress;
+    if (avatarUrl != null) body['avatarUrl'] = avatarUrl;
+
+    final data = await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/auth/profile'),
+          headers: _getHeaders(requireAuth: true),
+          body: jsonEncode(body),
+        ));
+
+    return UserProfile.fromJson(data['user']);
+  }
+
+  Future<void> updatePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/auth/password'),
+          headers: _getHeaders(requireAuth: true),
+          body: jsonEncode({
+            'currentPassword': currentPassword,
+            'newPassword': newPassword,
+          }),
+        ));
+  }
+
+  Future<UserProfile> updateSettings({
+    String? language,
+    String? theme,
+    bool? notificationsEnabled,
+  }) async {
+    final body = <String, dynamic>{};
+    if (language != null) body['language'] = language;
+    if (theme != null) body['theme'] = theme;
+    if (notificationsEnabled != null) body['notificationsEnabled'] = notificationsEnabled;
+
+    final data = await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/auth/settings'),
+          headers: _getHeaders(requireAuth: true),
+          body: jsonEncode(body),
+        ));
+
+    return UserProfile.fromJson(data['user']);
+  }
+
   // Incident Endpoints
   Future<IncidentReport> createIncident({
     required String incidentType,

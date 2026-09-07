@@ -210,6 +210,71 @@ class MockDatabaseService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String?> updateUserProfile({
+    String? name,
+    String? phone,
+    String? emergencyContact,
+    String? savedAddress,
+    String? avatarUrl,
+  }) async {
+    try {
+      final updatedUser = await ApiService().updateProfile(
+        name: name,
+        phone: phone,
+        emergencyContact: emergencyContact,
+        savedAddress: savedAddress,
+        avatarUrl: avatarUrl,
+      );
+      _currentUser = updatedUser;
+      _authBox.put('currentUser', jsonEncode(updatedUser.toJson()));
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (e) {
+      return "Failed to update profile: $e";
+    }
+  }
+
+  Future<String?> updateUserPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await ApiService().updatePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (e) {
+      return "Failed to update password: $e";
+    }
+  }
+
+  Future<String?> updateUserSettings({
+    String? language,
+    String? theme,
+    bool? notificationsEnabled,
+  }) async {
+    try {
+      final updatedUser = await ApiService().updateSettings(
+        language: language,
+        theme: theme,
+        notificationsEnabled: notificationsEnabled,
+      );
+      _currentUser = updatedUser;
+      _authBox.put('currentUser', jsonEncode(updatedUser.toJson()));
+      notifyListeners();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (e) {
+      return "Failed to update settings: $e";
+    }
+  }
+
   // Data Manipulation
   Future<void> addReport(IncidentReport report) async {
     debugPrint('[DEBUG GEO] MockDatabaseService.addReport called with lat=${report.latitude}, lng=${report.longitude}');

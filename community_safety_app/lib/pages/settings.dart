@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import '../theme/app_color.dart';
 import 'welcome_page.dart';
+import 'my_reports.dart';
 import '../services/mock_database_service.dart';
+import '../providers/app_state_provider.dart';
+import '../utils/app_translations.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -12,18 +14,16 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // Global State Variables for Toggles
-
-  bool isNotificationEnabled = true;
-  bool isDarkMode = false;
-  bool isBiometricsEnabled = true;
-
   final BoxDecoration kAppBackgroundGradient = const BoxDecoration(
     gradient: AppColors.sunsetGradient,
   );
 
   @override
   Widget build(BuildContext context) {
+    final user = MockDatabaseService().currentUser;
+    final isNotificationEnabled = user?.notificationsEnabled ?? true;
+    final isDarkMode = AppStateProvider().isDarkMode;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -34,9 +34,9 @@ class _SettingsPageState extends State<SettingsPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "SETTINGS",
-          style: TextStyle(
+        title: Text(
+          AppTranslations.tr('settings'),
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.5,
@@ -65,18 +65,18 @@ class _SettingsPageState extends State<SettingsPage> {
                     const SizedBox(height: 24),
 
                     /// 2. COMMUNITY SAFETY & EMERGENCY INSTANT DIALER
-                    _buildSectionTitle("Barangay Emergency Hotlines"),
+                    _buildSectionTitle(AppTranslations.tr('emergency_hotlines')),
                     const SizedBox(height: 12),
                     _buildEmergencyHotlineGrid(),
                     const SizedBox(height: 24),
 
                     /// 3. ACCOUNT PROFILE CONFIGURATIONS
-                    _buildSectionTitle("Account Settings"),
+                    _buildSectionTitle(AppTranslations.tr('account_settings')),
                     const SizedBox(height: 12),
                     _buildSettingTile(
                       icon: Icons.account_circle_outlined,
-                      title: "Edit Personal Details",
-                      subtitle: "Name, email, contact channels, addresses",
+                      title: AppTranslations.tr('edit_personal_details'),
+                      subtitle: AppTranslations.tr('edit_personal_sub'),
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -86,9 +86,8 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     _buildSettingTile(
                       icon: Icons.shield_outlined,
-                      title: "Privacy & Account Security",
-                      subtitle:
-                          "Change password, active Biometric ID Gateway Login",
+                      title: AppTranslations.tr('privacy_security'),
+                      subtitle: AppTranslations.tr('privacy_security_sub'),
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -98,45 +97,48 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     _buildSettingTile(
                       icon: Icons.history_toggle_off_rounded,
-                      title: "Incident Report History",
-                      subtitle: "Track your filed community protection logs",
+                      title: AppTranslations.tr('report_history'),
+                      subtitle: AppTranslations.tr('report_history_sub'),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Navigating to comprehensive Report Logs...",
-                            ),
-                            behavior: SnackBarBehavior.floating,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MyReportsPage(),
                           ),
                         );
                       },
                     ),
 
                     const SizedBox(height: 12),
-                    _buildSectionTitle("Preferences"),
+                    _buildSectionTitle(AppTranslations.tr('preferences')),
                     const SizedBox(height: 12),
 
                     _buildSettingTile(
                       icon: Icons.notifications_none_outlined,
-                      title: "Push Notifications",
-                      subtitle:
-                          "Instant local danger perimeter broadcast alerts",
+                      title: AppTranslations.tr('push_notifications'),
+                      subtitle: AppTranslations.tr('push_notifications_sub'),
                       trailing: Switch(
                         value: isNotificationEnabled,
                         activeThumbColor: AppColors.primary,
-                        onChanged: (value) =>
-                            setState(() => isNotificationEnabled = value),
+                        onChanged: (value) async {
+                          await MockDatabaseService().updateUserSettings(
+                            notificationsEnabled: value,
+                          );
+                          setState(() {});
+                        },
                       ),
                     ),
                     _buildSettingTile(
                       icon: Icons.dark_mode_outlined,
-                      title: "Night Mode Dynamic Range",
-                      subtitle: "High contrast dark-mode viewing layer",
+                      title: AppTranslations.tr('night_mode'),
+                      subtitle: AppTranslations.tr('night_mode_sub'),
                       trailing: Switch(
                         value: isDarkMode,
                         activeThumbColor: AppColors.primary,
-                        onChanged: (value) =>
-                            setState(() => isDarkMode = value),
+                        onChanged: (value) async {
+                          await AppStateProvider().toggleTheme();
+                          setState(() {});
+                        },
                       ),
                     ),
 
@@ -1019,36 +1021,32 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _profileFormKey = GlobalKey<FormState>();
 
-  final TextEditingController _nameController = TextEditingController(
-    text: "John David Echano",
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: "johnechano@gmail.com",
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: "+63 917 123 4567",
-  );
-  final TextEditingController _emergencyContactController =
-      TextEditingController(text: "Maria Echano (0919-888-7766)");
-  final TextEditingController _savedAddressController = TextEditingController(
-    text: "Bldg 4, St. Francis Compound, Moonwalk",
-  );
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
+  late TextEditingController _emergencyContactController;
+  late TextEditingController _savedAddressController;
 
-  String _selectedBarangay = 'Area 1';
-  String _selectedLanguage = 'English (PH)';
+  late String _selectedLanguage;
+  bool _isSaving = false;
 
-  final List<String> _barangayList = [
-    'Area 1',
-    'Area 2',
-    'Area 3',
-    'Area 4',
-    'Area 5',
-  ];
   final List<String> _languages = [
-    'English (PH)',
-    'Filipino (Tagalog)',
-    'Spanish',
+    'English',
+    'Filipino',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final user = MockDatabaseService().currentUser;
+    _nameController = TextEditingController(text: user?.name ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+    _phoneController = TextEditingController(text: user?.phone ?? '');
+    _emergencyContactController = TextEditingController(text: user?.emergencyContact ?? '');
+    _savedAddressController = TextEditingController(text: user?.savedAddress ?? '');
+
+    _selectedLanguage = (AppStateProvider().language == 'fil') ? 'Filipino' : 'English';
+  }
 
   @override
   void dispose() {
@@ -1060,8 +1058,48 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
+  Future<void> _saveProfile() async {
+    if (!_profileFormKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    final error = await MockDatabaseService().updateUserProfile(
+      name: _nameController.text.trim(),
+      phone: _phoneController.text.trim(),
+      emergencyContact: _emergencyContactController.text.trim(),
+      savedAddress: _savedAddressController.text.trim(),
+    );
+
+    // Update language setting
+    final newLangCode = _selectedLanguage == 'Filipino' ? 'fil' : 'en';
+    await AppStateProvider().setLanguage(newLangCode);
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: AppColors.danger,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppTranslations.tr('save_profile')),
+          backgroundColor: AppColors.primary,
+        ),
+      );
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final user = MockDatabaseService().currentUser;
+    final initials = (user?.name.isNotEmpty == true) ? user!.name[0].toUpperCase() : '?';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -1071,9 +1109,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             boxShadow: AppColors.primaryGlowShadow,
           ),
         ),
-        title: const Text(
-          'Edit Identity Profile',
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+        title: Text(
+          AppTranslations.tr('edit_profile_title'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
@@ -1087,64 +1125,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// AVATAR INTERFACE BLOCK
+              /// AVATAR INTERFACE BLOCK (INITIALS FALLBACK)
               Center(
-                child: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.2),
-                            blurRadius: 15,
-                            spreadRadius: 2,
-                          ),
-                        ],
+                child: Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                    border: Border.all(color: Colors.white, width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        spreadRadius: 2,
                       ),
-                      child: const CircleAvatar(
-                        radius: 52,
-                        backgroundColor: Colors.transparent,
-                        child: Icon(
-                          Icons.person,
-                          size: 60,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 4,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: AppColors.primaryGradient,
-                          boxShadow: AppColors.primaryGlowShadow,
-                        ),
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.transparent,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.edit_rounded,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Triggering system filesystem photo upload asset index selector...",
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -1153,31 +1160,29 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 12),
               _buildValidatedField(
                 controller: _nameController,
-                label: "Full Name",
+                label: AppTranslations.tr('full_name'),
                 icon: Icons.person_outline_rounded,
                 validator: (val) => val!.trim().isEmpty
-                    ? "Account registration requires a valid name asset reference"
+                    ? "Full name is required"
                     : null,
               ),
               const SizedBox(height: 16),
               _buildValidatedField(
                 controller: _emailController,
-                label: "Email Coordinate",
+                label: AppTranslations.tr('email_address'),
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
                 validator: (val) => !val!.contains('@')
-                    ? "Provide an authentic account email identifier string"
+                    ? "Valid email address required"
                     : null,
               ),
               const SizedBox(height: 16),
               _buildValidatedField(
                 controller: _phoneController,
-                label: "Mobile Number",
+                label: AppTranslations.tr('mobile_number'),
                 icon: Icons.phone_android_rounded,
                 keyboardType: TextInputType.phone,
-                validator: (val) => val!.trim().length < 7
-                    ? "Active phone context sequence string required"
-                    : null,
+                validator: (val) => null, // Optional field
               ),
 
               const SizedBox(height: 24),
@@ -1185,50 +1190,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 12),
               _buildValidatedField(
                 controller: _emergencyContactController,
-                label: "Primary Emergency Contact",
+                label: AppTranslations.tr('emergency_contact'),
                 icon: Icons.contact_emergency_outlined,
-                validator: (val) => val!.trim().isEmpty
-                    ? "Emergency fallback nodes must not be blank strings"
-                    : null,
+                validator: (val) => null, // Optional field
               ),
               const SizedBox(height: 16),
               _buildValidatedField(
                 controller: _savedAddressController,
-                label: "Resident Location/Home Address",
+                label: AppTranslations.tr('home_address'),
                 icon: Icons.maps_home_work_outlined,
-                validator: (val) => val!.trim().isEmpty
-                    ? "Physical tracking coordinates must be mapped"
-                    : null,
+                validator: (val) => null, // Optional field
               ),
               const SizedBox(height: 16),
 
-              /// BARANGAY ANCHOR DROPDOWN
+              /// REGIONAL LANGUAGE DROPDOWN (ENGLISH & FILIPINO ONLY)
               DropdownButtonFormField<String>(
-                initialValue: _selectedBarangay,
+                value: _selectedLanguage,
                 decoration: InputDecoration(
-                  labelText: "Preferred Sector/Barangay jurisdiction",
-                  prefixIcon: const Icon(
-                    Icons.holiday_village_outlined,
-                    color: AppColors.textLight,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
-                ),
-                items: _barangayList
-                    .map((b) => DropdownMenuItem(value: b, child: Text(b)))
-                    .toList(),
-                onChanged: (val) => setState(() => _selectedBarangay = val!),
-              ),
-              const SizedBox(height: 16),
-
-              /// REGIONAL LANGUAGE DROPDOWN
-              DropdownButtonFormField<String>(
-                initialValue: _selectedLanguage,
-                decoration: InputDecoration(
-                  labelText: "App Language Interface Locale",
+                  labelText: AppTranslations.tr('app_language'),
                   prefixIcon: const Icon(
                     Icons.translate_rounded,
                     color: AppColors.textLight,
@@ -1237,12 +1216,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.surface,
                 ),
                 items: _languages
                     .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                     .toList(),
-                onChanged: (val) => setState(() => _selectedLanguage = val!),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _selectedLanguage = val);
+                  }
+                },
               ),
 
               const SizedBox(height: 36),
@@ -1265,30 +1248,27 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                  onPressed: () {
-                    if (_profileFormKey.currentState!.validate()) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            "Account login security configurations updated successfully!",
+                    onPressed: _isSaving ? null : _saveProfile,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
+                            ),
+                          )
+                        : Text(
+                            AppTranslations.tr('save_profile'),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
                           ),
-                          backgroundColor: AppColors.primary,
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text(
-                    'SAVE PROFILE CHANGES',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
                   ),
                 ),
-                ),
-              ],
+              ),
+            ],
           ),
         ),
       ),
@@ -1351,8 +1331,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   bool _obscureCurrent = true;
   bool _obscureNew = true;
   bool _obscureConfirm = true;
-
-  bool isBiometricActive = true;
+  bool _isChangingPass = false;
 
   @override
   void dispose() {
@@ -1373,9 +1352,9 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
             boxShadow: AppColors.primaryGlowShadow,
           ),
         ),
-        title: const Text(
-          'Privacy & Security Suite',
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+        title: Text(
+          AppTranslations.tr('privacy_security'),
+          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
@@ -1414,9 +1393,9 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   size: 20,
                 ),
               ),
-              title: const Text(
-                'Update Secret Password',
-                style: TextStyle(
+              title: Text(
+                AppTranslations.tr('update_password'),
+                style: const TextStyle(
                     fontWeight: FontWeight.bold, color: AppColors.textDark),
               ),
               subtitle: const Text(
@@ -1441,41 +1420,46 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           const SizedBox(height: 12),
 
           Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border),
             ),
-            child: Column(
+            child: Row(
               children: [
-                SwitchListTile(
-                  secondary: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.fingerprint_rounded,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
                   ),
-                  title: const Text(
-                    'Biometric ID Gateway Lock',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: AppColors.textDark),
+                  child: const Icon(
+                    Icons.security_rounded,
+                    color: AppColors.primary,
+                    size: 24,
                   ),
-                  subtitle: const Text(
-                    'Authorize fingerprint or face scans before dashboard opens',
-                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                ),
+                const SizedBox(width: 14),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Device Lock & Session Protection',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        'Your sessions are protected via bcrypt hashing and JWT tokens. Hardware biometric authentication will be enabled in upcoming mobile builds.',
+                        style: TextStyle(fontSize: 11.5, color: AppColors.textLight, height: 1.4),
+                      ),
+                    ],
                   ),
-                  value: isBiometricActive,
-                  activeThumbColor: AppColors.primary,
-                  onChanged: (bool value) =>
-                      setState(() => isBiometricActive = value),
                 ),
               ],
             ),
@@ -1489,10 +1473,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
-        ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+      ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
           padding: EdgeInsets.only(
@@ -1507,9 +1491,9 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Reset Account Password',
-                  style: TextStyle(
+                Text(
+                  AppTranslations.tr('update_password'),
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
@@ -1521,10 +1505,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   controller: _currentPassCtrl,
                   obscureText: _obscureCurrent,
                   validator: (val) => val!.isEmpty
-                      ? "Input verification of your operational password sequence"
+                      ? "Current password is required"
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'Current Password String',
+                    labelText: AppTranslations.tr('current_password'),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -1544,10 +1528,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   controller: _newPassCtrl,
                   obscureText: _obscureNew,
                   validator: (val) => val!.length < 6
-                      ? "New password string dimensions must cross 6 symbols minimum"
+                      ? "New password must be at least 6 characters"
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'New Structural Password',
+                    labelText: AppTranslations.tr('new_password'),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -1564,10 +1548,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   controller: _confirmPassCtrl,
                   obscureText: _obscureConfirm,
                   validator: (val) => val != _newPassCtrl.text
-                      ? "Mismatch detected across structural verification input matrices"
+                      ? "Passwords do not match"
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'Confirm New Structural Password',
+                    labelText: AppTranslations.tr('confirm_password'),
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -1601,24 +1585,55 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                    onPressed: () {
-                      if (_passFormKey.currentState!.validate()) {
-                        _currentPassCtrl.clear();
-                        _newPassCtrl.clear();
-                        _confirmPassCtrl.clear();
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Account login security configurations updated successfully!",
+                      onPressed: _isChangingPass
+                          ? null
+                          : () async {
+                              if (_passFormKey.currentState!.validate()) {
+                                setModalState(() => _isChangingPass = true);
+
+                                final error = await MockDatabaseService().updateUserPassword(
+                                  currentPassword: _currentPassCtrl.text,
+                                  newPassword: _newPassCtrl.text,
+                                );
+
+                                setModalState(() => _isChangingPass = false);
+
+                                if (error != null) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    SnackBar(
+                                      content: Text(error),
+                                      backgroundColor: AppColors.danger,
+                                    ),
+                                  );
+                                } else {
+                                  _currentPassCtrl.clear();
+                                  _newPassCtrl.clear();
+                                  _confirmPassCtrl.clear();
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Password updated successfully!"),
+                                      backgroundColor: AppColors.primary,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      child: _isChangingPass
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : Text(
+                              AppTranslations.tr('save_password'),
+                              style: const TextStyle(fontWeight: FontWeight.bold),
                             ),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text("PROCEED UPDATE EXECUTION"),
+                    ),
                   ),
-                ),
                 ),
               ],
             ),

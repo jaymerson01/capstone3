@@ -134,6 +134,13 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
         name: true,
         email: true,
         role: true,
+        phone: true,
+        emergencyContact: true,
+        savedAddress: true,
+        avatarUrl: true,
+        language: true,
+        theme: true,
+        notificationsEnabled: true,
         isActive: true,
         isArchived: true,
         createdAt: true,
@@ -165,6 +172,13 @@ export const getUsers = async (req: AuthenticatedRequest, res: Response) => {
         name: true,
         email: true,
         role: true,
+        phone: true,
+        emergencyContact: true,
+        savedAddress: true,
+        avatarUrl: true,
+        language: true,
+        theme: true,
+        notificationsEnabled: true,
         isActive: true,
         isArchived: true,
         createdAt: true,
@@ -267,6 +281,141 @@ export const updateUserRole = async (req: AuthenticatedRequest, res: Response) =
   } catch (error: any) {
     console.error('UpdateUserRole Error:', error);
     return res.status(500).json({ error: 'Failed to update user role.' });
+  }
+};
+
+export const updateProfile = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthenticated' });
+    }
+
+    const { name, phone, emergencyContact, savedAddress, avatarUrl } = req.body;
+
+    const updateData: any = {};
+    if (name !== undefined) updateData.name = name.trim();
+    if (phone !== undefined) updateData.phone = phone.trim();
+    if (emergencyContact !== undefined) updateData.emergencyContact = emergencyContact.trim();
+    if (savedAddress !== undefined) updateData.savedAddress = savedAddress.trim();
+    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl.trim();
+
+    const user = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        emergencyContact: true,
+        savedAddress: true,
+        avatarUrl: true,
+        language: true,
+        theme: true,
+        notificationsEnabled: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(200).json({ message: 'Profile updated successfully.', user });
+  } catch (error: any) {
+    console.error('UpdateProfile Error:', error);
+    return res.status(500).json({ error: 'Failed to update profile.' });
+  }
+};
+
+export const updatePassword = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthenticated' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required.' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Current password is incorrect.' });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    return res.status(200).json({ message: 'Password updated successfully.' });
+  } catch (error: any) {
+    console.error('UpdatePassword Error:', error);
+    return res.status(500).json({ error: 'Failed to update password.' });
+  }
+};
+
+export const updateSettings = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Unauthenticated' });
+    }
+
+    const { language, theme, notificationsEnabled } = req.body;
+
+    const updateData: any = {};
+    if (language !== undefined && ['en', 'fil'].includes(language)) {
+      updateData.language = language;
+    }
+    if (theme !== undefined && ['dark', 'light'].includes(theme)) {
+      updateData.theme = theme;
+    }
+    if (typeof notificationsEnabled === 'boolean') {
+      updateData.notificationsEnabled = notificationsEnabled;
+    }
+
+    const user = await prisma.user.update({
+      where: { id: req.user.userId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        emergencyContact: true,
+        savedAddress: true,
+        avatarUrl: true,
+        language: true,
+        theme: true,
+        notificationsEnabled: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(200).json({ message: 'Settings updated successfully.', user });
+  } catch (error: any) {
+    console.error('UpdateSettings Error:', error);
+    return res.status(500).json({ error: 'Failed to update settings.' });
   }
 };
 

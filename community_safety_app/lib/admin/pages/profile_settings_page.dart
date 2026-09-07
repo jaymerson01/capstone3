@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/admin_data_service.dart';
+import '../../services/mock_database_service.dart';
 import '../constants/admin_colors.dart';
 import '../../widgets/custom_3d_button.dart';
 import '../../widgets/custom_3d_card.dart';
@@ -19,12 +20,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: dataService.adminName);
-    _emailController = TextEditingController(text: dataService.adminEmail);
+    final user = MockDatabaseService().currentUser;
+    _nameController = TextEditingController(text: user?.name ?? dataService.adminName);
+    _emailController = TextEditingController(text: user?.email ?? dataService.adminEmail);
     _passwordController = TextEditingController(text: dataService.adminPassword);
   }
 
@@ -36,18 +39,38 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     super.dispose();
   }
 
-  void _saveProfile() {
-    if (_formKey.currentState!.validate()) {
-      dataService.updateProfile(
-        name: _nameController.text.trim(),
-        password: _passwordController.text,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Admin profile updated successfully!"),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+  Future<void> _saveProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    dataService.updateProfile(
+      name: _nameController.text.trim(),
+      password: _passwordController.text,
+    );
+
+    final error = await MockDatabaseService().updateUserProfile(
+      name: _nameController.text.trim(),
+    );
+
+    if (mounted) {
+      setState(() => _isSaving = false);
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AdminColors.dangerRed,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Admin profile updated successfully!"),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -164,8 +187,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       Expanded(
                         child: Custom3dButton(
                           icon: Icons.save_outlined,
-                          text: "Save Changes",
-                          onPressed: _saveProfile,
+                          text: _isSaving ? "Saving..." : "Save Changes",
+                          onPressed: _isSaving ? null : _saveProfile,
                         ),
                       ),
                       const SizedBox(width: 15),

@@ -7,6 +7,9 @@ import {
   updateUserStatus,
   archiveUser,
   updateUserRole,
+  updateProfile,
+  updatePassword,
+  updateSettings,
 } from '../controllers/auth.controller';
 import { authenticate, requireAdmin } from '../middleware/auth.middleware';
 
@@ -16,6 +19,9 @@ const router = Router();
 router.post('/signup', signUp);
 router.post('/login', login);
 router.get('/me', authenticate, getCurrentUser);
+router.patch('/profile', authenticate, updateProfile);
+router.patch('/password', authenticate, updatePassword);
+router.patch('/settings', authenticate, updateSettings);
 
 // Admin User Management routes
 router.get('/users', authenticate, requireAdmin, getUsers);

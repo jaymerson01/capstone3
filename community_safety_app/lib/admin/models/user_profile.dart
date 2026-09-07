@@ -4,6 +4,13 @@ class UserProfile {
   final String email;
   final String role;
   final String password;
+  final String? phone;
+  final String? emergencyContact;
+  final String? savedAddress;
+  final String? avatarUrl;
+  final String language;
+  final String theme;
+  final bool notificationsEnabled;
   bool isActive;
   bool isArchived;
   final DateTime? createdAt;
@@ -14,6 +21,13 @@ class UserProfile {
     required this.email,
     required this.role,
     this.password = 'Moonwalk#01', // Default for mock users
+    this.phone,
+    this.emergencyContact,
+    this.savedAddress,
+    this.avatarUrl,
+    this.language = 'en',
+    this.theme = 'dark',
+    this.notificationsEnabled = true,
     required this.isActive,
     this.isArchived = false,
     this.createdAt,
@@ -25,6 +39,13 @@ class UserProfile {
     String? email,
     String? role,
     String? password,
+    String? phone,
+    String? emergencyContact,
+    String? savedAddress,
+    String? avatarUrl,
+    String? language,
+    String? theme,
+    bool? notificationsEnabled,
     bool? isActive,
     bool? isArchived,
     DateTime? createdAt,
@@ -35,6 +56,13 @@ class UserProfile {
       email: email ?? this.email,
       role: role ?? this.role,
       password: password ?? this.password,
+      phone: phone ?? this.phone,
+      emergencyContact: emergencyContact ?? this.emergencyContact,
+      savedAddress: savedAddress ?? this.savedAddress,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      language: language ?? this.language,
+      theme: theme ?? this.theme,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       isActive: isActive ?? this.isActive,
       isArchived: isArchived ?? this.isArchived,
       createdAt: createdAt ?? this.createdAt,
@@ -48,6 +76,13 @@ class UserProfile {
       'email': email,
       'role': role,
       'password': password,
+      'phone': phone,
+      'emergencyContact': emergencyContact,
+      'savedAddress': savedAddress,
+      'avatarUrl': avatarUrl,
+      'language': language,
+      'theme': theme,
+      'notificationsEnabled': notificationsEnabled,
       'isActive': isActive,
       'isArchived': isArchived,
       if (createdAt != null) 'createdAt': createdAt!.toIso8601String(),
@@ -61,7 +96,14 @@ class UserProfile {
       email: json['email'],
       role: json['role'],
       password: json['password'] ?? 'Moonwalk#01',
-      isActive: json['isActive'],
+      phone: json['phone'],
+      emergencyContact: json['emergencyContact'],
+      savedAddress: json['savedAddress'],
+      avatarUrl: json['avatarUrl'],
+      language: json['language'] ?? 'en',
+      theme: json['theme'] ?? 'dark',
+      notificationsEnabled: json['notificationsEnabled'] ?? true,
+      isActive: json['isActive'] ?? true,
       isArchived: json['isArchived'] ?? false,
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
