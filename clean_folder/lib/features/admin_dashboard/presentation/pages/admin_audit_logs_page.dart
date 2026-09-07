@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
-import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 
 class AdminAuditLogsPage extends StatelessWidget {

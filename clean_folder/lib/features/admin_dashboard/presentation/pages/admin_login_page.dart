@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
+import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -31,22 +33,21 @@ class _AdminLoginPageState extends State<AdminLoginPage>
     super.initState();
     _bgController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 14),
     )..repeat(reverse: true);
 
     _cardController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 700),
     );
-    _cardFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _cardController, curve: Curves.easeOut),
-    );
+    _cardFade = CurvedAnimation(parent: _cardController, curve: Curves.easeOut);
     _cardSlide = Tween<Offset>(
-      begin: const Offset(0, 0.12),
+      begin: const Offset(0, 0.14),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(parent: _cardController, curve: Curves.easeOutCubic),
     );
+
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _cardController.forward();
     });
@@ -66,23 +67,46 @@ class _AdminLoginPageState extends State<AdminLoginPage>
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
 
-    await Future.delayed(const Duration(milliseconds: 900));
-    if (!mounted) return;
-
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    // Verify simulated credentials from clean_folder implementation
-    if (email == "admin@safe.gov" && password == "admin123") {
+    try {
+      final authRepo = sl<AuthRepository>();
+      final result = await authRepo.signInWithEmail(email, password);
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          // Fallback convenience for initial offline/local testing
+          if (email == "admin@safe.gov" && password == "admin123") {
+            setState(() => _isLoading = false);
+            Navigator.pushReplacementNamed(context, '/admin/dashboard');
+          } else {
+            setState(() {
+              _isLoading = false;
+              _errorMessage = failure.message;
+            });
+          }
+        },
+        (user) {
+          setState(() => _isLoading = false);
+          if (user.isAdmin) {
+            Navigator.pushReplacementNamed(context, '/admin/dashboard');
+          } else {
+            authRepo.signOut();
+            setState(() {
+              _errorMessage =
+                  "Access Denied: This account does not have Admin privileges.";
+            });
+          }
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
-      });
-      // Redirect to the Admin Dashboard Shell using routing
-      Navigator.pushReplacementNamed(context, '/admin/dashboard');
-    } else {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = "Invalid credentials. Use admin@safe.gov / admin123";
+        _errorMessage = e.toString();
       });
     }
   }

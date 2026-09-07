@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -6,10 +7,12 @@ import 'package:http/http.dart' as http;
 
 import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:community_safety_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:community_safety_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_in_with_email_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_up_with_email_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:community_safety_app/features/auth/domain/usecases/update_user_profile_usecase.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 
 import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
@@ -33,6 +36,7 @@ Future<void> init() async {
         signUpWithEmailUseCase: sl(),
         signOutUseCase: sl(),
         getCurrentUserUseCase: sl(),
+        updateUserProfileUseCase: sl(),
       ));
   sl.registerFactory(() => IncidentBloc(
         repository: sl(),
@@ -44,10 +48,12 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SignUpWithEmailUseCase(sl()));
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateUserProfileUseCase(sl()));
   sl.registerLazySingleton(() => TriageIncidentUseCase(sl()));
 
   // Repository
-  sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl());
+  sl.registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<IncidentRepository>(
       () => IncidentRepositoryImpl(
             firestore: sl(),
@@ -56,6 +62,11 @@ Future<void> init() async {
           ));
 
   // Data Sources
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(
+            firebaseAuth: sl(),
+            firestore: sl(),
+          ));
   sl.registerLazySingleton<IncidentAiRemoteDataSource>(
       () => IncidentAiRemoteDataSourceImpl(client: sl()));
 
@@ -64,6 +75,7 @@ Future<void> init() async {
   sl.registerLazySingleton<CameraService>(() => CameraServiceImpl(storage: sl()));
 
   // External
+  sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
   sl.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
   sl.registerLazySingleton<FirebaseStorage>(() => FirebaseStorage.instance);
   sl.registerLazySingleton<Box<IncidentModel>>(() => Hive.box<IncidentModel>('incidents'));

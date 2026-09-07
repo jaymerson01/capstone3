@@ -952,22 +952,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     }
   }
 
-  Color _getUrgencyColor(String urgency) {
-    switch (urgency) {
-      case "HIGH":
-      case "High Emergency":
-        return AppColors.danger;
-      case "MEDIUM":
-      case "Medium Emergency":
-        return AppColors.pending;
-      case "LOW":
-      case "Low Emergency":
-        return AppColors.solved;
-      default:
-        return AppColors.primary;
-    }
-  }
-
   void _showPostSubmitSafetyWindow() {
     final String category = _selectedIncidentCategory ?? "Other Emergency";
     final List<String> guidelines = _getSafetyGuidelines(category);

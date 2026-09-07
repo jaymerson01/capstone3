@@ -412,10 +412,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                                 final email = _emailController
                                                     .text
                                                     .trim();
-                                                final password =
-                                                    _passwordController.text;
-                                                
-                                                context.read<AuthBloc>().add(RegisterRequested(email, password));
+                                                final password = _passwordController.text;
+                                                final fullName = _nameController.text.trim();
+                                                context.read<AuthBloc>().add(
+                                                  RegisterRequested(
+                                                    email,
+                                                    password,
+                                                    fullName: fullName,
+                                                    role: 'resident',
+                                                  ),
+                                                );
                                               },
                                         ),
                                       ),

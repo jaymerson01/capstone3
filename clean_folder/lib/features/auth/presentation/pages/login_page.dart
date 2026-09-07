@@ -97,10 +97,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       listener: (context, state) async {
         if (state is AuthError) {
           if (state.message.toLowerCase().contains("locked")) {
-            // Give a mock 15 minute lockout for the UI since the real lockout is handled by backend.
-            AuthModals.showAccountLocked(context, DateTime.now().add(const Duration(minutes: 15)));
+            AuthModals.showAccountLocked(
+                context, DateTime.now().add(const Duration(minutes: 15)));
           } else {
-            AuthModals.showInvalidCredentials(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: AppColors.danger,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
           }
         } else if (state is Authenticated) {
           await showDialog(
@@ -109,7 +115,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             builder: (_) => _SuccessDialog(),
           );
           if (context.mounted) {
-            if (state.user.email.toLowerCase().contains('admin')) {
+            if (state.user.isAdmin) {
               Navigator.pushReplacementNamed(context, '/admin/dashboard');
             } else {
               Navigator.pushReplacementNamed(context, '/dashboard');
