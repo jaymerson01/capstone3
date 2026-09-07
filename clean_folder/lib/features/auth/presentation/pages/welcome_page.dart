@@ -415,6 +415,29 @@ class _WelcomePageState extends State<WelcomePage>
 
                     const SizedBox(height: 24),
 
+                    FadeTransition(
+                      opacity: _btn3Fade,
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, '/admin/login'),
+                        icon: const Icon(
+                          Icons.admin_panel_settings_outlined,
+                          color: AppColors.textLight,
+                          size: 16,
+                        ),
+                        label: const Text(
+                          'Access Admin Portal',
+                          style: TextStyle(
+                            color: AppColors.textLight,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColors.textLight,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+
                     const Spacer(),
 
                     // Status bar
