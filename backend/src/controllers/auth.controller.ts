@@ -35,6 +35,17 @@ export const signUp = async (req: AuthenticatedRequest, res: Response) => {
       },
     });
 
+    // Create system notification for new user signup
+    try {
+      await (prisma as any).notification.create({
+        data: {
+          title: 'New Resident Account Created',
+          message: `User ${user.name} (${user.email}) registered as a resident.`,
+          type: 'user',
+        },
+      });
+    } catch (_) {}
+
     const token = generateToken({
       userId: user.id,
       email: user.email,
@@ -140,3 +151,122 @@ export const getCurrentUser = async (req: AuthenticatedRequest, res: Response) =
     return res.status(500).json({ error: 'Failed to retrieve current user.' });
   }
 };
+
+export const getUsers = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { showArchived } = req.query;
+
+    const users = await prisma.user.findMany({
+      where: {
+        isArchived: showArchived === 'true' ? true : false,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.status(200).json({ users });
+  } catch (error: any) {
+    console.error('GetUsers Error:', error);
+    return res.status(500).json({ error: 'Failed to fetch users.' });
+  }
+};
+
+export const updateUserStatus = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ error: 'isActive must be a boolean.' });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { isActive },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(200).json({ message: 'User status updated successfully.', user });
+  } catch (error: any) {
+    console.error('UpdateUserStatus Error:', error);
+    return res.status(500).json({ error: 'Failed to update user status.' });
+  }
+};
+
+export const archiveUser = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { isArchived: true },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(200).json({ message: 'User archived successfully.', user });
+  } catch (error: any) {
+    console.error('ArchiveUser Error:', error);
+    return res.status(500).json({ error: 'Failed to archive user.' });
+  }
+};
+
+export const updateUserRole = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role || !['user', 'admin'].includes(role)) {
+      return res.status(400).json({ error: 'Role must be user or admin.' });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: { role },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        isArchived: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return res.status(200).json({ message: 'User role updated successfully.', user });
+  } catch (error: any) {
+    console.error('UpdateUserRole Error:', error);
+    return res.status(500).json({ error: 'Failed to update user role.' });
+  }
+};
+

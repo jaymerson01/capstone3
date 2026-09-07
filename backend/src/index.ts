@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import incidentRoutes from './routes/incident.routes';
 import metaRoutes from './routes/meta.routes';
+import notificationRoutes from './routes/notification.routes';
 import { errorHandler } from './middleware/error.middleware';
 
 dotenv.config();
@@ -24,6 +25,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/incidents', incidentRoutes);
 app.use('/api/v1/meta', metaRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
+
 
 // Global Error Handler
 app.use(errorHandler);

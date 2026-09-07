@@ -5,6 +5,8 @@ import '../models/category.dart';
 import '../models/area.dart';
 import '../../services/mock_database_service.dart';
 
+import '../models/app_notification.dart';
+
 class AdminDataService extends ChangeNotifier {
   static final AdminDataService _instance = AdminDataService._internal();
   factory AdminDataService() => _instance;
@@ -16,6 +18,11 @@ class AdminDataService extends ChangeNotifier {
   }
 
   void _onDbChange() {
+    notifyListeners();
+  }
+
+  Future<void> refreshData() async {
+    await _db.syncWithBackend();
     notifyListeners();
   }
 
@@ -61,6 +68,8 @@ class AdminDataService extends ChangeNotifier {
   List<UserProfile> get users => _db.users.where((u) => u.isArchived == showArchivedUsers).toList();
   List<IncidentCategory> get categories => _db.categories.where((c) => !c.isArchived).toList();
   List<AreaInfo> get areas => _db.areas.where((a) => a.isArchived == showArchivedAreas).toList();
+  List<AppNotification> get notifications => _db.notifications;
+  int get unreadNotificationsCount => _db.unreadNotificationsCount;
   
   List<Map<String, String>> get auditLogs => _auditLogs;
 
@@ -113,8 +122,6 @@ class AdminDataService extends ChangeNotifier {
   }
 
   void editReport(IncidentReport updatedReport) {
-    // In a real app we'd edit in DB, but here we just leave it or implement in mock DB
-    // To keep it simple, we don't have editReport in MockDB yet, we can add it later if needed.
     addAuditLog(action: "Report Edited", details: "Edited Report ${updatedReport.id}");
   }
 
@@ -145,7 +152,6 @@ class AdminDataService extends ChangeNotifier {
   }
 
   void addUser(UserProfile user) {
-    // _db.addUser(user); 
     addAuditLog(action: "User Added", details: "Added user ${user.name}");
   }
 
@@ -154,7 +160,8 @@ class AdminDataService extends ChangeNotifier {
   }
 
   void updateUserRole(String userId, String newRole) {
-    addAuditLog(action: "Role Changed", details: "Changed role to $newRole");
+    _db.updateUserRole(userId, newRole);
+    addAuditLog(action: "Role Changed", details: "Changed role of user $userId to $newRole");
   }
 
   void archiveUser(String userId) {
@@ -163,7 +170,16 @@ class AdminDataService extends ChangeNotifier {
   }
 
   void toggleUserActive(String userId) {
-    addAuditLog(action: "User Toggled", details: "Toggled user $userId");
+    _db.toggleUserActive(userId);
+    addAuditLog(action: "User Toggled", details: "Toggled user active state $userId");
+  }
+
+  void markNotificationAsRead(String id) {
+    _db.markNotificationAsRead(id);
+  }
+
+  void markAllNotificationsAsRead() {
+    _db.markAllNotificationsAsRead();
   }
 
   void addCategory(IncidentCategory category) {

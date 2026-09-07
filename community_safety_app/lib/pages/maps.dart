@@ -5,6 +5,8 @@ import 'package:geolocator/geolocator.dart';
 import '../theme/app_color.dart';
 import '../widgets/custom_3d_button.dart';
 import '../widgets/custom_3d_card.dart';
+import '../widgets/compact_map_legend.dart';
+import '../utils/marker_generator.dart';
 import '../admin/models/incident_report.dart';
 import '../services/mock_database_service.dart';
 
@@ -114,59 +116,63 @@ class _MapsPageState extends State<MapsPage> {
     }
   }
 
-  double _getHueForStatus(IncidentStatus status) {
-    switch (status) {
-      case IncidentStatus.pending:
-        return BitmapDescriptor.hueOrange;
-      case IncidentStatus.inProgress:
-        return BitmapDescriptor.hueAzure;
-      case IncidentStatus.solved:
-        return BitmapDescriptor.hueGreen;
-      case IncidentStatus.spam:
-        return BitmapDescriptor.hueRed;
-    }
-  }
-
-  Color _getColorForStatus(IncidentStatus status) {
-    switch (status) {
-      case IncidentStatus.pending:
-        return AppColors.pending;
-      case IncidentStatus.inProgress:
-        return AppColors.primary;
-      case IncidentStatus.solved:
-        return AppColors.solved;
-      case IncidentStatus.spam:
-        return AppColors.danger;
-    }
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case "Fire Incident":
-        return Icons.local_fire_department;
-      case "Theft / Robbery":
-        return Icons.local_police;
-      case "Medical Emergency":
-        return Icons.medical_services;
-      case "Violence / Physical Fight":
-        return Icons.warning_amber_rounded;
-      case "Road Accident":
-        return Icons.car_crash;
-      case "Suspicious Activity":
-        return Icons.visibility;
-      case "Flood / Calamity":
-        return Icons.flood;
-      case "Lost Item / Missing Person":
-        return Icons.person_search;
-      case "Noise Complaint":
-        return Icons.volume_up;
+  Color _getUrgencyColor(String urgency) {
+    switch (urgency.toLowerCase()) {
+      case 'critical':
+      case 'severe':
+        return const Color(0xFFFF334B);
+      case 'high':
+        return const Color(0xFFFF9800);
+      case 'medium':
+      case 'moderate':
+        return const Color(0xFFFFC107);
       default:
-        return Icons.report_problem;
+        return const Color(0xFF0088FF);
     }
+  }
+
+  Future<Set<Marker>> _buildCustomMarkers(List<IncidentReport> reports, LatLng? userLoc) async {
+    final Set<Marker> markers = {};
+
+    for (final report in reports) {
+      if (report.latitude == null || report.longitude == null) continue;
+      final icon = await MarkerGenerator.getIncidentMarker(
+        category: report.incidentType,
+        status: report.status,
+      );
+      markers.add(
+        Marker(
+          markerId: MarkerId(report.id),
+          position: LatLng(report.latitude!, report.longitude!),
+          icon: icon,
+          infoWindow: InfoWindow(
+            title: report.incidentType,
+            snippet: "Status: ${report.statusLabel}",
+          ),
+          onTap: () => _showIncidentDetailsModal(report),
+        ),
+      );
+    }
+
+    if (userLoc != null) {
+      final userIcon = await MarkerGenerator.getUserLocationMarker();
+      markers.add(
+        Marker(
+          markerId: const MarkerId('user_current_location'),
+          position: userLoc,
+          icon: userIcon,
+          infoWindow: const InfoWindow(title: 'Your Current Location'),
+        ),
+      );
+    }
+
+    return markers;
   }
 
   void _showIncidentDetailsModal(IncidentReport report) {
-    final statusColor = _getColorForStatus(report.status);
+    final statusColor = MarkerGenerator.getColorForStatus(report.status);
+    final categoryIcon = MarkerGenerator.getCategoryIcon(report.incidentType);
+    final urgencyColor = _getUrgencyColor(report.urgencyLevel);
 
     showModalBottomSheet(
       context: context,
@@ -176,12 +182,12 @@ class _MapsPageState extends State<MapsPage> {
         return Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: const Color(0xFF0A1628),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-            border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+            border: Border.all(color: statusColor.withValues(alpha: 0.35)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.5),
+                color: Colors.black.withValues(alpha: 0.6),
                 blurRadius: 24,
                 offset: const Offset(0, -8),
               ),
@@ -197,25 +203,26 @@ class _MapsPageState extends State<MapsPage> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: const Color(0xFF1E2D4A),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
               ),
               const SizedBox(height: 18),
 
-              // Header
+              // Header Row
               Row(
                 children: [
                   Container(
-                    height: 46,
-                    width: 46,
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.12),
+                      color: statusColor.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
+                      border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
                     ),
                     child: Icon(
-                      _getCategoryIcon(report.incidentType),
+                      categoryIcon,
                       color: statusColor,
                       size: 24,
                     ),
@@ -228,16 +235,16 @@ class _MapsPageState extends State<MapsPage> {
                         Text(
                           report.incidentType,
                           style: const TextStyle(
-                            color: AppColors.textDark,
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
                         const SizedBox(height: 3),
                         const Text(
-                          "Community Incident Alert",
+                          "Public Safety Alert • Community Verified",
                           style: TextStyle(
-                            color: AppColors.textLight,
+                            color: Color(0xFF8E9BAE),
                             fontSize: 12,
                           ),
                         ),
@@ -247,9 +254,9 @@ class _MapsPageState extends State<MapsPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.15),
+                      color: statusColor.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: statusColor.withValues(alpha: 0.35)),
+                      border: Border.all(color: statusColor.withValues(alpha: 0.4)),
                     ),
                     child: Text(
                       report.statusLabel,
@@ -265,39 +272,65 @@ class _MapsPageState extends State<MapsPage> {
 
               const SizedBox(height: 18),
 
-              // Info card
+              // Structured Info Container
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.accentBg,
+                  color: const Color(0xFF060D1A),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: const Color(0xFF1E2D4A)),
                 ),
                 child: Column(
                   children: [
                     _buildInfoRow(
                       Icons.location_on,
-                      "Location",
+                      "Incident Area",
                       report.location,
                     ),
                     if (report.latitude != null && report.longitude != null) ...[
-                      const Divider(color: AppColors.border, height: 16),
+                      const Divider(color: Color(0xFF1E2D4A), height: 16),
                       _buildInfoRow(
                         Icons.my_location,
-                        "Coordinates",
+                        "GPS Coordinates",
                         "${report.latitude!.toStringAsFixed(6)}, ${report.longitude!.toStringAsFixed(6)}",
                       ),
                     ],
-                    const Divider(color: AppColors.border, height: 16),
-                    _buildInfoRow(
-                      Icons.warning_rounded,
-                      "Urgency Level",
-                      report.urgencyLevel,
+                    const Divider(color: Color(0xFF1E2D4A), height: 16),
+                    Row(
+                      children: [
+                        const Icon(Icons.warning_rounded, size: 18, color: Color(0xFF0088FF)),
+                        const SizedBox(width: 10),
+                        const Text(
+                          "Urgency Level:",
+                          style: TextStyle(
+                            color: Color(0xFF8E9BAE),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: urgencyColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: urgencyColor.withValues(alpha: 0.4)),
+                          ),
+                          child: Text(
+                            report.urgencyLevel,
+                            style: TextStyle(
+                              color: urgencyColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const Divider(color: AppColors.border, height: 16),
+                    const Divider(color: Color(0xFF1E2D4A), height: 16),
                     _buildInfoRow(
                       Icons.access_time,
-                      "Date & Time",
+                      "Reported Time",
                       "${report.date.day}/${report.date.month}/${report.date.year} ${report.date.hour}:${report.date.minute.toString().padLeft(2, '0')}",
                     ),
                   ],
@@ -307,9 +340,9 @@ class _MapsPageState extends State<MapsPage> {
               const SizedBox(height: 16),
 
               const Text(
-                "Description",
+                "Incident Description",
                 style: TextStyle(
-                  color: AppColors.textDark,
+                  color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                 ),
@@ -318,7 +351,7 @@ class _MapsPageState extends State<MapsPage> {
               Text(
                 report.description,
                 style: const TextStyle(
-                  color: AppColors.textLight,
+                  color: Color(0xFF8E9BAE),
                   fontSize: 13,
                   height: 1.4,
                 ),
@@ -328,7 +361,7 @@ class _MapsPageState extends State<MapsPage> {
 
               Custom3dButton(
                 icon: Icons.check,
-                text: "Close Details",
+                text: "Close Incident Details",
                 onPressed: () => Navigator.pop(ctx),
               ),
             ],
@@ -341,12 +374,12 @@ class _MapsPageState extends State<MapsPage> {
   Widget _buildInfoRow(IconData icon, String title, String value) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: AppColors.primary),
+        Icon(icon, size: 18, color: const Color(0xFF0088FF)),
         const SizedBox(width: 10),
         Text(
           "$title:",
           style: const TextStyle(
-            color: AppColors.textLight,
+            color: Color(0xFF8E9BAE),
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -356,7 +389,7 @@ class _MapsPageState extends State<MapsPage> {
           child: Text(
             value,
             style: const TextStyle(
-              color: AppColors.textDark,
+              color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.w800,
             ),
@@ -401,151 +434,137 @@ class _MapsPageState extends State<MapsPage> {
             return !r.isArchived && hasCoordinates;
           }).toList();
 
-          // Build Google Maps markers for all valid community incident reports
-          final Set<Marker> markers = communityReports.map((report) {
-            return Marker(
-              markerId: MarkerId(report.id),
-              position: LatLng(report.latitude!, report.longitude!),
-              icon: BitmapDescriptor.defaultMarkerWithHue(
-                _getHueForStatus(report.status),
-              ),
-              infoWindow: InfoWindow(
-                title: report.incidentType,
-                snippet: "Status: ${report.statusLabel}",
-              ),
-              onTap: () => _showIncidentDetailsModal(report),
-            );
-          }).toSet();
+          return FutureBuilder<Set<Marker>>(
+            future: _buildCustomMarkers(communityReports, _currentUserLocation),
+            builder: (context, snapshot) {
+              final markers = snapshot.data ?? {};
 
-          // Add user's current location marker if available
-          if (_currentUserLocation != null) {
-            markers.add(
-              Marker(
-                markerId: const MarkerId('user_current_location'),
-                position: _currentUserLocation!,
-                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-                infoWindow: const InfoWindow(title: 'Your Current Location'),
-              ),
-            );
-          }
-
-          return Stack(
-            children: [
-              // Interactive Google Map Container
-              GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: _initialPosition,
-                  zoom: 14.0,
-                ),
-                onMapCreated: (controller) {
-                  _mapController = controller;
-                  if (_currentUserLocation != null) {
-                    controller.animateCamera(
-                      CameraUpdate.newLatLngZoom(_currentUserLocation!, 15.0),
-                    );
-                  }
-                },
-                markers: markers,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                mapToolbarEnabled: false,
-                compassEnabled: true,
-              ),
-
-              // Header Overlay Card
-              Positioned(
-                top: 14,
-                left: 14,
-                right: 14,
-                child: Custom3dCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.my_location, color: AppColors.primary, size: 20),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              "User Safety Map",
-                              style: TextStyle(
-                                color: AppColors.textDark,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              "${communityReports.length} community incident(s) mapped",
-                              style: const TextStyle(
-                                color: AppColors.textLight,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (_isLoadingLocation)
-                        const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                    ],
+              return Stack(
+                children: [
+                  // Interactive Google Map Container
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(
+                      target: _initialPosition,
+                      zoom: 14.0,
+                    ),
+                    onMapCreated: (controller) {
+                      _mapController = controller;
+                      if (_currentUserLocation != null) {
+                        controller.animateCamera(
+                          CameraUpdate.newLatLngZoom(_currentUserLocation!, 15.0),
+                        );
+                      }
+                    },
+                    markers: markers,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
+                    mapToolbarEnabled: false,
+                    compassEnabled: true,
                   ),
-                ),
-              ),
 
-              // Floating Controls Column (Recenter & Zoom)
-              Positioned(
-                bottom: 24,
-                right: 16,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Zoom in
-                    FloatingActionButton.small(
-                      heroTag: "zoom_in_btn",
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.primary,
-                      onPressed: () {
-                        _mapController?.animateCamera(CameraUpdate.zoomIn());
-                      },
-                      child: const Icon(Icons.add),
+                  // Header Overlay Card
+                  Positioned(
+                    top: 14,
+                    left: 14,
+                    right: 14,
+                    child: Custom3dCard(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.my_location, color: AppColors.primary, size: 20),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  "User Safety Map",
+                                  style: TextStyle(
+                                    color: AppColors.textDark,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  "${communityReports.length} community incident(s) mapped",
+                                  style: const TextStyle(
+                                    color: AppColors.textLight,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (_isLoadingLocation)
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    // Zoom out
-                    FloatingActionButton.small(
-                      heroTag: "zoom_out_btn",
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.primary,
-                      onPressed: () {
-                        _mapController?.animateCamera(CameraUpdate.zoomOut());
-                      },
-                      child: const Icon(Icons.remove),
+                  ),
+
+                  // Compact Map Legend Overlay (Top Left below header)
+                  const Positioned(
+                    top: 76,
+                    left: 14,
+                    child: CompactMapLegend(showUserLocation: true),
+                  ),
+
+                  // Floating Controls Column (Recenter & Zoom)
+                  Positioned(
+                    bottom: 24,
+                    right: 16,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Zoom in
+                        FloatingActionButton.small(
+                          heroTag: "zoom_in_btn",
+                          backgroundColor: const Color(0xFF0A1628),
+                          foregroundColor: const Color(0xFF0088FF),
+                          onPressed: () {
+                            _mapController?.animateCamera(CameraUpdate.zoomIn());
+                          },
+                          child: const Icon(Icons.add),
+                        ),
+                        const SizedBox(height: 8),
+                        // Zoom out
+                        FloatingActionButton.small(
+                          heroTag: "zoom_out_btn",
+                          backgroundColor: const Color(0xFF0A1628),
+                          foregroundColor: const Color(0xFF0088FF),
+                          onPressed: () {
+                            _mapController?.animateCamera(CameraUpdate.zoomOut());
+                          },
+                          child: const Icon(Icons.remove),
+                        ),
+                        const SizedBox(height: 8),
+                        // Recenter to Current Location Button
+                        FloatingActionButton(
+                          heroTag: "recenter_location_btn",
+                          backgroundColor: const Color(0xFF0088FF),
+                          foregroundColor: Colors.white,
+                          onPressed: _recenterToCurrentLocation,
+                          child: const Icon(Icons.my_location),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    // Recenter to Current Location Button
-                    FloatingActionButton(
-                      heroTag: "recenter_location_btn",
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      onPressed: _recenterToCurrentLocation,
-                      child: const Icon(Icons.my_location),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
+              );
+            },
           );
         },
       ),

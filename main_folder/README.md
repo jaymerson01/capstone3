@@ -21,3 +21,8 @@ flutter run -d chrome
 
 Email: admin@safe.gov
 Password: ResQAdmin2026!
+
+-------------------------------------------------------------
+
+cd C:\Users\jayme\capstone3\capstone3\backend
+npm run dev

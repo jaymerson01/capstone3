@@ -55,6 +55,18 @@ export const createIncident = async (req: AuthenticatedRequest, res: Response) =
       });
     }
 
+    // Automatically create notification for new incident
+    try {
+      await (prisma as any).notification.create({
+        data: {
+          title: `New ${incidentType} Reported`,
+          message: `Location: ${location} • Urgency: ${urgencyLevel}`,
+          type: 'incident',
+          incidentId: incident.id,
+        },
+      });
+    } catch (_) {}
+
     return res.status(201).json({
       message: 'Incident reported successfully.',
       incident,
@@ -140,6 +152,18 @@ export const updateIncidentStatus = async (req: AuthenticatedRequest, res: Respo
       data: { status },
     });
 
+    // Create notification for status update
+    try {
+      await (prisma as any).notification.create({
+        data: {
+          title: `Incident Status Updated`,
+          message: `Report ${id} (${updatedIncident.incidentType}) set to ${status}.`,
+          type: 'incident',
+          incidentId: id,
+        },
+      });
+    } catch (_) {}
+
     return res.status(200).json({
       message: 'Incident status updated successfully.',
       incident: updatedIncident,
@@ -149,3 +173,32 @@ export const updateIncidentStatus = async (req: AuthenticatedRequest, res: Respo
     return res.status(500).json({ error: 'Failed to update incident status.' });
   }
 };
+
+
+export const archiveIncident = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const existing = await prisma.incidentReport.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      return res.status(404).json({ error: 'Incident report not found.' });
+    }
+
+    const updatedIncident = await prisma.incidentReport.update({
+      where: { id },
+      data: { isArchived: true },
+    });
+
+    return res.status(200).json({
+      message: 'Incident archived successfully.',
+      incident: updatedIncident,
+    });
+  } catch (error: any) {
+    console.error('ArchiveIncident Error:', error);
+    return res.status(500).json({ error: 'Failed to archive incident.' });
+  }
+};
+

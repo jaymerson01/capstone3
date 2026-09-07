@@ -61,3 +61,16 @@ model IncidentReport {
 
   @@map("incident_reports")
 }
+
+model Notification {
+  id         String   @id @default(uuid())
+  title      String
+  message    String
+  type       String   @default("system") // "incident" | "user" | "system"
+  incidentId String?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("notifications")
+}
+

@@ -1,17 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:geolocator/geolocator.dart';
 import '../services/admin_data_service.dart';
 import '../models/incident_report.dart';
-import '../constants/admin_colors.dart';
-import '../../theme/app_color.dart';
-import '../../widgets/custom_3d_card.dart';
 import '../../widgets/custom_3d_button.dart';
+import '../../widgets/compact_map_legend.dart';
+import '../../utils/marker_generator.dart';
 import '../../services/mock_database_service.dart';
 
 class AdminMapPage extends StatefulWidget {
-  const AdminMapPage({super.key});
+  final LatLng? focusLocation;
+
+  const AdminMapPage({
+    super.key,
+    this.focusLocation,
+  });
 
   @override
   State<AdminMapPage> createState() => _AdminMapPageState();
@@ -20,6 +23,7 @@ class AdminMapPage extends StatefulWidget {
 class _AdminMapPageState extends State<AdminMapPage> {
   GoogleMapController? _mapController;
   final LatLng _defaultCenter = const LatLng(14.4793, 121.0198); // Moonwalk / Manila default
+
 
   Timer? _autoRefreshTimer;
 
@@ -65,59 +69,55 @@ class _AdminMapPageState extends State<AdminMapPage> {
     "Other Emergency",
   ];
 
-  double _getHueForStatus(IncidentStatus status) {
-    switch (status) {
-      case IncidentStatus.pending:
-        return BitmapDescriptor.hueOrange;
-      case IncidentStatus.inProgress:
-        return BitmapDescriptor.hueAzure;
-      case IncidentStatus.solved:
-        return BitmapDescriptor.hueGreen;
-      case IncidentStatus.spam:
-        return BitmapDescriptor.hueRed;
-    }
-  }
-
-  Color _getColorForStatus(IncidentStatus status) {
-    switch (status) {
-      case IncidentStatus.pending:
-        return AppColors.pending;
-      case IncidentStatus.inProgress:
-        return AppColors.primary;
-      case IncidentStatus.solved:
-        return AppColors.solved;
-      case IncidentStatus.spam:
-        return AppColors.danger;
-    }
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case "Fire Incident":
-        return Icons.local_fire_department;
-      case "Theft / Robbery":
-        return Icons.local_police;
-      case "Medical Emergency":
-        return Icons.medical_services;
-      case "Violence / Physical Fight":
-        return Icons.warning_amber_rounded;
-      case "Road Accident":
-        return Icons.car_crash;
-      case "Suspicious Activity":
-        return Icons.visibility;
-      case "Flood / Calamity":
-        return Icons.flood;
-      case "Lost Item / Missing Person":
-        return Icons.person_search;
-      case "Noise Complaint":
-        return Icons.volume_up;
+  Color _getUrgencyColor(String urgency) {
+    switch (urgency.toLowerCase()) {
+      case 'critical':
+      case 'severe':
+        return const Color(0xFFFF334B);
+      case 'high':
+        return const Color(0xFFFF9800);
+      case 'medium':
+      case 'moderate':
+        return const Color(0xFFFFC107);
       default:
-        return Icons.report_problem;
+        return const Color(0xFF0088FF);
     }
+  }
+
+  Future<Set<Marker>> _buildAdminCustomMarkers(
+    List<IncidentReport> reports,
+    AdminDataService dataService,
+  ) async {
+    final Set<Marker> markers = {};
+
+    for (final report in reports) {
+      if (report.latitude == null || report.longitude == null) continue;
+      final icon = await MarkerGenerator.getIncidentMarker(
+        category: report.incidentType,
+        status: report.status,
+      );
+
+      markers.add(
+        Marker(
+          markerId: MarkerId(report.id),
+          position: LatLng(report.latitude!, report.longitude!),
+          icon: icon,
+          infoWindow: InfoWindow(
+            title: report.incidentType,
+            snippet: "${report.statusLabel} • ${report.location}",
+          ),
+          onTap: () => _showAdminIncidentDetails(report, dataService),
+        ),
+      );
+    }
+
+    return markers;
   }
 
   void _showAdminIncidentDetails(IncidentReport report, AdminDataService dataService) {
-    final statusColor = _getColorForStatus(report.status);
+    final statusColor = MarkerGenerator.getColorForStatus(report.status);
+    final categoryIcon = MarkerGenerator.getCategoryIcon(report.incidentType);
+    final urgencyColor = _getUrgencyColor(report.urgencyLevel);
 
     showModalBottomSheet(
       context: context,
@@ -159,14 +159,15 @@ class _AdminMapPageState extends State<AdminMapPage> {
                   Row(
                     children: [
                       Container(
-                        height: 46,
-                        width: 46,
+                        height: 48,
+                        width: 48,
                         decoration: BoxDecoration(
                           color: statusColor.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
+                          border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
                         ),
                         child: Icon(
-                          _getCategoryIcon(report.incidentType),
+                          categoryIcon,
                           color: statusColor,
                           size: 24,
                         ),
@@ -186,7 +187,7 @@ class _AdminMapPageState extends State<AdminMapPage> {
                             ),
                             const SizedBox(height: 3),
                             Text(
-                              "Report ID: ${report.id} • ${report.reporterName}",
+                              "ID: ${report.id} • Reported by: ${report.reporterName}",
                               style: const TextStyle(
                                 color: Color(0xFF8E9BAE),
                                 fontSize: 12,
@@ -235,7 +236,39 @@ class _AdminMapPageState extends State<AdminMapPage> {
                           ),
                         ],
                         const Divider(color: Color(0xFF1E2D4A), height: 16),
-                        _buildDetailRow(Icons.warning_rounded, "Urgency Level", report.urgencyLevel),
+                        Row(
+                          children: [
+                            const Icon(Icons.warning_rounded, size: 16, color: Color(0xFF0A84FF)),
+                            const SizedBox(width: 10),
+                            const Text(
+                              "Urgency Level:",
+                              style: TextStyle(
+                                color: Color(0xFF8E9BAE),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: urgencyColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: urgencyColor.withValues(alpha: 0.4)),
+                              ),
+                              child: Text(
+                                report.urgencyLevel,
+                                style: TextStyle(
+                                  color: urgencyColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(color: Color(0xFF1E2D4A), height: 16),
+                        _buildDetailRow(Icons.person_outline, "Reporter Identity", report.reporterName),
                         const Divider(color: Color(0xFF1E2D4A), height: 16),
                         _buildDetailRow(
                           Icons.access_time,
@@ -313,7 +346,7 @@ class _AdminMapPageState extends State<AdminMapPage> {
     StateSetter setModalState,
   ) {
     final bool isSelected = report.status == targetStatus;
-    final color = _getColorForStatus(targetStatus);
+    final color = MarkerGenerator.getColorForStatus(targetStatus);
 
     return InkWell(
       onTap: () {
@@ -384,8 +417,6 @@ class _AdminMapPageState extends State<AdminMapPage> {
         final validReports = allReports.where((r) => r.latitude != null && r.longitude != null).toList();
         final unmappedCount = totalCount - validReports.length;
 
-        debugPrint('[DEBUG GEO ADMIN] Number of valid coordinates: ${validReports.length}');
-
         // Apply Status and Category filters
         final filteredReports = validReports.where((r) {
           final matchesStatus = _statusFilter == "All" || r.statusLabel == _statusFilter;
@@ -393,24 +424,6 @@ class _AdminMapPageState extends State<AdminMapPage> {
               r.incidentType.toLowerCase() == _categoryFilter.toLowerCase();
           return matchesStatus && matchesCategory;
         }).toList();
-
-        // Build Google Maps markers for filtered incidents with valid coordinates
-        final Set<Marker> markers = filteredReports.map((report) {
-          return Marker(
-            markerId: MarkerId(report.id),
-            position: LatLng(report.latitude!, report.longitude!),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              _getHueForStatus(report.status),
-            ),
-            infoWindow: InfoWindow(
-              title: report.incidentType,
-              snippet: "${report.statusLabel} • ${report.location}",
-            ),
-            onTap: () => _showAdminIncidentDetails(report, dataService),
-          );
-        }).toSet();
-
-        debugPrint('[DEBUG GEO ADMIN] Number of markers displayed: ${markers.length}');
 
         return Padding(
           padding: const EdgeInsets.all(24.0),
@@ -527,7 +540,7 @@ class _AdminMapPageState extends State<AdminMapPage> {
                     const Spacer(),
 
                     Text(
-                      "${markers.length} Pins Active",
+                      "${filteredReports.length} Pins Active",
                       style: const TextStyle(
                         color: Color(0xFF0A84FF),
                         fontWeight: FontWeight.w800,
@@ -544,76 +557,96 @@ class _AdminMapPageState extends State<AdminMapPage> {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Stack(
-                    children: [
-                      GoogleMap(
-                        initialCameraPosition: CameraPosition(
-                          target: _defaultCenter,
-                          zoom: 13.0,
-                        ),
-                        onMapCreated: (controller) {
-                          _mapController = controller;
-                        },
-                        markers: markers,
-                        myLocationEnabled: false,
-                        zoomControlsEnabled: false,
-                        mapToolbarEnabled: false,
-                        compassEnabled: true,
-                      ),
+                  child: FutureBuilder<Set<Marker>>(
+                    future: _buildAdminCustomMarkers(filteredReports, dataService),
+                    builder: (context, snapshot) {
+                      final markers = snapshot.data ?? {};
 
-                      // Map Control Action Buttons
-                      Positioned(
-                        bottom: 16,
-                        right: 16,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            FloatingActionButton.small(
-                              heroTag: "admin_zoom_in",
-                              backgroundColor: const Color(0xFF0A1628),
-                              foregroundColor: const Color(0xFF0A84FF),
-                              onPressed: () {
-                                _mapController?.animateCamera(CameraUpdate.zoomIn());
-                              },
-                              child: const Icon(Icons.add),
+                      return Stack(
+                        children: [
+                          GoogleMap(
+                            initialCameraPosition: CameraPosition(
+                              target: widget.focusLocation ?? _defaultCenter,
+                              zoom: widget.focusLocation != null ? 16.0 : 13.0,
                             ),
-                            const SizedBox(height: 8),
-                            FloatingActionButton.small(
-                              heroTag: "admin_zoom_out",
-                              backgroundColor: const Color(0xFF0A1628),
-                              foregroundColor: const Color(0xFF0A84FF),
-                              onPressed: () {
-                                _mapController?.animateCamera(CameraUpdate.zoomOut());
-                              },
-                              child: const Icon(Icons.remove),
+                            onMapCreated: (controller) {
+                              _mapController = controller;
+                              if (widget.focusLocation != null) {
+                                controller.animateCamera(
+                                  CameraUpdate.newLatLngZoom(widget.focusLocation!, 16.0),
+                                );
+                              }
+                            },
+
+                            markers: markers,
+                            myLocationEnabled: false,
+                            zoomControlsEnabled: false,
+                            mapToolbarEnabled: false,
+                            compassEnabled: true,
+                          ),
+
+                          // Compact Map Legend Overlay (Top Left of Map view)
+                          const Positioned(
+                            top: 14,
+                            left: 14,
+                            child: CompactMapLegend(showUserLocation: false),
+                          ),
+
+                          // Map Control Action Buttons
+                          Positioned(
+                            bottom: 16,
+                            right: 16,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                FloatingActionButton.small(
+                                  heroTag: "admin_zoom_in",
+                                  backgroundColor: const Color(0xFF0A1628),
+                                  foregroundColor: const Color(0xFF0A84FF),
+                                  onPressed: () {
+                                    _mapController?.animateCamera(CameraUpdate.zoomIn());
+                                  },
+                                  child: const Icon(Icons.add),
+                                ),
+                                const SizedBox(height: 8),
+                                FloatingActionButton.small(
+                                  heroTag: "admin_zoom_out",
+                                  backgroundColor: const Color(0xFF0A1628),
+                                  foregroundColor: const Color(0xFF0A84FF),
+                                  onPressed: () {
+                                    _mapController?.animateCamera(CameraUpdate.zoomOut());
+                                  },
+                                  child: const Icon(Icons.remove),
+                                ),
+                                const SizedBox(height: 8),
+                                FloatingActionButton.small(
+                                  heroTag: "admin_recenter_center",
+                                  backgroundColor: const Color(0xFF0A84FF),
+                                  foregroundColor: Colors.white,
+                                  onPressed: () {
+                                    if (filteredReports.isNotEmpty &&
+                                        filteredReports.first.latitude != null &&
+                                        filteredReports.first.longitude != null) {
+                                      _mapController?.animateCamera(
+                                        CameraUpdate.newLatLngZoom(
+                                          LatLng(filteredReports.first.latitude!, filteredReports.first.longitude!),
+                                          14.0,
+                                        ),
+                                      );
+                                    } else {
+                                      _mapController?.animateCamera(
+                                        CameraUpdate.newLatLngZoom(_defaultCenter, 13.0),
+                                      );
+                                    }
+                                  },
+                                  child: const Icon(Icons.center_focus_strong),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            FloatingActionButton.small(
-                              heroTag: "admin_recenter_center",
-                              backgroundColor: const Color(0xFF0A84FF),
-                              foregroundColor: Colors.white,
-                              onPressed: () {
-                                if (filteredReports.isNotEmpty &&
-                                    filteredReports.first.latitude != null &&
-                                    filteredReports.first.longitude != null) {
-                                  _mapController?.animateCamera(
-                                    CameraUpdate.newLatLngZoom(
-                                      LatLng(filteredReports.first.latitude!, filteredReports.first.longitude!),
-                                      14.0,
-                                    ),
-                                  );
-                                } else {
-                                  _mapController?.animateCamera(
-                                    CameraUpdate.newLatLngZoom(_defaultCenter, 13.0),
-                                  );
-                                }
-                              },
-                              child: const Icon(Icons.center_focus_strong),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),

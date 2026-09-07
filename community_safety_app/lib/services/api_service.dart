@@ -8,6 +8,7 @@ import '../config/api_config.dart';
 import 'api_exception.dart';
 import '../admin/models/incident_report.dart';
 import '../admin/models/user_profile.dart';
+import '../admin/models/app_notification.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -201,4 +202,80 @@ class ApiService {
 
     return IncidentReport.fromJson(data['incident']);
   }
+
+  Future<IncidentReport> archiveIncident(String reportId) async {
+    final data = await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/incidents/$reportId/archive'),
+          headers: _getHeaders(requireAuth: true),
+        ));
+
+    return IncidentReport.fromJson(data['incident']);
+  }
+
+  // User Management Endpoints
+  Future<List<UserProfile>> getUsers() async {
+    final data = await _handleRequest(() => http.get(
+          Uri.parse('$_baseUrl/auth/users'),
+          headers: _getHeaders(requireAuth: true),
+        ));
+
+    final List dynamicList = data['users'] ?? [];
+    return dynamicList.map((e) => UserProfile.fromJson(e)).toList();
+  }
+
+  Future<UserProfile> updateUserStatus(String userId, String status) async {
+    final data = await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/auth/users/$userId/status'),
+          headers: _getHeaders(requireAuth: true),
+          body: jsonEncode({'status': status}),
+        ));
+
+    return UserProfile.fromJson(data['user']);
+  }
+
+  Future<UserProfile> updateUserRole(String userId, String role) async {
+    final data = await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/auth/users/$userId/role'),
+          headers: _getHeaders(requireAuth: true),
+          body: jsonEncode({'role': role}),
+        ));
+
+    return UserProfile.fromJson(data['user']);
+  }
+
+  Future<UserProfile> archiveUser(String userId) async {
+    final data = await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/auth/users/$userId/archive'),
+          headers: _getHeaders(requireAuth: true),
+        ));
+
+    return UserProfile.fromJson(data['user']);
+  }
+
+  // Notification Endpoints
+  Future<List<AppNotification>> getNotifications() async {
+    final data = await _handleRequest(() => http.get(
+          Uri.parse('$_baseUrl/notifications'),
+          headers: _getHeaders(requireAuth: true),
+        ));
+
+    final List dynamicList = data['notifications'] ?? [];
+    return dynamicList.map((e) => AppNotification.fromJson(e)).toList();
+  }
+
+  Future<void> markNotificationAsRead(String id) async {
+    await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/notifications/$id/read'),
+          headers: _getHeaders(requireAuth: true),
+        ));
+  }
+
+  Future<void> markAllNotificationsAsRead() async {
+    await _handleRequest(() => http.patch(
+          Uri.parse('$_baseUrl/notifications/read-all'),
+          headers: _getHeaders(requireAuth: true),
+        ));
+  }
 }
+
+
