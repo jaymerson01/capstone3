@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
-import 'package:community_safety_app/features/shared/navigation/app_router.dart';
-import 'package:community_safety_app/features/resident/resident_app.dart';
-import 'package:community_safety_app/features/admin/admin_app.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
@@ -19,7 +19,6 @@ import 'package:community_safety_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  usePathUrlStrategy();
   await dotenv.load(fileName: ".env");
 
   await Hive.initFlutter();
@@ -34,14 +33,6 @@ void main() async {
   await init();
 
   runApp(const MyApp());
-}
-
-Widget _buildInitialScreen() {
-  final path = Uri.base.path.toLowerCase();
-  if (path == '/admin' || path.startsWith('/admin/')) {
-    return const AdminLandingPage();
-  }
-  return const AuthWrapper();
 }
 
 class MyApp extends StatelessWidget {
@@ -66,8 +57,13 @@ class MyApp extends StatelessWidget {
           scaffoldBackgroundColor: const Color(0xFF060D1A),
           useMaterial3: true,
         ),
-        home: _buildInitialScreen(),
-        routes: AppRouter.routes,
+        home: const AuthWrapper(),
+        routes: {
+          '/welcome': (context) => const WelcomePage(),
+          '/dashboard': (context) => const DashboardPage(),
+          '/admin/login': (context) => const AdminLoginPage(),
+          '/admin/dashboard': (context) => const AdminPanelShell(),
+        },
         builder: (context, child) {
           return Scaffold(
             body: Stack(
