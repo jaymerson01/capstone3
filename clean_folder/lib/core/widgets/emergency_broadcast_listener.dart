@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/injection_container.dart';
 import '../services/fcm_service.dart';
 import '../services/station_audio_service.dart';
@@ -31,7 +32,26 @@ class _EmergencyBroadcastListenerState
   @override
   void initState() {
     super.initState();
-    _startListening();
+    _initAndListen();
+  }
+
+  Future<void> _initAndListen() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList('resq_dismissed_broadcasts') ?? [];
+      _dismissedBroadcastIds.addAll(saved);
+    } catch (_) {}
+    if (mounted) {
+      _startListening();
+    }
+  }
+
+  Future<void> _recordDismissal(String broadcastId) async {
+    _dismissedBroadcastIds.add(broadcastId);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('resq_dismissed_broadcasts', _dismissedBroadcastIds.toList());
+    } catch (_) {}
   }
 
   @override
@@ -98,7 +118,7 @@ class _EmergencyBroadcastListenerState
               break;
             } else {
               // Stale broadcast from past session - auto-dismiss so it won't alert on app launch
-              _dismissedBroadcastIds.add(broadcastId);
+              _recordDismissal(broadcastId);
             }
           }
         }
@@ -356,7 +376,7 @@ class _EmergencyBroadcastListenerState
                                 ),
                               ),
                               onPressed: () {
-                                _dismissedBroadcastIds.add(broadcastId);
+                                _recordDismissal(broadcastId);
                                 Navigator.pop(dialogContext);
                               },
                             ),

@@ -205,13 +205,42 @@ class FCMService {
       ),
     );
 
-    await _localNotifications.show(
-      DateTime.now().millisecondsSinceEpoch.remainder(100000),
-      title,
-      body,
-      platformDetails,
-      payload: incidentId,
-    );
+    final notifId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+    try {
+      await _localNotifications.show(
+        notifId,
+        title,
+        body,
+        platformDetails,
+        payload: incidentId,
+      );
+    } catch (e) {
+      debugPrint("🔔 [FCM Foreground] Custom sound failed: $e, displaying with standard notification");
+      const fallbackAndroidDetails = AndroidNotificationDetails(
+        channelId,
+        channelName,
+        channelDescription: channelDescription,
+        importance: Importance.max,
+        priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
+        icon: '@mipmap/ic_launcher',
+      );
+      const fallbackPlatformDetails = NotificationDetails(
+        android: fallbackAndroidDetails,
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+        ),
+      );
+      await _localNotifications.show(
+        notifId,
+        title,
+        body,
+        fallbackPlatformDetails,
+        payload: incidentId,
+      );
+    }
   }
 
   /// Manually trigger a local notification banner (e.g. from in-app events or tests)
@@ -241,13 +270,42 @@ class FCMService {
       ),
     );
 
-    await _localNotifications.show(
-      DateTime.now().millisecondsSinceEpoch.remainder(100000),
-      title,
-      body,
-      platformDetails,
-      payload: incidentId,
-    );
+    final notifId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
+    try {
+      await _localNotifications.show(
+        notifId,
+        title,
+        body,
+        platformDetails,
+        payload: incidentId,
+      );
+    } catch (e) {
+      debugPrint("🔔 [LocalNotification] Custom sound failed: $e, falling back to standard notification");
+      const fallbackAndroidDetails = AndroidNotificationDetails(
+        channelId,
+        channelName,
+        channelDescription: channelDescription,
+        importance: Importance.max,
+        priority: Priority.high,
+        playSound: true,
+        enableVibration: true,
+        icon: '@mipmap/ic_launcher',
+      );
+      const fallbackPlatformDetails = NotificationDetails(
+        android: fallbackAndroidDetails,
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentSound: true,
+        ),
+      );
+      await _localNotifications.show(
+        notifId,
+        title,
+        body,
+        fallbackPlatformDetails,
+        payload: incidentId,
+      );
+    }
   }
 
   /// Retrieve the current FCM Device Registration Token
