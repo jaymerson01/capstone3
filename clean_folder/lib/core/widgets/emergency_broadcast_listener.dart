@@ -79,13 +79,31 @@ class _EmergencyBroadcastListenerState
           final data = doc.data() as Map<String, dynamic>;
           final broadcastId = doc.id;
 
+          // Check if broadcast was created recently (within last 15 minutes)
+          final dynamic rawTime = data['createdAt'];
+          DateTime? createdDate;
+          if (rawTime is Timestamp) {
+            createdDate = rawTime.toDate();
+          } else if (rawTime is String) {
+            createdDate = DateTime.tryParse(rawTime);
+          }
+          final isRecent = createdDate != null &&
+              createdDate.isAfter(
+                  DateTime.now().subtract(const Duration(minutes: 15)));
+
           if (!_dismissedBroadcastIds.contains(broadcastId) &&
               !_isDialogShowing) {
-            _showEmergencySirenDialog(broadcastId, data);
-            break;
+            if (isRecent) {
+              _showEmergencySirenDialog(broadcastId, data);
+              break;
+            } else {
+              // Stale broadcast from past session - auto-dismiss so it won't alert on app launch
+              _dismissedBroadcastIds.add(broadcastId);
+            }
           }
         }
       },
+
       onError: (e) {
         debugPrint("Error listening to emergency broadcasts: $e");
       },

@@ -16,7 +16,7 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
-import 'package:community_safety_app/core/services/station_audio_service.dart';
+
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -113,22 +113,34 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: "Test Emergency Alert & Chime",
                     subtitle: "Trigger a test notification banner & dual-harmonic chime",
                     onTap: () async {
-                      await sl<FCMService>().requestNotificationPermissions();
-                      await sl<FCMService>().showLocalNotification(
-                        title: "🚨 Test Alert: ResQ Emergency Chime",
-                        body: "Notification permissions and audio subsystem active!",
-                      );
-                      StationAudioService.playAlertSound();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Color(0xFF0A84FF),
-                            content: Text("🔔 Test notification triggered with alert chime!"),
-                            behavior: SnackBarBehavior.floating,
-                          ),
+                      try {
+                        await sl<FCMService>().showLocalNotification(
+                          title: "🚨 Test Alert: ResQ Emergency Chime",
+                          body: "Notification permissions and audio subsystem active!",
                         );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              backgroundColor: Color(0xFF0A84FF),
+                              content: Text("🔔 Test notification sent to drawer!"),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        debugPrint("Error sending test notification: $e");
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: AppColors.danger,
+                              content: Text("Notification Error: $e"),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
                       }
                     },
+
                   ),
                   const SizedBox(height: 24),
 

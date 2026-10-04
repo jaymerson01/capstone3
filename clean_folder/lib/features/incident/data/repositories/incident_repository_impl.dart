@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive/hive.dart';
 import 'package:dartz/dartz.dart';
 import 'package:community_safety_app/core/error/failures.dart';
@@ -462,16 +463,23 @@ class IncidentRepositoryImpl implements IncidentRepository {
       final notesSnippet = (dispatcherNotes != null && dispatcherNotes.trim().isNotEmpty)
           ? " | Remarks: $dispatcherNotes"
           : "";
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final adminEmail = currentUser?.email ?? 'dispatch@resq.gov';
+      final adminName = (currentUser?.displayName != null && currentUser!.displayName!.isNotEmpty)
+          ? currentUser.displayName!
+          : 'Duty Dispatch Officer';
+
       final log = AuditLogModel(
         id: '',
         timestamp: DateTime.now(),
-        adminName: 'Duty Dispatch Officer',
-        adminEmail: 'dispatch@resq.gov',
+        adminName: adminName,
+        adminEmail: adminEmail,
         actionType: 'Status Update',
         details: 'Updated incident #$id status to "${normalizedStatus.toUpperCase()}"$etaSnippet$notesSnippet',
         targetId: id,
       );
       await firestore.collection('audit_logs').add(log.toFirestore());
+
     } catch (_) {}
   }
 
