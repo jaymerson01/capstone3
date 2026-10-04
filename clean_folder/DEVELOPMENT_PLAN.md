@@ -733,17 +733,19 @@ The platform targets two distinct user personas with separate deployment artifac
   - Registered `resq_emergency_alerts_v2` high-importance notification channel with `RawResourceAndroidNotificationSound('resq_alert')` in `FCMService`.
 
 #### 10.4 Physical Device & Web Deployment Validation
-- [ ] Build Android Resident APK:
+- [x] **Build Android Resident APK:**
   ```bash
   flutter build apk -t lib/main_resident.dart --release
   ```
+  - Generated production release binary: `build\app\outputs\flutter-apk\app-release.apk` (58.9MB).
   - Verify camera capture, hardware GPS coordinates, and offline caching on physical Android device.
-- [ ] Build & Deploy Admin Web Portal:
+- [x] **Build & Deploy Admin Web Portal:**
   ```bash
   flutter build web -t lib/main_admin.dart --release
   firebase deploy --only hosting
   ```
-  - Verify municipal desk access on desktop browser.
+  - Production Hosting Live URL: [https://resq-community-safety.web.app](https://resq-community-safety.web.app).
+  - Verified municipal desk access on desktop browser with full Firebase Auth, Firestore real-time synchronization, and dispatch capabilities.
 
 ---
 

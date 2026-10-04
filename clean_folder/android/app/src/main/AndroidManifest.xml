@@ -15,7 +15,7 @@
         android:enableOnBackInvokedCallback="true">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="resq_emergency_alerts" />
+            android:value="resq_emergency_alerts_v3" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCc-mb70DHY0omGJ44inSl2LzV1jyfZB4k" />

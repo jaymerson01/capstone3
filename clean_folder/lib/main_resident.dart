@@ -26,6 +26,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
+import 'package:community_safety_app/core/services/station_audio_service.dart';
 
 final GlobalKey<NavigatorState> residentNavigatorKey =
     GlobalKey<NavigatorState>();
@@ -158,6 +159,7 @@ class ResidentAuthWrapper extends StatelessWidget {
                 body: body,
                 incidentId: incidentId,
               );
+              StationAudioService.playAlertSound();
             },
           );
         } else if (state is Unauthenticated) {
@@ -176,10 +178,12 @@ class ResidentAuthWrapper extends StatelessWidget {
                 body: body,
                 incidentId: incidentId,
               );
+              StationAudioService.playAlertSound();
             },
           );
           return const DashboardPage();
         }
+
         return const WelcomePage();
       },
     );

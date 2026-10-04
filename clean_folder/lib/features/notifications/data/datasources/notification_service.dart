@@ -14,7 +14,6 @@ class NotificationService {
   StreamSubscription? _foregroundListenerSub;
   String? _foregroundUserId;
   final Set<String> _seenNotificationIds = {};
-  DateTime _listenerStartTime = DateTime.now();
 
   /// Real-time foreground listener: triggers system heads-up notifications
   /// whenever a new unread notification document appears in Firestore.
@@ -27,12 +26,24 @@ class NotificationService {
     _foregroundUserId = userId;
     _foregroundListenerSub?.cancel();
     _seenNotificationIds.clear();
-    _listenerStartTime = DateTime.now();
+
+    bool isInitialSnapshot = true;
 
     _foregroundListenerSub = _notificationsRef
         .where('recipientId', whereIn: [userId, 'all_residents', 'broadcast'])
         .snapshots()
         .listen((snapshot) {
+      if (isInitialSnapshot) {
+        // Pre-populate existing notification IDs on initial sync so we don't spam past history
+        for (final doc in snapshot.docs) {
+          _seenNotificationIds.add(doc.id);
+        }
+        isInitialSnapshot = false;
+        debugPrint(
+            "🔔 [NotificationService] Foreground listener initialized for user $userId with ${_seenNotificationIds.length} existing notifications.");
+        return;
+      }
+
       for (final change in snapshot.docChanges) {
         if (change.type == DocumentChangeType.added) {
           final doc = change.doc;
@@ -40,18 +51,19 @@ class NotificationService {
           _seenNotificationIds.add(doc.id);
 
           final notif = NotificationModel.fromFirestore(doc);
-          // Only pop banner for notifications created recently (within last 2 minutes or after app start)
-          final isRecent = notif.createdAt.isAfter(
-            _listenerStartTime.subtract(const Duration(minutes: 2)),
-          );
+          debugPrint(
+              "🔔 [NotificationService] New notification received: ${notif.title} - ${notif.message}");
 
-          if (isRecent && !notif.isRead) {
+          if (!notif.isRead) {
             onNotificationReceived(notif.title, notif.message, notif.incidentId);
           }
         }
       }
+    }, onError: (error) {
+      debugPrint("🔔 [NotificationService] Error in foreground listener: $error");
     });
   }
+
 
   /// Stop the foreground notification listener
   void stopForegroundNotificationListener() {
@@ -105,6 +117,7 @@ class NotificationService {
     String? incidentId,
   }) async {
     try {
+      debugPrint("🔔 [NotificationService] Dispatching notification to '$recipientId' [$type]: '$title'");
       await _notificationsRef.add({
         'recipientId': recipientId,
         'title': title,
@@ -114,10 +127,12 @@ class NotificationService {
         'isRead': false,
         'createdAt': FieldValue.serverTimestamp(),
       });
+      debugPrint("🔔 [NotificationService] Notification document written successfully to Firestore.");
     } catch (e) {
-      debugPrint("Error creating notification: $e");
+      debugPrint("🔔 [NotificationService] Error creating notification: $e");
     }
   }
+
 
   /// Mark a single notification as read
   Future<void> markAsRead(String notificationId) async {

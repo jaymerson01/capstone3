@@ -30,7 +30,7 @@ class FCMService {
   final FlutterLocalNotificationsPlugin _localNotifications =
       FlutterLocalNotificationsPlugin();
 
-  static const String channelId = 'resq_emergency_alerts_v2';
+  static const String channelId = 'resq_emergency_alerts_v3';
   static const String channelName = 'ResQ Emergency Alerts & Siren Broadcasts';
   static const String channelDescription =
       'Critical real-time notifications for disaster alarms, dispatcher status updates, and community safety corroborations.';
@@ -98,6 +98,15 @@ class FCMService {
             AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidImplementation != null) {
+      // Request Android 13+ (API 33+) POST_NOTIFICATIONS permission
+      await androidImplementation.requestNotificationsPermission();
+
+      // Clean up previous cached channels so new sound settings take effect
+      try {
+        await androidImplementation.deleteNotificationChannel('resq_emergency_alerts');
+        await androidImplementation.deleteNotificationChannel('resq_emergency_alerts_v2');
+      } catch (_) {}
+
       await androidImplementation.createNotificationChannel(_emergencyChannel);
     }
 

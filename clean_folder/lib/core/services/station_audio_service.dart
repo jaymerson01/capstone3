@@ -9,11 +9,16 @@ class StationAudioService {
   static bool get isPlaying => _isPlaying;
 
   /// Plays the dual-harmonic station emergency alert chime.
-  static Future<void> testAlertSound({VoidCallback? onComplete}) async {
+  static Future<void> playAlertSound({VoidCallback? onComplete}) async {
     try {
-      await _controller?.dispose();
+      if (_controller != null) {
+        await _controller!.pause();
+        await _controller!.dispose();
+        _controller = null;
+      }
       _controller = VideoPlayerController.asset('assets/sounds/resq_alert.wav');
       await _controller!.initialize();
+      await _controller!.setVolume(1.0);
       _isPlaying = true;
       await _controller!.play();
 
@@ -28,11 +33,16 @@ class StationAudioService {
         }
       });
     } catch (e) {
-      debugPrint("🔊 [StationAudioService] Error playing test audio: $e");
+      debugPrint("🔊 [StationAudioService] Error playing alert audio: $e");
       _isPlaying = false;
       onComplete?.call();
     }
   }
+
+  /// Backward-compatible alias for testing station alert audio
+  static Future<void> testAlertSound({VoidCallback? onComplete}) =>
+      playAlertSound(onComplete: onComplete);
+
 
   /// Stops any currently playing alert chime.
   static Future<void> stop() async {

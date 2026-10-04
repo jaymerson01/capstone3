@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 import 'package:dartz/dartz.dart';
@@ -423,7 +424,9 @@ class IncidentRepositoryImpl implements IncidentRepository {
       final docSnap = await firestore.collection('incidents').doc(id).get();
       if (docSnap.exists) {
         final data = docSnap.data();
-        final reporterId = data?['reporterId'] as String? ?? '';
+        final reporterId = (data?['reporterId'] as String?)?.isNotEmpty == true
+            ? data!['reporterId'] as String
+            : (data?['userId'] as String? ?? '');
         final category = data?['category'] as String? ?? 'Incident';
         if (reporterId.isNotEmpty) {
           final displayStatus =
@@ -442,9 +445,14 @@ class IncidentRepositoryImpl implements IncidentRepository {
             type: 'status_change',
             incidentId: id,
           );
+        } else {
+          debugPrint("🔔 [IncidentRepository] No reporterId found for incident $id to notify.");
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint("🔔 [IncidentRepository] Error sending status notification: $e");
+    }
+
 
     // Record immutable audit log
     try {
