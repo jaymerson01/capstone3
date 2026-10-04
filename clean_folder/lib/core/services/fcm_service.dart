@@ -153,6 +153,31 @@ class FCMService {
     _isInitialized = true;
   }
 
+  /// Explicitly requests notification permissions at runtime (especially when UI is interactive)
+  Future<bool?> requestNotificationPermissions() async {
+    try {
+      final androidImplementation = _localNotifications
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      if (androidImplementation != null) {
+        final granted = await androidImplementation.requestNotificationsPermission();
+        debugPrint("🔔 [FCMService] Android POST_NOTIFICATIONS granted: $granted");
+        return granted;
+      }
+      final settings = await _messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+        provisional: false,
+        criticalAlert: true,
+      );
+      return settings.authorizationStatus == AuthorizationStatus.authorized;
+    } catch (e) {
+      debugPrint("🔔 [FCMService] Error requesting notification permissions: $e");
+      return false;
+    }
+  }
+
   /// Display a heads-up floating notification when message arrives in foreground
   Future<void> _displayForegroundNotification(RemoteMessage message) async {
     final title = message.notification?.title ?? message.data['title'] ?? 'ResQ Alert';

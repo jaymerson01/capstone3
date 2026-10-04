@@ -19,6 +19,7 @@ import 'package:community_safety_app/features/notifications/data/datasources/not
 import 'package:community_safety_app/core/services/biometric_service.dart';
 import 'package:community_safety_app/features/notifications/data/models/notification_model.dart';
 import 'package:community_safety_app/features/notifications/presentation/widgets/resident_notifications_sheet.dart';
+import 'package:community_safety_app/core/services/fcm_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -51,8 +52,9 @@ class _DashboardPageState extends State<DashboardPage>
     );
     _entranceController.forward();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       _checkFirstTimeBiometricEnrollment();
+      await sl<FCMService>().requestNotificationPermissions();
     });
   }
 

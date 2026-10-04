@@ -15,6 +15,8 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
+import 'package:community_safety_app/core/services/fcm_service.dart';
+import 'package:community_safety_app/core/services/station_audio_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -102,9 +104,35 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
+                  /// 4. ALERTS & NOTIFICATION DIAGNOSTICS
+                  _buildSectionTitle("Alerts & Notification Diagnostics"),
+                  const SizedBox(height: 12),
+                  _buildSettingTile(
+                    icon: Icons.notifications_active_rounded,
+                    iconColor: const Color(0xFF0A84FF),
+                    title: "Test Emergency Alert & Chime",
+                    subtitle: "Trigger a test notification banner & dual-harmonic chime",
+                    onTap: () async {
+                      await sl<FCMService>().requestNotificationPermissions();
+                      await sl<FCMService>().showLocalNotification(
+                        title: "🚨 Test Alert: ResQ Emergency Chime",
+                        body: "Notification permissions and audio subsystem active!",
+                      );
+                      StationAudioService.playAlertSound();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Color(0xFF0A84FF),
+                            content: Text("🔔 Test notification triggered with alert chime!"),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   const SizedBox(height: 24),
 
-                  /// 4. SUPPORT & CIVIC INFORMATION
+                  /// 5. SUPPORT & CIVIC INFORMATION
                   _buildSectionTitle("Support & Information"),
                   const SizedBox(height: 12),
                   _buildSettingTile(

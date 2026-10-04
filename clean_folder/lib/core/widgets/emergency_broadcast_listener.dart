@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/injection_container.dart';
 import '../services/fcm_service.dart';
+import '../services/station_audio_service.dart';
 
 class EmergencyBroadcastListener extends StatefulWidget {
   final Widget child;
@@ -116,13 +117,15 @@ class _EmergencyBroadcastListenerState
     final timeStr =
         "${now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour)}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}";
 
-    // Also trigger system heads-up floating notification & vibration
+    // Also trigger system heads-up floating notification, vibration & siren chime
     try {
       sl<FCMService>().showLocalNotification(
         title: "🚨 $alertType: $title",
         body: "[$sector] $message",
       );
+      StationAudioService.playAlertSound();
     } catch (_) {}
+
 
     final targetContext = widget.navigatorKey?.currentContext ??
         Navigator.maybeOf(context)?.context ??
