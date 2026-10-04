@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/injection_container.dart';
 import '../services/fcm_service.dart';
-import '../services/station_audio_service.dart';
 
 class EmergencyBroadcastListener extends StatefulWidget {
   final Widget child;
@@ -100,6 +99,7 @@ class _EmergencyBroadcastListenerState
           final broadcastId = doc.id;
 
           // Check if broadcast was created recently (within last 15 minutes)
+          // If createdAt is null, it was just created with FieldValue.serverTimestamp()
           final dynamic rawTime = data['createdAt'];
           DateTime? createdDate;
           if (rawTime is Timestamp) {
@@ -107,7 +107,7 @@ class _EmergencyBroadcastListenerState
           } else if (rawTime is String) {
             createdDate = DateTime.tryParse(rawTime);
           }
-          final isRecent = createdDate != null &&
+          final isRecent = createdDate == null ||
               createdDate.isAfter(
                   DateTime.now().subtract(const Duration(minutes: 15)));
 
@@ -155,36 +155,36 @@ class _EmergencyBroadcastListenerState
     final timeStr =
         "${now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour)}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}";
 
-    // Also trigger system heads-up floating notification, vibration & siren chime
+    // Also trigger system heads-up floating notification & vibration
     try {
       sl<FCMService>().showLocalNotification(
         title: "🚨 $alertType: $title",
         body: "[$sector] $message",
       );
-      StationAudioService.playAlertSound();
     } catch (_) {}
 
+    // Defer dialog display to post-frame to ensure Navigator is mounted and frame build is complete
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) {
+        _isDialogShowing = false;
+        _activeDialogBroadcastId = null;
+        return;
+      }
 
-    final targetContext = widget.navigatorKey?.currentContext ??
-        Navigator.maybeOf(context)?.context ??
-        context;
+      final navState = widget.navigatorKey?.currentState ??
+          Navigator.maybeOf(context);
 
-    if (!mounted) {
-      _isDialogShowing = false;
-      _activeDialogBroadcastId = null;
-      return;
-    }
-
-    try {
-      await showGeneralDialog(
-        context: targetContext,
-        barrierDismissible: false,
-        barrierLabel: "Emergency Siren Alert",
-        barrierColor: Colors.black.withValues(alpha: 0.85),
-        transitionDuration: const Duration(milliseconds: 350),
-      pageBuilder: (dialogContext, anim1, anim2) {
-        _activeDialogContext = dialogContext;
-        return PopScope(
+      if (navState != null && navState.mounted) {
+        try {
+          await navState.push(
+            RawDialogRoute(
+              barrierDismissible: false,
+              barrierLabel: "Emergency Siren Alert",
+              barrierColor: Colors.black.withValues(alpha: 0.85),
+              transitionDuration: const Duration(milliseconds: 350),
+              pageBuilder: (dialogContext, anim1, anim2) {
+                _activeDialogContext = dialogContext;
+                return PopScope(
           canPop: false,
           child: Center(
             child: Container(
@@ -397,14 +397,17 @@ class _EmergencyBroadcastListenerState
           child: child,
         );
       },
-    );
-    } catch (e) {
-      debugPrint("🚨 [EmergencyBroadcast] Error showing siren dialog: $e");
-    } finally {
-      _isDialogShowing = false;
-      _activeDialogContext = null;
-      _activeDialogBroadcastId = null;
-    }
+    ),
+  );
+        } catch (e) {
+          debugPrint("🚨 [EmergencyBroadcast] Error showing siren dialog: $e");
+        } finally {
+          _isDialogShowing = false;
+          _activeDialogContext = null;
+          _activeDialogBroadcastId = null;
+        }
+      }
+    });
   }
 
   @override
