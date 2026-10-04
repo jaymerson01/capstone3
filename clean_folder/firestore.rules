@@ -81,15 +81,15 @@ service cloud.firestore {
 
     // ── 4. Emergency Broadcasts (Both collection aliases supported) ───
     match /broadcasts/{broadcastId} {
-      // All authenticated residents and admins can receive emergency broadcasts
-      allow read: if isAuthenticated();
+      // Emergency disaster alerts and sirens are public safety advisories (readable by all devices)
+      allow read: if true;
 
-      // Authenticated users/admins can publish, alter, or cancel emergency alerts
+      // Only authenticated users/admins can publish, alter, or cancel emergency alerts
       allow write: if isAuthenticated();
     }
 
     match /emergency_broadcasts/{broadcastId} {
-      allow read: if isAuthenticated();
+      allow read: if true;
       allow write: if isAuthenticated();
     }
 

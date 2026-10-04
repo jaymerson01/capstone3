@@ -2,9 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/injection_container.dart';
-import '../services/fcm_service.dart';
 
 class EmergencyBroadcastListener extends StatefulWidget {
   final Widget child;
@@ -23,6 +22,7 @@ class EmergencyBroadcastListener extends StatefulWidget {
 class _EmergencyBroadcastListenerState
     extends State<EmergencyBroadcastListener> {
   StreamSubscription<QuerySnapshot>? _broadcastSubscription;
+  StreamSubscription<User?>? _authSubscription;
   final Set<String> _dismissedBroadcastIds = {};
   bool _isDialogShowing = false;
   BuildContext? _activeDialogContext;
@@ -42,6 +42,14 @@ class _EmergencyBroadcastListenerState
     } catch (_) {}
     if (mounted) {
       _startListening();
+      // Listen to auth changes so the stream automatically attaches when a user logs in
+      _authSubscription?.cancel();
+      _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (mounted) {
+          debugPrint("🔔 [EmergencyBroadcastListener] Auth state changed (${user?.uid ?? 'guest'}), refreshing stream");
+          _startListening();
+        }
+      });
     }
   }
 
@@ -55,11 +63,13 @@ class _EmergencyBroadcastListenerState
 
   @override
   void dispose() {
+    _authSubscription?.cancel();
     _broadcastSubscription?.cancel();
     super.dispose();
   }
 
   void _startListening() {
+    _broadcastSubscription?.cancel();
     _broadcastSubscription = FirebaseFirestore.instance
         .collection('broadcasts')
         .where('isActive', isEqualTo: true)
@@ -154,14 +164,6 @@ class _EmergencyBroadcastListenerState
     final now = DateTime.now();
     final timeStr =
         "${now.hour > 12 ? now.hour - 12 : (now.hour == 0 ? 12 : now.hour)}:${now.minute.toString().padLeft(2, '0')} ${now.hour >= 12 ? 'PM' : 'AM'}";
-
-    // Also trigger system heads-up floating notification & vibration
-    try {
-      sl<FCMService>().showLocalNotification(
-        title: "🚨 $alertType: $title",
-        body: "[$sector] $message",
-      );
-    } catch (_) {}
 
     // Defer dialog display to post-frame to ensure Navigator is mounted and frame build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) async {
