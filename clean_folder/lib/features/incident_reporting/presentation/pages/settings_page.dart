@@ -1,9 +1,20 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:local_auth/local_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/services/camera_service.dart';
+import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
+import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -13,15 +24,12 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // Global State Variables for Toggles
-  bool isNotificationEnabled = true;
-  bool isDarkMode = false;
-  bool isBiometricsEnabled = true;
+  UserEntity? _lastKnownUser;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -36,183 +44,130 @@ class _SettingsPageState extends State<SettingsPage> {
             color: Colors.white,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.5,
-            fontSize: 20,
+            fontSize: 18,
           ),
         ),
       ),
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: AppColors.sunsetGradient,
-        ),
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 16,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                children: [
+                  /// 1. DYNAMIC PROFILE HEADER CARD
+                  _buildProfileHeaderCard(),
+                  const SizedBox(height: 24),
+
+                  /// 2. EMERGENCY SERVICES
+                  _buildSectionTitle("Emergency Services"),
+                  const SizedBox(height: 12),
+                  _buildSettingTile(
+                    icon: Icons.phone_in_talk_rounded,
+                    iconColor: AppColors.danger,
+                    title: "Barangay Emergency Hotlines",
+                    subtitle: "Police (911), Fire (112), Medical (143) & BDRRMC",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EmergencyHotlinesPage(),
+                      ),
+                    ),
                   ),
-                  children: [
-                    /// 1. PROFILE HEADER SECTION CARD
-                    _buildProfileHeaderCard(),
-                    const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-                    /// 2. COMMUNITY SAFETY & EMERGENCY INSTANT DIALER
-                    _buildSectionTitle("Barangay Emergency Hotlines"),
-                    const SizedBox(height: 12),
-                    _buildEmergencyHotlineGrid(),
-                    const SizedBox(height: 24),
-
-                    /// 3. ACCOUNT PROFILE CONFIGURATIONS
-                    _buildSectionTitle("Account Settings"),
-                    const SizedBox(height: 12),
-                    _buildSettingTile(
-                      icon: Icons.account_circle_outlined,
-                      title: "Edit Personal Details",
-                      subtitle: "Name, email, contact channels, addresses",
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EditProfilePage(),
-                        ),
+                  /// 3. ACCOUNT SETTINGS
+                  _buildSectionTitle("Account Settings"),
+                  const SizedBox(height: 12),
+                  _buildSettingTile(
+                    icon: Icons.person_outline_rounded,
+                    title: "Edit Personal Details",
+                    subtitle: "Full name, mobile number, sector & home address",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditProfilePage(),
                       ),
                     ),
-                    _buildSettingTile(
-                      icon: Icons.shield_outlined,
-                      title: "Privacy & Account Security",
-                      subtitle:
-                          "Change password, active Biometric ID Gateway Login",
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PrivacySecurityPage(),
-                        ),
+                  ),
+                  _buildSettingTile(
+                    icon: Icons.shield_outlined,
+                    title: "Privacy & Account Security",
+                    subtitle: "Update account credentials & view anti-spam security policy",
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrivacySecurityPage(user: _lastKnownUser),
                       ),
                     ),
-                    _buildSettingTile(
-                      icon: Icons.history_toggle_off_rounded,
-                      title: "Incident Report History",
-                      subtitle: "Track your filed community protection logs",
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Navigating to comprehensive Report Logs...",
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                    const SizedBox(height: 12),
-                    _buildSectionTitle("Preferences"),
-                    const SizedBox(height: 12),
-
-                    _buildSettingTile(
-                      icon: Icons.notifications_none_outlined,
-                      title: "Push Notifications",
-                      subtitle:
-                          "Instant local danger perimeter broadcast alerts",
-                      trailing: Switch(
-                        value: isNotificationEnabled,
-                        activeThumbColor: AppColors.primary,
-                        onChanged: (value) =>
-                            setState(() => isNotificationEnabled = value),
-                      ),
+                  /// 4. SUPPORT & CIVIC INFORMATION
+                  _buildSectionTitle("Support & Information"),
+                  const SizedBox(height: 12),
+                  _buildSettingTile(
+                    icon: Icons.info_outline_rounded,
+                    title: "About ResQ Community Safety",
+                    subtitle: "Platform guidelines, emergency mandates & version",
+                    onTap: () => _showModalInformation(
+                      context,
+                      "About ResQ Community Safety",
+                      "ResQ Community Safety is a civic-tech emergency response platform connecting residents with the Barangay Command Operations Center for rapid incident dispatch, verification, and community resilience.",
                     ),
-                    _buildSettingTile(
-                      icon: Icons.dark_mode_outlined,
-                      title: "Night Mode Dynamic Range",
-                      subtitle: "High contrast dark-mode viewing layer",
-                      trailing: Switch(
-                        value: isDarkMode,
-                        activeThumbColor: AppColors.primary,
-                        onChanged: (value) =>
-                            setState(() => isDarkMode = value),
-                      ),
-                    ),
+                  ),
+                  _buildSettingTile(
+                    icon: Icons.headset_mic_outlined,
+                    title: "Barangay Help Desk",
+                    subtitle: "Contact municipal administrative support team",
+                    onTap: () => _showBarangayHelpDesk(context),
+                  ),
+                  _buildSettingTile(
+                    icon: Icons.rate_review_outlined,
+                    title: "Submit App Feedback & Bug Report",
+                    subtitle: "Report issues or suggest platform improvements",
+                    onTap: () => _showFeedbackDialog(context),
+                  ),
+                  const SizedBox(height: 28),
 
-                    const SizedBox(height: 12),
-                    _buildSectionTitle("Support & Overview"),
-                    const SizedBox(height: 12),
-
-                    /// 5. APP UTILITIES SECTION
-                    _buildSettingTile(
-                      icon: Icons.info_outline,
-                      title: "About Application",
-                      subtitle:
-                          "App versions, platform structural mandates, guidelines",
-                      onTap: () => _showModalInformation(
-                        context,
-                        "About Application",
-                        "ResQ Enterprise is a community resilience platform designed for critical emergency coordination.",
-                      ),
-                    ),
-                    _buildSettingTile(
-                      icon: Icons.help_outline_rounded,
-                      title: "Barangay Help Desk",
-                      subtitle: "Get live system guidance or read user guides",
-                      onTap: () => _showModalInformation(
-                        context,
-                        "Help & Support",
-                        "For application assistance, email support@resq.gov.ph or contact the municipal tech division desk directly.",
-                      ),
-                    ),
-                    _buildSettingTile(
-                      icon: Icons.bug_report_outlined,
-                      title: "Submit App Feedback & Bugs",
-                      subtitle:
-                          "Report framework formatting flaws or request features",
-                      onTap: () => _showFeedbackDialog(context),
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    /// 6. CRITICAL ACCOUNT ACCOUNTABILITY BUTTONS
-                    _buildDestructiveActionButtons(),
-                    const SizedBox(height: 24),
-                  ],
-                ),
+                  /// 5. DESTRUCTIVE ACTIONS
+                  _buildDestructiveActionButtons(),
+                  const SizedBox(height: 24),
+                ],
               ),
+            ),
 
-              // PERSISTENT FOOTER UTILITY
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 24,
-                  right: 24,
-                  bottom: 20,
-                  top: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      "ResQ Enterprise",
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      "v1.0.4 Premium Edition",
-                      style: TextStyle(
-                        color: Colors.white60,
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                ),
+            // Persistent Footer
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 24,
+                bottom: 16,
+                top: 8,
               ),
-            ],
-          ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    "ResQ Community Safety",
+                    style: TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    "v1.0.0 Production",
+                    style: TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -250,331 +205,233 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildProfileHeaderCard() {
-    final String name = "John David Echano";
-    final String email = "johnechano@gmail.com";
-    final String initials = "J";
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        if (authState is Authenticated) {
+          _lastKnownUser = authState.user;
+        }
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
-        ),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Hero(
-            tag: 'avatar_profile',
-            child: Container(
-              width: 68,
-              height: 68,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppColors.primaryGradient,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.45),
-                    blurRadius: 18,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Text(
-                  initials,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  style: const TextStyle(
-                      fontSize: 12, color: AppColors.textLight),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.solved.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: AppColors.solved.withValues(alpha: 0.25)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.solved,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.solved.withValues(alpha: 0.6),
-                              blurRadius: 6,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        "Verified Resident",
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppColors.solved,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        final UserEntity? user = (authState is Authenticated ? authState.user : null) ?? _lastKnownUser;
 
-  Widget _buildEmergencyHotlineGrid() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double itemWidth = (constraints.maxWidth - 12) / 2;
-        return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            _buildHotlineButton(
-              "Police Department",
-              Icons.local_police_outlined,
-              "911",
-              itemWidth,
-            ),
-            _buildHotlineButton(
-              "Fire Command Station",
-              Icons.local_fire_department_outlined,
-              "112",
-              itemWidth,
-            ),
-            _buildHotlineButton(
-              "Ambulance Medical Team",
-              Icons.medical_services_outlined,
-              "143",
-              itemWidth,
-            ),
-            _buildHotlineButton(
-              "Barangay Desk Center",
-              Icons.phone_in_talk_outlined,
-              "888-9999",
-              itemWidth,
-            ),
-          ],
-        );
-      },
-    );
-  }
+        final String name = user?.displayName?.isNotEmpty == true
+            ? user!.displayName!
+            : "Resident Citizen";
+        final String email = user?.email.isNotEmpty == true
+            ? user!.email
+            : "demo@resident.ph";
+        final String sector = user?.barangayArea?.isNotEmpty == true
+            ? user!.barangayArea!
+            : "Area 1 - San Jose";
+        final bool isVerified = user?.isVerified ?? true;
+        final String? photoUrl = user?.photoUrl;
 
-  Widget _buildHotlineButton(
-    String agency,
-    IconData icon,
-    String dialNum,
-    double targetWidth,
-  ) {
-    return SizedBox(
-      width: targetWidth,
-      child: GestureDetector(
-        onTap: () => _triggerEmergencyCall(agency, dialNum),
-        child: Container(
-          height: 52,
+        String initials = "R";
+        if (name.trim().isNotEmpty) {
+          final parts = name.trim().split(' ');
+          if (parts.length >= 2) {
+            initials = "${parts[0][0]}${parts[1][0]}".toUpperCase();
+          } else {
+            initials = parts[0][0].toUpperCase();
+          }
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.danger.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.danger.withValues(alpha: 0.25)),
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
-                color: AppColors.danger.withValues(alpha: 0.12),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: AppColors.danger),
-              const SizedBox(width: 7),
-              Text(
-                agency.split(' ')[0],
-                style: const TextStyle(
-                  color: AppColors.danger,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _triggerEmergencyCall(String target, String number) {
-    showDialog(
-      context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: AppColors.danger.withValues(alpha: 0.3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+              // Avatar
               Container(
                 width: 64,
                 height: 64,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.danger.withValues(alpha: 0.1),
+                  gradient: AppColors.primaryGradient,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.danger.withValues(alpha: 0.35),
-                      blurRadius: 20,
-                      spreadRadius: 3,
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                      blurRadius: 14,
+                      spreadRadius: 1,
                     ),
                   ],
                 ),
-                child: const Icon(Icons.call, color: AppColors.danger, size: 30),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                "Emergency Dispatch",
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "Dial the official hotline for $target ($number) now?",
-                style: const TextStyle(
-                    color: AppColors.textLight, fontSize: 13, height: 1.5),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 22),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: const Center(
-                          child: Text("Cancel",
-                              style: TextStyle(
-                                  color: AppColors.textLight,
-                                  fontWeight: FontWeight.w700)),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                const Icon(Icons.call,
-                                    color: Colors.white, size: 16),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    "Connecting to $target ($number)...",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w600),
+                child: ClipOval(
+                  child: photoUrl != null && photoUrl.isNotEmpty
+                      ? (photoUrl.startsWith('http')
+                          ? Image.network(
+                              photoUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => Center(
+                                child: Text(
+                                  initials,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
-                              ],
-                            ),
-                            backgroundColor: AppColors.surface,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(
-                                  color: AppColors.danger
-                                      .withValues(alpha: 0.3)),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.emergencyGradient,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: AppColors.dangerGlowShadow,
-                        ),
-                        child: const Center(
+                              ),
+                            )
+                          : Image.file(
+                              File(photoUrl),
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) => Center(
+                                child: Text(
+                                  initials,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ))
+                      : Center(
                           child: Text(
-                            "Call Now",
-                            style: TextStyle(
+                            initials,
+                            style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.w800,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
                         ),
+                ),
+              ),
+              const SizedBox(width: 16),
+
+              // User Meta
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textDark,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    const SizedBox(height: 3),
+                    Text(
+                      email,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textLight,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        // Sector Badge
+                        Container(
+                          constraints: const BoxConstraints(maxWidth: 130),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: AppColors.primary.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Text(
+                            sector,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+
+                        // Verification Status
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: isVerified
+                                ? AppColors.solved.withValues(alpha: 0.12)
+                                : AppColors.warning.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isVerified
+                                  ? AppColors.solved.withValues(alpha: 0.3)
+                                  : AppColors.warning.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: isVerified
+                                      ? AppColors.solved
+                                      : AppColors.warning,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                isVerified ? "Verified" : "Citizen",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: isVerified
+                                      ? AppColors.solved
+                                      : AppColors.warning,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Quick Edit Icon
+              IconButton(
+                icon: const Icon(
+                  Icons.edit_outlined,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EditProfilePage(),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -583,32 +440,25 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         GestureDetector(
           onTap: () => _triggerAccountActionDialog(
-            "Logout",
-            "Are you sure you want to exit your profile dashboard session safely?",
+            "Log Out",
+            "Are you sure you want to log out of your ResQ resident account?",
             false,
           ),
           child: Container(
             width: double.infinity,
-            height: 52,
+            height: 50,
             decoration: BoxDecoration(
-              color: AppColors.surfaceLight,
+              color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.logout, color: AppColors.textLight, size: 18),
+                Icon(Icons.logout_rounded, color: AppColors.textLight, size: 18),
                 SizedBox(width: 10),
                 Text(
-                  "Secure Dashboard Logout",
+                  "Log Out",
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontWeight: FontWeight.w700,
@@ -622,16 +472,14 @@ class _SettingsPageState extends State<SettingsPage> {
         const SizedBox(height: 12),
         TextButton(
           onPressed: () => _triggerAccountActionDialog(
-            "Delete Profile Account",
-            "CRITICAL WARNING: Purging your credentials wipes all location histories, filed safety status streams, and account backups completely. This is irreversible.",
+            "Delete Account",
+            "Warning: Deleting your resident account permanently clears all filed report logs and saved profile information. This action is irreversible.",
             true,
           ),
           child: const Text(
-            "Permanently Delete Citizen Account",
+            "Permanently Delete Account",
             style: TextStyle(
               color: AppColors.danger,
-              decoration: TextDecoration.underline,
-              decorationColor: AppColors.danger,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -662,25 +510,18 @@ class _SettingsPageState extends State<SettingsPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: 60,
+                height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: actionColor.withValues(alpha: 0.1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: actionColor.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      spreadRadius: 3,
-                    ),
-                  ],
+                  color: actionColor.withValues(alpha: 0.12),
                 ),
                 child: Icon(
                   isSevereDestructive
-                      ? Icons.delete_forever
+                      ? Icons.delete_forever_rounded
                       : Icons.logout_rounded,
                   color: actionColor,
-                  size: 30,
+                  size: 28,
                 ),
               ),
               const SizedBox(height: 16),
@@ -696,7 +537,10 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 briefMsg,
                 style: const TextStyle(
-                    color: AppColors.textLight, fontSize: 12, height: 1.5),
+                  color: AppColors.textLight,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 22),
@@ -706,17 +550,20 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: GestureDetector(
                       onTap: () => Navigator.pop(ctx),
                       child: Container(
-                        height: 46,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: AppColors.surfaceLight,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.border),
                         ),
                         child: const Center(
-                          child: Text("Cancel",
-                              style: TextStyle(
-                                  color: AppColors.textLight,
-                                  fontWeight: FontWeight.w700)),
+                          child: Text(
+                            "Cancel",
+                            style: TextStyle(
+                              color: AppColors.textLight,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -724,43 +571,110 @@ class _SettingsPageState extends State<SettingsPage> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(ctx);
-                        if (contextTitle == "Logout") {
+                        if (contextTitle == "Log Out") {
                           context.read<AuthBloc>().add(const LogoutRequested());
                           Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const WelcomePage()),
+                              builder: (context) => const WelcomePage(),
+                            ),
                             (route) => false,
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  "Action '$contextTitle' processed."),
-                            ),
-                          );
+                          // Permanently Delete Account (RA 10173 Compliance)
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("No active resident session found."),
+                                backgroundColor: AppColors.danger,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          try {
+                            final uid = user.uid;
+                            // 1. Delete resident profile in Firestore
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(uid)
+                                .delete();
+
+                            // 2. Delete user account in Firebase Auth
+                            await user.delete();
+
+                            if (!mounted) return;
+                            context.read<AuthBloc>().add(const LogoutRequested());
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WelcomePage(),
+                              ),
+                              (route) => false,
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Your account and personal data have been permanently erased (RA 10173).",
+                                ),
+                                backgroundColor: AppColors.solved,
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 4),
+                              ),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            if (!mounted) return;
+                            if (e.code == 'requires-recent-login') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Security Alert: Account deletion requires recent authentication. Please log out, sign in again, and retry.",
+                                  ),
+                                  backgroundColor: AppColors.warning,
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: Duration(seconds: 5),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Account deletion failed: ${e.message}",
+                                  ),
+                                  backgroundColor: AppColors.danger,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("Error deleting account: $e"),
+                                backgroundColor: AppColors.danger,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         }
                       },
                       child: Container(
-                        height: 46,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: actionColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: actionColor.withValues(alpha: 0.4)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: actionColor.withValues(alpha: 0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                            color: actionColor.withValues(alpha: 0.4),
+                          ),
                         ),
                         child: Center(
                           child: Text(
-                            "Confirm",
+                            isSevereDestructive ? "Delete" : "Confirm",
                             style: TextStyle(
                               color: actionColor,
                               fontWeight: FontWeight.w800,
@@ -812,16 +726,21 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.info_outline,
-                      color: AppColors.primary, size: 18),
+                  child: const Icon(
+                    Icons.info_outline,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  head,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
+                Expanded(
+                  child: Text(
+                    head,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.textDark,
+                    ),
                   ),
                 ),
               ],
@@ -840,7 +759,7 @@ class _SettingsPageState extends State<SettingsPage> {
               onTap: () => Navigator.pop(context),
               child: Container(
                 width: double.infinity,
-                height: 50,
+                height: 48,
                 decoration: BoxDecoration(
                   gradient: AppColors.primaryGradient,
                   borderRadius: BorderRadius.circular(14),
@@ -864,82 +783,421 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _showBarangayHelpDesk(BuildContext ctx) {
+    showModalBottomSheet(
+      context: ctx,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        side: BorderSide(color: AppColors.border),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          "Barangay Administrative Help Desk",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          "Barangay Moonwalk, Parañaque City",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  children: [
+                    _buildHelpDeskRow(
+                      Icons.location_on_rounded,
+                      "Office Address",
+                      "Armstrong Ave., Moonwalk, Parañaque City",
+                    ),
+                    const Divider(color: AppColors.border, height: 20),
+                    _buildHelpDeskRow(
+                      Icons.access_time_rounded,
+                      "Public Service Hours",
+                      "Monday – Friday: 8:00 AM – 5:00 PM",
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: const BorderSide(color: AppColors.primary),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        final uri = Uri(scheme: 'tel', path: '0288288041');
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        }
+                      },
+                      icon: const Icon(Icons.phone, size: 18),
+                      label: const Text(
+                        "Call Office",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        final uri = Uri(
+                          scheme: 'mailto',
+                          path: 'admin@moonwalk.resq.ph',
+                          query: 'subject=Barangay%20Moonwalk%20Citizen%20Inquiry',
+                        );
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri);
+                        }
+                      },
+                      icon: const Icon(Icons.email_outlined, size: 18),
+                      label: const Text(
+                        "Send Email",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Icon(Icons.info_outline, size: 14, color: AppColors.warning),
+                  SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      "For immediate life-threatening emergencies (Fire, Police, Medical), please use the Emergency Hotlines or submit an incident report.",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textLight,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHelpDeskRow(IconData icon, String title, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 18, color: AppColors.textLight),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textLight,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textDark,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   void _showFeedbackDialog(BuildContext context) {
+    final TextEditingController feedbackCtrl = TextEditingController();
+    String selectedCategory = "General Feedback";
+    bool isSubmitting = false;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          "Submit App Review / Bug",
-          style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textDark),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Text(
-              "Your technical system logs will be paired automatically to accelerate troubleshooting queues.",
-              style: TextStyle(fontSize: 12, color: AppColors.textLight),
-            ),
-            SizedBox(height: 12),
-            TextField(
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText:
-                    "Describe your system performance issue or operational feature request...",
-                border: OutlineInputBorder(),
-                hintStyle: TextStyle(fontSize: 13),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppColors.border),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.rate_review_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
               ),
+              const SizedBox(width: 12),
+              const Text(
+                "Submit App Feedback",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textDark,
+                  fontSize: 17,
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Help us improve ResQ for Barangay Moonwalk. Your feedback is sent directly to the development team.",
+                  style: TextStyle(fontSize: 12.5, color: AppColors.textLight, height: 1.4),
+                ),
+                const SizedBox(height: 14),
+                const Text(
+                  "FEEDBACK CATEGORY",
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.5,
+                    color: AppColors.textLight,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    "General Feedback",
+                    "Bug Report",
+                    "Feature Suggestion",
+                  ].map((cat) {
+                    final isSelected = selectedCategory == cat;
+                    return ChoiceChip(
+                      label: Text(
+                        cat,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected ? Colors.white : AppColors.textLight,
+                        ),
+                      ),
+                      selected: isSelected,
+                      selectedColor: AppColors.primary,
+                      backgroundColor: AppColors.background,
+                      side: BorderSide(
+                        color: isSelected ? AppColors.primary : AppColors.border,
+                      ),
+                      onSelected: (val) {
+                        if (val) {
+                          setDialogState(() => selectedCategory = cat);
+                        }
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: feedbackCtrl,
+                  maxLines: 4,
+                  style: const TextStyle(color: AppColors.textDark, fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: "Describe your feedback, suggestion, or bug encounter...",
+                    hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.textLight),
+                    filled: true,
+                    fillColor: AppColors.background,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
+              child: const Text("Cancel", style: TextStyle(color: AppColors.textLight)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: isSubmitting
+                  ? null
+                  : () async {
+                      final text = feedbackCtrl.text.trim();
+                      if (text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please write a short description before submitting."),
+                            backgroundColor: AppColors.warning,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isSubmitting = true);
+                      final messenger = ScaffoldMessenger.of(context);
+
+                      try {
+                        final currentUser = FirebaseAuth.instance.currentUser;
+                        await FirebaseFirestore.instance.collection('app_feedback').add({
+                          'userId': _lastKnownUser?.id ?? currentUser?.uid ?? 'anonymous',
+                          'userName': _lastKnownUser?.displayName ?? currentUser?.displayName ?? 'Resident',
+                          'userEmail': _lastKnownUser?.email ?? currentUser?.email ?? '',
+                          'category': selectedCategory,
+                          'message': text,
+                          'createdAt': FieldValue.serverTimestamp(),
+                          'appVersion': '1.0.0',
+                        });
+
+                        if (ctx.mounted) {
+                          Navigator.pop(ctx);
+                        }
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text("Thank you! Your feedback has been submitted to the technical team."),
+                            backgroundColor: AppColors.solved,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } catch (e) {
+                        setDialogState(() => isSubmitting = false);
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text("Failed to submit feedback: $e"),
+                            backgroundColor: AppColors.danger,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+              child: isSubmitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text("Submit"),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("DISMISS", style: TextStyle(color: AppColors.textLight)),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: AppColors.primaryGlowShadow,
-            ),
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Feedback logs queued for developer team dispatch!",
-                    ),
-                  ),
-                );
-              },
-              child: const Text("SUBMIT TICKET"),
-            ),
-          ),
-        ],
       ),
     );
   }
 
   Widget _buildSettingTile({
     required IconData icon,
+    Color? iconColor,
     required String title,
     required String subtitle,
     Widget? trailing,
     VoidCallback? onTap,
   }) {
+    final effectiveColor = iconColor ?? AppColors.primary;
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
@@ -955,13 +1213,13 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Row(
               children: [
                 Container(
-                  width: 42,
-                  height: 42,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.15),
+                    color: effectiveColor.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, size: 20, color: AppColors.primary),
+                  child: Icon(icon, size: 20, color: effectiveColor),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -989,12 +1247,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-                if (trailing != null) trailing,
+                ?trailing,
                 if (onTap != null && trailing == null)
                   const Icon(
                     Icons.arrow_forward_ios_rounded,
                     color: AppColors.textLight,
-                    size: 14,
+                    size: 13,
                   ),
               ],
             ),
@@ -1005,7 +1263,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-// ================= SUB PAGE: DETAIL RESIDENT PROFILE CORES =================
+// ================= SUB PAGE: EDIT RESIDENT PROFILE =================
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
 
@@ -1016,68 +1274,215 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   final _profileFormKey = GlobalKey<FormState>();
 
-  final TextEditingController _nameController = TextEditingController(
-    text: "John David Echano",
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: "johnechano@gmail.com",
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: "+63 917 123 4567",
-  );
-  final TextEditingController _emergencyContactController =
-      TextEditingController(text: "Maria Echano (0919-888-7766)");
-  final TextEditingController _savedAddressController = TextEditingController(
-    text: "Bldg 4, St. Francis Compound, Moonwalk",
-  );
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
+  late TextEditingController _emergencyContactNameController;
+  late TextEditingController _emergencyContactNumberController;
+  late TextEditingController _savedAddressController;
 
-  String _selectedBarangay = 'Area 1';
+  String _selectedBarangay = 'Area 1 - San Jose';
   String _selectedLanguage = 'English (PH)';
+  File? _selectedAvatarFile;
+  bool _isSaving = false;
 
   final List<String> _barangayList = [
-    'Area 1',
-    'Area 2',
-    'Area 3',
-    'Area 4',
-    'Area 5',
+    'Area 1 - San Jose',
+    'Area 2 - Santo Nino',
+    'Area 3 - Santa Cruz',
+    'Area 4 - Moonwalk Core',
+    'Area 5 - Phase 1 & 2',
+    'Area 6 - Multinational Village',
   ];
+
   final List<String> _languages = [
     'English (PH)',
     'Filipino (Tagalog)',
-    'Spanish',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = context.read<AuthBloc>().state;
+    final UserEntity? user = authState is Authenticated ? authState.user : null;
+
+    _nameController = TextEditingController(
+      text: user?.displayName ?? 'Juan Dela Cruz',
+    );
+    _emailController = TextEditingController(
+      text: user?.email ?? 'demo@resident.ph',
+    );
+    _phoneController = TextEditingController(
+      text: user?.phoneNumber ?? '09171234567',
+    );
+    _emergencyContactNameController = TextEditingController(
+      text: user?.emergencyContactName ?? 'Maria Dela Cruz',
+    );
+    _emergencyContactNumberController = TextEditingController(
+      text: user?.emergencyContactNumber ?? '09198887766',
+    );
+    _savedAddressController = TextEditingController(
+      text: user?.address ?? 'Bldg 4, St. Francis Compound, Moonwalk',
+    );
+
+    if (user?.barangayArea != null &&
+        _barangayList.contains(user!.barangayArea)) {
+      _selectedBarangay = user.barangayArea!;
+    }
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _emergencyContactController.dispose();
+    _emergencyContactNameController.dispose();
+    _emergencyContactNumberController.dispose();
     _savedAddressController.dispose();
     super.dispose();
   }
 
+  Future<void> _pickAvatarImage() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        side: BorderSide(color: AppColors.border),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Profile Photo",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_rounded,
+                  color: AppColors.primary),
+              title: const Text(
+                "Take Photo with Camera",
+                style: TextStyle(color: AppColors.textDark, fontSize: 14),
+              ),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final file =
+                    await sl<CameraService>().pickImageFromCamera();
+                if (file != null) {
+                  setState(() => _selectedAvatarFile = file);
+                }
+              },
+            ),
+            ListTile(
+              leading:
+                  const Icon(Icons.photo_library_rounded, color: AppColors.primary),
+              title: const Text(
+                "Choose from Gallery",
+                style: TextStyle(color: AppColors.textDark, fontSize: 14),
+              ),
+              onTap: () async {
+                Navigator.pop(ctx);
+                final file =
+                    await sl<CameraService>().pickImageFromGallery();
+                if (file != null) {
+                  setState(() => _selectedAvatarFile = file);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _saveProfileChanges() async {
+    if (!_profileFormKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    try {
+      final authState = context.read<AuthBloc>().state;
+      final UserEntity? currentUser =
+          authState is Authenticated ? authState.user : null;
+
+      String? photoUrl = currentUser?.photoUrl;
+      if (_selectedAvatarFile != null) {
+        photoUrl =
+            await sl<CameraService>().uploadImage(_selectedAvatarFile!);
+      }
+
+      final updatedUser = (currentUser ??
+              const UserEntity(
+                id: 'resident_demo_01',
+                email: 'demo@resident.ph',
+              ))
+          .copyWith(
+        displayName: _nameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        address: _savedAddressController.text.trim(),
+        barangayArea: _selectedBarangay,
+        emergencyContactName: _emergencyContactNameController.text.trim(),
+        emergencyContactNumber:
+            _emergencyContactNumberController.text.trim(),
+        photoUrl: photoUrl,
+      );
+
+      if (!mounted) return;
+      context.read<AuthBloc>().add(UpdateProfileRequested(updatedUser));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Profile details updated successfully!"),
+          backgroundColor: AppColors.solved,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to update profile: $e"),
+          backgroundColor: AppColors.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthBloc>().state;
+    final UserEntity? user =
+        authState is Authenticated ? authState.user : null;
+    final existingPhoto = user?.photoUrl;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.primaryGradient,
-          ),
-        ),
-        title: const Text(
-          'Edit Identity Profile',
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-        ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+        ),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _profileFormKey,
           child: Column(
@@ -1088,53 +1493,66 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 child: Stack(
                   children: [
                     Container(
+                      width: 104,
+                      height: 104,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
+                        border: Border.all(color: AppColors.border, width: 3),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.primary.withValues(alpha: 0.2),
-                            blurRadius: 15,
+                            blurRadius: 16,
                             spreadRadius: 2,
                           ),
                         ],
                       ),
-                      child: const CircleAvatar(
-                        radius: 52,
-                        backgroundColor: Colors.transparent,
-                        child: Icon(
-                          Icons.person,
-                          size: 60,
-                          color: AppColors.primary,
-                        ),
+                      child: ClipOval(
+                        child: _selectedAvatarFile != null
+                            ? Image.file(_selectedAvatarFile!, fit: BoxFit.cover)
+                            : (existingPhoto != null && existingPhoto.isNotEmpty
+                                ? (existingPhoto.startsWith('http')
+                                    ? Image.network(
+                                        existingPhoto,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (ctx, err, stack) =>
+                                            const Icon(Icons.person,
+                                                size: 54,
+                                                color: AppColors.primary),
+                                      )
+                                    : Image.file(
+                                        File(existingPhoto),
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (ctx, err, stack) =>
+                                            const Icon(Icons.person,
+                                                size: 54,
+                                                color: AppColors.primary),
+                                      ))
+                                : const Icon(
+                                    Icons.person,
+                                    size: 54,
+                                    color: AppColors.primary,
+                                  )),
                       ),
                     ),
                     Positioned(
                       bottom: 0,
-                      right: 4,
-                      child: Container(
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: AppColors.primaryGradient,
-                        ),
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.transparent,
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.edit_rounded,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Triggering system filesystem photo upload asset index selector...",
-                                  ),
-                                ),
-                              );
-                            },
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: _pickAvatarImage,
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: AppColors.primaryGradient,
+                            border: Border.all(
+                                color: AppColors.background, width: 2),
+                            boxShadow: AppColors.primaryGlowShadow,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 16,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -1142,106 +1560,197 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
-              _buildSectionSubHeader("Primary Credentials"),
+              _buildSectionSubHeader("Personal Credentials"),
               const SizedBox(height: 12),
               _buildValidatedField(
                 controller: _nameController,
                 label: "Full Name",
                 icon: Icons.person_outline_rounded,
-                validator: (val) => val!.trim().isEmpty
-                    ? "Account registration requires a valid name asset reference"
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? "Please enter your full name"
                     : null,
               ),
-              const SizedBox(height: 16),
-              _buildValidatedField(
+              const SizedBox(height: 14),
+
+              // Email (Read-only credential)
+              TextFormField(
                 controller: _emailController,
-                label: "Email Coordinate",
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                validator: (val) => !val!.contains('@')
-                    ? "Provide an authentic account email identifier string"
-                    : null,
+                readOnly: true,
+                style: const TextStyle(color: AppColors.textLight),
+                decoration: InputDecoration(
+                  labelText: "Email Address (Account ID)",
+                  labelStyle: const TextStyle(color: AppColors.textLight),
+                  prefixIcon:
+                      const Icon(Icons.email_outlined, color: AppColors.textLight),
+                  suffixIcon:
+                      const Icon(Icons.lock_outline, color: AppColors.textLight, size: 16),
+                  helperText: "Primary login credential cannot be changed",
+                  helperStyle:
+                      const TextStyle(color: AppColors.textLight, fontSize: 11),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.surface.withValues(alpha: 0.6),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
+
               _buildValidatedField(
                 controller: _phoneController,
-                label: "Mobile Number",
+                label: "Mobile Phone Number",
                 icon: Icons.phone_android_rounded,
                 keyboardType: TextInputType.phone,
-                validator: (val) => val!.trim().length < 7
-                    ? "Active phone context sequence string required"
+                validator: (val) => val == null || val.trim().length < 7
+                    ? "Please enter a valid mobile number"
                     : null,
               ),
 
               const SizedBox(height: 24),
-              _buildSectionSubHeader("Community Security Links"),
+              _buildSectionSubHeader("Barangay Jurisdiction & Address"),
               const SizedBox(height: 12),
-              _buildValidatedField(
-                controller: _emergencyContactController,
-                label: "Primary Emergency Contact",
-                icon: Icons.contact_emergency_outlined,
-                validator: (val) => val!.trim().isEmpty
-                    ? "Emergency fallback nodes must not be blank strings"
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              _buildValidatedField(
-                controller: _savedAddressController,
-                label: "Resident Location/Home Address",
-                icon: Icons.maps_home_work_outlined,
-                validator: (val) => val!.trim().isEmpty
-                    ? "Physical tracking coordinates must be mapped"
-                    : null,
-              ),
-              const SizedBox(height: 16),
 
-              /// BARANGAY ANCHOR DROPDOWN
+              /// BARANGAY SECTOR DROPDOWN
               DropdownButtonFormField<String>(
                 initialValue: _selectedBarangay,
+                dropdownColor: AppColors.surface,
+                isExpanded: true,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
-                  labelText: "Preferred Sector/Barangay jurisdiction",
+                  labelText: "Barangay Area / Sector",
+                  labelStyle: const TextStyle(color: AppColors.textLight),
                   prefixIcon: const Icon(
                     Icons.holiday_village_outlined,
-                    color: AppColors.textLight,
+                    color: AppColors.primary,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   filled: true,
                   fillColor: AppColors.surface,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
-                dropdownColor: AppColors.surface,
-                style: const TextStyle(color: AppColors.textDark),
                 items: _barangayList
-                    .map((b) => DropdownMenuItem(value: b, child: Text(b)))
+                    .map((b) => DropdownMenuItem(
+                          value: b,
+                          child: Text(
+                            b,
+                            style: const TextStyle(color: Colors.white),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ))
                     .toList(),
-                onChanged: (val) => setState(() => _selectedBarangay = val!),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedBarangay = val);
+                },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
-              /// REGIONAL LANGUAGE DROPDOWN
+              _buildValidatedField(
+                controller: _savedAddressController,
+                label: "Residential Address / House Details",
+                icon: Icons.home_work_outlined,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? "Please enter your residential address"
+                    : null,
+              ),
+
+              const SizedBox(height: 24),
+              _buildSectionSubHeader("Emergency Contact Fallback"),
+              const SizedBox(height: 12),
+
+              _buildValidatedField(
+                controller: _emergencyContactNameController,
+                label: "Emergency Contact Person",
+                icon: Icons.contact_emergency_outlined,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? "Please provide an emergency contact person"
+                    : null,
+              ),
+              const SizedBox(height: 14),
+
+              _buildValidatedField(
+                controller: _emergencyContactNumberController,
+                label: "Emergency Contact Number",
+                icon: Icons.phone_in_talk_outlined,
+                keyboardType: TextInputType.phone,
+                validator: (val) => val == null || val.trim().length < 7
+                    ? "Please provide an emergency contact phone number"
+                    : null,
+              ),
+
+              const SizedBox(height: 24),
+              _buildSectionSubHeader("Language Preference"),
+              const SizedBox(height: 12),
+
               DropdownButtonFormField<String>(
                 initialValue: _selectedLanguage,
+                dropdownColor: AppColors.surface,
+                isExpanded: true,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
-                  labelText: "App Language Interface Locale",
+                  labelText: "App Interface Language",
+                  labelStyle: const TextStyle(color: AppColors.textLight),
                   prefixIcon: const Icon(
                     Icons.translate_rounded,
-                    color: AppColors.textLight,
+                    color: AppColors.primary,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
                   ),
                   filled: true,
                   fillColor: AppColors.surface,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
-                dropdownColor: AppColors.surface,
-                style: const TextStyle(color: AppColors.textDark),
                 items: _languages
-                    .map((l) => DropdownMenuItem(value: l, child: Text(l)))
+                    .map((l) => DropdownMenuItem(
+                          value: l,
+                          child: Text(
+                            l,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ))
                     .toList(),
-                onChanged: (val) => setState(() => _selectedLanguage = val!),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedLanguage = val);
+                },
               ),
 
               const SizedBox(height: 36),
@@ -1264,29 +1773,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    onPressed: () {
-                      if (_profileFormKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Account login security configurations updated successfully!",
+                    onPressed: _isSaving ? null : _saveProfileChanges,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
                             ),
-                            backgroundColor: AppColors.primary,
+                          )
+                        : const Text(
+                            'SAVE PROFILE CHANGES',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              letterSpacing: 0.5,
+                            ),
                           ),
-                        );
-                        Navigator.pop(context);
-                      }
-                    },
-                    child: const Text(
-                      'SAVE PROFILE CHANGES',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -1298,9 +1806,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Text(
       label,
       style: const TextStyle(
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: FontWeight.bold,
-        color: AppColors.textDark,
+        color: AppColors.textLight,
       ),
     );
   }
@@ -1316,49 +1824,68 @@ class _EditProfilePageState extends State<EditProfilePage> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
+      style: const TextStyle(color: AppColors.textDark, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: AppColors.textLight),
-        prefixIcon: Icon(icon, color: AppColors.textLight),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+        prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.primary),
+        ),
         filled: true,
         fillColor: AppColors.surface,
-        errorStyle: const TextStyle(fontWeight: FontWeight.bold),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        errorStyle: const TextStyle(
+          color: AppColors.danger,
+          fontWeight: FontWeight.w600,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
-      style: const TextStyle(color: AppColors.textDark),
     );
   }
 }
 
-// ================= SUB PAGE: PRIVACY & SYSTEM SECURITY MATRIX =================
+// ================= SUB PAGE: PRIVACY & SECURITY =================
 class PrivacySecurityPage extends StatefulWidget {
-  const PrivacySecurityPage({super.key});
+  final UserEntity? user;
+  const PrivacySecurityPage({super.key, this.user});
 
   @override
   State<PrivacySecurityPage> createState() => _PrivacySecurityPageState();
 }
 
 class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
-  final _passFormKey = GlobalKey<FormState>();
-  final TextEditingController _currentPassCtrl = TextEditingController();
-  final TextEditingController _newPassCtrl = TextEditingController();
-  final TextEditingController _confirmPassCtrl = TextEditingController();
-
-  bool _obscureCurrent = true;
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-
-  bool isBiometricActive = true;
+  final LocalAuthentication _localAuth = LocalAuthentication();
+  bool _isHardwareSupported = false;
 
   @override
-  void dispose() {
-    _currentPassCtrl.dispose();
-    _newPassCtrl.dispose();
-    _confirmPassCtrl.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _checkHardware();
+  }
+
+  Future<void> _checkHardware() async {
+    bool canCheck = false;
+    bool isDeviceSupported = false;
+    try {
+      canCheck = await _localAuth.canCheckBiometrics;
+      isDeviceSupported = await _localAuth.isDeviceSupported();
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() {
+        _isHardwareSupported = canCheck || isDeviceSupported;
+      });
+    }
   }
 
   @override
@@ -1366,27 +1893,23 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: AppColors.primaryGradient,
-          ),
-        ),
-        title: const Text(
-          'Privacy & Security Suite',
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-        ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Privacy & Security',
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+        ),
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(20.0),
         children: [
           const Text(
-            'Security Credentials Framework',
+            'Credentials & Access',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
               color: AppColors.textLight,
             ),
@@ -1413,25 +1936,31 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                 ),
               ),
               title: const Text(
-                'Update Secret Password',
+                'Change Account Password',
                 style: TextStyle(
-                    fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textDark,
+                  fontSize: 14,
+                ),
               ),
               subtitle: const Text(
-                'Perform routine rotation changes for credentials protection',
+                'Update password for resident account credentials',
                 style: TextStyle(fontSize: 12, color: AppColors.textLight),
               ),
-              trailing:
-                  const Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.textLight),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                size: 13,
+                color: AppColors.textLight,
+              ),
               onTap: () => _displayChangePasswordSheet(context),
             ),
           ),
 
           const SizedBox(height: 28),
           const Text(
-            'Advanced Device Shielding',
+            'Civic Security & Anti-Spam Policy',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 13,
               fontWeight: FontWeight.bold,
               color: AppColors.textLight,
             ),
@@ -1439,41 +1968,74 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
           const SizedBox(height: 12),
 
           Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border),
             ),
-            child: Column(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SwitchListTile(
-                  secondary: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.fingerprint_rounded,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppColors.solved.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
                   ),
-                  title: const Text(
-                    'Biometric ID Gateway Lock',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: AppColors.textDark),
+                  child: const Icon(
+                    Icons.verified_user_rounded,
+                    color: AppColors.solved,
+                    size: 22,
                   ),
-                  subtitle: const Text(
-                    'Authorize fingerprint or face scans before dashboard opens',
-                    style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Biometric Verification',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.textDark,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.solved.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text(
+                              'ENFORCED',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.solved,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _isHardwareSupported
+                            ? 'Biometric confirmation (fingerprint or face authentication) is enforced by Barangay Moonwalk municipal policy when submitting emergency reports to deter false alarms and prank filings.'
+                            : 'Hardware biometrics not detected on this device. Device PIN or secure credential confirmation will serve as anti-spam verification.',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textLight,
+                          height: 1.45,
+                        ),
+                      ),
+                    ],
                   ),
-                  value: isBiometricActive,
-                  activeThumbColor: AppColors.primary,
-                  onChanged: (bool value) =>
-                      setState(() => isBiometricActive = value),
                 ),
               ],
             ),
@@ -1484,13 +2046,23 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
   }
 
   void _displayChangePasswordSheet(BuildContext ctx) {
+    final passFormKey = GlobalKey<FormState>();
+    final currentPassCtrl = TextEditingController();
+    final newPassCtrl = TextEditingController();
+    final confirmPassCtrl = TextEditingController();
+
+    bool obscureCurrent = true;
+    bool obscureNew = true;
+    bool obscureConfirm = true;
+    bool isSubmitting = false;
+
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        side: BorderSide(color: AppColors.border),
       ),
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
@@ -1501,105 +2073,197 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
             bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
           child: Form(
-            key: _passFormKey,
+            key: passFormKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Reset Account Password',
+                  'Change Password',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
                   ),
                 ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Please enter your current password followed by your new password.',
+                  style: TextStyle(fontSize: 12, color: AppColors.textLight),
+                ),
                 const SizedBox(height: 20),
 
                 TextFormField(
-                  controller: _currentPassCtrl,
-                  obscureText: _obscureCurrent,
-                  style: const TextStyle(color: AppColors.textDark),
-                  validator: (val) => val!.isEmpty
-                      ? "Input verification of your operational password sequence"
+                  controller: currentPassCtrl,
+                  obscureText: obscureCurrent,
+                  style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+                  validator: (val) => val == null || val.isEmpty
+                      ? "Please enter your current password"
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'Current Password String',
+                    labelText: 'Current Password',
                     labelStyle: const TextStyle(color: AppColors.textLight),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureCurrent
+                        obscureCurrent
                             ? Icons.visibility_off
                             : Icons.visibility,
                         color: AppColors.textLight,
+                        size: 20,
                       ),
                       onPressed: () => setModalState(
-                        () => _obscureCurrent = !_obscureCurrent,
+                        () => obscureCurrent = !obscureCurrent,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
                 TextFormField(
-                  controller: _newPassCtrl,
-                  obscureText: _obscureNew,
-                  style: const TextStyle(color: AppColors.textDark),
-                  validator: (val) => val!.length < 6
-                      ? "New password string dimensions must cross 6 symbols minimum"
+                  controller: newPassCtrl,
+                  obscureText: obscureNew,
+                  style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+                  validator: (val) => val == null || val.length < 6
+                      ? "Password must be at least 6 characters"
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'New Structural Password',
+                    labelText: 'New Password',
                     labelStyle: const TextStyle(color: AppColors.textLight),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureNew ? Icons.visibility_off : Icons.visibility,
+                        obscureNew ? Icons.visibility_off : Icons.visibility,
                         color: AppColors.textLight,
+                        size: 20,
                       ),
                       onPressed: () =>
-                          setModalState(() => _obscureNew = !_obscureNew),
+                          setModalState(() => obscureNew = !obscureNew),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
 
                 TextFormField(
-                  controller: _confirmPassCtrl,
-                  obscureText: _obscureConfirm,
-                  style: const TextStyle(color: AppColors.textDark),
-                  validator: (val) => val != _newPassCtrl.text
-                      ? "Mismatch detected across structural verification input matrices"
+                  controller: confirmPassCtrl,
+                  obscureText: obscureConfirm,
+                  style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+                  validator: (val) => val != newPassCtrl.text
+                      ? "Passwords do not match"
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'Confirm New Structural Password',
+                    labelText: 'Confirm New Password',
                     labelStyle: const TextStyle(color: AppColors.textLight),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.border)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.border),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureConfirm
+                        obscureConfirm
                             ? Icons.visibility_off
                             : Icons.visibility,
                         color: AppColors.textLight,
+                        size: 20,
                       ),
                       onPressed: () => setModalState(
-                        () => _obscureConfirm = !_obscureConfirm,
+                        () => obscureConfirm = !obscureConfirm,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 8),
+
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    onPressed: () async {
+                      final email = widget.user?.email ?? FirebaseAuth.instance.currentUser?.email;
+                      if (email == null || email.isEmpty) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          const SnackBar(
+                            content: Text("No registered email found for this account."),
+                            backgroundColor: AppColors.danger,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+
+                      try {
+                        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+                        if (!ctx.mounted) return;
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Password reset link sent to $email. Please check your email inbox to reset your password.",
+                            ),
+                            backgroundColor: AppColors.solved,
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(
+                            content: Text("Failed to send reset email: $e"),
+                            backgroundColor: AppColors.danger,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.mail_outline_rounded, size: 14, color: AppColors.primary),
+                    label: const Text(
+                      "Forgot current password? Send reset link to email",
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
 
                 SizedBox(
                   width: double.infinity,
-                  height: 50,
+                  height: 48,
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: AppColors.primaryGradient,
@@ -1615,26 +2279,61 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      onPressed: () {
-                        if (_passFormKey.currentState!.validate()) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Account cryptographic key updated successfully",
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              if (!passFormKey.currentState!.validate()) return;
+                              setModalState(() => isSubmitting = true);
+
+                              final result = await sl<AuthRepository>()
+                                  .changePassword(
+                                currentPassCtrl.text,
+                                newPassCtrl.text,
+                              );
+
+                              if (!context.mounted) return;
+
+                              result.fold(
+                                (failure) {
+                                  setModalState(() => isSubmitting = false);
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          "Password change failed: ${failure.message}"),
+                                      backgroundColor: AppColors.danger,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                                (_) {
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          "Password updated successfully!"),
+                                      backgroundColor: AppColors.solved,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                      child: isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
                               ),
-                              backgroundColor: AppColors.primary,
+                            )
+                          : const Text(
+                              'UPDATE PASSWORD',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          );
-                        }
-                      },
-                      child: const Text(
-                        'ENGAGE SECURITY OVERRIDE',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
                     ),
                   ),
                 ),

@@ -28,71 +28,88 @@ class _SideMenuState extends State<SideMenu> {
     final String? currentRoute = ModalRoute.of(context)?.settings.name;
 
     return Drawer(
-      backgroundColor: AppColors.darkGreen,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header banner inside sidebar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 40,
-                      width: 40,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          "RESQ",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.8,
-                          ),
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+          ),
+          border: Border(
+            right: BorderSide(color: Color(0xFF1E2D4A), width: 1),
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header banner inside sidebar
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.18),
+                          width: 1.5,
                         ),
-                        Text(
-                          "Citizen Portal",
-                          style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
+                      ),
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        height: 38,
+                        width: 38,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            "RESQ",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          Text(
+                            "Citizen Portal",
+                            style: TextStyle(
+                              color: AppColors.textLight,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Divider(color: Colors.white12, height: 1),
-            const SizedBox(height: 20),
+              const Divider(color: Color(0xFF1E2D4A), height: 1),
+              const SizedBox(height: 20),
 
-            menuItem(context, Icons.home_outlined, "User Dashboard", currentRoute == null || currentRoute == '/'),
-            menuItem(context, Icons.warning_amber_rounded, "Report Incident", false),
-            menuItem(context, Icons.list_alt_rounded, "My Reports", false),
-            menuItem(context, Icons.map_outlined, "Maps", false),
-            menuItem(context, Icons.settings_outlined, "Settings", false),
+              menuItem(context, Icons.home_outlined, "User Dashboard", currentRoute == null || currentRoute == '/'),
+              menuItem(context, Icons.warning_amber_rounded, "Report Incident", false),
+              menuItem(context, Icons.list_alt_rounded, "My Reports", false),
+              menuItem(context, Icons.map_outlined, "Maps", false),
+              menuItem(context, Icons.settings_outlined, "Settings", false),
 
-            const Spacer(),
-            const Divider(color: Colors.white12, height: 1),
-            const SizedBox(height: 16),
-            menuItem(context, Icons.logout_rounded, "Logout", false),
-            const SizedBox(height: 16),
-          ],
+              const Spacer(),
+              const Divider(color: Color(0xFF1E2D4A), height: 1),
+              const SizedBox(height: 16),
+              menuItem(context, Icons.logout_rounded, "Logout", false),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -106,18 +123,29 @@ class _SideMenuState extends State<SideMenu> {
     Color tileBgColor = Colors.transparent;
     Color iconColor = Colors.white70;
     Color textColor = Colors.white70;
+    Border border = Border.all(color: Colors.transparent);
 
     if (isLogout) {
-      tileBgColor = isHovered ? AppColors.danger.withValues(alpha: 0.3) : AppColors.danger.withValues(alpha: 0.18);
-      iconColor = Colors.red.shade200;
-      textColor = Colors.red.shade100;
+      tileBgColor = isHovered
+          ? AppColors.danger.withValues(alpha: 0.25)
+          : AppColors.danger.withValues(alpha: 0.12);
+      iconColor = AppColors.danger;
+      textColor = AppColors.danger;
+      border = Border.all(
+        color: isHovered
+            ? AppColors.danger.withValues(alpha: 0.5)
+            : AppColors.danger.withValues(alpha: 0.25),
+      );
     } else {
       if (isSelected) {
-        tileBgColor = Colors.white.withValues(alpha: 0.15);
-        iconColor = Colors.white;
+        tileBgColor = AppColors.primary.withValues(alpha: 0.15);
+        iconColor = AppColors.primary;
         textColor = Colors.white;
+        border = Border.all(
+          color: AppColors.primary.withValues(alpha: 0.35),
+        );
       } else if (isHovered) {
-        tileBgColor = Colors.white.withValues(alpha: 0.08);
+        tileBgColor = Colors.white.withValues(alpha: 0.06);
         iconColor = Colors.white;
         textColor = Colors.white;
       }
@@ -141,6 +169,7 @@ class _SideMenuState extends State<SideMenu> {
           decoration: BoxDecoration(
             color: tileBgColor,
             borderRadius: BorderRadius.circular(12),
+            border: border,
           ),
           child: Material(
             color: Colors.transparent,

@@ -30,13 +30,23 @@ class IncidentModelAdapter extends TypeAdapter<IncidentModel> {
       upvoteCount: fields[10] as int,
       validatedUserIds: (fields[11] as List?)?.cast<String>() ?? const [],
       urgencyStatus: fields[12] as String?,
+      areaSector: fields[13] as String?,
+      isAnonymous: fields[14] as bool? ?? false,
+      dispatcherNotes: fields[15] as String?,
+      reporterName: fields[16] as String?,
+      reporterEmail: fields[17] as String?,
+      videoUrl: fields[18] as String?,
+      isReportingOnBehalf: fields[19] as bool? ?? false,
+      victimName: fields[20] as String?,
+      victimPhone: fields[21] as String?,
+      estimatedResponseTime: fields[22] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, IncidentModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(23)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +72,27 @@ class IncidentModelAdapter extends TypeAdapter<IncidentModel> {
       ..writeByte(11)
       ..write(obj.validatedUserIds)
       ..writeByte(12)
-      ..write(obj.urgencyStatus);
+      ..write(obj.urgencyStatus)
+      ..writeByte(13)
+      ..write(obj.areaSector)
+      ..writeByte(14)
+      ..write(obj.isAnonymous)
+      ..writeByte(15)
+      ..write(obj.dispatcherNotes)
+      ..writeByte(16)
+      ..write(obj.reporterName)
+      ..writeByte(17)
+      ..write(obj.reporterEmail)
+      ..writeByte(18)
+      ..write(obj.videoUrl)
+      ..writeByte(19)
+      ..write(obj.isReportingOnBehalf)
+      ..writeByte(20)
+      ..write(obj.victimName)
+      ..writeByte(21)
+      ..write(obj.victimPhone)
+      ..writeByte(22)
+      ..write(obj.estimatedResponseTime);
   }
 
   @override

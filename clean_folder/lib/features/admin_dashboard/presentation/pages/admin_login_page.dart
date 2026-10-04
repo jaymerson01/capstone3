@@ -1,13 +1,19 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 
 class AdminLoginPage extends StatefulWidget {
-  const AdminLoginPage({super.key});
+  final String? initialErrorMessage;
+  const AdminLoginPage({super.key, this.initialErrorMessage});
 
   @override
   State<AdminLoginPage> createState() => _AdminLoginPageState();
@@ -31,6 +37,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
   @override
   void initState() {
     super.initState();
+    _errorMessage = widget.initialErrorMessage;
     _bgController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 14),
@@ -70,6 +77,8 @@ class _AdminLoginPageState extends State<AdminLoginPage>
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
+    debugPrint("🔑 [AdminLogin] Attempting admin sign-in for: '$email'");
+
     try {
       final authRepo = sl<AuthRepository>();
       final result = await authRepo.signInWithEmail(email, password);
@@ -78,37 +87,168 @@ class _AdminLoginPageState extends State<AdminLoginPage>
 
       result.fold(
         (failure) {
-          // Fallback convenience for initial offline/local testing
-          if (email == "admin@safe.gov" && password == "admin123") {
+          debugPrint("❌ [AdminLogin] Sign-in failure: ${failure.message}");
+          setState(() {
+            _isLoading = false;
+            _errorMessage = failure.message;
+          });
+        },
+        (user) async {
+          debugPrint("👤 [AdminLogin] User authenticated: ${user.email} (Role: '${user.role}', UID: ${user.id})");
+          if (user.isAdmin) {
+            try {
+              await Hive.box('auth').put('isLoggedIn', true);
+              await Hive.box('auth').put('userRole', user.role);
+            } catch (_) {}
+            if (!mounted) return;
+            context.read<AuthBloc>().add(const AuthCheckRequested());
             setState(() => _isLoading = false);
+            debugPrint("🚀 [AdminLogin] Access granted. Navigating to /admin/dashboard");
             Navigator.pushReplacementNamed(context, '/admin/dashboard');
           } else {
+            debugPrint("⛔ [AdminLogin] Access Denied: User role is '${user.role}' instead of 'admin'.");
+            await authRepo.signOut();
+            if (!mounted) return;
             setState(() {
               _isLoading = false;
-              _errorMessage = failure.message;
-            });
-          }
-        },
-        (user) {
-          setState(() => _isLoading = false);
-          if (user.isAdmin) {
-            Navigator.pushReplacementNamed(context, '/admin/dashboard');
-          } else {
-            authRepo.signOut();
-            setState(() {
               _errorMessage =
-                  "Access Denied: This account does not have Admin privileges.";
+                  "Access Denied: Account '${user.email}' has role '${user.role}', which does not have Admin privileges.";
             });
           }
         },
       );
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint("💥 [AdminLogin] Exception during login: $e\n$stack");
       if (!mounted) return;
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();
       });
     }
+  }
+
+  void _showForgotPasswordDialog() {
+    final resetEmailController =
+        TextEditingController(text: _emailController.text.trim());
+    final messenger = ScaffoldMessenger.of(context);
+    bool isSending = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (dialogStateContext, setDialogState) => AlertDialog(
+          backgroundColor: const Color(0xFF0D1627),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: Color(0xFF1E2D4A)),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.lock_reset_rounded,
+                    color: AppColors.primary, size: 22),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  "Reset Admin Password",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Enter your registered municipal admin email address. We will dispatch a secure Google password reset link directly to your inbox.",
+                style: TextStyle(
+                    color: Color(0xFF98A6BE), fontSize: 12.5, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              Custom3dTextField(
+                controller: resetEmailController,
+                labelText: "Admin Email",
+                hintText: "admin@example.com",
+                prefixIcon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSending ? null : () => Navigator.pop(dialogCtx),
+              child: const Text("Cancel",
+                  style: TextStyle(color: AppColors.textLight)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: isSending
+                  ? null
+                  : () async {
+                      final email = resetEmailController.text.trim();
+                      if (email.isEmpty || !email.contains('@')) {
+                        messenger.showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                "Please enter a valid registered email address."),
+                            backgroundColor: AppColors.warning,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isSending = true);
+                      try {
+                        await FirebaseAuth.instance
+                            .sendPasswordResetEmail(email: email);
+                        if (dialogCtx.mounted) Navigator.pop(dialogCtx);
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Password reset email dispatched to $email! Please check your inbox."),
+                            backgroundColor: AppColors.solved,
+                            duration: const Duration(seconds: 6),
+                          ),
+                        );
+                      } catch (e) {
+                        setDialogState(() => isSending = false);
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text("Failed to send reset link: $e"),
+                            backgroundColor: AppColors.danger,
+                          ),
+                        );
+                      }
+                    },
+              child: isSending
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text("Send Reset Link"),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -174,24 +314,24 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Back button
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton.icon(
-                            onPressed: () =>
-                                Navigator.pushReplacementNamed(context, '/'),
-                            icon: const Icon(Icons.arrow_back,
-                                size: 16, color: AppColors.textLight),
-                            label: const Text(
-                              "Return to App Welcome",
-                              style: TextStyle(
-                                color: AppColors.textLight,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
+                        // Back button (if accessible from navigation stack)
+                        if (Navigator.canPop(context))
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.arrow_back,
+                                  size: 16, color: AppColors.textLight),
+                              label: const Text(
+                                "Back",
+                                style: TextStyle(
+                                  color: AppColors.textLight,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
                           ),
-                        ),
                         const SizedBox(height: 24),
 
                         // Admin shield icon
@@ -311,17 +451,19 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                       Custom3dTextField(
                                         controller: _emailController,
                                         labelText: "Admin Email",
-                                        hintText: "e.g. admin@safe.gov",
+                                        hintText: "e.g. dispatcher@gmail.com",
                                         prefixIcon: Icons.email_outlined,
                                         keyboardType:
                                             TextInputType.emailAddress,
                                         validator: (v) {
-                                          if (v == null || v.isEmpty)
+                                          if (v == null || v.isEmpty) {
                                             return "Email required.";
+                                          }
                                           if (!RegExp(
                                                   r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                              .hasMatch(v))
+                                              .hasMatch(v)) {
                                             return "Enter valid email.";
+                                          }
                                           return null;
                                         },
                                       ),
@@ -329,7 +471,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                       Custom3dTextField(
                                         controller: _passwordController,
                                         labelText: "Admin Password",
-                                        hintText: "e.g. admin123",
+                                        hintText: "Enter secure password",
                                         prefixIcon: Icons.lock_outline,
                                         obscureText: _obscurePassword,
                                         suffixIcon: IconButton(
@@ -345,13 +487,39 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                                   !_obscurePassword),
                                         ),
                                         validator: (v) {
-                                          if (v == null || v.isEmpty)
+                                          if (v == null || v.isEmpty) {
                                             return "Password required.";
+                                          }
                                           return null;
                                         },
                                       ),
 
-                                      const SizedBox(height: 8),
+                                      const SizedBox(height: 4),
+
+                                      // Forgot Password trigger
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: TextButton(
+                                          onPressed: _isLoading
+                                              ? null
+                                              : _showForgotPasswordDialog,
+                                          style: TextButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 4, vertical: 2),
+                                            visualDensity: VisualDensity.compact,
+                                          ),
+                                          child: const Text(
+                                            "Forgot Password?",
+                                            style: TextStyle(
+                                              color: AppColors.primary,
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 12),
 
                                       Custom3dButton(
                                         text: _isLoading
@@ -368,32 +536,34 @@ class _AdminLoginPageState extends State<AdminLoginPage>
 
                                       const SizedBox(height: 20),
 
-                                      // Credentials hint
+                                      // Municipal Security Notice
                                       Container(
-                                        padding: const EdgeInsets.all(12),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 10),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary
-                                              .withValues(alpha: 0.08),
+                                          color: const Color(0xFF0D1627),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
-                                              color: AppColors.primary
-                                                  .withValues(alpha: 0.15)),
+                                            color: const Color(0xFF1E2D4A),
+                                          ),
                                         ),
-                                        child: Row(
+                                        child: const Row(
                                           children: [
-                                            const Icon(
-                                                Icons.info_outline,
-                                                color: AppColors.primary,
-                                                size: 15),
-                                            const SizedBox(width: 8),
-                                            const Expanded(
+                                            Icon(
+                                              Icons.shield_outlined,
+                                              color: Color(0xFF30D158),
+                                              size: 16,
+                                            ),
+                                            SizedBox(width: 10),
+                                            Expanded(
                                               child: Text(
-                                                "Demo: admin@safe.gov · admin123",
+                                                "Authorized municipal personnel only. All access attempts are recorded.",
                                                 style: TextStyle(
                                                   color: AppColors.textLight,
                                                   fontSize: 11,
-                                                  fontWeight: FontWeight.w600,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1.3,
                                                 ),
                                               ),
                                             ),

@@ -20,7 +20,7 @@ class IncidentTrackingSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent, // Ensures the rounded corners display properly over the map
-      barrierColor: Colors.black.withOpacity(0.4), // Translucent overlay to keep map context visible
+      barrierColor: Colors.black.withValues(alpha: 0.4), // Translucent overlay to keep map context visible
       builder: (context) {
         return IncidentTrackingSheet(initialIncident: incident);
       },

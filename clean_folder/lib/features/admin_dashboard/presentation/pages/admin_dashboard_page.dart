@@ -1,357 +1,847 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
+import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 
+import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
+import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_player_dialog.dart';
+import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/custom_line_chart.dart';
 import '../widgets/custom_pie_chart.dart';
 
-// TODO: Wire to AdminBloc / IncidentBloc
-class AdminDashboardPage extends StatelessWidget {
-  const AdminDashboardPage({super.key});
+class AdminDashboardPage extends StatefulWidget {
+  final VoidCallback? onViewAllReports;
+
+  const AdminDashboardPage({super.key, this.onViewAllReports});
 
   @override
-  Widget build(BuildContext context) {
-    // Hardcoded mock variables for UI Porting
-    const int totalIncidents = 248;
-    const int totalAreas = 14;
-    const int solvedCases = 185;
-    const int registeredUsers = 1245;
-    
-    final List<Map<String, dynamic>> mockReports = [
-      {
-        'incidentType': 'Medical Emergency',
-        'location': 'Zone 4, Moonwalk',
-        'reporterName': 'John Echano',
-        'date': DateTime.now(),
-        'statusLabel': 'In Progress',
-        'status': 'inProgress',
-      },
-      {
-        'incidentType': 'Fire Alert',
-        'location': 'St. Francis Compound',
-        'reporterName': 'Maria Santos',
-        'date': DateTime.now().subtract(const Duration(hours: 2)),
-        'statusLabel': 'Pending',
-        'status': 'pending',
-      },
-      {
-        'incidentType': 'Security Threat',
-        'location': 'Ph 1 Main Gate',
-        'reporterName': 'Security Officer 1',
-        'date': DateTime.now().subtract(const Duration(days: 1)),
-        'statusLabel': 'Solved',
-        'status': 'solved',
-      },
-      {
-        'incidentType': 'Medical Emergency',
-        'location': 'Zone 2, Sector A',
-        'reporterName': 'Anonymous',
-        'date': DateTime.now().subtract(const Duration(days: 2)),
-        'statusLabel': 'Solved',
-        'status': 'solved',
-      },
-    ];
+  State<AdminDashboardPage> createState() => _AdminDashboardPageState();
+}
 
+class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  @override
+  Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isDesktop = screenWidth >= 1100;
     final bool isTablet = screenWidth >= 700 && screenWidth < 1100;
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Welcome Header ──────────────────────────────────────────
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
-              ),
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.2)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
+    return BlocBuilder<IncidentBloc, IncidentState>(
+      builder: (context, state) {
+        final List<IncidentEntity> incidents = state is IncidentLoaded
+            ? state.incidents
+            : [];
+
+        final int totalIncidents = incidents.length;
+        final int solvedCases = incidents.where((i) => i.isSolved).length;
+
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('broadcasts')
+              .where('isActive', isEqualTo: true)
+              .snapshots(),
+          builder: (context, broadcastSnapshot) {
+            final int activeSirens =
+                broadcastSnapshot.hasData ? broadcastSnapshot.data!.docs.length : 0;
+
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('users').snapshots(),
+              builder: (context, usersSnapshot) {
+                final int registeredUsers =
+                    usersSnapshot.hasData ? usersSnapshot.data!.docs.length : 0;
+
+                return SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(24.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Welcome back, Admin!",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textDark,
-                          letterSpacing: -0.3,
-                        ),
+                      // ── Welcome Header ──────────────────────────────────────
+                      _buildWelcomeHeader(),
+                      const SizedBox(height: 28),
+
+                      // ── Live Stat Cards ──────────────────────────────────────
+                      GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: 1.5,
+                        children: [
+                          StatCard(
+                            title: "Incident Reports",
+                            value: totalIncidents.toString(),
+                            icon: Icons.warning_amber_rounded,
+                            backgroundColor: const Color(0xFF0A84FF),
+                          ),
+                          StatCard(
+                            title: "Active Sirens",
+                            value: activeSirens.toString(),
+                            icon: Icons.emergency_share_rounded,
+                            backgroundColor: activeSirens > 0
+                                ? const Color(0xFFFF3B30)
+                                : const Color(0xFF3A4B6B),
+                          ),
+                          StatCard(
+                            title: "Solved Cases",
+                            value: solvedCases.toString(),
+                            icon: Icons.check_circle_outline,
+                            backgroundColor: const Color(0xFF30D158),
+                          ),
+                          StatCard(
+                            title: "Registered Citizens",
+                            value: registeredUsers.toString(),
+                            icon: Icons.people_alt_outlined,
+                            backgroundColor: const Color(0xFF7C4DFF),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 5),
-                      const Text(
-                        "Monitor community safety alerts and dispatch statuses in Moonwalk.",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textLight,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Live status pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: AppColors.solved.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color:
-                                  AppColors.solved.withValues(alpha: 0.25)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                      const SizedBox(height: 28),
+
+                      // ── Charts ──────────────────────────────────────────────
+                      if (isDesktop)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              width: 7,
-                              height: 7,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.solved,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.solved
-                                        .withValues(alpha: 0.6),
-                                    blurRadius: 6,
-                                  ),
-                                ],
-                              ),
+                            Expanded(
+                              flex: 6,
+                              child: CustomLineChart(incidents: incidents),
                             ),
-                            const SizedBox(width: 7),
-                            const Text(
-                              "Command Center Online",
-                              style: TextStyle(
-                                color: AppColors.solved,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              flex: 4,
+                              child: CustomPieChart(incidents: incidents),
+                            ),
+                          ],
+                        )
+                      else
+                        Column(
+                          children: [
+                            CustomLineChart(incidents: incidents),
+                            const SizedBox(height: 20),
+                            CustomPieChart(incidents: incidents),
+                          ],
+                        ),
+
+                      const SizedBox(height: 28),
+
+                      // ── Recent Urgent Incidents Table ───────────────────────
+                      _buildRecentIncidentsCard(context, incidents),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildWelcomeHeader() {
+    final now = DateTime.now();
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withValues(alpha: 0.12),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Barangay Moonwalk Command Center",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textDark,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  "Real-time community safety dispatch, municipal alerts, and telemetry overview.",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textLight,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Live status pill
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.solved.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.solved.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.solved,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.solved.withValues(alpha: 0.6),
+                              blurRadius: 6,
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 20),
-                // Date badge
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2)),
-                  ),
-                  child: Column(
-                    children: [
-                      const Icon(Icons.calendar_today_outlined,
-                          size: 18, color: AppColors.primary),
-                      const SizedBox(height: 6),
-                      Text(
-                        "${DateTime.now().day}",
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.textDark,
-                        ),
-                      ),
-                      Text(
-                        _monthName(DateTime.now().month),
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.textLight,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 28),
-
-          // ── Stat Cards ──────────────────────────────────────────────
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 1.5,
-            children: [
-              StatCard(
-                title: "Incident Reports",
-                value: totalIncidents.toString(),
-                icon: Icons.warning_amber_rounded,
-                backgroundColor: const Color(0xFFFF3B30),
-              ),
-              StatCard(
-                title: "Total Areas",
-                value: totalAreas.toString(),
-                icon: Icons.map_outlined,
-                backgroundColor: const Color(0xFF0A84FF),
-              ),
-              StatCard(
-                title: "Solved Cases",
-                value: solvedCases.toString(),
-                icon: Icons.check_circle_outline,
-                backgroundColor: const Color(0xFF30D158),
-              ),
-              StatCard(
-                title: "Registered Users",
-                value: registeredUsers.toString(),
-                icon: Icons.people_alt_outlined,
-                backgroundColor: const Color(0xFF6E40C9),
-              ),
-            ],
-          ),
-          const SizedBox(height: 28),
-
-          // ── Charts ──────────────────────────────────────────────────
-          if (isDesktop)
-            const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(flex: 6, child: CustomLineChart()),
-                SizedBox(width: 20),
-                Expanded(flex: 4, child: CustomPieChart()),
-              ],
-            )
-          else
-            const Column(
-              children: [
-                CustomLineChart(),
-                SizedBox(height: 20),
-                CustomPieChart(),
-              ],
-            ),
-
-          const SizedBox(height: 28),
-
-          // ── Recent Incidents Table ──────────────────────────────────
-          Custom3dCard(
-            padding: const EdgeInsets.all(22),
-            borderRadius: 22,
-            margin: EdgeInsets.zero,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.bolt_outlined,
-                              color: AppColors.primary, size: 16),
-                        ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          "Recent Urgent Incidents",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                    TextButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Row(
-                              children: [
-                                Icon(Icons.info_outline,
-                                    color: Colors.white, size: 16),
-                                SizedBox(width: 10),
-                                Text(
-                                    "Navigate to 'Incident Reports' from sidebar."),
-                              ],
-                            ),
-                            backgroundColor: AppColors.surface,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(
-                                  color: AppColors.border),
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.arrow_forward,
-                          size: 14, color: AppColors.primary),
-                      label: const Text(
-                        "View All",
+                      const SizedBox(width: 7),
+                      const Text(
+                        "Command Center Online · Live Firestore Sync",
                         style: TextStyle(
-                          color: AppColors.primary,
+                          color: AppColors.solved,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          fontSize: 13,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Container(height: 1, color: AppColors.border),
-                const SizedBox(height: 12),
-
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: mockReports.take(4).length,
-                  separatorBuilder: (context, index) => Container(
-                    height: 1,
-                    color: AppColors.border,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    ],
                   ),
-                  itemBuilder: (context, index) {
-                    final report = mockReports[index];
-                    final statusClr = AppColors.statusColor(report['statusLabel'] as String);
-
-                    return _IncidentRow(
-                      report: report,
-                      statusColor: statusClr,
-                    );
-                  },
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(width: 20),
+          // Date badge
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Column(
+              children: [
+                const Icon(
+                  Icons.calendar_today_outlined,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "${now.day}",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.textDark,
+                  ),
+                ),
+                Text(
+                  _monthName(now.month),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.textLight,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  String _monthName(int month) {
+  Widget _buildRecentIncidentsCard(
+    BuildContext context,
+    List<IncidentEntity> incidents,
+  ) {
+    // Sort descending by timestamp and take top 5
+    final recentList = List<IncidentEntity>.from(incidents)
+      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+    final displayList = recentList.take(5).toList();
+
+    return Custom3dCard(
+      padding: const EdgeInsets.all(22),
+      borderRadius: 22,
+      margin: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.bolt_outlined,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Recent Community Incidents",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        "Live stream of latest incoming citizen emergency reports",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              TextButton.icon(
+                onPressed: widget.onViewAllReports,
+                icon: const Icon(
+                  Icons.arrow_forward,
+                  size: 14,
+                  color: AppColors.primary,
+                ),
+                label: const Text(
+                  "View All in Dispatch",
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Container(height: 1, color: AppColors.border),
+          const SizedBox(height: 12),
+
+          if (displayList.isEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 36),
+              alignment: Alignment.center,
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.check_circle_outline,
+                    color: const Color(0xFF30D158).withValues(alpha: 0.5),
+                    size: 40,
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "No active or pending incident reports",
+                    style: TextStyle(
+                      color: Color(0xFF7B8DB0),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: displayList.length,
+              separatorBuilder: (context, index) => Container(
+                height: 1,
+                color: AppColors.border,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+              ),
+              itemBuilder: (context, index) {
+                final incident = displayList[index];
+                return _IncidentListItem(
+                  incident: incident,
+                  onTap: () => _showIncidentDetailModal(context, incident),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showIncidentDetailModal(BuildContext context, IncidentEntity inc) {
+    final statusColor = _statusColor(inc.status);
+    final isUrgent = (inc.urgencyStatus ?? '').toLowerCase() == 'critical' ||
+        (inc.urgencyStatus ?? '').toLowerCase() == 'high';
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return Dialog(
+          backgroundColor: const Color(0xFF0D1627),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+            side: const BorderSide(color: Color(0xFF1E2D4A)),
+          ),
+          child: Container(
+            width: 540,
+            padding: const EdgeInsets.all(26),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Top Title & Close
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              _categoryIcon(inc.category),
+                              color: statusColor,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                inc.category,
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w900,
+                                  color: Color(0xFFE8F0FE),
+                                ),
+                              ),
+                              Text(
+                                "Report ID: ${inc.id.length > 10 ? inc.id.substring(0, 10) : inc.id}",
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: Color(0xFF7B8DB0),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                        onPressed: () => Navigator.pop(dialogCtx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  const Divider(color: Color(0xFF1E2D4A)),
+                  const SizedBox(height: 14),
+
+                  // Urgency and Status Tags
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: Text(
+                          inc.status.toUpperCase(),
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      if (isUrgent)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF3B30).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color:
+                                  const Color(0xFFFF3B30).withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: const Text(
+                            "HIGH PRIORITY",
+                            style: TextStyle(
+                              color: Color(0xFFFF3B30),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      const Spacer(),
+                      Text(
+                        "${inc.upvoteCount} Corroborated",
+                        style: const TextStyle(
+                          color: Color(0xFF00E5FF),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Description
+                  const Text(
+                    "Citizen Description",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF7B8DB0),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF060D1A),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                    ),
+                    child: Text(
+                      inc.description.isEmpty
+                          ? "No narrative provided."
+                          : inc.description,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFFE8F0FE),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Location & Reporter Details
+                  _modalDetailRow(
+                    Icons.location_on_outlined,
+                    "Location",
+                    inc.resolvedAddress ??
+                        inc.areaSector ??
+                        "GPS (${inc.latitude.toStringAsFixed(4)}, ${inc.longitude.toStringAsFixed(4)})",
+                  ),
+                  const SizedBox(height: 8),
+                  _modalDetailRow(
+                    Icons.person_outline,
+                    "Reporter",
+                    inc.isAnonymous
+                        ? "Anonymous Citizen"
+                        : (inc.reporterName ?? inc.reporterEmail ?? inc.reporterId),
+                  ),
+                  const SizedBox(height: 8),
+                  _modalDetailRow(
+                    Icons.access_time_rounded,
+                    "Reported At",
+                    "${inc.timestamp.day}/${inc.timestamp.month}/${inc.timestamp.year} ${inc.timestamp.hour.toString().padLeft(2, '0')}:${inc.timestamp.minute.toString().padLeft(2, '0')}",
+                  ),
+
+                  // Evidence preview if present
+                  if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    const Text(
+                      "Photo Evidence",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF7B8DB0),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () {
+                        InAppImageViewerDialog.show(
+                          context,
+                          imageUrl: inc.photoUrl!,
+                          title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Photo Evidence",
+                        );
+                      },
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: Tooltip(
+                          message: "Click to open full resolution viewer",
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              inc.photoUrl!,
+                              height: 180,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                              errorBuilder: (ctx, err, stack) {
+                                return Container(
+                                  height: 80,
+                                  color: const Color(0xFF060D1A),
+                                  alignment: Alignment.center,
+                                  child: const Text(
+                                    "Unable to load evidence image",
+                                    style: TextStyle(
+                                      color: Color(0xFF7B8DB0),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    const Text(
+                      "Video Evidence",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF7B8DB0),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF060D1A),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF0A84FF).withValues(alpha: 0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Text(
+                              "Video Recording Attached",
+                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0A84FF),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                            label: const Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            onPressed: () {
+                              InAppEvidencePlayerDialog.show(
+                                context,
+                                videoUrl: inc.videoUrl!,
+                                title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Video Evidence",
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  if (inc.dispatcherNotes != null &&
+                      inc.dispatcherNotes!.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    const Text(
+                      "Dispatcher Remarks",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF00E5FF),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFF00E5FF).withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Text(
+                        inc.dispatcherNotes!,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFFE8F0FE),
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+
+                  const SizedBox(height: 22),
+                  // Action buttons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogCtx),
+                        child: const Text(
+                          "Close",
+                          style: TextStyle(color: Color(0xFF7B8DB0)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(dialogCtx);
+                          if (widget.onViewAllReports != null) {
+                            widget.onViewAllReports!();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0A84FF),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        icon: const Icon(
+                          Icons.open_in_new,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          "Manage in Dispatch",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _modalDetailRow(IconData icon, String title, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF7B8DB0)),
+        const SizedBox(width: 8),
+        Text(
+          "$title: ",
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF7B8DB0),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFFE8F0FE),
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static IconData _categoryIcon(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('fire')) return Icons.local_fire_department_rounded;
+    if (cat.contains('medic')) return Icons.medical_services_rounded;
+    if (cat.contains('theft') || cat.contains('rob')) return Icons.shield_outlined;
+    if (cat.contains('flood')) return Icons.water_damage_rounded;
+    if (cat.contains('accident')) return Icons.car_crash_rounded;
+    if (cat.contains('violenc') || cat.contains('fight')) return Icons.sports_kabaddi_rounded;
+    return Icons.warning_amber_rounded;
+  }
+
+  static Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'solved':
+      case 'resolved':
+        return const Color(0xFF30D158);
+      case 'inprogress':
+      case 'in progress':
+      case 'responding':
+        return const Color(0xFF00E5FF);
+      case 'spam':
+        return const Color(0xFFFF453A);
+      default:
+        return const Color(0xFFFF9F0A);
+    }
+  }
+
+  static String _monthName(int month) {
     const months = [
       '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
@@ -360,119 +850,105 @@ class AdminDashboardPage extends StatelessWidget {
   }
 }
 
-class _IncidentRow extends StatefulWidget {
-  final Map<String, dynamic> report;
-  final Color statusColor;
+class _IncidentListItem extends StatefulWidget {
+  final IncidentEntity incident;
+  final VoidCallback onTap;
 
-  const _IncidentRow({required this.report, required this.statusColor});
+  const _IncidentListItem({required this.incident, required this.onTap});
 
   @override
-  State<_IncidentRow> createState() => _IncidentRowState();
+  State<_IncidentListItem> createState() => _IncidentListItemState();
 }
 
-class _IncidentRowState extends State<_IncidentRow> {
+class _IncidentListItemState extends State<_IncidentListItem> {
   bool _hovered = false;
-
-  IconData _getIcon(String status) {
-    switch (status) {
-      case 'solved':
-        return Icons.check_circle_outline;
-      case 'inProgress':
-        return Icons.sync;
-      default:
-        return Icons.hourglass_empty;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final report = widget.report;
-    final statusClr = widget.statusColor;
-    final DateTime date = report['date'];
+    final inc = widget.incident;
+    final statusClr = _AdminDashboardPageState._statusColor(inc.status);
+    final date = inc.timestamp;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        decoration: BoxDecoration(
-          color: _hovered
-              ? AppColors.primary.withValues(alpha: 0.05)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: statusClr.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: statusClr.withValues(alpha: 0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Icon(
-                _getIcon(report['status'] as String),
-                color: statusClr,
-                size: 19,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "${report['incidentType']} — ${report['location']}",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: AppColors.textDark,
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: _hovered
+                ? AppColors.primary.withValues(alpha: 0.08)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: statusClr.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: statusClr.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    "By ${report['reporterName']} · ${date.day}/${date.month}/${date.year}",
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textLight,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
-                color: statusClr.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: statusClr.withValues(alpha: 0.3)),
-                boxShadow: [
-                  BoxShadow(
-                    color: statusClr.withValues(alpha: 0.18),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Text(
-                report['statusLabel'] as String,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
+                  ],
+                ),
+                child: Icon(
+                  _AdminDashboardPageState._categoryIcon(inc.category),
                   color: statusClr,
+                  size: 19,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${inc.category} — ${BarangaySectorHelper.normalizeSector(inc.areaSector, inc.resolvedAddress)}",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        color: AppColors.textDark,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      "By ${inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? 'Citizen')} · ${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: statusClr.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: statusClr.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  inc.status.toUpperCase(),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: statusClr,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

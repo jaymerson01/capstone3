@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "643779102657",
+    "project_id": "resq-community-safety",
+    "storage_bucket": "resq-community-safety.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:643779102657:android:e2a9e8861cd1a3fe9f9140",
+        "android_client_info": {
+          "package_name": "com.example.community_safety_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "643779102657-3gm2pha50suntm4u6ug4slm60ji0ahec.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuSyJu9AYx9GrYxLPHowI1TCl05iQQsK8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "643779102657-3gm2pha50suntm4u6ug4slm60ji0ahec.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

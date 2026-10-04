@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hive/hive.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> signInWithEmailAndPassword(String email, String password);
+  Future<UserModel> signInWithGoogle();
   Future<UserModel> signUpWithEmailAndPassword(
     String email,
     String password, {
@@ -111,8 +114,58 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<UserModel> signInWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      throw FirebaseAuthException(
+        code: 'sign-in-canceled',
+        message: 'Google Sign-In was cancelled by the user.',
+      );
+    }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+    final User? firebaseUser = userCredential.user;
+    if (firebaseUser == null) {
+      throw FirebaseAuthException(
+        code: 'user-not-found',
+        message: 'No authenticated user record returned from Google.',
+      );
+    }
+
+    final docRef = _firestore.collection('users').doc(firebaseUser.uid);
+    final docSnapshot = await docRef.get();
+
+    if (!docSnapshot.exists) {
+      final newModel = UserModel(
+        id: firebaseUser.uid,
+        email: firebaseUser.email ?? '',
+        displayName: firebaseUser.displayName ?? (googleUser.displayName ?? 'Resident Citizen'),
+        photoUrl: firebaseUser.photoURL ?? googleUser.photoUrl,
+        role: 'resident',
+        isVerified: true,
+        isActive: true,
+        createdAt: DateTime.now(),
+      );
+      await docRef.set(newModel.toMap());
+      return newModel;
+    } else {
+      return UserModel.fromFirestore(docSnapshot);
+    }
+  }
+
+  @override
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
+    try {
+      await GoogleSignIn().signOut();
+    } catch (_) {}
   }
 
   @override
@@ -120,25 +173,52 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser == null) return null;
 
-    final docRef = _firestore.collection('users').doc(firebaseUser.uid);
-    final docSnapshot = await docRef.get();
+    try {
+      final docRef = _firestore.collection('users').doc(firebaseUser.uid);
+      final docSnapshot =
+          await docRef.get().timeout(const Duration(seconds: 4));
 
-    if (!docSnapshot.exists) {
-      // Role defaults to 'resident'. Admin role is assigned via Firestore only.
-      final fallbackModel = UserModel(
+      if (!docSnapshot.exists) {
+        // Role defaults to 'resident'. Admin role is assigned via Firestore only.
+        final fallbackModel = UserModel(
+          id: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+          displayName: firebaseUser.displayName ?? 'Resident Citizen',
+          role: 'resident',
+          isVerified: firebaseUser.emailVerified,
+          isActive: true,
+          createdAt: DateTime.now(),
+        );
+        try {
+          await docRef
+              .set(fallbackModel.toMap())
+              .timeout(const Duration(seconds: 2));
+        } catch (_) {}
+        return fallbackModel;
+      }
+
+      return UserModel.fromFirestore(docSnapshot);
+    } catch (_) {
+      // Offline fallback: Use Hive cache or fallback to firebaseUser credentials
+      String cachedRole = 'resident';
+      try {
+        if (Hive.isBoxOpen('auth')) {
+          cachedRole = Hive.box('auth').get('userRole', defaultValue: 'resident')
+                  as String? ??
+              'resident';
+        }
+      } catch (_) {}
+
+      return UserModel(
         id: firebaseUser.uid,
         email: firebaseUser.email ?? '',
         displayName: firebaseUser.displayName ?? 'Resident Citizen',
-        role: 'resident',
+        role: cachedRole,
         isVerified: firebaseUser.emailVerified,
         isActive: true,
         createdAt: DateTime.now(),
       );
-      await docRef.set(fallbackModel.toMap());
-      return fallbackModel;
     }
-
-    return UserModel.fromFirestore(docSnapshot);
   }
 
   @override
@@ -148,6 +228,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     if (user.displayName != null && user.displayName!.isNotEmpty) {
       await _firebaseAuth.currentUser?.updateDisplayName(user.displayName);
+    }
+    if (user.photoUrl != null && user.photoUrl!.isNotEmpty) {
+      await _firebaseAuth.currentUser?.updatePhotoURL(user.photoUrl);
     }
 
     return user;

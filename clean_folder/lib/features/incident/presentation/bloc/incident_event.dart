@@ -8,6 +8,12 @@ class StreamActiveIncidentsRequested extends IncidentEvent {
   const StreamActiveIncidentsRequested();
 }
 
+class StreamUserIncidentsRequested extends IncidentEvent {
+  final String userId;
+
+  const StreamUserIncidentsRequested(this.userId);
+}
+
 class IncidentsUpdated extends IncidentEvent {
   final List<IncidentEntity> incidents;
 
@@ -30,4 +36,35 @@ class AnalyzeIncidentNarrativeEvent extends IncidentEvent {
   final String description;
 
   const AnalyzeIncidentNarrativeEvent(this.description);
+}
+
+class UpvoteIncidentRequested extends IncidentEvent {
+  final String incidentId;
+  final String userId;
+
+  const UpvoteIncidentRequested(this.incidentId, this.userId);
+}
+
+class StreamAllIncidentsRequested extends IncidentEvent {
+  const StreamAllIncidentsRequested();
+}
+
+class UpdateIncidentStatusRequested extends IncidentEvent {
+  final String incidentId;
+  final String status;
+  final String? dispatcherNotes;
+  final String? estimatedResponseTime;
+
+  const UpdateIncidentStatusRequested(
+    this.incidentId,
+    this.status, {
+    this.dispatcherNotes,
+    this.estimatedResponseTime,
+  });
+}
+
+class ArchiveIncidentRequested extends IncidentEvent {
+  final String incidentId;
+
+  const ArchiveIncidentRequested(this.incidentId);
 }

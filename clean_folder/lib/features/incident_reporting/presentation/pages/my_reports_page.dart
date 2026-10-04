@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
+import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 
 class MyReportsPage extends StatefulWidget {
@@ -21,13 +25,19 @@ class _MyReportsPageState extends State<MyReportsPage>
   @override
   void initState() {
     super.initState();
-    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
-    
+    _loadUserReports();
     _entranceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
     _entranceController.forward();
+  }
+
+  void _loadUserReports() {
+    final authState = context.read<AuthBloc>().state;
+    final currentUserId =
+        (authState is Authenticated) ? authState.user.id : 'resident_local';
+    context.read<IncidentBloc>().add(StreamUserIncidentsRequested(currentUserId));
   }
 
   @override
@@ -57,7 +67,7 @@ class _MyReportsPageState extends State<MyReportsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: _MyReportsAppBar(),
+      appBar: const _MyReportsAppBar(),
       body: FadeTransition(
         opacity: _entranceController,
         child: Padding(
@@ -137,13 +147,14 @@ class _MyReportsPageState extends State<MyReportsPage>
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
+                    _loadUserReports();
                   },
                   child: BlocBuilder<IncidentBloc, IncidentState>(
                     builder: (context, state) {
                       if (state is IncidentLoading) {
                         return const Center(
-                          child: CircularProgressIndicator(color: AppColors.primary),
+                          child: CircularProgressIndicator(
+                              color: AppColors.primary),
                         );
                       } else if (state is IncidentError) {
                         return ListView(
@@ -155,9 +166,6 @@ class _MyReportsPageState extends State<MyReportsPage>
                       } else if (state is IncidentLoaded) {
                         final incidents = state.incidents;
 
-                        // Note: In my_reports_page, you might want to filter by the current user's ID
-                        // but since the original BLoC implementation handled filtering in the widget or relied
-                        // on StreamActiveIncidentsRequested to return the appropriate list, we filter by status.
                         final filteredIncidents = incidents.where((incident) {
                           if (selectedFilter == "ALL") return true;
                           if (selectedFilter == "Resolved") {
@@ -165,7 +173,8 @@ class _MyReportsPageState extends State<MyReportsPage>
                                 incident.status.toLowerCase() == "solved" ||
                                 incident.status.toLowerCase() == "resolve";
                           }
-                          return incident.status.toLowerCase() == selectedFilter.toLowerCase();
+                          return incident.status.toLowerCase() ==
+                              selectedFilter.toLowerCase();
                         }).toList();
 
                         if (filteredIncidents.isEmpty) {
@@ -183,15 +192,20 @@ class _MyReportsPageState extends State<MyReportsPage>
                           itemCount: filteredIncidents.length,
                           itemBuilder: (context, index) {
                             final incident = filteredIncidents[index];
-                            final formattedTime =
-                                "${incident.timestamp.day}/${incident.timestamp.month}/${incident.timestamp.year} ${incident.timestamp.hour}:${incident.timestamp.minute.toString().padLeft(2, '0')}";
                             return _AnimatedReportCard(
                               delay: Duration(milliseconds: 60 * index),
-                              title: incident.category,
-                              time: formattedTime,
-                              status: incident.status,
+                              incident: incident,
                               statusColor: _getStatusColor(incident.status),
-                              location: incident.description, // using description as location since location isn't string
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => IncidentDetailPage(
+                                      initialIncident: incident,
+                                    ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         );
@@ -240,13 +254,14 @@ class _MyReportsPageState extends State<MyReportsPage>
 // ─── Supporting Widgets ───────────────────────────────────────────────────────
 
 class _MyReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const _MyReportsAppBar();
+
   @override
   Size get preferredSize => const Size.fromHeight(64);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64 + MediaQuery.of(context).padding.top,
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -284,7 +299,7 @@ class _MyReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Image.asset(
                   'assets/images/logo.png',
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (context, error, stackTrace) => Container(
                     color: AppColors.primary,
                     child: const Icon(Icons.shield,
                         color: Colors.white, size: 14),
@@ -320,7 +335,7 @@ class _MyReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
 
 class _SearchButton extends StatelessWidget {
   const _SearchButton();
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -411,20 +426,16 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _AnimatedReportCard extends StatefulWidget {
-  final String title;
-  final String time;
-  final String status;
+  final IncidentEntity incident;
   final Color statusColor;
-  final String location;
   final Duration delay;
+  final VoidCallback onTap;
 
   const _AnimatedReportCard({
-    required this.title,
-    required this.time,
-    required this.status,
+    required this.incident,
     required this.statusColor,
-    required this.location,
     required this.delay,
+    required this.onTap,
   });
 
   @override
@@ -461,104 +472,284 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
   @override
   Widget build(BuildContext context) {
     final statusClr = widget.statusColor;
+    final incident = widget.incident;
+    final formattedTime =
+        "${incident.timestamp.day.toString().padLeft(2, '0')}/${incident.timestamp.month.toString().padLeft(2, '0')}/${incident.timestamp.year} ${incident.timestamp.hour.toString().padLeft(2, '0')}:${incident.timestamp.minute.toString().padLeft(2, '0')}";
+    final locationText = incident.resolvedAddress?.isNotEmpty == true
+        ? incident.resolvedAddress!
+        : (incident.areaSector?.isNotEmpty == true
+            ? incident.areaSector!
+            : "${incident.latitude.toStringAsFixed(4)}, ${incident.longitude.toStringAsFixed(4)}");
+
     return FadeTransition(
       opacity: _fade,
       child: SlideTransition(
         position: _slide,
-        child: Custom3dCard(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          borderRadius: 18,
-          glowColor: statusClr,
-          child: Row(
-            children: [
-              // Status indicator bar
-              Container(
-                width: 4,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: statusClr,
-                  borderRadius: BorderRadius.circular(2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: statusClr.withValues(alpha: 0.4),
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textDark,
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: Custom3dCard(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            borderRadius: 18,
+            glowColor: statusClr,
+            child: Row(
+              children: [
+                // Status indicator bar
+                Container(
+                  width: 4,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: statusClr,
+                    borderRadius: BorderRadius.circular(2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: statusClr.withValues(alpha: 0.4),
+                        blurRadius: 8,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on_outlined,
-                            size: 12, color: AppColors.textLight),
-                        const SizedBox(width: 3),
-                        Expanded(
-                          child: Text(
-                            widget.location,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              incident.category,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textDark,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+
+                      // Location
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined,
+                              size: 13, color: AppColors.textLight),
+                          const SizedBox(width: 3),
+                          Expanded(
+                            child: Text(
+                              locationText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 11, color: AppColors.textLight),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+
+                      // Timestamp
+                      Row(
+                        children: [
+                          const Icon(Icons.access_time_filled_outlined,
+                              size: 13, color: AppColors.textLight),
+                          const SizedBox(width: 3),
+                          Text(
+                            formattedTime,
                             style: const TextStyle(
                                 fontSize: 11, color: AppColors.textLight),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time_filled_outlined,
-                            size: 12, color: AppColors.textLight),
-                        const SizedBox(width: 3),
-                        Text(
-                          widget.time,
-                          style: const TextStyle(
-                              fontSize: 11, color: AppColors.textLight),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusClr.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color: statusClr.withValues(alpha: 0.3)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: statusClr.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  widget.status.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: statusClr,
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Sync Status & Sector Tags
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          // Sync Status Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: incident.isSynced
+                                  ? AppColors.solved.withValues(alpha: 0.12)
+                                  : AppColors.pending.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: incident.isSynced
+                                    ? AppColors.solved.withValues(alpha: 0.35)
+                                    : AppColors.pending.withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  incident.isSynced
+                                      ? Icons.cloud_done
+                                      : Icons.cloud_queue,
+                                  size: 11,
+                                  color: incident.isSynced
+                                      ? AppColors.solved
+                                      : AppColors.pending,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  incident.isSynced
+                                      ? "Live at Dispatch"
+                                      : "Stored Locally",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: incident.isSynced
+                                        ? AppColors.solved
+                                        : AppColors.pending,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Area Sector Badge (if set)
+                          if (incident.areaSector != null &&
+                              incident.areaSector!.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: AppColors.primary
+                                        .withValues(alpha: 0.25)),
+                              ),
+                              child: Text(
+                                incident.areaSector!,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+
+                          // On-Behalf Badge (if reported for someone else)
+                          if (incident.isReportingOnBehalf)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFF9500).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: const Color(0xFFFF9500)
+                                        .withValues(alpha: 0.35)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.people_alt_rounded,
+                                    size: 11,
+                                    color: Color(0xFFFF9500),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "For: ${incident.victimName?.isNotEmpty == true ? incident.victimName! : 'Relative'}",
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFFF9500),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          // Dispatch ETA Badge (if patrol dispatched)
+                          if (incident.isInProgress &&
+                              incident.estimatedResponseTime != null &&
+                              incident.estimatedResponseTime!.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 7, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: const Color(0xFF00E5FF)
+                                        .withValues(alpha: 0.4)),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.timer_outlined,
+                                    size: 11,
+                                    color: Color(0xFF00E5FF),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    "ETA: ${incident.estimatedResponseTime!}",
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: Color(0xFF00E5FF),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+
+                // Status Badge & Tap Arrow
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: statusClr.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                            color: statusClr.withValues(alpha: 0.3)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: statusClr.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        incident.status.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: statusClr,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Icon(
+                      Icons.chevron_right,
+                      size: 20,
+                      color: AppColors.textLight,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -34,6 +34,7 @@ class AppColors {
 
   // ─── Status Colors ────────────────────────────────────────────────────────
   static const Color pending = Color(0xFFFF9F0A);        // Amber warning
+  static const Color warning = pending;                  // Warning alias
   static const Color progress = Color(0xFF0A84FF);       // Blue in-progress
   static const Color solved = Color(0xFF30D158);         // Green success
   static const Color danger = Color(0xFFFF3B30);         // Red emergency
@@ -223,10 +224,14 @@ class AppColors {
   // ─── Status System ────────────────────────────────────────────────────────
 
   static Color statusColor(String status) {
-    switch (status.toLowerCase()) {
+    switch (status
+        .toLowerCase()
+        .replaceAll('_', '')
+        .replaceAll(' ', '')
+        .trim()) {
       case 'pending':
         return pending;
-      case 'in progress':
+      case 'inprogress':
       case 'assigned':
       case 'responding':
         return progress;
@@ -234,6 +239,8 @@ class AppColors {
       case 'resolved':
         return solved;
       case 'cancelled':
+      case 'spam':
+      case 'archived':
         return textMuted;
       default:
         return primary;
@@ -241,13 +248,35 @@ class AppColors {
   }
 
   static List<BoxShadow> statusGlow(String status) {
-    switch (status.toLowerCase()) {
+    switch (status
+        .toLowerCase()
+        .replaceAll('_', '')
+        .replaceAll(' ', '')
+        .trim()) {
       case 'pending':
-        return [BoxShadow(color: pending.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))];
-      case 'in progress':
-        return [BoxShadow(color: progress.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))];
+        return [
+          BoxShadow(
+              color: pending.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4))
+        ];
+      case 'inprogress':
+      case 'assigned':
+      case 'responding':
+        return [
+          BoxShadow(
+              color: progress.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4))
+        ];
       case 'solved':
-        return [BoxShadow(color: solved.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))];
+      case 'resolved':
+        return [
+          BoxShadow(
+              color: solved.withValues(alpha: 0.4),
+              blurRadius: 12,
+              offset: const Offset(0, 4))
+        ];
       default:
         return [];
     }

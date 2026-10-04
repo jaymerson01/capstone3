@@ -10,4 +10,6 @@ class LocationOutOfBoundsException implements Exception {
 
 abstract class LocationService {
   Future<AppCoordinate?> getCurrentLocation();
+  Future<AppCoordinate?> reverseGeocode(double latitude, double longitude);
+  Future<void> openLocationSettings();
 }

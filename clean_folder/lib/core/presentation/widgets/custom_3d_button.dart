@@ -64,7 +64,15 @@ class _Custom3dButtonState extends State<Custom3dButton>
     setState(() => _isPressed = false);
   }
 
+  DateTime? _lastTapTime;
+
   void _onTap() {
+    final now = DateTime.now();
+    if (_lastTapTime != null &&
+        now.difference(_lastTapTime!) < const Duration(milliseconds: 600)) {
+      return; // Debounce rapid multi-taps
+    }
+    _lastTapTime = now;
     widget.onPressed?.call();
   }
 
@@ -103,111 +111,111 @@ class _Custom3dButtonState extends State<Custom3dButton>
         child: AnimatedBuilder(
           animation: _glowAnimation,
           builder: (context, child) {
+            final double glowOpacity = isDisabled
+                ? 0.0
+                : (_isPressed ? 0.25 : (0.40 * _glowAnimation.value).clamp(0.0, 1.0));
+
             return AnimatedScale(
               scale: _isPressed ? 0.96 : 1.0,
               duration: const Duration(milliseconds: 120),
-              curve: Curves.easeOutBack,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                curve: Curves.easeOutBack,
+              curve: Curves.easeOutCubic,
+              child: Container(
                 width: widget.width ?? double.infinity,
                 height: widget.height,
                 decoration: BoxDecoration(
-              color: effectiveGradient == null ? effectiveBgColor : null,
-              gradient: effectiveGradient,
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              boxShadow: isDisabled
-                  ? []
-                  : _isPressed
-                      ? [
-                          BoxShadow(
-                            color: glowColor.withValues(alpha: 0.3),
-                            offset: const Offset(0, 2),
-                            blurRadius: 8,
-                          ),
-                        ]
-                      : [
-                          BoxShadow(
-                            color: glowColor.withValues(
-                                alpha: 0.45 * _glowAnimation.value),
-                            offset: const Offset(0, 6),
-                            blurRadius: 20,
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            offset: const Offset(0, 3),
-                            blurRadius: 10,
-                          ),
-                        ],
-            ),
-              child: child,
-            ),
-          );
-        },
+                  color: effectiveGradient == null
+                      ? (isDisabled
+                          ? effectiveBgColor.withValues(alpha: 0.5)
+                          : effectiveBgColor)
+                      : null,
+                  gradient: isDisabled ? null : effectiveGradient,
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  boxShadow: isDisabled
+                      ? const []
+                      : _isPressed
+                          ? [
+                              BoxShadow(
+                                color: glowColor.withValues(alpha: glowOpacity),
+                                offset: const Offset(0, 2),
+                                blurRadius: 8,
+                              ),
+                            ]
+                          : [
+                              BoxShadow(
+                                color: glowColor.withValues(alpha: glowOpacity),
+                                offset: const Offset(0, 6),
+                                blurRadius: 20,
+                                spreadRadius: 0,
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                offset: const Offset(0, 3),
+                                blurRadius: 10,
+                              ),
+                            ],
+                ),
+                child: child,
+              ),
+            );
+          },
           child: ClipRRect(
-          borderRadius: BorderRadius.circular(widget.borderRadius),
-          child: Stack(
-            children: [
-              // Glossy shine overlay
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: widget.height * 0.45,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.white.withValues(alpha: 0.18),
-                        Colors.white.withValues(alpha: 0.0),
-                      ],
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+            child: Stack(
+              children: [
+                // Glossy shine overlay
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: widget.height * 0.45,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white
+                              .withValues(alpha: isDisabled ? 0.06 : 0.18),
+                          Colors.white.withValues(alpha: 0.0),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Button content
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                        if (widget.icon != null) ...[
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 120),
-                            transform: Matrix4.identity()
-                              ..translate(
-                                  _isPressed ? 2.0 : 0.0, _isPressed ? 1.0 : 0.0),
-                            child: Icon(
-                              widget.icon,
-                              color: isDisabled
-                                  ? effectiveTextColor.withValues(alpha: 0.5)
-                                  : effectiveTextColor,
-                              size: 22,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                        Text(
-                          widget.text,
-                          style: TextStyle(
-                            color: isDisabled
-                                ? effectiveTextColor.withValues(alpha: 0.5)
-                                : effectiveTextColor,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.4,
-                          ),
+                // Button content
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (widget.icon != null) ...[
+                        Icon(
+                          widget.icon,
+                          color: isDisabled
+                              ? effectiveTextColor.withValues(alpha: 0.5)
+                              : effectiveTextColor,
+                          size: 22,
                         ),
+                        const SizedBox(width: 10),
                       ],
-                    ),
+                      Text(
+                        widget.text,
+                        style: TextStyle(
+                          color: isDisabled
+                              ? effectiveTextColor.withValues(alpha: 0.5)
+                              : effectiveTextColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
       ),
     );
   }

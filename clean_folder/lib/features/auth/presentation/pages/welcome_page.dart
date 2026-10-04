@@ -26,7 +26,6 @@ class _WelcomePageState extends State<WelcomePage>
   late Animation<Offset> _contentSlide;
   late Animation<double> _btn1Fade;
   late Animation<double> _btn2Fade;
-  late Animation<double> _btn3Fade;
 
   @override
   void initState() {
@@ -93,12 +92,6 @@ class _WelcomePageState extends State<WelcomePage>
         curve: const Interval(0.55, 0.8, curve: Curves.easeOut),
       ),
     );
-    _btn3Fade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _contentController,
-        curve: const Interval(0.7, 1.0, curve: Curves.easeOut),
-      ),
-    );
 
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _logoController.forward();
@@ -117,7 +110,11 @@ class _WelcomePageState extends State<WelcomePage>
     super.dispose();
   }
 
+  bool _isLoginDialogShowing = false;
+
   void _showLoginRequired(BuildContext context) {
+    if (_isLoginDialogShowing) return;
+    _isLoginDialogShowing = true;
     showDialog(
       context: context,
       builder: (context) => _PremiumDialog(
@@ -142,7 +139,9 @@ class _WelcomePageState extends State<WelcomePage>
           ),
         ],
       ),
-    );
+    ).then((_) {
+      _isLoginDialogShowing = false;
+    });
   }
 
   @override
@@ -303,7 +302,7 @@ class _WelcomePageState extends State<WelcomePage>
                               child: Image.asset(
                                 'assets/images/logo.png',
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorBuilder: (_, _, _) => Container(
                                   color: AppColors.primary,
                                   child: const Icon(Icons.shield,
                                       color: Colors.white, size: 48),
@@ -413,30 +412,7 @@ class _WelcomePageState extends State<WelcomePage>
                       ),
                     ),
 
-                    const SizedBox(height: 24),
 
-                    FadeTransition(
-                      opacity: _btn3Fade,
-                      child: TextButton.icon(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/admin/login'),
-                        icon: const Icon(
-                          Icons.admin_panel_settings_outlined,
-                          color: AppColors.textLight,
-                          size: 16,
-                        ),
-                        label: const Text(
-                          'Access Admin Portal',
-                          style: TextStyle(
-                            color: AppColors.textLight,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColors.textLight,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ),
 
                     const Spacer(),
 
@@ -505,7 +481,7 @@ class _Orb extends StatelessWidget {
   }
 }
 
-class _GlassTopButton extends StatelessWidget {
+class _GlassTopButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
   final bool filled;
@@ -517,22 +493,39 @@ class _GlassTopButton extends StatelessWidget {
   });
 
   @override
+  State<_GlassTopButton> createState() => _GlassTopButtonState();
+}
+
+class _GlassTopButtonState extends State<_GlassTopButton> {
+  DateTime? _lastTap;
+
+  void _handleTap() {
+    final now = DateTime.now();
+    if (_lastTap != null &&
+        now.difference(_lastTap!) < const Duration(milliseconds: 600)) {
+      return;
+    }
+    _lastTap = now;
+    widget.onPressed();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onPressed,
+      onTap: _handleTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
         decoration: BoxDecoration(
-          color: filled
+          color: widget.filled
               ? AppColors.primary
               : Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: filled
+            color: widget.filled
                 ? AppColors.primary
                 : Colors.white.withValues(alpha: 0.15),
           ),
-          boxShadow: filled
+          boxShadow: widget.filled
               ? [
                   BoxShadow(
                     color: AppColors.primary.withValues(alpha: 0.35),
@@ -543,7 +536,7 @@ class _GlassTopButton extends StatelessWidget {
               : [],
         ),
         child: Text(
-          text,
+          widget.text,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,

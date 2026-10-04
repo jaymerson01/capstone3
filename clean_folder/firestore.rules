@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper Functions ──────────────────────────────────────────────
+    
+    // Checks if the user is authenticated with Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Checks if the current user has an 'admin' role in the /users collection
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Checks if the authenticated user is the document owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ── 1. Users Collection ───────────────────────────────────────────
+    match /users/{userId} {
+      // Authenticated users can read profile documents
+      allow read: if isAuthenticated();
+
+      // New users can only create their own user document during registration
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+
+      // Users can update their own personal info (name, phone, fcmToken, avatar)
+      // but CANNOT self-escalate their role to 'admin' or alter account verification status
+      // Only an existing admin can modify 'role' or 'status'
+      allow update: if (isOwner(userId) && 
+                        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])))
+                    || isAdmin();
+
+      // Only administrators can remove a user document
+      allow delete: if isAdmin();
+    }
+
+    // ── 2. Incidents Collection ───────────────────────────────────────
+    match /incidents/{incidentId} {
+      // Any authenticated citizen or admin can read community incidents
+      allow read: if isAuthenticated();
+
+      // Authenticated users can submit new incident reports
+      // The submitted reporterId or userId must match the authenticated user's UID
+      allow create: if isAuthenticated() && 
+                    ((!('reporterId' in request.resource.data) || request.resource.data.reporterId == request.auth.uid) &&
+                     (!('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid));
+
+      // 1. Admins have full mutation authority (status changes, ETA, dispatch notes, archive)
+      // 2. Any authenticated resident can upvote / validate community incidents
+      // 3. Original reporters can update their own report while it remains 'Pending'
+      allow update: if isAdmin() || 
+                    (isAuthenticated() && 
+                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvoteCount', 'validatedUserIds', 'urgencyStatus'])) ||
+                    (isAuthenticated() && 
+                     ((('reporterId' in resource.data) && resource.data.reporterId == request.auth.uid) || 
+                      (('userId' in resource.data) && resource.data.userId == request.auth.uid)) && 
+                     resource.data.status == 'Pending' && 
+                     !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'estimatedResponseTime', 'assignedResponders', 'dispatcherNotes']));
+
+      // Only municipal admins can delete or archive incident records
+      allow delete: if isAdmin();
+    }
+
+    // ── 3. Audit Logs (Immutable Security Trail) ──────────────────────
+    match /audit_logs/{logId} {
+      // Only authorized desk administrators can view municipal audit logs
+      allow read: if isAdmin();
+
+      // Only administrators can append new audit records
+      allow create: if isAdmin();
+
+      // Audit logs are strictly immutable: no alterations or deletions permitted!
+      allow update, delete: if false;
+    }
+
+    // ── 4. Emergency Broadcasts ───────────────────────────────────────
+    match /emergency_broadcasts/{broadcastId} {
+      // All authenticated residents and admins can receive emergency broadcasts
+      allow read: if isAuthenticated();
+
+      // Only municipal admins can publish, alter, or cancel emergency alerts
+      allow write: if isAdmin();
+    }
+  }
+}

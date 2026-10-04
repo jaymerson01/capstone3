@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_sidebar.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header.dart';
 
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_dashboard_page.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_dispatch_map_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_reports_page.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/reports_analytics_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/user_management_page.dart';
-import 'package:community_safety_app/features/admin_dashboard/presentation/pages/incident_categories_page.dart';
-import 'package:community_safety_app/features/admin_dashboard/presentation/pages/area_management_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_audit_logs_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/profile_settings_page.dart';
 
@@ -26,10 +29,10 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
 
   final List<String> _pageTitles = [
     "Overview Dashboard",
+    "Tactical Dispatch Map",
     "Incident Reports Management",
-    "User Management",
-    "Incident Categories",
-    "Area Management",
+    "Reports & Analytics Hub",
+    "Citizen Directory & Moderation",
     "Admin Audit Logs",
     "Profile Settings",
   ];
@@ -37,21 +40,25 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
   Widget _getSelectedPage() {
     switch (_selectedIndex) {
       case 0:
-        return const AdminDashboardPage();
+        return AdminDashboardPage(
+          onViewAllReports: () => setState(() => _selectedIndex = 2),
+        );
       case 1:
-        return const IncidentReportsPage();
+        return const AdminDispatchMapPage();
       case 2:
-        return const UserManagementPage();
+        return const IncidentReportsPage();
       case 3:
-        return const IncidentCategoriesPage();
+        return const ReportsAnalyticsPage();
       case 4:
-        return const AreaManagementPage();
+        return const UserManagementPage();
       case 5:
         return const AdminAuditLogsPage();
       case 6:
         return const ProfileSettingsPage();
       default:
-        return const AdminDashboardPage();
+        return AdminDashboardPage(
+          onViewAllReports: () => setState(() => _selectedIndex = 2),
+        );
     }
   }
 
@@ -151,6 +158,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                           child: GestureDetector(
                             onTap: () {
                               Navigator.pop(ctx);
+                              context.read<AuthBloc>().add(const LogoutRequested());
                               Navigator.pushReplacementNamed(
                                   context, '/admin/login');
                             },
@@ -241,6 +249,12 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                 AdminHeader(
                   title: _pageTitles[_selectedIndex],
                   isMobile: isMobile,
+                  onNavigate: (index) {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                  },
+                  onLogout: _handleLogout,
                   onMenuPressed: () {
                     if (isMobile) {
                       _scaffoldKey.currentState?.openDrawer();

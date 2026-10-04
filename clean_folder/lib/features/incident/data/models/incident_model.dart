@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hive/hive.dart';
 import '../../domain/entities/incident_entity.dart';
+import '../../../../core/utils/incident_triage_helper.dart';
 
 part 'incident_model.g.dart';
 
@@ -8,18 +9,42 @@ enum IncidentStatus {
   pending,
   inProgress,
   resolved,
+  spam,
+  archived,
 }
 
 extension IncidentStatusExtension on IncidentStatus {
   static IncidentStatus fromString(String status) {
-    switch (status) {
-      case 'inProgress':
+    switch (status.toLowerCase().replaceAll('_', '').replaceAll(' ', '').trim()) {
+      case 'inprogress':
         return IncidentStatus.inProgress;
       case 'resolved':
+      case 'solved':
         return IncidentStatus.resolved;
+      case 'spam':
+        return IncidentStatus.spam;
+      case 'archived':
+        return IncidentStatus.archived;
       case 'pending':
       default:
         return IncidentStatus.pending;
+    }
+  }
+
+  static String normalize(String status) {
+    switch (status.toLowerCase().replaceAll('_', '').replaceAll(' ', '').trim()) {
+      case 'inprogress':
+        return 'in_progress';
+      case 'resolved':
+      case 'solved':
+        return 'resolved';
+      case 'spam':
+        return 'spam';
+      case 'archived':
+        return 'archived';
+      case 'pending':
+      default:
+        return 'pending';
     }
   }
 }
@@ -78,12 +103,56 @@ class IncidentModel extends IncidentEntity {
   @override
   final List<String> validatedUserIds;
 
+  @HiveField(13)
+  @override
+  final String? areaSector;
+
+  @HiveField(14)
+  @override
+  final bool isAnonymous;
+
+  @HiveField(15)
+  @override
+  final String? dispatcherNotes;
+
+  @HiveField(16)
+  @override
+  final String? reporterName;
+
+  @HiveField(17)
+  @override
+  final String? reporterEmail;
+
+  @HiveField(18)
+  @override
+  final String? videoUrl;
+
+  @HiveField(19)
+  @override
+  final bool isReportingOnBehalf;
+
+  @HiveField(20)
+  @override
+  final String? victimName;
+
+  @HiveField(21)
+  @override
+  final String? victimPhone;
+
+  @HiveField(22)
+  @override
+  final String? estimatedResponseTime;
+
+  @override
+  final bool isSynced;
+
   const IncidentModel({
     required this.id,
     required this.reporterId,
     required this.description,
     required this.category,
     this.photoUrl,
+    this.videoUrl,
     required this.status,
     this.urgencyStatus,
     required this.timestamp,
@@ -92,12 +161,24 @@ class IncidentModel extends IncidentEntity {
     this.resolvedAddress,
     this.upvoteCount = 0,
     this.validatedUserIds = const [],
+    this.areaSector,
+    this.isAnonymous = false,
+    this.dispatcherNotes,
+    this.reporterName,
+    this.reporterEmail,
+    this.isSynced = true,
+    super.respondedAt,
+    this.isReportingOnBehalf = false,
+    this.victimName,
+    this.victimPhone,
+    this.estimatedResponseTime,
   }) : super(
           id: id,
           reporterId: reporterId,
           description: description,
           category: category,
           photoUrl: photoUrl,
+          videoUrl: videoUrl,
           status: status,
           urgencyStatus: urgencyStatus,
           timestamp: timestamp,
@@ -106,6 +187,16 @@ class IncidentModel extends IncidentEntity {
           resolvedAddress: resolvedAddress,
           upvoteCount: upvoteCount,
           validatedUserIds: validatedUserIds,
+          areaSector: areaSector,
+          isAnonymous: isAnonymous,
+          dispatcherNotes: dispatcherNotes,
+          reporterName: reporterName,
+          reporterEmail: reporterEmail,
+          isSynced: isSynced,
+          isReportingOnBehalf: isReportingOnBehalf,
+          victimName: victimName,
+          victimPhone: victimPhone,
+          estimatedResponseTime: estimatedResponseTime,
         );
 
   factory IncidentModel.fromFirestore(DocumentSnapshot doc) {
@@ -115,7 +206,7 @@ class IncidentModel extends IncidentEntity {
     }
 
     final rawStatus = data['status'] as String? ?? 'pending';
-    final mappedStatus = IncidentStatusExtension.fromString(rawStatus).name;
+    final mappedStatus = IncidentStatusExtension.normalize(rawStatus);
 
     DateTime parsedTimestamp;
     final dynamic rawTimestamp = data['timestamp'];
@@ -127,38 +218,92 @@ class IncidentModel extends IncidentEntity {
       parsedTimestamp = DateTime.now();
     }
 
+    DateTime? parsedRespondedAt;
+    final dynamic rawRespondedAt = data['respondedAt'] ?? data['updatedAt'];
+    if (rawRespondedAt is Timestamp) {
+      parsedRespondedAt = rawRespondedAt.toDate();
+    } else if (rawRespondedAt is String) {
+      parsedRespondedAt = DateTime.tryParse(rawRespondedAt);
+    }
+
+    final rawUrgency = data['urgencyStatus'] as String?;
+    final String resolvedUrgency = (rawUrgency != null &&
+            rawUrgency.isNotEmpty &&
+            rawUrgency.toLowerCase() != 'pending')
+        ? rawUrgency
+        : IncidentTriageHelper.calculateEffectiveUrgency(
+            category: data['category'] as String? ?? '',
+            upvoteCount: (data['upvoteCount'] as num?)?.toInt() ?? 0,
+          );
+
     return IncidentModel(
       id: doc.id,
       reporterId: data['reporterId'] as String? ?? '',
       description: data['description'] as String? ?? '',
       category: data['category'] as String? ?? '',
       photoUrl: data['photoUrl'] as String?,
+      videoUrl: data['videoUrl'] as String?,
       status: mappedStatus,
-      urgencyStatus: data['urgencyStatus'] as String?,
+      urgencyStatus: resolvedUrgency,
       timestamp: parsedTimestamp,
       latitude: (data['latitude'] as num?)?.toDouble() ?? 0.0,
       longitude: (data['longitude'] as num?)?.toDouble() ?? 0.0,
-      resolvedAddress: data['resolvedAddress'] as String?,
+      resolvedAddress: (data['resolvedAddress'] as String?)?.isNotEmpty == true
+          ? data['resolvedAddress'] as String
+          : data['areaSector'] as String?,
       upvoteCount: data['upvoteCount'] as int? ?? 0,
       validatedUserIds: List<String>.from(data['validatedUserIds'] ?? []),
+      areaSector: (data['areaSector'] as String?)?.isNotEmpty == true
+          ? data['areaSector'] as String
+          : data['resolvedAddress'] as String?,
+      isAnonymous: data['isAnonymous'] as bool? ?? false,
+      dispatcherNotes: data['dispatcherNotes'] as String?,
+      reporterName: data['reporterName'] as String?,
+      reporterEmail: data['reporterEmail'] as String?,
+      isSynced: !doc.metadata.hasPendingWrites,
+      respondedAt: parsedRespondedAt,
+      isReportingOnBehalf: data['isReportingOnBehalf'] as bool? ?? false,
+      victimName: data['victimName'] as String?,
+      victimPhone: data['victimPhone'] as String?,
+      estimatedResponseTime: data['estimatedResponseTime'] as String?,
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    final mappedStatus = IncidentStatusExtension.fromString(status).name;
-    return {
+    final mappedStatus = IncidentStatusExtension.normalize(status);
+    final effectiveAddress = (resolvedAddress != null && resolvedAddress!.isNotEmpty)
+        ? resolvedAddress
+        : areaSector;
+    final effectiveSector = (areaSector != null && areaSector!.isNotEmpty)
+        ? areaSector
+        : effectiveAddress;
+    final map = <String, dynamic>{
       'reporterId': reporterId,
       'description': description,
       'category': category,
       'photoUrl': photoUrl,
+      'videoUrl': videoUrl,
       'status': mappedStatus,
       'urgencyStatus': urgencyStatus,
       'timestamp': Timestamp.fromDate(timestamp),
       'latitude': latitude,
       'longitude': longitude,
-      'resolvedAddress': resolvedAddress,
+      'resolvedAddress': effectiveAddress,
       'upvoteCount': upvoteCount,
       'validatedUserIds': validatedUserIds,
+      'areaSector': effectiveSector,
+      'isAnonymous': isAnonymous,
+      'dispatcherNotes': dispatcherNotes,
+      'reporterName': reporterName,
+      'reporterEmail': reporterEmail,
+      'isReportingOnBehalf': isReportingOnBehalf,
+      'victimName': victimName,
+      'victimPhone': victimPhone,
+      'estimatedResponseTime': estimatedResponseTime,
     };
+    if (respondedAt != null) {
+      map['respondedAt'] = Timestamp.fromDate(respondedAt!);
+    }
+    return map;
   }
 }

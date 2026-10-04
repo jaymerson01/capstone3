@@ -458,7 +458,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                             icon: Icons.g_mobiledata,
                             url:
                                 "https://accounts.google.com/v3/signin/identifier",
-                            onTap: (url) => _launchAuthUrl(context, url),
+                            onTap: (_) => context.read<AuthBloc>().add(const GoogleSignInRequested()),
                           ),
                           const SizedBox(height: 10),
                           _SocialButton(

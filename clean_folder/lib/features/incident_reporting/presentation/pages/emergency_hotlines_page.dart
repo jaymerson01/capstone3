@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
+import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
 
 class EmergencyHotlinesPage extends StatelessWidget {
   final void Function(String title, String number)? onCallPressed;
@@ -9,6 +10,19 @@ class EmergencyHotlinesPage extends StatelessWidget {
     super.key,
     this.onCallPressed,
   });
+
+  Future<void> _makeDirectCall(
+    BuildContext context,
+    String title,
+    String number,
+  ) async {
+    if (onCallPressed != null) {
+      onCallPressed!(title, number);
+      return;
+    }
+
+    await DirectCallerHelper.makeDirectCall(context, number, label: title);
+  }
 
   void _showCallConfirmation(
     BuildContext context,
@@ -93,44 +107,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                             onTap: () {
                               Navigator.pop(context);
-
-                              if (onCallPressed != null) {
-                                onCallPressed!(title, number);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Text(
-                                            'Connecting call to $title ($number)...',
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.white),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    backgroundColor: AppColors.darkGreen,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      side: BorderSide(
-                                          color: AppColors.danger
-                                              .withValues(alpha: 0.3)),
-                                    ),
-                                  ),
-                                );
-                              }
+                              _makeDirectCall(context, title, number);
                             },
                             child: const Center(
                               child: Text(
@@ -214,34 +191,39 @@ class EmergencyHotlinesPage extends StatelessWidget {
                   const SizedBox(height: 14),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.phone,
-                                size: 13, color: AppColors.primary),
-                            const SizedBox(width: 6),
-                            Text(
-                              number,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.textDark,
+                      InkWell(
+                        onTap: () => _makeDirectCall(context, title, number),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceLight,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.phone,
+                                  size: 13, color: AppColors.primary),
+                              const SizedBox(width: 6),
+                              Text(
+                                number,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textDark,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       const Spacer(),
                       _CallButton(
-                        onTap: () =>
+                        onTap: () => _makeDirectCall(context, title, number),
+                        onLongPress: () =>
                             _showCallConfirmation(context, title, number),
                       ),
                     ],
@@ -451,7 +433,8 @@ class EmergencyHotlinesPage extends StatelessWidget {
 
 class _CallButton extends StatefulWidget {
   final VoidCallback onTap;
-  const _CallButton({required this.onTap});
+  final VoidCallback? onLongPress;
+  const _CallButton({required this.onTap, this.onLongPress});
 
   @override
   State<_CallButton> createState() => _CallButtonState();
@@ -481,37 +464,41 @@ class _CallButtonState extends State<_CallButton>
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (context, child) {
-        return GestureDetector(
-          onTap: widget.onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-            decoration: BoxDecoration(
-              gradient: AppColors.emergencyGradient,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.danger
-                      .withValues(alpha: 0.35 + 0.2 * _pulseCtrl.value),
-                  blurRadius: 12 + 8 * _pulseCtrl.value,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.call, color: Colors.white, size: 14),
-                SizedBox(width: 6),
-                Text(
-                  'CALL',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                    letterSpacing: 0.5,
+        return Tooltip(
+          message: 'Tap to call directly • Long-press for confirmation',
+          child: GestureDetector(
+            onTap: widget.onTap,
+            onLongPress: widget.onLongPress,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              decoration: BoxDecoration(
+                gradient: AppColors.emergencyGradient,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.danger
+                        .withValues(alpha: 0.35 + 0.2 * _pulseCtrl.value),
+                    blurRadius: 12 + 8 * _pulseCtrl.value,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.call, color: Colors.white, size: 14),
+                  SizedBox(width: 6),
+                  Text(
+                    'CALL',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

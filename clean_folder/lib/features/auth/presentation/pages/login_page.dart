@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:community_safety_app/core/theme/app_colors.dart';
@@ -115,11 +116,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             builder: (_) => _SuccessDialog(),
           );
           if (context.mounted) {
-            if (state.user.isAdmin) {
-              Navigator.pushReplacementNamed(context, '/admin/dashboard');
-            } else {
-              Navigator.pushReplacementNamed(context, '/dashboard');
-            }
+            Navigator.pushReplacementNamed(context, '/dashboard');
           }
         }
       },
@@ -310,33 +307,61 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           ),
                                         ),
 
-                                        // Remember Me
+                                        // Remember Me & Forgot Password
                                         Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
-                                            SizedBox(
-                                              height: 22,
-                                              width: 22,
-                                              child: Checkbox(
-                                                value: _rememberMe,
-                                                onChanged: (v) => setState(
-                                                    () => _rememberMe =
-                                                        v ?? false),
-                                                activeColor: AppColors.primary,
-                                                side: const BorderSide(
-                                                    color: AppColors.border),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
+                                            Row(
+                                              children: [
+                                                SizedBox(
+                                                  height: 22,
+                                                  width: 22,
+                                                  child: Checkbox(
+                                                    value: _rememberMe,
+                                                    onChanged: (v) => setState(
+                                                        () => _rememberMe =
+                                                            v ?? false),
+                                                    activeColor:
+                                                        AppColors.primary,
+                                                    side: const BorderSide(
+                                                        color: AppColors.border),
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                                const SizedBox(width: 8),
+                                                const Text(
+                                                  "Remember Me",
+                                                  style: TextStyle(
+                                                    fontSize: 12.5,
+                                                    color: AppColors.textLight,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                            const SizedBox(width: 10),
-                                            const Text(
-                                              "Remember Me",
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: AppColors.textLight,
-                                                fontWeight: FontWeight.w500,
+                                            TextButton(
+                                              onPressed: () =>
+                                                  _showForgotPasswordDialog(
+                                                      context),
+                                              style: TextButton.styleFrom(
+                                                padding: EdgeInsets.zero,
+                                                tapTargetSize:
+                                                    MaterialTapTargetSize
+                                                        .shrinkWrap,
+                                              ),
+                                              child: const Text(
+                                                "Forgot Password?",
+                                                style: TextStyle(
+                                                  color: AppColors.primary,
+                                                  fontSize: 12.5,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -380,7 +405,32 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               ),
                             ),
 
-                            const SizedBox(height: 24),
+                             const SizedBox(height: 12),
+
+                             Center(
+                               child: TextButton.icon(
+                                 onPressed: isLoading
+                                     ? null
+                                     : () {
+                                         _emailController.text = 'demo@resident.ph';
+                                         _passwordController.text = 'resident123';
+                                         context.read<AuthBloc>().add(
+                                           const LoginRequested('demo@resident.ph', 'resident123'),
+                                         );
+                                       },
+                                 icon: const Icon(Icons.flash_on, size: 16, color: AppColors.secondary),
+                                 label: const Text(
+                                   "Quick Demo Resident Sign In",
+                                   style: TextStyle(
+                                     color: AppColors.secondary,
+                                     fontSize: 13,
+                                     fontWeight: FontWeight.w600,
+                                   ),
+                                 ),
+                               ),
+                             ),
+
+                             const SizedBox(height: 20),
 
                             // Divider
                             Row(
@@ -502,7 +552,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () => _launchAuthUrl(context, targetUrl),
+          onTap: () {
+            if (text.toLowerCase().contains("google")) {
+              context.read<AuthBloc>().add(const GoogleSignInRequested());
+            } else {
+              _launchAuthUrl(context, targetUrl);
+            }
+          },
           splashColor: AppColors.primary.withValues(alpha: 0.08),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -519,6 +575,159 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showForgotPasswordDialog(BuildContext context) {
+    final resetEmailCtrl =
+        TextEditingController(text: _emailController.text.trim());
+    bool isSending = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: const BorderSide(color: AppColors.border),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.lock_reset_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                "Reset Password",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.textDark,
+                  fontSize: 17,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Enter your registered email and we'll send you an official link to reset your password.",
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: AppColors.textLight,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: resetEmailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                style: const TextStyle(color: AppColors.textDark, fontSize: 13.5),
+                decoration: InputDecoration(
+                  labelText: "Registered Email",
+                  labelStyle: const TextStyle(color: AppColors.textLight),
+                  prefixIcon: const Icon(Icons.email_outlined,
+                      color: AppColors.primary, size: 20),
+                  filled: true,
+                  fillColor: AppColors.background,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSending ? null : () => Navigator.pop(ctx),
+              child: const Text("Cancel",
+                  style: TextStyle(color: AppColors.textLight)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: isSending
+                  ? null
+                  : () async {
+                      final email = resetEmailCtrl.text.trim();
+                      if (email.isEmpty || !email.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                                "Please enter a valid registered email address."),
+                            backgroundColor: AppColors.warning,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                        return;
+                      }
+
+                      setDialogState(() => isSending = true);
+                      final messenger = ScaffoldMessenger.of(context);
+
+                      try {
+                        await FirebaseAuth.instance
+                            .sendPasswordResetEmail(email: email);
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "Password reset email sent to $email! Please check your inbox."),
+                            backgroundColor: AppColors.solved,
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(seconds: 5),
+                          ),
+                        );
+                      } catch (e) {
+                        setDialogState(() => isSending = false);
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text("Failed to send reset link: $e"),
+                            backgroundColor: AppColors.danger,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+              child: isSending
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : const Text("Send Link"),
+            ),
+          ],
         ),
       ),
     );

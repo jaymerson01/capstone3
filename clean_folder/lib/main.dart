@@ -3,7 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/my_reports_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
@@ -60,18 +68,27 @@ class MyApp extends StatelessWidget {
         home: const AuthWrapper(),
         routes: {
           '/welcome': (context) => const WelcomePage(),
+          '/login': (context) => const LoginPage(),
+          '/sign-up': (context) => const SignUpPage(),
           '/dashboard': (context) => const DashboardPage(),
+          '/report-incident': (context) => const ReportIncidentPage(),
+          '/my-reports': (context) => const MyReportsPage(),
+          '/maps': (context) => const MapsPage(),
+          '/emergency-hotlines': (context) => const EmergencyHotlinesPage(),
+          '/settings': (context) => const SettingsPage(),
           '/admin/login': (context) => const AdminLoginPage(),
           '/admin/dashboard': (context) => const AdminPanelShell(),
         },
         builder: (context, child) {
-          return Scaffold(
-            body: Stack(
-              children: [
-                // ignore: use_null_aware_elements
-                if (child != null) child,
-                const FloatingChatBot(),
-              ],
+          return EmergencyBroadcastListener(
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  // ignore: use_null_aware_elements
+                  if (child != null) child,
+                  const FloatingChatBot(),
+                ],
+              ),
             ),
           );
         },
@@ -88,7 +105,7 @@ class AuthWrapper extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         if (state is Authenticated) {
-          if (state.user.email.toLowerCase().contains('admin')) {
+          if (state.user.isAdmin) {
             return const AdminPanelShell();
           } else {
             return const DashboardPage();

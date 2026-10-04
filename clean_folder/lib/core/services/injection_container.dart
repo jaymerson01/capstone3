@@ -9,6 +9,7 @@ import 'package:community_safety_app/features/auth/domain/repositories/auth_repo
 import 'package:community_safety_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:community_safety_app/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_in_with_email_usecase.dart';
+import 'package:community_safety_app/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_up_with_email_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/get_current_user_usecase.dart';
@@ -26,6 +27,9 @@ import 'package:community_safety_app/core/services/location_service.dart';
 import 'package:community_safety_app/core/services/location_service_impl.dart';
 import 'package:community_safety_app/core/services/camera_service.dart';
 import 'package:community_safety_app/core/services/camera_service_impl.dart';
+import 'package:community_safety_app/core/services/fcm_service.dart';
+import 'package:community_safety_app/core/services/biometric_service.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 
 final sl = GetIt.instance;
 
@@ -34,6 +38,7 @@ Future<void> init() async {
   sl.registerFactory(() => AuthBloc(
         signInWithEmailUseCase: sl(),
         signUpWithEmailUseCase: sl(),
+        signInWithGoogleUseCase: sl(),
         signOutUseCase: sl(),
         getCurrentUserUseCase: sl(),
         updateUserProfileUseCase: sl(),
@@ -45,6 +50,7 @@ Future<void> init() async {
 
   // Use cases
   sl.registerLazySingleton(() => SignInWithEmailUseCase(sl()));
+  sl.registerLazySingleton(() => SignInWithGoogleUseCase(sl()));
   sl.registerLazySingleton(() => SignUpWithEmailUseCase(sl()));
   sl.registerLazySingleton(() => SignOutUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
@@ -69,10 +75,14 @@ Future<void> init() async {
           ));
   sl.registerLazySingleton<IncidentAiRemoteDataSource>(
       () => IncidentAiRemoteDataSourceImpl(client: sl()));
+  sl.registerLazySingleton<AuditLogRemoteDataSource>(
+      () => AuditLogRemoteDataSourceImpl(firestore: sl(), auth: sl()));
 
   // Services
   sl.registerLazySingleton<LocationService>(() => const LocationServiceImpl());
-  sl.registerLazySingleton<CameraService>(() => CameraServiceImpl(storage: sl()));
+  sl.registerLazySingleton<CameraService>(() => CameraServiceImpl(httpClient: sl()));
+  sl.registerLazySingleton<FCMService>(() => FCMService());
+  sl.registerLazySingleton<BiometricService>(() => BiometricService());
 
   // External
   sl.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);

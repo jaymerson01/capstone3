@@ -4,13 +4,17 @@ import 'package:community_safety_app/features/auth/domain/usecases/sign_in_with_
 import 'package:community_safety_app/features/auth/domain/usecases/sign_up_with_email_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/sign_out_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:community_safety_app/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 import 'package:community_safety_app/features/auth/domain/usecases/update_user_profile_usecase.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/services/fcm_service.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInWithEmailUseCase signInWithEmailUseCase;
   final SignUpWithEmailUseCase signUpWithEmailUseCase;
+  final SignInWithGoogleUseCase? signInWithGoogleUseCase;
   final SignOutUseCase signOutUseCase;
   final GetCurrentUserUseCase getCurrentUserUseCase;
   final UpdateUserProfileUseCase? updateUserProfileUseCase;
@@ -18,11 +22,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required this.signInWithEmailUseCase,
     required this.signUpWithEmailUseCase,
+    this.signInWithGoogleUseCase,
     required this.signOutUseCase,
     required this.getCurrentUserUseCase,
     this.updateUserProfileUseCase,
   }) : super(AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
+    on<GoogleSignInRequested>(_onGoogleSignInRequested);
     on<RegisterRequested>(_onRegisterRequested);
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<LogoutRequested>(_onLogoutRequested);
@@ -38,6 +44,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await result.fold(
       (failure) async {
         emit(AuthError(failure.message));
+      },
+      (user) async {
+        await Hive.box('auth').put('isLoggedIn', true);
+        await Hive.box('auth').put('userRole', user.role);
+        emit(Authenticated(user));
+      },
+    );
+  }
+
+  Future<void> _onGoogleSignInRequested(
+    GoogleSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (signInWithGoogleUseCase == null) return;
+    emit(AuthLoading());
+    final result = await signInWithGoogleUseCase!();
+    await result.fold(
+      (failure) async {
+        if (failure.message.toLowerCase().contains('canceled') ||
+            failure.message.toLowerCase().contains('cancelled')) {
+          emit(Unauthenticated());
+        } else {
+          emit(AuthError(failure.message));
+        }
       },
       (user) async {
         await Hive.box('auth').put('isLoggedIn', true);
@@ -95,6 +125,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LogoutRequested event,
     Emitter<AuthState> emit,
   ) async {
+    if (state is Authenticated) {
+      try {
+        final currentUserId = (state as Authenticated).user.id;
+        await sl<FCMService>().removeUserToken(currentUserId);
+      } catch (_) {}
+    }
     emit(AuthLoading());
     final result = await signOutUseCase();
     await result.fold(
@@ -114,7 +150,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (updateUserProfileUseCase == null) return;
-    emit(AuthLoading());
+    // Optimistic update: keep user authenticated with updated details immediately (prevents demo flash)
+    emit(Authenticated(event.user));
     final result = await updateUserProfileUseCase!(event.user);
     result.fold(
       (failure) => emit(AuthError(failure.message)),

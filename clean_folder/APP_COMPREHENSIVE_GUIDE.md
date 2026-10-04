@@ -66,9 +66,21 @@ The system utilizes Uncle Bob’s **Clean Architecture** principles decoupled in
                        └──────────────────────────────────────┘
 ```
 
+### Dual-Target Deployment Architecture
+The platform is engineered as a unified monorepo delivering two independent, persona-tailored targets:
+
+1. **Resident Mobile Application (`lib/main_resident.dart`):**
+   - **Target Artifact:** Android APK (`resq.apk`) for citizen smartphones.
+   - **Scope:** Complete citizen incident reporting, camera capture, GPS pinning, reactive emergency hotline dialing, personal reports directory, and floating AI safety assistant.
+   - **Isolation:** Strictly citizen-oriented. No admin links, portals, or administrative credentials exist in the resident app.
+
+2. **Admin Command Center Web Portal (`lib/main_admin.dart`):**
+   - **Target Artifact:** Desktop-optimized Flutter Web build deployed to **Firebase Hosting** (`https://resq-moonwalk.web.app`).
+   - **Scope:** Dedicated municipal dispatch operations for Barangay Moonwalk desk officers, Tanod supervisors, and the Barangay Captain. Includes real-time incident triage, status dispatching, municipal siren broadcast, live analytics charts, sector/category management, and immutable audit logging.
+
 ### Dependency Injection & Service Locator
 All core dependencies are initialized in [injection_container.dart](file:///c:/YckoVon/Documents/capstone3/clean_folder/lib/core/services/injection_container.dart) using `get_it`:
-- **Core Services:** `LocationServiceImpl`, `CameraServiceImpl`, `SharedPreferences`.
+- **Core Services:** `LocationServiceImpl`, `CameraServiceImpl`, `SharedPreferences`, `local_auth`.
 - **Offline Storage:** `Hive` initialization for local incident caching (`incidents` box) and user session preservation (`auth` box).
 - **External Clients:** `FirebaseAuth`, `FirebaseFirestore`, `FirebaseStorage`, `http.Client`.
 - **Feature BLoCs:** `AuthBloc`, `IncidentBloc`.
@@ -134,8 +146,7 @@ The application enforces a custom high-contrast dark aesthetic built with glassm
      - *Sign in for Verified Report* (routes to `/login`).
 2. **`Emergency Hotlines` (Secondary Outlined 3D Button):**
    - Directly opens the unauthenticated Emergency Hotlines directory (`/emergency-hotlines`).
-3. **`Access Admin Portal` (Discreet Bottom Footer Text Button):**
-   - Direct shortcut opening the Command Center Login (`/admin/login`).
+*(Note: To maintain strict role boundaries and platform isolation, all admin links have been removed from the mobile APK. The Admin Command Center is accessed exclusively via the dedicated desktop web portal).*
 
 ---
 
@@ -285,15 +296,17 @@ The application enforces a custom high-contrast dark aesthetic built with glassm
 #### UI Components & Actions:
 1. **Status Filter Chips:**
    - Horizontal scrolling strip with 4 filter chips: `ALL`, `PENDING`, `IN PROGRESS`, `RESOLVED`.
+   - Filters only reports filed by the active authenticated user (`reporterId == currentUser.id`).
    - Active chip highlighted with cyan border and electric blue fill.
 2. **Pull-to-Refresh Gesture:**
-   - Pulling down re-emits `StreamActiveIncidentsRequested` to pull latest status changes from Firestore.
-3. **Animated Report Cards List:**
+   - Pulling down re-emits `StreamUserIncidentsRequested` to pull latest status changes from Firestore.
+3. **Animated Report Cards List (`_AnimatedReportCard`):**
    - Card features: Category icon, Reference ID (e.g., `#INC-8921`), submission date/time, current status pill, and brief description snippet.
+   - **Tap Interaction:** Tapping any card opens [incident_detail_page.dart](file:///c:/YckoVon/Documents/capstone3/clean_folder/lib/features/incident/presentation/pages/incident_detail_page.dart) passing the clicked `IncidentEntity`.
 4. **Detailed Incident Tracking View (`IncidentDetailPage`):**
-   - Accessible by tapping any report card.
+   - Implements OLED Dark Theme (`AppColors.background` `0xFF060D1A`) matching the primary design system.
    - *Full Evidence Viewer:* Tap image to view full-screen zoomable modal.
-   - *Dispatcher Note Box:* Displays official remarks from Barangay Moonwalk desk.
+   - *Dispatcher Remarks Container:* Displays official resolution remarks and guidance from Barangay Moonwalk desk (`incident.dispatcherNotes`).
    - *3-Node Reactive Timeline (`IncidentStatusTimeline`):*
      - Node 1: `Report Submitted` (Green checkmark with timestamp).
      - Node 2: `Dispatched / In Progress` (Pulsing amber beacon when active).
@@ -305,21 +318,21 @@ The application enforces a custom high-contrast dark aesthetic built with glassm
 *File:* [emergency_hotlines_page.dart](file:///c:/YckoVon/Documents/capstone3/clean_folder/lib/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart)  
 *Route:* `/emergency-hotlines`
 
-Designed to function with zero friction, accessible even for unauthenticated users in distress.
+Designed to function with zero friction, accessible even for unauthenticated users in distress. All dial actions trigger native device telephony intents via `url_launcher` (`Uri(scheme: 'tel', path: number)`).
 
-#### UI Cards & One-Tap Actions:
+#### UI Cards & One-Tap Native Dial Actions:
 1. **National Emergency Hotline (911):**
    - Red accent card with police siren badge.
-   - Button: `CALL 911 NOW`. Confirms with modal: *"Connect immediately to National Police & Rescue Dispatch?"*
+   - Button: `CALL 911 NOW`. Directly opens system dialer with `911`.
 2. **Bureau of Fire Protection - Moonwalk Substation:**
    - Flame icon, direct number: `(02) 8824-3473` / `112`.
-   - Button: `CALL FIRE DISPATCH`.
+   - Button: `CALL FIRE DISPATCH`. Opens system dialer with Moonwalk Fire desk.
 3. **Philippine Red Cross / Paramedics:**
    - Medical cross icon, hotline: `143`.
-   - Button: `CALL AMBULANCE`.
+   - Button: `CALL AMBULANCE`. Opens system dialer with `143`.
 4. **Barangay Moonwalk Operations Center (Opcen):**
-   - Barangay seal icon, local 24/7 desk: `(02) 8888-MOON (6666)`.
-   - Button: `CALL BARANGAY DESK`.
+   - Barangay seal icon, local 24/7 desk: `(02) 8888-6666`.
+   - Button: `CALL BARANGAY DESK`. Opens system dialer with Moonwalk Opcen.
 5. **Moonwalk Tanod Security Patrol:**
    - Direct radio dispatch mobile hotline.
 
@@ -329,48 +342,39 @@ Designed to function with zero friction, accessible even for unauthenticated use
 *File:* [settings_page.dart](file:///c:/YckoVon/Documents/capstone3/clean_folder/lib/features/incident_reporting/presentation/pages/settings_page.dart)  
 *Route:* `/settings`
 
-Contains over 1,600 lines of modular citizen self-service and security configuration.
+The Resident Settings Center provides citizen profile management, authentication credential updates, hardware biometric security, and municipal support inquiries. (Redundant hotlines, artificial theme switches, and in-app push notification controls have been removed to avoid clutter and prevent app breakage; notification preferences are managed by the user at the Android/iOS OS settings level).
 
 #### 3.8.1 Main Settings Page
 1. **Resident Profile Card:**
    - Resident avatar picture with `Verified Citizen` badge.
-   - Displays full name, registered email, and resident sector.
+   - Dynamically renders full name, registered email, and resident sector from `AuthBloc.state.user`.
    - Button: `Edit Profile` (navigates to `EditProfilePage`).
-2. **Emergency Hotlines Quick Grid:**
-   - 4-button horizontal matrix for instant dispatch dialing.
-3. **Preference Toggles & Sliders:**
-   - *Push Notification Alerts:* Switch toggle for critical community broadcast sirens.
-   - *Dark Mode Enforcement:* Switch toggle for custom OLED high-contrast dark theme.
-   - *Offline Incident Sync:* Switch toggle for auto-syncing cached reports when network resumes.
-4. **Information & Support Modals:**
-   - *About ResQ App:* Bottom sheet displaying app version `v1.0.0 (Clean Architecture)`, LGU partnership credentials, and developer credits.
-   - *Barangay Help Desk Modal:* Contact info for Moonwalk administrative offices.
-   - *Submit Bug / Feedback Dialog:* Text form modal to submit app issues.
-5. **Destructive Security Actions:**
-   - *Log Out 3D Button:* Emits `LogoutSubmitted` to `AuthBloc`.
-   - *Delete Account Request:* Crimson dialog with 2-step confirmation warning about permanent data deletion.
+2. **Support & Information:**
+   - *About ResQ App:* Bottom sheet displaying app version `v1.0.0 (Barangay Edition)`, LGU partnership credentials, and developer credits.
+   - *Barangay Help Desk Modal:* Official contact info and office hours for Moonwalk administrative offices.
+   - *Submit Bug / Feedback Dialog:* Text form modal that persists issue tickets to Firestore `feedback` collection with `userId`, `timestamp`, and `message`.
+3. **Destructive Security Actions:**
+   - *Log Out 3D Button:* Emits `LogoutRequested` to `AuthBloc` and navigates cleanly to `WelcomePage`.
+   - *Delete Account Request:* Crimson dialog with 2-step confirmation warning about permanent data deletion, invoking `FirebaseAuth.currentUser?.delete()` with soft-delete in Firestore `users/{uid}`.
 
 #### 3.8.2 Sub-Page: Edit Profile (`EditProfilePage`)
-- **Avatar Photo Picker:** Camera/Gallery selection with instant preview.
+- **Avatar Photo Picker:** Camera/Gallery selection via `CameraService` uploading to Firebase Storage `avatars/{uid}.jpg`.
 - **Form Fields:**
-  - *Full Legal Name* (Text field).
+  - *Full Legal Name* (Validated text field).
   - *Email Address* (Read-only verified badge).
   - *Mobile Contact Number* (Format: `+63 9XX XXX XXXX`).
   - *Emergency Contact Person & Number* (Next-of-kin alert contact).
   - *Home / Street Address* (Within Barangay Moonwalk).
   - *Barangay Sector Dropdown* (`Phase 1`, `Phase 2`, `San Agustin`, `Multinational`).
-  - *Language Locale Selector* (`English`, `Filipino / Tagalog`).
-- **Action:** `Save Profile Changes` 3D button with confirmation toast.
+- **Action:** `Save Profile Changes` 3D button emitting `UpdateUserProfileRequested` to persist updates in Firestore `users/{uid}`.
 
 #### 3.8.3 Sub-Page: Privacy & Security (`PrivacySecurityPage`)
 - **Password Management Modal:**
-  - Inset fields: *Current Password*, *New Password*, *Confirm New Password*.
+  - Clean human-friendly form: *Current Password*, *New Password*, *Confirm New Password*.
   - Show/Hide visibility eye toggles on all fields.
-  - Button: `Update Secret Password`.
+  - Button: `Update Secret Password` updating credentials via `FirebaseAuth.currentUser?.updatePassword()`.
 - **Biometric Authentication:**
-  - Switch toggle: *Enable Biometric ID Gateway Lock* (Fingerprint / FaceID prompt on app launch).
-- **Two-Factor Authentication (2FA):**
-  - Switch toggle: *Require SMS OTP on Login*.
+  - Switch toggle: *Enable Biometric ID Gateway Lock* using `local_auth` (`LocalAuthentication.authenticate()`) with state saved in `SharedPreferences`.
 
 ---
 
@@ -420,19 +424,21 @@ Contains over 1,600 lines of modular citizen self-service and security configura
 
 ## 4. Admin Command Center Walkthrough
 
-The Admin Command Center is an enterprise web/tablet-first portal intended for Barangay Moonwalk desk officers, Tanod supervisors, and municipal dispatchers.
+The Admin Command Center is a dedicated desktop web portal (`lib/main_admin.dart`) hosted on **Firebase Hosting** (`https://resq-moonwalk.web.app`), designed specifically for Barangay Moonwalk desk officers, Tanod supervisors, and municipal dispatchers.
 
-### 4.1 Admin Authentication Gateway
+### 4.1 Admin Web Authentication Gateway
 *File:* [admin_login_page.dart](file:///c:/YckoVon/Documents/capstone3/clean_folder/lib/features/admin_dashboard/presentation/pages/admin_login_page.dart)  
-*Route:* `/admin/login`
+*Route:* `/admin/login` (Root landing for `main_admin.dart` web portal)
 
 #### UI Components & Actions:
-- **Visual Design:** Animated mesh gradient background with custom geometric grid lines, central glowing Admin Shield badge.
-- **Access Credentials:**
-  - Form validated for official admin email (`admin@safe.gov`) and password (`admin123`).
+- **Visual Design:** Animated mesh gradient background with custom geometric grid lines, central glowing Admin Shield badge, and official Barangay Moonwalk seal.
+- **Access Credentials & Cryptographic Role Assertion:**
+  - Form validates official municipal staff email and password.
+  - Upon submission, queries `FirebaseAuth` and asserts `user.role == 'admin'` in Firestore `users/{uid}`.
+  - If a non-admin citizen attempts login, access is denied immediately with a security modal and session credentials are wiped.
 - **Security Check:** CAPTCHA verification placeholder badge.
 - **Action:** `Enter Command Center` 3D Cyan Button. Emits loading sequence and redirects to `/admin/dashboard`.
-- **Shortcut:** `Return to Citizen App` footer button.
+*(Note: As a standalone web portal, all links returning to the citizen mobile app are decoupled).*
 
 ---
 
@@ -451,14 +457,14 @@ The Admin Command Center is an enterprise web/tablet-first portal intended for B
     5. `Incident Categories` (Folder grid icon)
     6. `Audit Logs` (Document shield icon)
     7. `Profile Settings` (User gear icon)
-  - Bottom: `Logout` button with glowing red highlight.
+  - Bottom: `Logout` button with glowing red highlight. Dispatches `LogoutRequested` to `AuthBloc` to terminate Firebase sessions cleanly before redirecting to `/admin/login`.
 - **Top Header Bar (`AdminHeader`):**
   - Left: Hamburger drawer toggle (on mobile/tablet) and current page breadcrumbs.
   - Center: Global administrative search input field.
   - Right:
     - Live System Status pill: `Opcen Dispatch Online` (Green dot).
-    - Emergency Broadcast Alert button (Triggers municipality broadcast modal).
-    - Notification bell with badge count.
+    - **Emergency Broadcast Alert Button:** Glowing crimson button that opens the **Municipal Push Siren Modal** (broadcast title, emergency type: Fire/Flood/Evacuation, sector target). Submitting writes to Firestore `broadcasts` collection and triggers municipal alerts.
+    - Notification bell with active badge count.
     - Admin Profile Pill with avatar and `Barangay Captain / Officer` label.
 
 ---
@@ -614,7 +620,6 @@ A standalone developer and QA sandbox for verifying real device hardware APIs:
 | **Welcome Page** | `Sign Up` Header | Outlined Button | Tap | Navigates to `/sign-up` |
 | **Welcome Page** | `Report an Incident` | Custom3dButton | Tap | Checks auth -> `/report-incident` or Guest modal |
 | **Welcome Page** | `Emergency Hotlines` | Custom3dButton | Tap | Navigates to `/emergency-hotlines` |
-| **Welcome Page** | `Access Admin Portal` | Text Button | Tap | Navigates to `/admin/login` |
 | **Login Page** | Email Input | Custom3dTextField | Text Entry | Validates email format |
 | **Login Page** | Password Input | Custom3dTextField | Text Entry | Obfuscated input with Eye toggle |
 | **Login Page** | Remember Me | Checkbox | Toggle | Persists auth token in Hive box |
@@ -648,44 +653,41 @@ A standalone developer and QA sandbox for verifying real device hardware APIs:
 | **Maps Page** | Zoom In / Out | Icon Buttons | Tap | Increments/decrements map zoom level |
 | **Maps Page** | Locate Me | Floating Button | Tap | Re-centers camera on current GPS location |
 | **My Reports** | Status Filter Chips | Choice Chips | Tap | Filters list by All, Pending, Active, Solved |
-| **My Reports** | List Pull-to-refresh | Pull Gesture | Drag down | Refreshes incident list from Firestore |
+| **My Reports** | List Pull-to-refresh | Pull Gesture | Drag down | Refreshes personal incident list from Firestore |
 | **My Reports** | Report Tile | Custom3dCard | Tap | Navigates to `IncidentDetailPage` |
 | **Detail Page** | Evidence Thumbnail | Image Widget | Tap | Opens full-screen zoomable lightbox |
 | **Detail Page** | Timeline Nodes | Timeline Widget | View | Displays 3-step reactive progress states |
-| **Hotlines Page** | 911 Call Button | Crimson Button | Tap | Launches phone intent to `911` |
-| **Hotlines Page** | Fire 112 Button | Crimson Button | Tap | Launches phone intent to Moonwalk Fire |
-| **Hotlines Page** | Ambulance 143 | Crimson Button | Tap | Launches phone intent to Red Cross |
-| **Hotlines Page** | Barangay Opcen | Crimson Button | Tap | Launches phone intent to Moonwalk Opcen |
+| **Hotlines Page** | 911 Call Button | Crimson Button | Tap | Launches native phone intent to `tel:911` |
+| **Hotlines Page** | Fire 112 Button | Crimson Button | Tap | Launches native phone intent to Moonwalk Fire |
+| **Hotlines Page** | Ambulance 143 | Crimson Button | Tap | Launches native phone intent to Red Cross |
+| **Hotlines Page** | Barangay Opcen | Crimson Button | Tap | Launches native phone intent to Moonwalk Opcen |
 | **Settings Page** | `Edit Profile` | Outlined Button | Tap | Navigates to `EditProfilePage` |
-| **Settings Page** | Emergency Buttons | Grid Buttons (4x) | Tap | Immediate dialer access |
-| **Settings Page** | Notification Switch | CupertinoSwitch | Toggle | Enables/disables push alert banners |
-| **Settings Page** | Dark Mode Switch | CupertinoSwitch | Toggle | Enforces high-contrast OLED dark theme |
-| **Settings Page** | Offline Sync Switch | CupertinoSwitch | Toggle | Toggles background Hive cache syncing |
 | **Settings Page** | About App Tile | List Tile | Tap | Opens Version & LGU credits sheet modal |
 | **Settings Page** | Help Desk Tile | List Tile | Tap | Opens Moonwalk Desk contact sheet modal |
-| **Settings Page** | Bug Report Tile | List Tile | Tap | Opens Bug/Feedback text entry modal |
+| **Settings Page** | Bug Report Tile | List Tile | Tap | Opens Bug/Feedback ticket modal |
 | **Settings Page** | `Log Out` Tile | List Tile | Tap | Confirms and logs out resident |
 | **Settings Page** | `Delete Account` | Crimson Tile | Tap | 2-step account deletion warning modal |
-| **Edit Profile** | Avatar Edit Icon | Circle Icon | Tap | Uploads new resident profile photo |
-| **Edit Profile** | `Save Changes` | Custom3dButton | Tap | Updates resident profile record |
-| **Privacy Page** | Password Update | List Tile | Tap | Opens Current/New/Confirm password modal |
-| **Privacy Page** | Biometrics Switch | CupertinoSwitch | Toggle | Enables FaceID / Fingerprint gateway |
+| **Edit Profile** | Avatar Edit Icon | Circle Icon | Tap | Uploads new resident profile photo to Storage |
+| **Edit Profile** | `Save Changes` | Custom3dButton | Tap | Updates resident profile record in Firestore |
+| **Privacy Page** | Password Update | List Tile | Tap | Updates secret password via FirebaseAuth |
+| **Privacy Page** | Biometrics Switch | CupertinoSwitch | Toggle | Enables biometric fingerprint/FaceID gateway |
 | **Chatbot** | Floating Robot FAB | FAB Button | Tap | Expands/collapses 340x520 glass window |
 | **Chatbot** | Suggestion Chips | Action Chips (4x) | Tap | Auto-sends pre-built emergency questions |
 | **Chatbot** | Reset / Clear Icon | Icon Button | Tap | Clears chat history back to greeting |
 | **Chatbot** | Emergency Call Pill | Crimson Button | Tap | In-chat shortcut calling 911 |
 | **Side Menu** | Route Tiles (6x) | List Tiles | Tap | Direct drawer navigation to core pages |
-| **Admin Login** | Email & Password | Text Fields | Text Entry | Authenticates `admin@safe.gov` / `admin123` |
+| **Admin Login** | Email & Password | Text Fields | Text Entry | Authenticates official staff & asserts `role == 'admin'` |
 | **Admin Login** | `Enter Portal` | Custom3dButton | Tap | Validates credentials -> `/admin/dashboard` |
 | **Admin Shell** | Sidebar Toggle | Icon Button | Tap | Toggles 270px full vs 80px compact sidebar |
 | **Admin Shell** | Nav Items (7x) | List Tiles | Tap | Switches active admin module view |
-| **Admin Shell** | Broadcast Alert | Neon Button | Tap | Opens municipality push siren modal |
+| **Admin Shell** | Broadcast Alert | Neon Button | Tap | Opens municipal push siren modal |
 | **Admin Reports** | Search Field | Search Bar | Text Entry | Live filtering of incident data table |
 | **Admin Reports** | Status Dropdown | Dropdown | Select | Filters by All, Pending, In Progress, Solved |
 | **Admin Reports** | Archive Switch | Switch | Toggle | Toggles active vs archived incident records |
 | **Admin Reports** | `View Details` | Icon Button | Tap | Opens comprehensive incident detail modal |
 | **Admin Reports** | `Edit Status` | Icon Button | Tap | Opens Status Update & Notes radio dialog |
 | **Admin Reports** | `Mark Spam` | Icon Button | Tap | Flags report as false alarm |
+| **Admin Reports** | `Export CSV/PDF`| Action Buttons | Tap | Exports formatted incident records |
 | **Admin Users** | Role Editor | Action Button | Tap | Opens User Role & Permissions modal |
 | **Admin Users** | Suspend User | Action Button | Tap | Sets account status to `Disabled` |
 | **Admin Areas** | `+ Add Area` | Custom3dButton | Tap | Opens Add Zone / Sector modal dialog |
@@ -710,7 +712,7 @@ A standalone developer and QA sandbox for verifying real device hardware APIs:
   "address": "STRING (Reverse geocoded street name)",
   "areaSector": "STRING (e.g., 'Area 2 - Phase 2 / Armstrong')",
   "photoUrl": "STRING (Firebase Storage HTTPS download URL)",
-  "status": "STRING ('Pending' | 'In Progress' | 'Resolved')",
+  "status": "STRING ('Pending' | 'In Progress' | 'Resolved' | 'Spam')",
   "urgency": "STRING ('LOW' | 'MEDIUM' | 'HIGH')",
   "isAnonymous": false,
   "reportedBy": "STRING (User ID or 'Anonymous Citizen')",
@@ -737,22 +739,35 @@ A standalone developer and QA sandbox for verifying real device hardware APIs:
       "recommended_actions": ["immediate instructions for dispatcher"]
     }
     ```
-- **Trigger:** Accessible via the 5-tap gesture on the ResQ logo in `ReportIncidentPage`.
+- **Trigger:** Accessible via the 5-tap gesture on the ResQ logo in `ReportIncidentPage` and dynamic chatbot natural language triage in `FloatingChatBot`.
 
 ---
 
-## 8. Backend Integration Readiness & Next Steps
+## 8. Multi-Platform Build & Deployment Specification
 
-Based on the [backend_readiness_report.md](file:///c:/YckoVon/Documents/capstone3/clean_folder/backend_readiness_report.md) audit:
+### 8.1 Deployment Artifacts
 
-| Module / Service | Current State | Production Path |
-| :--- | :--- | :--- |
-| **Incident Reporting & Stream** | ✅ Live Firestore + Hive Cache | Fully wired to `IncidentBloc` and Firebase. |
-| **Geolocation & Geocoding** | ✅ Live Geolocator | Operational device GPS and reverse geocoding. |
-| **Camera & Image Storage** | ✅ Live Camera / Storage | Camera hardware capture with Firebase Storage upload. |
-| **Gemini AI Triage** | ✅ Live Remote API | Operational REST call to Gemini 1.5 Flash. |
-| **Resident Authentication** | ⚠️ Mock Repository | Switch `AuthRepositoryImpl` from simulated delay to `FirebaseAuth`. |
-| **Admin Command Center** | ⚠️ Local Widget State | Wire Admin tables and dialogs to `IncidentBloc` and Admin User BLoC. |
+| Target Platform | User Persona | Entry Point | Build Command | Deployment Destination |
+| :--- | :--- | :--- | :--- | :--- |
+| **Android Mobile** | Resident / Citizen | `lib/main_resident.dart` | `flutter build apk -t lib/main_resident.dart --release` | APK distribution (`resq.apk`) |
+| **Desktop Web** | Barangay Admin / Opcen | `lib/main_admin.dart` | `flutter build web -t lib/main_admin.dart --release` | **Firebase Hosting** (`https://resq-moonwalk.web.app`) |
+
+### 8.2 Deployment Workflow
+
+1. **Building Resident Android APK:**
+   ```bash
+   flutter build apk -t lib/main_resident.dart --release
+   ```
+   - Distribute the generated `build/app/outputs/flutter-apk/app-release.apk` to community residents.
+   - The APK boots strictly into the citizen interface with no admin shortcuts.
+
+2. **Deploying Admin Command Center Web Portal:**
+   ```bash
+   flutter build web -t lib/main_admin.dart --release
+   firebase deploy --only hosting
+   ```
+   - Municipal desk officers access `https://resq-moonwalk.web.app` on desktop/tablet browsers.
+   - Enforces strict Firestore role security (`role == 'admin'`).
 
 ---
 

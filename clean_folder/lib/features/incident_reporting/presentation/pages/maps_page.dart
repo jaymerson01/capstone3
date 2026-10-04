@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/services/location_service.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
 
 class MapsPage extends StatefulWidget {
-  const MapsPage({super.key});
+  final IncidentEntity? focusedIncident;
+
+  const MapsPage({super.key, this.focusedIncident});
 
   @override
   State<MapsPage> createState() => _MapsPageState();
@@ -19,12 +23,63 @@ class MapsPage extends StatefulWidget {
 
 class _MapsPageState extends State<MapsPage> {
   GoogleMapController? _mapController;
+  String _selectedCategoryFilter = "All";
 
-  // Default coordinate (e.g., Moonwalk, Paranaque approx)
-  static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(14.4851, 121.0116),
-    zoom: 14.0,
-  );
+  // Default coordinate: Barangay Moonwalk, Paranaque City (or focused incident if provided)
+  CameraPosition get _initialPosition {
+    if (widget.focusedIncident != null &&
+        widget.focusedIncident!.latitude != 0.0 &&
+        widget.focusedIncident!.longitude != 0.0) {
+      return CameraPosition(
+        target: LatLng(
+          widget.focusedIncident!.latitude,
+          widget.focusedIncident!.longitude,
+        ),
+        zoom: 16.5,
+      );
+    }
+    return const CameraPosition(
+      target: LatLng(14.4851, 121.0116),
+      zoom: 14.5,
+    );
+  }
+
+  static const String _darkMapStyle = '''
+[
+  {"elementType": "geometry", "stylers": [{"color": "#0d1627"}]},
+  {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
+  {"elementType": "labels.text.stroke", "stylers": [{"color": "#060d1a"}]},
+  {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
+  {"featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{"color": "#64779e"}]},
+  {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
+  {"featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
+  {"featureType": "landscape.natural", "elementType": "geometry", "stylers": [{"color": "#08101e"}]},
+  {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#0f1c32"}]},
+  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
+  {"featureType": "poi.park", "elementType": "geometry.fill", "stylers": [{"color": "#0a1a24"}]},
+  {"featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{"color": "#3C7680"}]},
+  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#18263e"}]},
+  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#111c2f"}]},
+  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#98a6be"}]},
+  {"featureType": "road.highway", "elementType": "geometry", "stylers": [{"color": "#23395b"}]},
+  {"featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{"color": "#17263c"}]},
+  {"featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{"color": "#b0d5ce"}]},
+  {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#182740"}]},
+  {"featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
+  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#061324"}]},
+  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#3d648f"}]}
+]
+''';
+
+  final List<String> _filterCategories = [
+    "All",
+    "Fire",
+    "Medical",
+    "Flood",
+    "Theft",
+    "Accident",
+    "Violence",
+  ];
 
   @override
   void initState() {
@@ -32,59 +87,112 @@ class _MapsPageState extends State<MapsPage> {
     context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
   }
 
-  Widget appLogo() {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: ClipOval(
-        child: Image.asset(
-          'assets/images/logo.png',
-          fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Container(
-            color: AppColors.primary,
-            child: const Icon(Icons.shield, color: Colors.white, size: 14),
-          ),
-        ),
-      ),
-    );
+  double _getMarkerHue(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('fire')) return BitmapDescriptor.hueRed;
+    if (cat.contains('theft') || cat.contains('robbery')) {
+      return BitmapDescriptor.hueOrange;
+    }
+    if (cat.contains('medical')) return BitmapDescriptor.hueAzure;
+    if (cat.contains('flood') || cat.contains('calamity')) {
+      return BitmapDescriptor.hueCyan;
+    }
+    if (cat.contains('accident') || cat.contains('road')) {
+      return BitmapDescriptor.hueYellow;
+    }
+    if (cat.contains('violence') || cat.contains('fight')) {
+      return BitmapDescriptor.hueViolet;
+    }
+    return BitmapDescriptor.hueRose;
+  }
+
+  Color _getCategoryColor(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('fire')) return AppColors.danger;
+    if (cat.contains('theft') || cat.contains('robbery')) {
+      return AppColors.pending;
+    }
+    if (cat.contains('medical')) return const Color(0xFF0A84FF);
+    if (cat.contains('flood') || cat.contains('calamity')) {
+      return const Color(0xFF00D4FF);
+    }
+    if (cat.contains('accident') || cat.contains('road')) {
+      return const Color(0xFFFFD166);
+    }
+    if (cat.contains('violence') || cat.contains('fight')) {
+      return const Color(0xFF9D4EDD);
+    }
+    return AppColors.primary;
+  }
+
+  IconData _getCategoryIcon(String category) {
+    final cat = category.toLowerCase();
+    if (cat.contains('fire')) return Icons.local_fire_department_rounded;
+    if (cat.contains('theft') || cat.contains('robbery')) {
+      return Icons.local_police_rounded;
+    }
+    if (cat.contains('medical')) return Icons.medical_services_rounded;
+    if (cat.contains('flood') || cat.contains('calamity')) {
+      return Icons.flood_rounded;
+    }
+    if (cat.contains('accident') || cat.contains('road')) {
+      return Icons.car_crash_rounded;
+    }
+    if (cat.contains('violence') || cat.contains('fight')) {
+      return Icons.sports_kabaddi_rounded;
+    }
+    return Icons.warning_amber_rounded;
+  }
+
+  String _formatRelativeTime(DateTime timestamp) {
+    final diff = DateTime.now().difference(timestamp);
+    if (diff.inMinutes < 1) return "Just now";
+    if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
+    if (diff.inHours < 24) return "${diff.inHours}h ago";
+    return "${diff.inDays}d ago";
   }
 
   Set<Marker> _buildMarkers(List<IncidentEntity> incidents) {
-    return incidents.map((incident) {
-      double hue;
-      switch (incident.category.toLowerCase()) {
-        case 'fire':
-          hue = BitmapDescriptor.hueRed;
-          break;
-        case 'flood':
-          hue = BitmapDescriptor.hueBlue;
-          break;
-        case 'medical':
-          hue = BitmapDescriptor.hueGreen;
-          break;
-        default:
-          hue = BitmapDescriptor.hueOrange;
-      }
+    final filtered = _selectedCategoryFilter == "All"
+        ? incidents
+        : incidents.where((inc) {
+            return inc.category
+                .toLowerCase()
+                .contains(_selectedCategoryFilter.toLowerCase());
+          }).toList();
 
+    // Ensure focused incident is always visible even if another category filter is active
+    if (widget.focusedIncident != null &&
+        !filtered.any((inc) => inc.id == widget.focusedIncident!.id)) {
+      filtered.add(widget.focusedIncident!);
+    }
+
+    return filtered.map((incident) {
       return Marker(
         markerId: MarkerId(incident.id),
         position: LatLng(incident.latitude, incident.longitude),
-        icon: BitmapDescriptor.defaultMarkerWithHue(hue),
+        icon: BitmapDescriptor.defaultMarkerWithHue(_getMarkerHue(incident.category)),
+        infoWindow: InfoWindow(
+          title: incident.category,
+          snippet: "${incident.areaSector ?? 'Moonwalk'} • ${_formatRelativeTime(incident.timestamp)}",
+          onTap: () => _showIncidentDetails(incident),
+        ),
         onTap: () => _showIncidentDetails(incident),
       );
     }).toSet();
   }
 
   void _showIncidentDetails(IncidentEntity incident) {
+    final authState = context.read<AuthBloc>().state;
+    final String currentUserId =
+        authState is Authenticated ? authState.user.id : "resident_demo_01";
+
+    final bool isMyReport = incident.reporterId == currentUserId;
+    final bool hasVoted = incident.validatedUserIds.contains(currentUserId);
+    final int totalAffected = incident.upvoteCount + 1;
+    final categoryColor = _getCategoryColor(incident.category);
+    final categoryIcon = _getCategoryIcon(incident.category);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -93,100 +201,331 @@ class _MapsPageState extends State<MapsPage> {
         return Container(
           decoration: BoxDecoration(
             color: AppColors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
             border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, -4),
+                color: Colors.black.withValues(alpha: 0.4),
+                blurRadius: 24,
+                offset: const Offset(0, -6),
               ),
             ],
           ),
           padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(bottomSheetContext).padding.bottom + 24,
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(bottomSheetContext).padding.bottom + 20,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                incident.category,
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.textDark),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                incident.description,
-                style: const TextStyle(fontSize: 16, color: AppColors.textDark),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Icon(Icons.warning, color: AppColors.danger, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Urgency: ${incident.urgencyStatus}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.danger),
+              // Modal drag handle
+              Center(
+                child: Container(
+                  width: 38,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
+
+              // Header: Category Icon + Title + Urgency
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.people, color: AppColors.primary, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Affected: ${incident.upvoteCount}",
-                    style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textDark),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, authState) {
-                  String? userId;
-                  if (authState is Authenticated) {
-                    userId = authState.user.id;
-                  }
-
-                  final bool hasVoted = userId != null && incident.validatedUserIds.contains(userId);
-
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: hasVoted ? Colors.grey : AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: hasVoted || userId == null
-                          ? null
-                          : () {
-                              // context.read<IncidentBloc>().add(
-                              //   IncrementAffectedCountRequested(incident.id, userId!),
-                              // );
-                              Navigator.pop(bottomSheetContext);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Your report has been recorded."),
-                                  backgroundColor: AppColors.primary,
-                                ),
-                              );
-                            },
-                      icon: const Icon(Icons.front_hand),
-                      label: Text(
-                        hasVoted ? "Already Reported" : "Me Too / I am affected",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: BoxDecoration(
+                      color: categoryColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: categoryColor.withValues(alpha: 0.3),
                       ),
                     ),
-                  );
-                },
+                    child: Icon(categoryIcon, color: categoryColor, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          incident.category,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            // Area / Location Badge
+                            Flexible(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: AppColors.primary.withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.location_on_rounded,
+                                        size: 11, color: AppColors.primary),
+                                    const SizedBox(width: 4),
+                                    Flexible(
+                                      child: Text(
+                                        incident.areaSector ?? "Moonwalk",
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Relative time
+                            Text(
+                              _formatRelativeTime(incident.timestamp),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textLight,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Urgency Pill
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.danger.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.danger.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Text(
+                      incident.urgencyStatus ?? "PENDING",
+                      style: const TextStyle(
+                        color: AppColors.danger,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Description Snippet
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.background,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Text(
+                  incident.description,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    height: 1.5,
+                    color: AppColors.textDark,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Corroboration & Total Affected Stats
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.people_alt_rounded,
+                        color: AppColors.primary, size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        totalAffected == 1
+                            ? "1 citizen affected (original reporter). Awaiting neighborhood corroboration."
+                            : "$totalAffected citizens affected (original reporter + ${incident.upvoteCount} neighbor${incident.upvoteCount == 1 ? '' : 's'})",
+                        style: const TextStyle(
+                          color: AppColors.textDark,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Action Buttons Row
+              Row(
+                children: [
+                  // "Me Too" Corroborate Button / "Your Report" State
+                  Expanded(
+                    flex: 3,
+                    child: GestureDetector(
+                      onTap: isMyReport
+                          ? () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "You are the author of this report. Tap 'View Details' to track progress.",
+                                  ),
+                                  backgroundColor: AppColors.primary,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          : (hasVoted
+                              ? null
+                              : () {
+                                  context.read<IncidentBloc>().add(
+                                        UpvoteIncidentRequested(
+                                          incident.id,
+                                          currentUserId,
+                                        ),
+                                      );
+                                  Navigator.pop(bottomSheetContext);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Your corroboration ('Me Too') has been recorded! Dispatch alerted.",
+                                      ),
+                                      backgroundColor: AppColors.solved,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: isMyReport
+                              ? null
+                              : (hasVoted ? null : AppColors.primaryGradient),
+                          color: isMyReport
+                              ? AppColors.primary.withValues(alpha: 0.15)
+                              : (hasVoted
+                                  ? AppColors.solved.withValues(alpha: 0.15)
+                                  : null),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: isMyReport
+                                ? AppColors.primary.withValues(alpha: 0.4)
+                                : (hasVoted
+                                    ? AppColors.solved.withValues(alpha: 0.4)
+                                    : Colors.transparent),
+                          ),
+                          boxShadow: (isMyReport || hasVoted)
+                              ? null
+                              : AppColors.primaryGlowShadow,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              isMyReport
+                                  ? Icons.person_pin_circle_rounded
+                                  : (hasVoted
+                                      ? Icons.check_circle_rounded
+                                      : Icons.front_hand_rounded),
+                              color: isMyReport
+                                  ? AppColors.primary
+                                  : (hasVoted ? AppColors.solved : Colors.white),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              isMyReport
+                                  ? "Your Report"
+                                  : (hasVoted ? "Corroborated" : "Me Too / Affected"),
+                              style: TextStyle(
+                                color: isMyReport
+                                    ? AppColors.primary
+                                    : (hasVoted ? AppColors.solved : Colors.white),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+
+                  // View Live Details Button
+                  Expanded(
+                    flex: 2,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pop(bottomSheetContext);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => IncidentDetailPage(
+                              initialIncident: incident,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceLight,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: const Center(
+                          child: Text(
+                            "View Details",
+                            style: TextStyle(
+                              color: AppColors.textDark,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -195,264 +534,254 @@ class _MapsPageState extends State<MapsPage> {
     );
   }
 
+  Future<void> _animateToUserLocation() async {
+    try {
+      final loc = await sl<LocationService>().getCurrentLocation();
+      if (loc != null && _mapController != null) {
+        _mapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(
+            LatLng(loc.latitude, loc.longitude),
+            16.0,
+          ),
+        );
+      }
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
+        preferredSize: const Size.fromHeight(60),
         child: Container(
-        height: 64 + MediaQuery.of(context).padding.top,
-        padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: const Border(
-              bottom: BorderSide(color: AppColors.border, width: 1)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.25),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+          height: 60 + MediaQuery.of(context).padding.top,
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: const Border(
+              bottom: BorderSide(color: AppColors.border, width: 1),
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
-                onPressed: () => Navigator.pop(context),
-              ),
-              appLogo(),
-              const SizedBox(width: 10),
-              const Text(
-                "Safety Map",
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.person, color: AppColors.primary, size: 20),
-              ),
-            ],
           ),
-        ),
-      ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Section Header ─────────────────────────────────────────────
-            Row(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Safety Map",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textDark,
-                      ),
-                    ),
-                    const Text(
-                      "Active Moonwalk Perimeters",
-                      style: TextStyle(
-                          fontSize: 12, color: AppColors.textLight),
-                    ),
-                  ],
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                const Text(
+                  "COMMUNITY MAP",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                  ),
                 ),
                 const Spacer(),
                 const _LiveBadge(),
               ],
             ),
-            const SizedBox(height: 14),
-
-            // ── Map Frame ──────────────────────────────────────────────────
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.2)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      blurRadius: 24,
-                      offset: const Offset(0, 8),
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          // ── Category Filter Bar ─────────────────────────────────────────
+          Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            color: AppColors.surface,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _filterCategories.length,
+              separatorBuilder: (ctx, idx) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                final category = _filterCategories[index];
+                final isSelected = _selectedCategoryFilter == category;
+                return GestureDetector(
+                  onTap: () {
+                    setState(() => _selectedCategoryFilter = category);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.surfaceLight,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.border,
+                      ),
                     ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: BlocBuilder<IncidentBloc, IncidentState>(
-                    builder: (context, state) {
-                      List<IncidentEntity> activeIncidents = [];
-                      if (state is IncidentLoaded) {
-                        activeIncidents = state.incidents;
-                      }
+                    child: Center(
+                      child: Text(
+                        category,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : AppColors.textLight,
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
 
-                      return Stack(
+          // ── Main Map View ────────────────────────────────────────────────
+          Expanded(
+            child: BlocBuilder<IncidentBloc, IncidentState>(
+              builder: (context, state) {
+                List<IncidentEntity> activeIncidents = [];
+                if (state is IncidentLoaded) {
+                  activeIncidents = state.incidents
+                      .where((inc) =>
+                          inc.status.toLowerCase() != 'resolved' &&
+                          inc.latitude != 0.0 &&
+                          inc.longitude != 0.0)
+                      .toList();
+                }
+
+                // If a focused incident is passed from dashboard, ensure it is available in the list
+                if (widget.focusedIncident != null &&
+                    widget.focusedIncident!.latitude != 0.0 &&
+                    widget.focusedIncident!.longitude != 0.0) {
+                  if (!activeIncidents.any((inc) => inc.id == widget.focusedIncident!.id)) {
+                    activeIncidents.add(widget.focusedIncident!);
+                  }
+                }
+
+                return Stack(
+                  children: [
+                    GoogleMap(
+                      initialCameraPosition: _initialPosition,
+                      style: _darkMapStyle,
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: false,
+                      zoomControlsEnabled: false,
+                      mapToolbarEnabled: false,
+                      onMapCreated: (controller) {
+                        _mapController = controller;
+                        if (widget.focusedIncident != null &&
+                            widget.focusedIncident!.latitude != 0.0 &&
+                            widget.focusedIncident!.longitude != 0.0) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) {
+                              _mapController?.animateCamera(
+                                CameraUpdate.newLatLngZoom(
+                                  LatLng(
+                                    widget.focusedIncident!.latitude,
+                                    widget.focusedIncident!.longitude,
+                                  ),
+                                  16.5,
+                                ),
+                              );
+                              _showIncidentDetails(widget.focusedIncident!);
+                            }
+                          });
+                        }
+                      },
+                      markers: _buildMarkers(activeIncidents),
+                    ),
+
+                    if (state is IncidentLoading)
+                      const Center(
+                        child: CircularProgressIndicator(
+                            color: AppColors.primary),
+                      ),
+
+                    // ── Map Floating Zoom & Location Controls ──────────────
+                    Positioned(
+                      bottom: 52,
+                      right: 16,
+                      child: Column(
                         children: [
-                          GoogleMap(
-                            initialCameraPosition: _initialPosition,
-                            myLocationEnabled: true,
-                            myLocationButtonEnabled: false,
-                            zoomControlsEnabled: false,
-                            mapToolbarEnabled: false,
-                            onMapCreated: (controller) => _mapController = controller,
-                            markers: _buildMarkers(activeIncidents),
-                          ),
-                          
-                          if (state is IncidentLoading)
-                            const Center(
-                              child: CircularProgressIndicator(color: AppColors.primary),
-                            ),
-                          
-                          // ── Floating Glass Search Bar ──────────────────────────
-                          Positioned(
-                            top: 14,
-                            left: 14,
-                            right: 14,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.12),
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.search,
-                                      color: AppColors.textLight, size: 18),
-                                  const SizedBox(width: 10),
-                                  const Expanded(
-                                    child: Text(
-                                      "Search locations or coordinates...",
-                                      style: TextStyle(
-                                        color: AppColors.textLight,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary
-                                          .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(Icons.filter_list,
-                                        color: AppColors.primary, size: 16),
-                                  ),
-                                ],
-                              ),
+                          _MapControlButton(
+                            icon: Icons.add,
+                            onTap: () => _mapController?.animateCamera(
+                              CameraUpdate.zoomIn(),
                             ),
                           ),
-
-                          // ── Premium Zoom Controls ─────────────────────────────
-                          Positioned(
-                            bottom: 60, // Above the legend strip
-                            right: 16,
-                            child: Column(
-                              children: [
-                                _MapControlButton(
-                                    icon: Icons.add, onTap: () {
-                                      _mapController?.animateCamera(CameraUpdate.zoomIn());
-                                    }),
-                                const SizedBox(height: 8),
-                                _MapControlButton(
-                                    icon: Icons.remove, onTap: () {
-                                      _mapController?.animateCamera(CameraUpdate.zoomOut());
-                                    }),
-                                const SizedBox(height: 8),
-                                _MapControlButton(
-                                  icon: Icons.my_location,
-                                  onTap: () {
-                                    // Normally fetch location here and animate
-                                  },
-                                  color: AppColors.primary,
-                                ),
-                              ],
+                          const SizedBox(height: 8),
+                          _MapControlButton(
+                            icon: Icons.remove,
+                            onTap: () => _mapController?.animateCamera(
+                              CameraUpdate.zoomOut(),
                             ),
                           ),
-
-                          // ── Bottom status strip ───────────────────────────────
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface.withValues(alpha: 0.85),
-                              ),
-                              child: Row(
-                                children: [
-                                  const _MapLegendDot(
-                                      color: AppColors.danger, label: "Fire"),
-                                  const SizedBox(width: 16),
-                                  const _MapLegendDot(
-                                      color: AppColors.pending, label: "Theft"),
-                                  const SizedBox(width: 16),
-                                  const _MapLegendDot(
-                                      color: AppColors.solved, label: "Medical"),
-                                  const Spacer(),
-                                  Text(
-                                    "${activeIncidents.length} Active",
-                                    style: const TextStyle(
-                                      color: AppColors.textDark,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                          const SizedBox(height: 8),
+                          _MapControlButton(
+                            icon: Icons.my_location,
+                            color: AppColors.primary,
+                            onTap: _animateToUserLocation,
                           ),
                         ],
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
+                      ),
+                    ),
 
-            // ── CTA Button ─────────────────────────────────────────────────
-            Custom3dButton(
-              icon: Icons.map,
-              text: "Open in Google Maps",
-              gradient: AppColors.primaryGradient,
-              onPressed: () {},
+                    // ── Bottom Legend & Active Counter Bar ──────────────────
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface.withValues(alpha: 0.92),
+                          border: const Border(
+                            top: BorderSide(color: AppColors.border),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const _MapLegendDot(
+                                color: AppColors.danger, label: "Fire"),
+                            const SizedBox(width: 12),
+                            const _MapLegendDot(
+                                color: AppColors.pending, label: "Theft"),
+                            const SizedBox(width: 12),
+                            const _MapLegendDot(
+                                color: Color(0xFF0A84FF), label: "Medical"),
+                            const SizedBox(width: 12),
+                            const _MapLegendDot(
+                                color: Color(0xFF00D4FF), label: "Flood"),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "${activeIncidents.length} Active Incidents",
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -491,20 +820,20 @@ class _LiveBadgeState extends State<_LiveBadge>
       animation: _ctrl,
       builder: (context, _) {
         return Container(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
             color: AppColors.danger.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: AppColors.danger.withValues(alpha: 0.3)),
+              color: AppColors.danger.withValues(alpha: 0.3),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 7,
-                height: 7,
+                width: 6,
+                height: 6,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.danger,
@@ -512,19 +841,19 @@ class _LiveBadgeState extends State<_LiveBadge>
                     BoxShadow(
                       color: AppColors.danger
                           .withValues(alpha: 0.7 * _ctrl.value),
-                      blurRadius: 8,
+                      blurRadius: 6,
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 6),
               const Text(
-                "LIVE",
+                "LIVE MAP",
                 style: TextStyle(
                   color: AppColors.danger,
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
+                  letterSpacing: 0.8,
                 ),
               ),
             ],
@@ -539,7 +868,12 @@ class _MapControlButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback onTap;
   final Color? color;
-  const _MapControlButton({required this.icon, required this.onTap, this.color});
+
+  const _MapControlButton({
+    required this.icon,
+    required this.onTap,
+    this.color,
+  });
 
   @override
   State<_MapControlButton> createState() => _MapControlButtonState();
@@ -559,28 +893,25 @@ class _MapControlButtonState extends State<_MapControlButton> {
       onTapCancel: () => setState(() => _pressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
-        width: 42,
-        height: 42,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           color: widget.color != null
-              ? widget.color!.withValues(alpha: _pressed ? 0.4 : 0.9)
-              : Colors.white.withValues(alpha: _pressed ? 0.7 : 1.0),
+              ? widget.color!.withValues(alpha: _pressed ? 0.6 : 0.95)
+              : AppColors.surface.withValues(alpha: _pressed ? 0.7 : 0.95),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: (widget.color ?? Colors.grey)
-                .withValues(alpha: _pressed ? 0.5 : 0.3),
-          ),
+          border: Border.all(color: AppColors.border),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.15),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 8,
-              offset: const Offset(0, 4),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Icon(
           widget.icon,
-          color: widget.color != null ? Colors.white : AppColors.textDark,
+          color: Colors.white,
           size: 18,
         ),
       ),
@@ -591,6 +922,7 @@ class _MapControlButtonState extends State<_MapControlButton> {
 class _MapLegendDot extends StatelessWidget {
   final Color color;
   final String label;
+
   const _MapLegendDot({required this.color, required this.label});
 
   @override
@@ -599,20 +931,24 @@ class _MapLegendDot extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: 7,
+          height: 7,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: color,
             boxShadow: [
-              BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 6),
+              BoxShadow(color: color.withValues(alpha: 0.6), blurRadius: 4),
             ],
           ),
         ),
         const SizedBox(width: 5),
         Text(
           label,
-          style: const TextStyle(color: AppColors.textDark, fontSize: 11, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: AppColors.textLight,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );

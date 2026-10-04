@@ -32,37 +32,37 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'dummy-api-key-replace-me',
-    appId: '1:123456789012:web:dummy1234567890',
-    messagingSenderId: '123456789012',
-    projectId: 'dummy-project-id',
-    authDomain: 'dummy-project-id.firebaseapp.com',
-    storageBucket: 'dummy-project-id.appspot.com',
+    apiKey: 'AIzaSyAuSyJu9AYx9GrYxLPHowI1TCl05iQQsK8',
+    appId: '1:643779102657:web:resqcommunitysafety',
+    messagingSenderId: '643779102657',
+    projectId: 'resq-community-safety',
+    authDomain: 'resq-community-safety.firebaseapp.com',
+    storageBucket: 'resq-community-safety.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'dummy-api-key-replace-me',
-    appId: '1:123456789012:android:dummy1234567890',
-    messagingSenderId: '123456789012',
-    projectId: 'dummy-project-id',
-    storageBucket: 'dummy-project-id.appspot.com',
+    apiKey: 'AIzaSyAuSyJu9AYx9GrYxLPHowI1TCl05iQQsK8',
+    appId: '1:643779102657:android:e2a9e8861cd1a3fe9f9140',
+    messagingSenderId: '643779102657',
+    projectId: 'resq-community-safety',
+    storageBucket: 'resq-community-safety.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'dummy-api-key-replace-me',
-    appId: '1:123456789012:ios:dummy1234567890',
-    messagingSenderId: '123456789012',
-    projectId: 'dummy-project-id',
-    storageBucket: 'dummy-project-id.appspot.com',
+    apiKey: 'AIzaSyAuSyJu9AYx9GrYxLPHowI1TCl05iQQsK8',
+    appId: '1:643779102657:ios:dummy1234567890',
+    messagingSenderId: '643779102657',
+    projectId: 'resq-community-safety',
+    storageBucket: 'resq-community-safety.firebasestorage.app',
     iosBundleId: 'com.example.communitySafetyApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'dummy-api-key-replace-me',
-    appId: '1:123456789012:ios:dummy1234567890',
-    messagingSenderId: '123456789012',
-    projectId: 'dummy-project-id',
-    storageBucket: 'dummy-project-id.appspot.com',
+    apiKey: 'AIzaSyAuSyJu9AYx9GrYxLPHowI1TCl05iQQsK8',
+    appId: '1:643779102657:ios:dummy1234567890',
+    messagingSenderId: '643779102657',
+    projectId: 'resq-community-safety',
+    storageBucket: 'resq-community-safety.firebasestorage.app',
     iosBundleId: 'com.example.communitySafetyApp',
   );
 }

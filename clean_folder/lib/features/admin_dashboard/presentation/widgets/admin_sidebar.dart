@@ -23,11 +23,11 @@ class _AdminSidebarState extends State<AdminSidebar> {
   int hoveredIndex = -1;
 
   final List<SidebarItem> menuItems = [
-    SidebarItem(Icons.analytics_outlined, "Overview Dashboard"),
+    SidebarItem(Icons.dashboard_outlined, "Overview Dashboard"),
+    SidebarItem(Icons.map_outlined, "Tactical Dispatch Map"),
     SidebarItem(Icons.assignment_late_outlined, "Incident Reports"),
-    SidebarItem(Icons.manage_accounts_outlined, "User Management"),
-    SidebarItem(Icons.dashboard_customize_outlined, "Incident Categories"),
-    SidebarItem(Icons.map_outlined, "Area Management"),
+    SidebarItem(Icons.bar_chart_rounded, "Reports & Analytics"),
+    SidebarItem(Icons.people_alt_outlined, "Citizen Directory"),
     SidebarItem(Icons.history_outlined, "Admin Audit Logs"),
     SidebarItem(Icons.admin_panel_settings_outlined, "Profile Settings"),
   ];
@@ -39,13 +39,20 @@ class _AdminSidebarState extends State<AdminSidebar> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       width: width,
-      decoration: const BoxDecoration(
-        color: AdminColors.primaryGreen,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+        ),
+        border: const Border(
+          right: BorderSide(color: Color(0xFF1E2D4A), width: 1),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(4, 0),
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 16,
+            offset: const Offset(4, 0),
           ),
         ],
       ),
@@ -119,7 +126,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            const Divider(color: Colors.white12, height: 1),
+            const Divider(color: Color(0xFF1E2D4A), height: 1),
             const SizedBox(height: 15),
 
             Expanded(
@@ -145,11 +152,16 @@ class _AdminSidebarState extends State<AdminSidebar> {
                           duration: const Duration(milliseconds: 150),
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Colors.white.withValues(alpha: 0.12)
+                                ? AdminColors.primaryRose.withValues(alpha: 0.15)
                                 : isHovered
                                     ? Colors.white.withValues(alpha: 0.06)
                                     : Colors.transparent,
                             borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isSelected
+                                  ? AdminColors.primaryRose.withValues(alpha: 0.3)
+                                  : Colors.transparent,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -158,7 +170,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                                 width: 4,
                                 height: isSelected ? 24 : 0,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: AdminColors.primaryRose,
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -177,7 +189,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                                     leading: Icon(
                                       item.icon,
                                       color: isSelected
-                                          ? Colors.white
+                                          ? AdminColors.primaryRose
                                           : Colors.white60,
                                       size: 22,
                                     ),
@@ -188,7 +200,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                                             style: TextStyle(
                                               color: isSelected
                                                   ? Colors.white
-                                                  : Colors.white60,
+                                                  : Colors.white70,
                                               fontWeight: isSelected
                                                   ? FontWeight.bold
                                                   : FontWeight.w500,
@@ -209,7 +221,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            const Divider(color: Colors.white12, height: 1),
+            const Divider(color: Color(0xFF1E2D4A), height: 1),
             const SizedBox(height: 10),
 
             Padding(
