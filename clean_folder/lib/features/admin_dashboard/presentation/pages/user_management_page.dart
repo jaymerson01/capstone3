@@ -50,13 +50,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.people_alt_rounded,
                       color: Colors.white,
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -84,7 +84,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // ── Search & Filter Controls ───────────────────────────────
           Row(
@@ -108,7 +108,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         color: Color(0xFF5A6E8C),
                         fontSize: 12.5,
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.search,
                         color: Color(0xFF7B8DB0),
                         size: 20,
@@ -128,7 +128,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
 
               // Status Filter
               Container(
@@ -146,7 +146,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       color: Color(0xFFE8F0FE),
                       fontSize: 13,
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: Color(0xFF7C4DFF),
                     ),
@@ -170,7 +170,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
 
               // Role Filter
               Container(
@@ -188,7 +188,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       color: Color(0xFFE8F0FE),
                       fontSize: 13,
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: Color(0xFF7C4DFF),
                     ),
@@ -211,7 +211,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // ── Realtime Citizen Stream Table ──────────────────────────
           Expanded(
@@ -230,7 +230,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 }
 
                 if (!snapshot.hasData) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(
                       color: Color(0xFF7C4DFF),
                     ),
@@ -276,8 +276,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                 color: const Color(0xFF2A3F60),
                                 size: 56,
                               ),
-                              const SizedBox(height: 14),
-                              const Text(
+                              SizedBox(height: 14),
+                              Text(
                                 "No citizen accounts match the criteria",
                                 style: TextStyle(
                                   color: Color(0xFF7B8DB0),
@@ -432,7 +432,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 10),
+                                          SizedBox(width: 10),
                                           Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -582,7 +582,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                 ? const Color(0xFF0A84FF)
                                                 : const Color(0xFF7B8DB0),
                                           ),
-                                          const SizedBox(width: 5),
+                                          SizedBox(width: 5),
                                           Text(
                                             user.isVerified
                                                 ? "Verified"
@@ -604,7 +604,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                         children: [
                                           // View Citizen Dossier Modal
                                           IconButton(
-                                            icon: const Icon(
+                                            icon: Icon(
                                               Icons.badge_outlined,
                                               color: Color(0xFF00E5FF),
                                               size: 20,
@@ -814,7 +814,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                   width: 1.5,
                                                 ),
                                               ),
-                                              child: const Icon(
+                                              child: Icon(
                                                 Icons.zoom_in_rounded,
                                                 size: 13,
                                                 color: Color(0xFF00E5FF),
@@ -827,7 +827,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                 );
                               },
                             ),
-                            const SizedBox(width: 14),
+                            SizedBox(width: 14),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -841,7 +841,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 2),
+                                  SizedBox(height: 2),
                                   Text(
                                     "UID: ${user.id}",
                                     style: const TextStyle(
@@ -881,18 +881,18 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                        icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
                         onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  const Divider(color: Color(0xFF1E2D4A)),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 18),
+                  Divider(color: Color(0xFF1E2D4A)),
+                  SizedBox(height: 14),
 
                   // Resident Identity & Account Attributes
                   _dossierSectionHeader("Citizen Profile & Identification"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _dossierRow(Icons.email_outlined, "Email Address", user.email),
                   _dossierRow(
                     Icons.phone_outlined,
@@ -917,10 +917,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         : "Verified Member",
                   ),
 
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
                   // EMERGENCY CONTACT DOSSIER (Critical for dispatchers!)
                   _dossierSectionHeader("Life-Safety Emergency Contacts"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -936,13 +936,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.contact_emergency_rounded,
                               color: Color(0xFFFF3B30),
                               size: 18,
                             ),
-                            const SizedBox(width: 8),
-                            const Text(
+                            SizedBox(width: 8),
+                            Text(
                               "Designated Emergency Contact",
                               style: TextStyle(
                                 fontSize: 12.5,
@@ -952,7 +952,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -978,10 +978,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 18),
+                  SizedBox(height: 18),
                   // Report Ledger Activity
                   _dossierSectionHeader("Incident Blotter Activity"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -1002,7 +1002,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                 color: Color(0xFF0A84FF),
                               ),
                             ),
-                            const Text(
+                            Text(
                               "Submitted Reports",
                               style: TextStyle(
                                 fontSize: 10,
@@ -1023,7 +1023,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     : const Color(0xFF7B8DB0),
                               ),
                             ),
-                            const Text(
+                            Text(
                               "Residency Verified",
                               style: TextStyle(
                                 fontSize: 10,
@@ -1044,7 +1044,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     : const Color(0xFFFF3B30),
                               ),
                             ),
-                            const Text(
+                            Text(
                               "Account Standing",
                               style: TextStyle(
                                 fontSize: 10,
@@ -1057,12 +1057,12 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text(
+                      child: Text(
                         "Close Dossier",
                         style: TextStyle(color: Color(0xFF7B8DB0)),
                       ),
@@ -1113,13 +1113,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                   .withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.portrait_rounded,
                               color: Color(0xFF00E5FF),
                               size: 20,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1133,7 +1133,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                                 Text(
                                   "UID: ${user.id} • ${user.barangayArea ?? 'Barangay Moonwalk'}",
                                   style: const TextStyle(
@@ -1149,15 +1149,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                      icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
                       onPressed: () => Navigator.pop(ctx),
                       splashRadius: 20,
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                const Divider(color: Color(0xFF1E2D4A), height: 1),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
+                Divider(color: Color(0xFF1E2D4A), height: 1),
+                SizedBox(height: 16),
 
                 // High-resolution photo container with InteractiveViewer
                 Flexible(
@@ -1251,7 +1251,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
 
                 // Controls and footer actions
                 Row(
@@ -1280,8 +1280,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                   mode: LaunchMode.externalApplication);
                             }
                           },
-                          icon: const Icon(Icons.open_in_new, size: 14),
-                          label: const Text("Open Original"),
+                          icon: Icon(Icons.open_in_new, size: 14),
+                          label: Text("Open Original"),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: const Color(0xFF00E5FF),
                             side: const BorderSide(color: Color(0xFF00E5FF)),
@@ -1294,7 +1294,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(ctx),
                           style: ElevatedButton.styleFrom(
@@ -1306,7 +1306,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text("Close",
+                          child: Text("Close",
                               style: TextStyle(fontSize: 12)),
                         ),
                       ],
@@ -1339,7 +1339,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       child: Row(
         children: [
           Icon(icon, size: 15, color: const Color(0xFF7B8DB0)),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             "$label: ",
             style: const TextStyle(
@@ -1396,7 +1396,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+            child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(

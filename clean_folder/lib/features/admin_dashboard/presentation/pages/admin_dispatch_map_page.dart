@@ -209,9 +209,9 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.timer_outlined, color: Color(0xFF00E5FF), size: 20),
+                    child: Icon(Icons.timer_outlined, color: Color(0xFF00E5FF), size: 20),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   const Expanded(
                     child: Text(
                       "Dispatch Patrol • Set ETA",
@@ -230,12 +230,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       "Dispatching responders to ${inc.areaSector ?? 'Moonwalk'} for ${inc.category}. The citizen will be notified of this estimated arrival time.",
                       style: const TextStyle(color: Color(0xFF7B8DB0), fontSize: 12),
                     ),
-                    const SizedBox(height: 14),
-                    const Text(
+                    SizedBox(height: 14),
+                    Text(
                       "ESTIMATED ARRIVAL TIME (ETA)",
                       style: TextStyle(color: Color(0xFF00E5FF), fontSize: 11, fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Wrap(
                       spacing: 6,
                       runSpacing: 6,
@@ -279,7 +279,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     TextField(
                       controller: etaController,
                       style: const TextStyle(color: Color(0xFFE8F0FE), fontSize: 13),
@@ -306,7 +306,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: const Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+                  child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -319,7 +319,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     Navigator.pop(dialogCtx);
                     _updateStatus("in_progress", eta: eta.isNotEmpty ? eta : null);
                   },
-                  child: const Text("Confirm & Dispatch", style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text("Confirm & Dispatch", style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -506,7 +506,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         children: [
                           // Main Filter Bar Card
                           _buildTacticalFilterCard(filteredIncidents.length, allIncidents),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
 
                           // Option A: Dynamic Active Hotspot Chips Row
                           if (sortedSectors.isNotEmpty)
@@ -526,13 +526,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             () => _mapController?.animateCamera(CameraUpdate.zoomIn()),
                             "Zoom In",
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           _mapControlButton(
                             Icons.remove,
                             () => _mapController?.animateCamera(CameraUpdate.zoomOut()),
                             "Zoom Out",
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           _mapControlButton(
                             Icons.my_location_rounded,
                             () => _zoomToSector("All", allIncidents),
@@ -586,12 +586,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               Container(
                 width: 10,
                 height: 10,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Color(0xFF30D158),
                   shape: BoxShape.circle,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 "$visibleCount ON MAP",
                 style: const TextStyle(
@@ -604,7 +604,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
             ],
           ),
 
-          const SizedBox(
+          SizedBox(
             height: 18,
             child: VerticalDivider(color: Color(0xFF1E2D4A), thickness: 1.2),
           ),
@@ -615,7 +615,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
           _statusFilterChip("In Progress", const Color(0xFF00E5FF)),
           _statusFilterChip("Solved", const Color(0xFF30D158)),
 
-          const SizedBox(
+          SizedBox(
             height: 18,
             child: VerticalDivider(color: Color(0xFF1E2D4A), thickness: 1.2),
           ),
@@ -647,7 +647,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         ? const Color(0xFFFF3B30)
                         : const Color(0xFF7B8DB0),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: 6),
                   Text(
                     "Critical Only",
                     style: TextStyle(
@@ -712,7 +712,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
             isSelected: _activeSectorFilter == "All",
             onTap: () => _zoomToSector("All", allIncidents),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
 
           // Dynamic chips derived from live incidents
           ...sortedSectors.map((entry) {
@@ -771,7 +771,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                 color: isSelected ? const Color(0xFF00E5FF) : const Color(0xFFE8F0FE),
               ),
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
@@ -819,7 +819,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
             // Drawer Header
             Container(
               padding: const EdgeInsets.all(18),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(color: Color(0xFF1E2D4A)),
                 ),
@@ -835,17 +835,17 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.radar_rounded,
                           color: Color(0xFF0A84FF),
                           size: 18,
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             "TACTICAL DISPATCH DESK",
                             style: TextStyle(
                               fontSize: 12,
@@ -866,7 +866,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Color(0xFF7B8DB0)),
+                    icon: Icon(Icons.close_rounded, color: Color(0xFF7B8DB0)),
                     onPressed: _closeDrawer,
                   ),
                 ],
@@ -892,14 +892,14 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   ? const Color(0xFF00E5FF)
                                   : const Color(0xFFFF9F0A)),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         _drawerBadge(
                           (inc.urgencyStatus ?? "NORMAL").toUpperCase(),
                           const Color(0xFFFF3B30),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
 
                     // Incident Category Title
                     Text(
@@ -910,7 +910,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         color: Color(0xFFE8F0FE),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       inc.description,
                       style: const TextStyle(
@@ -919,11 +919,11 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         height: 1.45,
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: 18),
 
                     // ── Location & Address Block ─────────────────────────
                     _drawerSectionHeader(Icons.location_on_outlined, "Location & Sector"),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
@@ -942,7 +942,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                               color: Color(0xFFE8F0FE),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             "Sector: $sector",
                             style: const TextStyle(
@@ -951,7 +951,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
                           // 1-Tap Google Maps External Directions Link
                           SizedBox(
                             width: double.infinity,
@@ -969,8 +969,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                 ),
                                 padding: const EdgeInsets.symmetric(vertical: 8),
                               ),
-                              icon: const Icon(Icons.navigation_rounded, size: 15, color: Color(0xFF0A84FF)),
-                              label: const Text(
+                              icon: Icon(Icons.navigation_rounded, size: 15, color: Color(0xFF0A84FF)),
+                              label: Text(
                                 "Navigate in Google Maps",
                                 style: TextStyle(color: Color(0xFF0A84FF), fontSize: 11.5, fontWeight: FontWeight.w700),
                               ),
@@ -979,11 +979,11 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: 18),
 
                     // ── Complainant & Emergency Contact Dossier ──────────
                     _drawerSectionHeader(Icons.contact_phone_outlined, "Citizen & Emergency Dossier"),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     FutureBuilder<DocumentSnapshot>(
                       future: FirebaseFirestore.instance.collection('users').doc(inc.reporterId).get(),
                       builder: (context, userSnap) {
@@ -1013,8 +1013,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.people_alt_rounded, size: 12, color: Color(0xFFFF9500)),
-                                      const SizedBox(width: 4),
+                                      Icon(Icons.people_alt_rounded, size: 12, color: Color(0xFFFF9500)),
+                                      SizedBox(width: 4),
                                       Flexible(
                                         child: Text(
                                           "REPORTED ON BEHALF: ${inc.victimName ?? 'Relative'}${inc.victimPhone != null && inc.victimPhone!.isNotEmpty ? ' • ${inc.victimPhone}' : ''}",
@@ -1044,8 +1044,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.timer_outlined, size: 12, color: Color(0xFF00E5FF)),
-                                      const SizedBox(width: 4),
+                                      Icon(Icons.timer_outlined, size: 12, color: Color(0xFF00E5FF)),
+                                      SizedBox(width: 4),
                                       Text(
                                         "DISPATCH ETA: ${inc.estimatedResponseTime!}",
                                         style: const TextStyle(
@@ -1067,18 +1067,18 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                 ),
                               ),
                               if (!inc.isAnonymous && inc.reporterEmail != null) ...[
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                                 Text(
                                   inc.reporterEmail!,
                                   style: const TextStyle(fontSize: 11, color: Color(0xFF7B8DB0)),
                                 ),
                               ],
-                              const Divider(color: Color(0xFF1E2D4A), height: 16),
+                              Divider(color: Color(0xFF1E2D4A), height: 16),
                               Row(
                                 children: [
-                                  const Icon(Icons.emergency_outlined, size: 15, color: Color(0xFFFF5252)),
-                                  const SizedBox(width: 6),
-                                  const Text(
+                                  Icon(Icons.emergency_outlined, size: 15, color: Color(0xFFFF5252)),
+                                  SizedBox(width: 6),
+                                  Text(
                                     "Emergency Contact: ",
                                     style: TextStyle(fontSize: 11, color: Color(0xFF7B8DB0), fontWeight: FontWeight.w600),
                                   ),
@@ -1102,12 +1102,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         );
                       },
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: 18),
 
                     // ── Photo Evidence Preview ───────────────────────────
                     if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
                       _drawerSectionHeader(Icons.image_outlined, "Photo Evidence"),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       GestureDetector(
                         onTap: () {
                           InAppImageViewerDialog.show(
@@ -1156,13 +1156,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                     ],
 
                     // ── Video Evidence Preview ───────────────────────────
                     if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
                       _drawerSectionHeader(Icons.videocam_outlined, "Video Evidence"),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -1173,8 +1173,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
-                            const SizedBox(width: 10),
+                            Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
+                            SizedBox(width: 10),
                             const Expanded(
                               child: Text(
                                 "Video Recording Attached",
@@ -1188,8 +1188,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
-                              icon: const Icon(Icons.play_arrow_rounded, size: 16),
-                              label: const Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              icon: Icon(Icons.play_arrow_rounded, size: 16),
+                              label: Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               onPressed: () {
                                 InAppEvidencePlayerDialog.show(
                                   context,
@@ -1201,12 +1201,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
                     ],
 
                     // ── Dispatcher Remarks Field ─────────────────────────
                     _drawerSectionHeader(Icons.note_alt_outlined, "Dispatcher Remarks"),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextField(
                       controller: _notesController,
                       maxLines: 3,
@@ -1231,19 +1231,19 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton.icon(
                         onPressed: _isSavingNotes ? null : _saveNotesOnly,
                         icon: _isSavingNotes
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 12,
                                 height: 12,
                                 child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF00E5FF)),
                               )
-                            : const Icon(Icons.check, size: 14, color: Color(0xFF00E5FF)),
-                        label: const Text(
+                            : Icon(Icons.check, size: 14, color: Color(0xFF00E5FF)),
+                        label: Text(
                           "Save Remarks",
                           style: TextStyle(color: Color(0xFF00E5FF), fontSize: 11, fontWeight: FontWeight.w700),
                         ),
@@ -1257,7 +1257,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
             // ── Fixed Bottom Dispatch Action Buttons ─────────────────────
             Container(
               padding: const EdgeInsets.all(18),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Color(0xFF0D1627),
                 border: Border(top: BorderSide(color: Color(0xFF1E2D4A))),
               ),
@@ -1275,8 +1275,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 3,
                         ),
-                        icon: const Icon(Icons.send_rounded, size: 16),
-                        label: const Text(
+                        icon: Icon(Icons.send_rounded, size: 16),
+                        label: Text(
                           "Dispatch Patrol (In Progress)",
                           style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
                         ),
@@ -1294,8 +1294,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 3,
                         ),
-                        icon: const Icon(Icons.check_circle_outline, size: 16),
-                        label: const Text(
+                        icon: Icon(Icons.check_circle_outline, size: 16),
+                        label: Text(
                           "Mark Incident Solved",
                           style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
                         ),
@@ -1311,8 +1311,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           side: const BorderSide(color: Color(0xFFFF9F0A)),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        icon: const Icon(Icons.replay_rounded, size: 16, color: Color(0xFFFF9F0A)),
-                        label: const Text(
+                        icon: Icon(Icons.replay_rounded, size: 16, color: Color(0xFFFF9F0A)),
+                        label: Text(
                           "Re-Open Incident",
                           style: TextStyle(color: Color(0xFFFF9F0A), fontWeight: FontWeight.w800, fontSize: 13),
                         ),
@@ -1352,7 +1352,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     return Row(
       children: [
         Icon(icon, size: 15, color: const Color(0xFF00E5FF)),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(

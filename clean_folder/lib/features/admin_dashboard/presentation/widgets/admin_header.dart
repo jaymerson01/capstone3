@@ -53,16 +53,16 @@ class AdminHeader extends StatelessWidget {
             children: [
               if (isMobile)
                 IconButton(
-                  icon: const Icon(Icons.menu, color: AdminColors.primaryGreen, size: 22),
+                  icon: Icon(Icons.menu, color: AdminColors.primaryGreen, size: 22),
                   onPressed: onMenuPressed,
                 )
               else
                 IconButton(
-                  icon: const Icon(Icons.menu_open, color: AdminColors.primaryGreen, size: 22),
+                  icon: Icon(Icons.menu_open, color: AdminColors.primaryGreen, size: 22),
                   onPressed: onMenuPressed,
                   tooltip: "Toggle Sidebar",
                 ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 title,
                 style: const TextStyle(
@@ -136,7 +136,7 @@ class AdminHeader extends StatelessWidget {
                             size: 18,
                           ),
                           if (!isMobile) ...[
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               hasActive
                                   ? "${activeDocs.length} ACTIVE SIREN • MANAGE"
@@ -157,7 +157,7 @@ class AdminHeader extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
 
               // Interactive Dispatch Notifications Bell
               StreamBuilder<List<NotificationModel>>(
@@ -232,7 +232,7 @@ class AdminHeader extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               
               // Divider
               Container(
@@ -240,7 +240,7 @@ class AdminHeader extends StatelessWidget {
                 width: 1,
                 color: Colors.grey.shade200,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               
               // Interactive Admin Profile Dropdown Menu
               _buildAdminUserMenu(context),
@@ -330,7 +330,7 @@ class AdminHeader extends StatelessWidget {
                 SnackBar(
                   backgroundColor: const Color(0xFF0D1627),
                   behavior: SnackBarBehavior.floating,
-                  content: const Row(
+                  content: Row(
                     children: [
                       Icon(Icons.volume_up_rounded,
                           color: Color(0xFF30D158), size: 20),
@@ -402,7 +402,7 @@ class AdminHeader extends StatelessWidget {
                           ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +418,7 @@ class AdminHeader extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         email,
                         style: const TextStyle(
@@ -429,7 +429,7 @@ class AdminHeader extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 7, vertical: 2),
@@ -441,7 +441,7 @@ class AdminHeader extends StatelessWidget {
                                 const Color(0xFF30D158).withValues(alpha: 0.35),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(Icons.shield_rounded,
@@ -574,20 +574,20 @@ class AdminHeader extends StatelessWidget {
                         height: 1.15,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
                           width: 6,
                           height: 6,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: Color(0xFF30D158),
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 5),
-                        const Text(
+                        SizedBox(width: 5),
+                        Text(
                           "Municipal Dispatcher",
                           style: TextStyle(
                             fontSize: 10,
@@ -600,7 +600,7 @@ class AdminHeader extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
               ],
               Container(
                 width: 32,
@@ -648,8 +648,8 @@ class AdminHeader extends StatelessWidget {
                         ),
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(
+              SizedBox(width: 4),
+              Icon(
                 Icons.keyboard_arrow_down_rounded,
                 size: 16,
                 color: AdminColors.textLight,
@@ -696,10 +696,10 @@ class AdminHeader extends StatelessWidget {
                           color: const Color(0xFFFF3B30).withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.crisis_alert,
+                        child: Icon(Icons.crisis_alert,
                             color: Color(0xFFFF3B30), size: 22),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -725,7 +725,7 @@ class AdminHeader extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   // Segmented Tabs: Active Sirens vs New Broadcast
                   Container(
                     decoration: BoxDecoration(
@@ -765,7 +765,7 @@ class AdminHeader extends StatelessWidget {
                                         ? const Color(0xFFFF3B30)
                                         : const Color(0xFF7B8DB0),
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     "Active Sirens",
                                     style: TextStyle(
@@ -810,7 +810,7 @@ class AdminHeader extends StatelessWidget {
                                         ? const Color(0xFF0A84FF)
                                         : const Color(0xFF7B8DB0),
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     "Transmit New",
                                     style: TextStyle(
@@ -865,28 +865,28 @@ class AdminHeader extends StatelessWidget {
                                           .withValues(alpha: 0.12),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(
+                                    child: Icon(
                                         Icons.check_circle_outline,
                                         color: Color(0xFF30D158),
                                         size: 40),
                                   ),
-                                  const SizedBox(height: 14),
-                                  const Text(
+                                  SizedBox(height: 14),
+                                  Text(
                                     "All Municipal Sectors Clear",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                   ),
-                                  const SizedBox(height: 6),
-                                  const Text(
+                                  SizedBox(height: 6),
+                                  Text(
                                     "There are no active sirens currently broadcasting to citizens.",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         color: Color(0xFF7B8DB0),
                                         fontSize: 12),
                                   ),
-                                  const SizedBox(height: 16),
+                                  SizedBox(height: 16),
                                   OutlinedButton.icon(
                                     style: OutlinedButton.styleFrom(
                                       foregroundColor:
@@ -896,9 +896,9 @@ class AdminHeader extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 16, vertical: 8),
                                     ),
-                                    icon: const Icon(Icons.add_alert_rounded,
+                                    icon: Icon(Icons.add_alert_rounded,
                                         size: 14),
-                                    label: const Text("Transmit New Alert",
+                                    label: Text("Transmit New Alert",
                                         style: TextStyle(fontSize: 12)),
                                     onPressed: () => setDialogState(
                                         () => currentTab = 1),
@@ -976,7 +976,7 @@ class AdminHeader extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: 8),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 3),
@@ -1009,7 +1009,7 @@ class AdminHeader extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 10),
+                                      SizedBox(height: 10),
                                       Text(
                                         title,
                                         style: const TextStyle(
@@ -1019,7 +1019,7 @@ class AdminHeader extends StatelessWidget {
                                         ),
                                       ),
                                       if (message.isNotEmpty) ...[
-                                        const SizedBox(height: 6),
+                                        SizedBox(height: 6),
                                         Text(
                                           message,
                                           style: const TextStyle(
@@ -1029,13 +1029,13 @@ class AdminHeader extends StatelessWidget {
                                           ),
                                         ),
                                       ],
-                                      const SizedBox(height: 14),
+                                      SizedBox(height: 14),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
                                         children: [
                                           IconButton(
-                                            icon: const Icon(
+                                            icon: Icon(
                                                 Icons.delete_outline,
                                                 color: Color(0xFFFF3B30),
                                                 size: 20),
@@ -1064,7 +1064,7 @@ class AdminHeader extends StatelessWidget {
                                               }
                                             },
                                           ),
-                                          const SizedBox(width: 8),
+                                          SizedBox(width: 8),
                                           ElevatedButton.icon(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
@@ -1079,9 +1079,9 @@ class AdminHeader extends StatelessWidget {
                                                     BorderRadius.circular(10),
                                               ),
                                             ),
-                                            icon: const Icon(Icons.volume_off,
+                                            icon: Icon(Icons.volume_off,
                                                 size: 16),
-                                            label: const Text(
+                                            label: Text(
                                               "SILENCE & CLEAR SIREN",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w900,
@@ -1140,7 +1140,7 @@ class AdminHeader extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "BROADCAST TITLE",
                               style: TextStyle(
                                 color: Color(0xFF7B8DB0),
@@ -1149,7 +1149,7 @@ class AdminHeader extends StatelessWidget {
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6),
                             TextField(
                               controller: titleController,
                               style: const TextStyle(
@@ -1175,7 +1175,7 @@ class AdminHeader extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 14),
+                            SizedBox(height: 14),
                             Row(
                               children: [
                                 Expanded(
@@ -1183,7 +1183,7 @@ class AdminHeader extends StatelessWidget {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
+                                      Text(
                                         "ALERT TYPE",
                                         style: TextStyle(
                                           color: Color(0xFF7B8DB0),
@@ -1192,7 +1192,7 @@ class AdminHeader extends StatelessWidget {
                                           letterSpacing: 0.5,
                                         ),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6),
                                       DropdownButtonFormField<String>(
                                         initialValue: alertType,
                                         dropdownColor:
@@ -1255,13 +1255,13 @@ class AdminHeader extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 12),
+                                SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
+                                      Text(
                                         "TARGET SECTOR",
                                         style: TextStyle(
                                           color: Color(0xFF7B8DB0),
@@ -1270,7 +1270,7 @@ class AdminHeader extends StatelessWidget {
                                           letterSpacing: 0.5,
                                         ),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6),
                                       DropdownButtonFormField<String>(
                                         initialValue: targetSector,
                                         dropdownColor:
@@ -1333,8 +1333,8 @@ class AdminHeader extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 14),
-                            const Text(
+                            SizedBox(height: 14),
+                            Text(
                               "BROADCAST MESSAGE / INSTRUCTIONS",
                               style: TextStyle(
                                 color: Color(0xFF7B8DB0),
@@ -1343,7 +1343,7 @@ class AdminHeader extends StatelessWidget {
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6),
                             TextField(
                               controller: messageController,
                               maxLines: 3,
@@ -1376,19 +1376,19 @@ class AdminHeader extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: const Text("Close",
+                  child: Text("Close",
                       style: TextStyle(color: Color(0xFF7B8DB0))),
                 ),
                 if (currentTab == 1)
                   ElevatedButton.icon(
                     icon: isBroadcasting
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(
                                 color: Colors.white, strokeWidth: 2),
                           )
-                        : const Icon(Icons.send_rounded, size: 16),
+                        : Icon(Icons.send_rounded, size: 16),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFF3B30),
                       foregroundColor: Colors.white,
@@ -1510,11 +1510,11 @@ class AdminHeader extends StatelessWidget {
                             color: const Color(0xFF0A84FF)
                                 .withValues(alpha: 0.4)),
                       ),
-                      child: const Icon(Icons.notifications_active_rounded,
+                      child: Icon(Icons.notifications_active_rounded,
                           color: Color(0xFF0A84FF), size: 20),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
+                    SizedBox(width: 12),
+                    Text(
                       "DISPATCH NOTIFICATIONS",
                       style: TextStyle(
                         color: Colors.white,
@@ -1528,9 +1528,9 @@ class AdminHeader extends StatelessWidget {
                       onPressed: () {
                         notificationService.markAllAdminAsRead();
                       },
-                      icon: const Icon(Icons.done_all_rounded,
+                      icon: Icon(Icons.done_all_rounded,
                           size: 16, color: Color(0xFF7B8DB0)),
-                      label: const Text(
+                      label: Text(
                         "Mark all read",
                         style: TextStyle(
                             color: Color(0xFF7B8DB0),
@@ -1539,14 +1539,14 @@ class AdminHeader extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                      icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
                       onPressed: () => Navigator.pop(dialogCtx),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                const Divider(color: Color(0xFF1E2D4A), height: 1),
-                const SizedBox(height: 12),
+                SizedBox(height: 16),
+                Divider(color: Color(0xFF1E2D4A), height: 1),
+                SizedBox(height: 12),
 
                 // Notifications Stream
                 Flexible(
@@ -1554,7 +1554,7 @@ class AdminHeader extends StatelessWidget {
                     stream: notificationService.streamAdminNotifications(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
+                        return Center(
                           child: CircularProgressIndicator(
                               color: Color(0xFF0A84FF)),
                         );
@@ -1596,7 +1596,7 @@ class AdminHeader extends StatelessWidget {
                         shrinkWrap: true,
                         itemCount: notifications.length,
                         separatorBuilder: (_, _) =>
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           final item = notifications[index];
                           final isUnread = !item.isRead;
@@ -1633,10 +1633,10 @@ class AdminHeader extends StatelessWidget {
                                           .withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: const Icon(Icons.campaign_rounded,
+                                    child: Icon(Icons.campaign_rounded,
                                         color: Color(0xFF0A84FF), size: 18),
                                   ),
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -1652,7 +1652,7 @@ class AdminHeader extends StatelessWidget {
                                             fontSize: 13.5,
                                           ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4),
                                         Text(
                                           item.message,
                                           style: const TextStyle(
@@ -1664,7 +1664,7 @@ class AdminHeader extends StatelessWidget {
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.close,
+                                    icon: Icon(Icons.close,
                                         size: 16, color: Color(0xFF7B8DB0)),
                                     onPressed: () {
                                       notificationService

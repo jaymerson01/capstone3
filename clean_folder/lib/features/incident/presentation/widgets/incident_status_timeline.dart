@@ -41,10 +41,10 @@ class IncidentStatusTimeline extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
+                child: Icon(Icons.shield_outlined, color: AppColors.primary, size: 20),
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 'Safety Action Protocol',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
@@ -54,11 +54,11 @@ class IncidentStatusTimeline extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           ...instructions.map((instruction) => _buildInstructionRow(context, instruction)),
-          const SizedBox(height: 20),
-          const Divider(height: 1, color: AppColors.border),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
+          Divider(height: 1, color: AppColors.border),
+          SizedBox(height: 20),
           Row(
             children: [
               Container(
@@ -67,10 +67,10 @@ class IncidentStatusTimeline extends StatelessWidget {
                   color: AppColors.progress.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.timeline, color: AppColors.progress, size: 20),
+                child: Icon(Icons.timeline, color: AppColors.progress, size: 20),
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 'Incident Resolution Stage',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
@@ -80,7 +80,7 @@ class IncidentStatusTimeline extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           if (incident.isInProgress &&
               incident.estimatedResponseTime != null &&
               incident.estimatedResponseTime!.isNotEmpty) ...[
@@ -96,8 +96,8 @@ class IncidentStatusTimeline extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.timer_outlined, color: Color(0xFF00E5FF), size: 18),
-                  const SizedBox(width: 8),
+                  Icon(Icons.timer_outlined, color: Color(0xFF00E5FF), size: 18),
+                  SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       "Responders on the way • Estimated Arrival: ${incident.estimatedResponseTime!}",
@@ -124,12 +124,12 @@ class IncidentStatusTimeline extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.check_circle_rounded,
             color: AppColors.primary,
             size: 20,
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: RichText(
               text: TextSpan(
@@ -153,7 +153,7 @@ class IncidentStatusTimeline extends StatelessWidget {
         // Normal text
         spans.add(TextSpan(
           text: parts[i],
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textLight,
             fontSize: 13,
             height: 1.45,
@@ -163,7 +163,7 @@ class IncidentStatusTimeline extends StatelessWidget {
         // Bold keyword text
         spans.add(TextSpan(
           text: parts[i],
-          style: const TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             color: AppColors.textDark,
             fontSize: 13,
@@ -259,7 +259,7 @@ class IncidentStatusTimeline extends StatelessWidget {
             : null,
       ),
       child: isActive && !isPulsating
-          ? const Icon(Icons.check, size: 13, color: Colors.white)
+          ? Icon(Icons.check, size: 13, color: Colors.white)
           : null,
     );
 
@@ -272,7 +272,7 @@ class IncidentStatusTimeline extends StatelessWidget {
             _PulsatingNode(child: circle)
           else
             circle,
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             label,
             textAlign: TextAlign.center,

@@ -27,102 +27,113 @@ class _SideMenuState extends State<SideMenu> {
     // Determine active route name to show proper selected state
     final String? currentRoute = ModalRoute.of(context)?.settings.name;
 
-    return Drawer(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
-          ),
-          border: Border(
-            right: BorderSide(color: Color(0xFF1E2D4A), width: 1),
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header banner inside sidebar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.18),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        height: 38,
-                        width: 38,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            "RESQ",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.8,
-                            ),
-                          ),
-                          Text(
-                            "Citizen Portal",
-                            style: TextStyle(
-                              color: AppColors.textLight,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Drawer(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [const Color(0xFF060D1A), const Color(0xFF0A1628)]
+                    : [const Color(0xFFFFFFFF), const Color(0xFFF8FAFC)],
               ),
-              const Divider(color: Color(0xFF1E2D4A), height: 1),
-              const SizedBox(height: 20),
+              border: Border(
+                right: BorderSide(color: AppColors.border, width: 1),
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header banner inside sidebar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.12)
+                                : AppColors.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.18)
+                                  : AppColors.primary.withValues(alpha: 0.2),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Image.asset(
+                            'assets/images/logo.png',
+                            height: 38,
+                            width: 38,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "RESQ",
+                                style: TextStyle(
+                                  color: AppColors.textDark,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.8,
+                                ),
+                              ),
+                              Text(
+                                "Citizen Portal",
+                                style: TextStyle(
+                                  color: AppColors.textLight,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(color: AppColors.border, height: 1),
+                  const SizedBox(height: 20),
 
-              menuItem(context, Icons.home_outlined, "User Dashboard", currentRoute == null || currentRoute == '/'),
-              menuItem(context, Icons.warning_amber_rounded, "Report Incident", false),
-              menuItem(context, Icons.list_alt_rounded, "My Reports", false),
-              menuItem(context, Icons.map_outlined, "Maps", false),
-              menuItem(context, Icons.settings_outlined, "Settings", false),
+                  menuItem(context, Icons.home_outlined, "User Dashboard", currentRoute == null || currentRoute == '/', isDark),
+                  menuItem(context, Icons.warning_amber_rounded, "Report Incident", false, isDark),
+                  menuItem(context, Icons.list_alt_rounded, "My Reports", false, isDark),
+                  menuItem(context, Icons.map_outlined, "Maps", false, isDark),
+                  menuItem(context, Icons.settings_outlined, "Settings", false, isDark),
 
-              const Spacer(),
-              const Divider(color: Color(0xFF1E2D4A), height: 1),
-              const SizedBox(height: 16),
-              menuItem(context, Icons.logout_rounded, "Logout", false),
-              const SizedBox(height: 16),
-            ],
+                  const Spacer(),
+                  Divider(color: AppColors.border, height: 1),
+                  const SizedBox(height: 16),
+                  menuItem(context, Icons.logout_rounded, "Logout", false, isDark),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget menuItem(BuildContext context, IconData icon, String title, bool isSelected) {
+  Widget menuItem(BuildContext context, IconData icon, String title, bool isSelected, bool isDark) {
     final bool isHovered = hoveredItem == title;
     final bool isLogout = title == "Logout";
 
     // Build the visual state colors
     Color tileBgColor = Colors.transparent;
-    Color iconColor = Colors.white70;
-    Color textColor = Colors.white70;
+    Color iconColor = isDark ? Colors.white70 : AppColors.textLight;
+    Color textColor = isDark ? Colors.white70 : AppColors.textDark;
     Border border = Border.all(color: Colors.transparent);
 
     if (isLogout) {
@@ -138,16 +149,18 @@ class _SideMenuState extends State<SideMenu> {
       );
     } else {
       if (isSelected) {
-        tileBgColor = AppColors.primary.withValues(alpha: 0.15);
+        tileBgColor = AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.1);
         iconColor = AppColors.primary;
-        textColor = Colors.white;
+        textColor = AppColors.primary;
         border = Border.all(
           color: AppColors.primary.withValues(alpha: 0.35),
         );
       } else if (isHovered) {
-        tileBgColor = Colors.white.withValues(alpha: 0.06);
-        iconColor = Colors.white;
-        textColor = Colors.white;
+        tileBgColor = isDark
+            ? Colors.white.withValues(alpha: 0.06)
+            : Colors.black.withValues(alpha: 0.04);
+        iconColor = isDark ? Colors.white : AppColors.textDark;
+        textColor = isDark ? Colors.white : AppColors.textDark;
       }
     }
 

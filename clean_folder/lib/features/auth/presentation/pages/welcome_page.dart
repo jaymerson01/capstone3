@@ -126,7 +126,7 @@ class _WelcomePageState extends State<WelcomePage>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel',
+            child: Text('Cancel',
                 style: TextStyle(color: AppColors.textLight)),
           ),
           _DialogButton(
@@ -157,7 +157,7 @@ class _WelcomePageState extends State<WelcomePage>
               Container(
                 width: double.infinity,
                 height: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: AppColors.commandGradient,
                 ),
               ),
@@ -220,7 +220,7 @@ class _WelcomePageState extends State<WelcomePage>
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           _GlassTopButton(
                             text: 'Sign Up',
                             filled: true,
@@ -304,7 +304,7 @@ class _WelcomePageState extends State<WelcomePage>
                                 fit: BoxFit.cover,
                                 errorBuilder: (_, _, _) => Container(
                                   color: AppColors.primary,
-                                  child: const Icon(Icons.shield,
+                                  child: Icon(Icons.shield,
                                       color: Colors.white, size: 48),
                                 ),
                               ),
@@ -314,7 +314,7 @@ class _WelcomePageState extends State<WelcomePage>
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
 
                     // ── Hero Text ──────────────────────────────────────────────
                     FadeTransition(
@@ -328,7 +328,7 @@ class _WelcomePageState extends State<WelcomePage>
                               shaderCallback: (bounds) =>
                                   AppColors.cyanGradient.createShader(bounds),
                               blendMode: BlendMode.srcIn,
-                              child: const Text(
+                              child: Text(
                                 'RESQ',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -338,7 +338,7 @@ class _WelcomePageState extends State<WelcomePage>
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 7),
@@ -349,7 +349,7 @@ class _WelcomePageState extends State<WelcomePage>
                                     color: AppColors.primary
                                         .withValues(alpha: 0.3)),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Smart Barangay Command System',
                                 style: TextStyle(
                                   color: AppColors.secondary,
@@ -359,8 +359,8 @@ class _WelcomePageState extends State<WelcomePage>
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            const Padding(
+                            SizedBox(height: 12),
+                            Padding(
                               padding: EdgeInsets.symmetric(horizontal: 48),
                               child: Text(
                                 'Your safety and community trust are our priority',
@@ -377,7 +377,7 @@ class _WelcomePageState extends State<WelcomePage>
                       ),
                     ),
 
-                    const SizedBox(height: 48),
+                    SizedBox(height: 48),
 
                     // ── Action Buttons (Staggered) ──────────────────────────────
                     Padding(
@@ -393,7 +393,7 @@ class _WelcomePageState extends State<WelcomePage>
                               onPressed: () => _showLoginRequired(context),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           FadeTransition(
                             opacity: _btn2Fade,
                             child: Custom3dButton(
@@ -436,8 +436,8 @@ class _WelcomePageState extends State<WelcomePage>
                               ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Text(
+                          SizedBox(width: 8),
+                          Text(
                             'System Online · Barangay Moonwalk',
                             style: TextStyle(
                               color: AppColors.textLight,
@@ -590,7 +590,7 @@ class _PremiumDialog extends StatelessWidget {
       backgroundColor: AppColors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: AppColors.border),
       ),
       child: Semantics(
         container: true,
@@ -608,26 +608,26 @@ class _PremiumDialog extends StatelessWidget {
               ),
               child: Icon(icon, color: iconColor, size: 32),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textDark,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               content,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textLight,
                 fontSize: 14,
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Row(
               children: actions
                   .map((w) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: w)))

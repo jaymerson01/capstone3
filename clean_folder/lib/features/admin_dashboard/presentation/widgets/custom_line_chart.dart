@@ -89,13 +89,13 @@ class CustomLineChart extends StatelessWidget {
                         color: AppColors.primary.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.show_chart_rounded,
                       color: AppColors.primary,
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -135,8 +135,7 @@ class CustomLineChart extends StatelessWidget {
                 ),
                 child: Text(
                   "${incidents.length} Total Logs",
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(color: AppColors.primary,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -144,7 +143,7 @@ class CustomLineChart extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Expanded(
             child: CustomPaint(
               size: Size.infinite,
@@ -157,15 +156,15 @@ class CustomLineChart extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           // Chart Legend
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _legendItem("Total Reports", const Color(0xFF00E5FF)),
-              const SizedBox(width: 20),
+              SizedBox(width: 20),
               _legendItem("Urgent / Critical", const Color(0xFFFF3B30)),
-              const SizedBox(width: 20),
+              SizedBox(width: 20),
               _legendItem("Resolved Cases", const Color(0xFF30D158)),
             ],
           ),
@@ -193,7 +192,7 @@ class CustomLineChart extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 7),
+        SizedBox(width: 7),
         Text(
           title,
           style: const TextStyle(

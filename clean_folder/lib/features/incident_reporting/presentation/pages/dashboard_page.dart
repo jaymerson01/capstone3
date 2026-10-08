@@ -20,6 +20,8 @@ import 'package:community_safety_app/core/services/biometric_service.dart';
 import 'package:community_safety_app/features/notifications/data/models/notification_model.dart';
 import 'package:community_safety_app/features/notifications/presentation/widgets/resident_notifications_sheet.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -103,7 +105,7 @@ class _DashboardPageState extends State<DashboardPage>
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Container(
               width: 64,
               height: 64,
@@ -117,14 +119,14 @@ class _DashboardPageState extends State<DashboardPage>
                   width: 1.5,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.fingerprint,
                 color: Color(0xFF00E5FF),
                 size: 34,
               ),
             ),
-            const SizedBox(height: 18),
-            const Text(
+            SizedBox(height: 18),
+            Text(
               "Enable Quick Biometric Access",
               style: TextStyle(
                 color: Color(0xFFE8F0FE),
@@ -133,8 +135,8 @@ class _DashboardPageState extends State<DashboardPage>
                 letterSpacing: 0.3,
               ),
             ),
-            const SizedBox(height: 10),
-            const Text(
+            SizedBox(height: 10),
+            Text(
               "Protect your ResQ account and instantly verify emergency incident reports using your Fingerprint or Face ID.",
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -143,7 +145,7 @@ class _DashboardPageState extends State<DashboardPage>
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
@@ -155,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage>
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
-                    child: const Text(
+                    child: Text(
                       "Maybe Later",
                       style: TextStyle(
                         color: Color(0xFF7B8DB0),
@@ -164,7 +166,7 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -209,10 +211,10 @@ class _DashboardPageState extends State<DashboardPage>
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Enable Now",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textDark,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -221,7 +223,7 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
           ],
         ),
       ),
@@ -305,64 +307,52 @@ class _DashboardPageState extends State<DashboardPage>
             decoration: BoxDecoration(
               color: urgencyColor.withValues(alpha: 0.12),
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: urgencyColor.withValues(alpha: 0.25),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              border: Border.all(
+                color: urgencyColor.withValues(alpha: 0.25),
+                width: 1,
+              ),
             ),
             child: Icon(_getIncidentIcon(category),
                 color: urgencyColor, size: 24),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: urgencyColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         category,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textDark,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: urgencyColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                            color: urgencyColor.withValues(alpha: 0.3)),
-                      ),
-                      child: Text(
-                        "$urgency Priority",
-                        style: TextStyle(
-                          color: urgencyColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined,
+                    Icon(Icons.location_on_outlined,
                         size: 13, color: AppColors.textLight),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         location,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textLight,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -371,61 +361,35 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                   ],
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Row(
                   children: [
-                    const Icon(Icons.access_time,
+                    Icon(Icons.access_time,
                         size: 13, color: AppColors.textLight),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       time,
-                      style: const TextStyle(
+                      style: TextStyle(
                           color: AppColors.textLight, fontSize: 11),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   incident.description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textLight,
                     fontSize: 13,
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _StatusChip(status: incident.status, color: statusClr),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: urgencyColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.map_outlined,
-                              size: 12,
-                              color: urgencyColor),
-                          const SizedBox(width: 4),
-                          Text(
-                            "Pin on Map",
-                            style: TextStyle(
-                              color: urgencyColor,
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(width: 2),
-                          Icon(Icons.chevron_right_rounded,
-                              size: 14,
-                              color: urgencyColor),
-                        ],
-                      ),
-                    ),
+                    Icon(Icons.chevron_right_rounded,
+                        size: 20, color: AppColors.textMuted),
                   ],
                 ),
               ],
@@ -438,47 +402,73 @@ class _DashboardPageState extends State<DashboardPage>
 
   @override
   Widget build(BuildContext context) {
-    const String userName = "Resident"; // Simplified for BLoC integration
+    final authState = context.watch<AuthBloc>().state;
+    String userName = "Resident";
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: AppColors.background,
-          drawer: const SideMenu(),
-          appBar: const _PremiumAppBar(userName: userName),
-          body: FadeTransition(
-            opacity: _fadeAnimation,
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(20),
-                child: BlocBuilder<IncidentBloc, IncidentState>(
-                  builder: (context, state) {
-                    List<IncidentEntity> incidents = [];
-                    if (state is IncidentLoaded) {
-                      incidents = state.incidents;
-                    }
+    if (authState is Authenticated) {
+      final name = authState.user.fullName ?? authState.user.displayName;
+      if (name != null && name.trim().isNotEmpty) {
+        userName = name.trim().split(RegExp(r'\s+')).first;
+      } else if (authState.user.email.isNotEmpty) {
+        final emailPart = authState.user.email.split('@').first;
+        userName = emailPart.isNotEmpty
+            ? emailPart[0].toUpperCase() + emailPart.substring(1)
+            : "Resident";
+      }
+    } else {
+      final fbUser = FirebaseAuth.instance.currentUser;
+      if (fbUser?.displayName != null && fbUser!.displayName!.trim().isNotEmpty) {
+        userName = fbUser.displayName!.trim().split(RegExp(r'\s+')).first;
+      } else if (fbUser?.email != null && fbUser!.email!.isNotEmpty) {
+        final emailPart = fbUser.email!.split('@').first;
+        userName = emailPart.isNotEmpty
+            ? emailPart[0].toUpperCase() + emailPart.substring(1)
+            : "Resident";
+      }
+    }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // ── Welcome Hero Card ──────────────────────────────────────
-                        const _WelcomeHeroCard(userName: userName),
-                        const SizedBox(height: 18),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: AppColors.background,
+              drawer: const SideMenu(),
+              appBar: _PremiumAppBar(userName: userName),
+              body: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SlideTransition(
+                  position: _slideAnimation,
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.all(20),
+                    child: BlocBuilder<IncidentBloc, IncidentState>(
+                      builder: (context, state) {
+                        List<IncidentEntity> incidents = [];
+                        if (state is IncidentLoaded) {
+                          incidents = state.incidents;
+                        }
 
-                        // ── Active Municipal Siren / Emergency Broadcast ──────────
-                        const _ActiveEmergencyBanner(),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // ── Welcome Hero Card ──────────────────────────────────────
+                            _WelcomeHeroCard(userName: userName),
+                            SizedBox(height: 18),
 
-                        // ── Barangay Situation Overview (Community-wide) ──────────
-                        _buildBarangaySituationHeader(context),
-                        const SizedBox(height: 10),
-                        _QuickStatsRow(incidents: incidents),
-                        const SizedBox(height: 20),
+                            // ── Active Municipal Siren / Emergency Broadcast ──────────
+                            _ActiveEmergencyBanner(),
 
-                        // ── Video / Info Banner ────────────────────────────────────
-                        const _InfoBanner(),
-                        const SizedBox(height: 20),
+                            // ── Barangay Situation Overview (Community-wide) ──────────
+                            _buildBarangaySituationHeader(context),
+                            SizedBox(height: 10),
+                            _QuickStatsRow(incidents: incidents),
+                            SizedBox(height: 20),
+
+                            // ── Video / Info Banner ────────────────────────────────────
+                            _InfoBanner(),
+                            SizedBox(height: 20),
 
                         // ── Report Button ──────────────────────────────────────────
                         Custom3dButton(
@@ -496,11 +486,11 @@ class _DashboardPageState extends State<DashboardPage>
                           ),
                         ),
 
-                        const SizedBox(height: 28),
+                        SizedBox(height: 28),
 
                         // ── Community Reports ──────────────────────────────────────
                         _buildCommunityReportsSection(state),
-                        const SizedBox(height: 30),
+                        SizedBox(height: 30),
                       ],
                     );
                   },
@@ -509,8 +499,10 @@ class _DashboardPageState extends State<DashboardPage>
             ),
           ),
         ),
-        const FloatingChatBot(),
-      ],
+          const FloatingChatBot(),
+        ],
+      );
+      }
     );
   }
 
@@ -537,8 +529,8 @@ class _DashboardPageState extends State<DashboardPage>
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-                const Text(
+                SizedBox(width: 8),
+                Text(
                   "MY REPORTS STATUS",
                   style: TextStyle(
                     color: AppColors.textDark,
@@ -548,49 +540,6 @@ class _DashboardPageState extends State<DashboardPage>
                   ),
                 ),
               ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.25),
-                ),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.person_pin_circle_rounded, size: 11, color: AppColors.primary),
-                  SizedBox(width: 4),
-                  Text(
-                    "My Filings",
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Expanded(
-              child: Text(
-                "Personal incident filings • Real-time response tracking",
-                style: TextStyle(
-                  color: AppColors.textLight,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
             ),
             InkWell(
               onTap: () => Navigator.push(
@@ -620,19 +569,30 @@ class _DashboardPageState extends State<DashboardPage>
             ),
           ],
         ),
+        SizedBox(height: 4),
+        Text(
+          "Personal incident filings • Real-time response tracking",
+          style: TextStyle(
+            color: AppColors.textLight,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
   }
 
   Widget _buildCommunityReportsSection(IncidentState state) {
     if (state is IncidentLoading) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: AppColors.primary),
       );
     } else if (state is IncidentError) {
       return Center(
         child: Text("Error: ${state.message}",
-            style: const TextStyle(color: AppColors.danger)),
+            style: TextStyle(color: AppColors.danger)),
       );
     } else if (state is IncidentLoaded) {
       final recentReports = List<IncidentEntity>.from(state.incidents);
@@ -643,8 +603,11 @@ class _DashboardPageState extends State<DashboardPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
-              const Text(
+              Text(
                 "Community Incidents",
                 style: TextStyle(
                   color: AppColors.textDark,
@@ -652,36 +615,26 @@ class _DashboardPageState extends State<DashboardPage>
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color: AppColors.primary.withValues(alpha: 0.25)),
-                ),
-                child: Text(
+              if (topReports.isNotEmpty)
+                Text(
                   "${topReports.length} Active",
                   style: const TextStyle(
                     color: AppColors.primary,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: 4),
-          const Text(
+          SizedBox(height: 4),
+          Text(
             "Recent reports from nearby compounds and streets",
             style: TextStyle(
                 color: AppColors.textLight,
                 fontSize: 12,
                 fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           if (topReports.isEmpty)
             Center(
               child: Padding(
@@ -691,8 +644,8 @@ class _DashboardPageState extends State<DashboardPage>
                     Icon(Icons.check_circle_outline,
                         color: AppColors.solved.withValues(alpha: 0.5),
                         size: 48),
-                    const SizedBox(height: 12),
-                    const Text(
+                    SizedBox(height: 12),
+                    Text(
                       "No active incidents",
                       style: TextStyle(
                           color: AppColors.textLight,
@@ -729,30 +682,33 @@ class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 64 + MediaQuery.of(context).padding.top,
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: const Border(
-            bottom: BorderSide(color: AppColors.border, width: 1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Container(
+          height: 64 + MediaQuery.of(context).padding.top,
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border(
+                bottom: BorderSide(color: AppColors.border, width: 1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: isDark ? 12 : 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
             IconButton(
-              icon: const Icon(Icons.menu, color: AppColors.textDark),
+              icon: Icon(Icons.menu, color: AppColors.textDark),
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Container(
               width: 34,
               height: 34,
@@ -771,21 +727,21 @@ class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) => Container(
                     color: AppColors.primary,
-                    child: const Icon(Icons.shield,
-                        color: Colors.white, size: 16),
+                    child: Icon(Icons.shield,
+                        color: AppColors.textDark, size: 16),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             ShaderMask(
               shaderCallback: (bounds) =>
                   AppColors.cyanGradient.createShader(bounds),
               blendMode: BlendMode.srcIn,
-              child: const Text(
+              child: Text(
                 "RESQ",
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.textDark,
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2,
@@ -884,8 +840,7 @@ class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
                                 child: Center(
                                   child: Text(
                                     unreadCount > 9 ? '9+' : '$unreadCount',
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(color: AppColors.textDark,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w900,
                                       height: 1,
@@ -905,6 +860,8 @@ class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
     );
+      },
+    );
   }
 }
 
@@ -914,31 +871,36 @@ class _WelcomeHeroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0A1628), Color(0xFF0D1F3C)],
-        ),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.15),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Container(
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? [const Color(0xFF0A1628), const Color(0xFF0D1F3C)]
+                  : [const Color(0xFFFFFFFF), const Color(0xFFF8FAFC)],
+            ),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppColors.border),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.22 : 0.04),
+                blurRadius: isDark ? 12 : 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
       child: Row(
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Welcome back,",
                   style: TextStyle(
                     fontSize: 12,
@@ -947,52 +909,51 @@ class _WelcomeHeroCard extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   userName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.solved.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: AppColors.solved.withValues(alpha: 0.25)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.solved,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.solved.withValues(alpha: 0.6),
-                              blurRadius: 6,
-                            ),
-                          ],
-                        ),
+                SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 13,
+                      color: AppColors.primary,
+                    ),
+                    SizedBox(width: 4),
+                    Text(
+                      "Barangay Moonwalk",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textDark,
                       ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        "Barangay Moonwalk — Online",
-                        style: TextStyle(
-                            color: AppColors.solved,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600),
+                    ),
+                    SizedBox(width: 6),
+                    Container(
+                      width: 3,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        color: AppColors.textLight.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(width: 6),
+                    Text(
+                      "Resident",
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textLight,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -1010,11 +971,13 @@ class _WelcomeHeroCard extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(Icons.verified_user_outlined,
+            child: Icon(Icons.verified_user_outlined,
                 color: AppColors.primary, size: 28),
           ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -1059,7 +1022,7 @@ class _QuickStatsRow extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const MyReportsPage()),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         _MiniStatCard(
           label: "Active",
           sublabel: "Responding",
@@ -1071,7 +1034,7 @@ class _QuickStatsRow extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const MyReportsPage()),
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         _MiniStatCard(
           label: "Solved",
           sublabel: "Resolved",
@@ -1132,7 +1095,7 @@ class _MiniStatCard extends StatelessWidget {
             child: Column(
               children: [
                 Icon(icon, color: color, size: 20),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   value,
                   style: TextStyle(
@@ -1141,7 +1104,7 @@ class _MiniStatCard extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 1),
+                SizedBox(height: 1),
                 Text(
                   label,
                   style: TextStyle(
@@ -1150,10 +1113,10 @@ class _MiniStatCard extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   sublabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textLight,
                     fontSize: 9.5,
                     fontWeight: FontWeight.w500,
@@ -1254,22 +1217,22 @@ class _InfoBannerState extends State<_InfoBanner>
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.play_arrow,
-                            color: Colors.white, size: 26),
+                        child: Icon(Icons.play_arrow,
+                            color: AppColors.textDark, size: 26),
                       );
                     },
                   ),
-                  const SizedBox(height: 14),
-                  const Text(
+                  SizedBox(height: 14),
+                  Text(
                     "Video Instructions",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textDark,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     "How to report safety issues in Moonwalk",
                     style: TextStyle(
                       color: AppColors.textLight,
@@ -1435,10 +1398,10 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                       color: const Color(0xFFFF3B30).withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.campaign_rounded,
+                    child: Icon(Icons.campaign_rounded,
                         color: Color(0xFFFF3B30), size: 20),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1454,7 +1417,7 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
@@ -1463,7 +1426,7 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                                     .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child: Text(
                                 "ACTIVE SIREN",
                                 style: TextStyle(
                                   color: Color(0xFFFF3B30),
@@ -1474,11 +1437,10 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(color: AppColors.textDark,
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                           ),
@@ -1491,7 +1453,7 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                 ],
               ),
               if (message.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   message,
                   style: const TextStyle(
@@ -1503,12 +1465,12 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.place_outlined,
+                  Icon(Icons.place_outlined,
                       size: 13, color: Color(0xFF7B8DB0)),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     "Target: $sector",
                     style: const TextStyle(

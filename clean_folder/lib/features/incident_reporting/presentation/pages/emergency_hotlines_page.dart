@@ -58,11 +58,11 @@ class EmergencyHotlinesPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.call,
+                  child: Icon(Icons.call,
                       color: AppColors.danger, size: 32),
                 ),
-                const SizedBox(height: 16),
-                const Text(
+                SizedBox(height: 16),
+                Text(
                   'Call Dispatch Line?',
                   style: TextStyle(
                     color: AppColors.textDark,
@@ -70,29 +70,29 @@ class EmergencyHotlinesPage extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   'Are you sure you want to dial the official hotline for $title ($number) now?',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textLight,
                     fontSize: 14,
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 Row(
                   children: [
                     Expanded(
                       child: TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text(
+                        child: Text(
                           'Cancel',
                           style: TextStyle(color: AppColors.textLight),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Container(
                         height: 48,
@@ -109,11 +109,11 @@ class EmergencyHotlinesPage extends StatelessWidget {
                               Navigator.pop(context);
                               _makeDirectCall(context, title, number);
                             },
-                            child: const Center(
+                            child: Center(
                               child: Text(
                                 'Call Now',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: AppColors.textDark,
                                   fontWeight: FontWeight.w800,
                                   fontSize: 15,
                                 ),
@@ -166,29 +166,29 @@ class EmergencyHotlinesPage extends StatelessWidget {
               ),
               child: Icon(icon, color: AppColors.danger, size: 26),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                       color: AppColors.textDark,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  SizedBox(height: 5),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textLight,
                       height: 1.4,
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
                   Row(
                     children: [
                       InkWell(
@@ -205,12 +205,12 @@ class EmergencyHotlinesPage extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.phone,
+                              Icon(Icons.phone,
                                   size: 13, color: AppColors.primary),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6),
                               Text(
                                 number,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.textDark,
@@ -239,138 +239,151 @@ class EmergencyHotlinesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: Stack(
-        children: [
-          // ── Gradient Header Background ──────────────────────────────────
-          Container(
-            height: 220 + MediaQuery.of(context).padding.top,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF1A0A0E), Color(0xFF2D0A0F)],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.danger.withValues(alpha: 0.15),
-                  blurRadius: 30,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-          ),
-
-          // Ambient danger glow
-          Positioned(
-            top: 0,
-            right: -40,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    AppColors.danger.withValues(alpha: 0.1),
-                    Colors.transparent,
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: Stack(
+            children: [
+              // ── Gradient Header Background ──────────────────────────────────
+              Container(
+                height: 220 + MediaQuery.of(context).padding.top,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: isDark
+                        ? [const Color(0xFF1A0A0E), const Color(0xFF2D0A0F)]
+                        : [const Color(0xFFFFF0F2), const Color(0xFFFFE5E9)],
+                  ),
+                  border: isDark
+                      ? null
+                      : Border(bottom: BorderSide(color: AppColors.border, width: 1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.danger.withValues(alpha: isDark ? 0.15 : 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ),
 
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Back + Title
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 8),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.12)),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.arrow_back,
-                              color: Colors.white, size: 18),
-                          onPressed: () => Navigator.pop(context),
-                          padding: EdgeInsets.zero,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Emergency Hotlines',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ],
+              // Ambient danger glow
+              Positioned(
+                top: 0,
+                right: -40,
+                child: Container(
+                  width: 250,
+                  height: 250,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColors.danger.withValues(alpha: isDark ? 0.1 : 0.04),
+                        Colors.transparent,
+                      ],
+                    ),
                   ),
                 ),
+              ),
 
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Back + Title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(6),
+                            width: 38,
+                            height: 38,
                             decoration: BoxDecoration(
-                              color: AppColors.danger.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.08)
+                                  : AppColors.surface,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.12)
+                                    : AppColors.border,
+                              ),
                             ),
-                            child: const Icon(Icons.emergency,
-                                color: AppColors.danger, size: 18),
+                            child: IconButton(
+                              icon: Icon(Icons.arrow_back,
+                                  color: AppColors.textDark, size: 18),
+                              onPressed: () => Navigator.pop(context),
+                              padding: EdgeInsets.zero,
+                            ),
                           ),
-                          const SizedBox(width: 10),
-                          const Text(
-                            'EMERGENCY CALL PORTAL',
+                          SizedBox(width: 12),
+                          Text(
+                            'Emergency Hotlines',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
+                              color: AppColors.textDark,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Unauthenticated guest access enabled. Dial emergency responders directly below.',
-                        style: TextStyle(
-                          color: Colors.white60,
-                          fontSize: 12,
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
 
-                const SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: AppColors.danger.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(Icons.emergency,
+                                    color: AppColors.danger, size: 18),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                'EMERGENCY CALL PORTAL',
+                                style: TextStyle(
+                                  color: AppColors.textDark,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Unauthenticated guest access enabled. Dial emergency responders directly below.',
+                            style: TextStyle(
+                              color: AppColors.textLight,
+                              fontSize: 12,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                SizedBox(height: 10),
 
                 Expanded(
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.only(
                         left: 20, right: 20, top: 28),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: AppColors.background,
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(32),
@@ -415,7 +428,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                               'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.',
                           icon: Icons.phone_in_talk_outlined,
                         ),
-                        const SizedBox(height: 40),
+                        SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -425,6 +438,8 @@ class EmergencyHotlinesPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }
@@ -483,15 +498,15 @@ class _CallButtonState extends State<_CallButton>
                   ),
                 ],
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.call, color: Colors.white, size: 14),
+                  Icon(Icons.call, color: AppColors.textDark, size: 14),
                   SizedBox(width: 6),
                   Text(
                     'CALL',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textDark,
                       fontWeight: FontWeight.w800,
                       fontSize: 12,
                       letterSpacing: 0.5,

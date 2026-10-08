@@ -128,27 +128,27 @@ class _PremiumDialog extends StatelessWidget {
                   ),
                   child: Icon(icon, color: iconColor, size: 36),
                 ),
-                const SizedBox(height: 18),
+                SizedBox(height: 18),
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 Text(
                   message,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textLight,
                     height: 1.5,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: Container(
@@ -302,15 +302,15 @@ class _AccountLockedDialogContentState
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.lock_person_rounded,
                       color: AppColors.pending,
                       size: 40,
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   "Account Temporarily Locked",
                   style: TextStyle(
                     fontSize: 18,
@@ -319,8 +319,8 @@ class _AccountLockedDialogContentState
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 10),
-                const Text(
+                SizedBox(height: 10),
+                Text(
                   "Too many failed login attempts detected. Your account is locked for security.",
                   style: TextStyle(
                     fontSize: 13,
@@ -329,7 +329,7 @@ class _AccountLockedDialogContentState
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 28),
+                SizedBox(height: 28),
 
                 // Premium countdown ring
                 SizedBox(
@@ -363,7 +363,7 @@ class _AccountLockedDialogContentState
                           children: [
                             Text(
                               _formattedTime,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w900,
                                 color: AppColors.textDark,
@@ -372,7 +372,7 @@ class _AccountLockedDialogContentState
                                 ],
                               ),
                             ),
-                            const Text(
+                            Text(
                               "remaining",
                               style: TextStyle(
                                 fontSize: 10,
@@ -386,7 +386,7 @@ class _AccountLockedDialogContentState
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
               ],
             ),
           ),

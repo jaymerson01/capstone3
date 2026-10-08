@@ -8,8 +8,8 @@ class Custom3dCard extends StatefulWidget {
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
   final double borderRadius;
-  final Color backgroundColor;
-  final Color borderColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
   final VoidCallback? onTap;
   final List<BoxShadow>? boxShadow;
   final Color? glowColor;
@@ -21,8 +21,8 @@ class Custom3dCard extends StatefulWidget {
     this.padding = const EdgeInsets.all(18.0),
     this.margin = const EdgeInsets.only(bottom: 14.0),
     this.borderRadius = 20.0,
-    this.backgroundColor = AppColors.cardBackground,
-    this.borderColor = AppColors.border,
+    this.backgroundColor,
+    this.borderColor,
     this.onTap,
     this.boxShadow,
     this.glowColor,
@@ -43,96 +43,111 @@ class _Custom3dCardState extends State<Custom3dCard>
     final Color effectiveGlow = widget.glowColor ?? AppColors.primary;
     final bool interactive = widget.onTap != null;
 
-    return Padding(
-      padding: widget.margin,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
-          onTapDown: interactive ? (_) => setState(() => _isPressed = true) : null,
-          onTapUp: interactive ? (_) => setState(() => _isPressed = false) : null,
-          onTapCancel: interactive ? () => setState(() => _isPressed = false) : null,
-          onTap: widget.onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOutCubic,
-            transform: Matrix4.identity()
-              ..translate(
-                0.0,
-                widget.enableHoverLift
-                    ? (_isPressed
-                        ? 2.0
-                        : _isHovered
-                            ? -4.0
-                            : 0.0)
-                    : 0.0,
-              ),
-            decoration: BoxDecoration(
-              color: widget.backgroundColor,
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              border: Border.all(
-                color: _isHovered
-                    ? effectiveGlow.withValues(alpha: 0.35)
-                    : widget.borderColor,
-                width: _isHovered ? 1.5 : 1.0,
-              ),
-              boxShadow: widget.boxShadow ??
-                  [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      offset: const Offset(0, 8),
-                      blurRadius: 24,
-                      spreadRadius: 0,
-                    ),
-                    BoxShadow(
-                      color: effectiveGlow.withValues(
-                        alpha: (_isHovered ? 0.18 : 0.08),
-                      ),
-                      offset: const Offset(0, 4),
-                      blurRadius: 16,
-                      spreadRadius: 0,
-                    ),
-                    if (_isHovered)
-                      BoxShadow(
-                        color: effectiveGlow.withValues(alpha: 0.12),
-                        offset: const Offset(0, 0),
-                        blurRadius: 30,
-                        spreadRadius: 2,
-                      ),
-                  ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              child: Stack(
-                children: [
-                  // Subtle top-left glass highlight
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 1,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0.12),
-                            Colors.white.withValues(alpha: 0.0),
-                          ],
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        final List<BoxShadow> defaultShadows = isDark
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.22),
+                  offset: const Offset(0, 4),
+                  blurRadius: 12,
+                  spreadRadius: 0,
+                ),
+                if (_isHovered)
+                  BoxShadow(
+                    color: effectiveGlow.withValues(alpha: 0.12),
+                    offset: const Offset(0, 0),
+                    blurRadius: 16,
+                    spreadRadius: 1,
+                  ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  offset: const Offset(0, 2),
+                  blurRadius: 8,
+                  spreadRadius: 0,
+                ),
+                if (_isHovered)
+                  BoxShadow(
+                    color: effectiveGlow.withValues(alpha: 0.08),
+                    offset: const Offset(0, 2),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                  ),
+              ];
+
+        return Padding(
+          padding: widget.margin,
+          child: MouseRegion(
+            onEnter: (_) => setState(() => _isHovered = true),
+            onExit: (_) => setState(() => _isHovered = false),
+            child: GestureDetector(
+              onTapDown: interactive ? (_) => setState(() => _isPressed = true) : null,
+              onTapUp: interactive ? (_) => setState(() => _isPressed = false) : null,
+              onTapCancel: interactive ? () => setState(() => _isPressed = false) : null,
+              onTap: widget.onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                transform: Matrix4.identity()
+                  ..translate(
+                    0.0,
+                    widget.enableHoverLift
+                        ? (_isPressed
+                            ? 2.0
+                            : _isHovered
+                                ? -4.0
+                                : 0.0)
+                        : 0.0,
+                  ),
+                decoration: BoxDecoration(
+                  color: widget.backgroundColor ?? AppColors.cardBackground,
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  border: Border.all(
+                    color: _isHovered
+                        ? effectiveGlow.withValues(alpha: 0.35)
+                        : (widget.borderColor ?? AppColors.border),
+                    width: _isHovered ? 1.5 : 1.0,
+                  ),
+                  boxShadow: widget.boxShadow ?? defaultShadows,
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(widget.borderRadius),
+                  child: Stack(
+                    children: [
+                      // Subtle top-left highlight
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                (isDark ? Colors.white : Colors.black)
+                                    .withValues(alpha: isDark ? 0.08 : 0.02),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      // Main content
+                      Padding(
+                        padding: widget.padding,
+                        child: widget.child,
+                      ),
+                    ],
                   ),
-                  // Main content
-                  Padding(
-                    padding: widget.padding,
-                    child: widget.child,
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -44,7 +44,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Incident Reports",
                 style: TextStyle(
                   fontSize: 20,
@@ -62,7 +62,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       color: Color(0xFF7B8DB0),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Switch(
                     value: showArchivedReports,
                     activeTrackColor: const Color(0xFF0A84FF),
@@ -77,7 +77,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Row(
             children: [
               Expanded(
@@ -101,7 +101,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       hintText: "Search by ID, type, reporter, location...",
                       hintStyle: const TextStyle(
                           color: Color(0xFF4A5568), fontSize: 12.5),
-                      prefixIcon: const Icon(Icons.search,
+                      prefixIcon: Icon(Icons.search,
                           color: Color(0xFF7B8DB0), size: 20),
                       filled: true,
                       fillColor: const Color(0xFF0D1627),
@@ -128,7 +128,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 4),
@@ -143,7 +143,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     dropdownColor: const Color(0xFF0D1627),
                     style: const TextStyle(
                         color: Color(0xFFE8F0FE), fontSize: 13),
-                    icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded,
                         color: Color(0xFF0A84FF)),
                     items: const [
                       DropdownMenuItem(
@@ -167,13 +167,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           // Priority Triage Hierarchy Toolbar
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                const Text(
+                Text(
                   "PRIORITY QUEUE:",
                   style: TextStyle(
                     color: Color(0xFF7B8DB0),
@@ -182,28 +182,28 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     letterSpacing: 0.6,
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 _buildSortChip(
                   key: "latest",
                   label: "Latest First",
                   icon: Icons.access_time_rounded,
                   activeColor: const Color(0xFF0A84FF),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 _buildSortChip(
                   key: "urgency",
                   label: "Critical & Urgent First",
                   icon: Icons.warning_amber_rounded,
                   activeColor: const Color(0xFFFF3B30),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 _buildSortChip(
                   key: "corroborated",
                   label: "Most Corroborated / Affected",
                   icon: Icons.people_alt_outlined,
                   activeColor: const Color(0xFF00E5FF),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 _buildSortChip(
                   key: "oldest_pending",
                   label: "Oldest Pending Backlog",
@@ -213,12 +213,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Expanded(
             child: BlocBuilder<IncidentBloc, IncidentState>(
               builder: (context, state) {
                 if (state is IncidentLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 } else if (state is IncidentError) {
                   return Center(
                     child: Text(
@@ -322,8 +322,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 Icon(Icons.inbox_outlined,
                                     color: const Color(0xFF2A3F60),
                                     size: 56),
-                                const SizedBox(height: 14),
-                                const Text(
+                                SizedBox(height: 14),
+                                Text(
                                   "No incident reports found",
                                   style: TextStyle(
                                     color: Color(0xFF7B8DB0),
@@ -380,7 +380,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                       color: Color(0xFF7B8DB0),
                                                       fontSize: 12))),
                                           DataColumn(
-                                              label: const Text("Urgency",
+                                              label: Text("Urgency",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
@@ -395,7 +395,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                 });
                                               }),
                                           DataColumn(
-                                              label: const Text(
+                                              label: Text(
                                                   "Corroborated / Affected",
                                                   style: TextStyle(
                                                       fontWeight:
@@ -425,7 +425,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                       color: Color(0xFF7B8DB0),
                                                       fontSize: 12))),
                                           DataColumn(
-                                              label: const Text("Date",
+                                              label: Text("Date",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
@@ -555,7 +555,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                                 ? const Color(0xFFFF9500)
                                                                 : const Color(0xFF00E5FF)),
                                                       ),
-                                                      const SizedBox(width: 5),
+                                                      SizedBox(width: 5),
                                                       Text(
                                                         "${report.upvoteCount + 1} Affected",
                                                         style: TextStyle(
@@ -606,7 +606,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                             .ellipsis,
                                                       )
                                                     else if (report.isAnonymous)
-                                                      const Text(
+                                                      Text(
                                                         "Anon to Public",
                                                         style: TextStyle(
                                                           color:
@@ -683,17 +683,17 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                         report
                                                             .estimatedResponseTime!
                                                             .isNotEmpty) ...[
-                                                      const SizedBox(height: 3),
+                                                      SizedBox(height: 3),
                                                       Row(
                                                         mainAxisSize:
                                                             MainAxisSize.min,
                                                         children: [
-                                                          const Icon(
+                                                          Icon(
                                                               Icons.timer_outlined,
                                                               size: 11,
                                                               color: Color(
                                                                   0xFF00E5FF)),
-                                                          const SizedBox(
+                                                          SizedBox(
                                                               width: 3),
                                                           Text(
                                                             "ETA: ${report.estimatedResponseTime!}",
@@ -722,7 +722,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 ),
                                 // Sticky / Frozen Actions Column on the far right
                                 Container(
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     color: Color(0xFF060D1A),
                                     border: Border(
                                       left: BorderSide(
@@ -774,7 +774,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 IconButton(
-                                                  icon: const Icon(
+                                                  icon: Icon(
                                                     Icons.visibility,
                                                     color: Color(0xFF0A84FF),
                                                     size: 19,
@@ -787,7 +787,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   },
                                                 ),
                                                 IconButton(
-                                                  icon: const Icon(
+                                                  icon: Icon(
                                                     Icons.edit,
                                                     color: Colors.blue,
                                                     size: 19,
@@ -800,7 +800,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   },
                                                 ),
                                                 IconButton(
-                                                  icon: const Icon(
+                                                  icon: Icon(
                                                     Icons.report_gmailerrorred,
                                                     color: Colors.orange,
                                                     size: 19,
@@ -958,7 +958,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
             Icon(icon,
                 size: 14,
                 color: isSelected ? color : const Color(0xFF7B8DB0)),
-            const SizedBox(width: 6),
+            SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
@@ -998,10 +998,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.edit_note,
+                    child: Icon(Icons.edit_note,
                         color: Color(0xFF0A84FF), size: 20),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       "Dispatch Actions • #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
@@ -1021,7 +1021,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "RESOLUTION STAGE",
                         style: TextStyle(
                             color: Color(0xFF7B8DB0),
@@ -1029,7 +1029,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         initialValue: selectedStatus,
                         dropdownColor: const Color(0xFF0D1627),
@@ -1074,10 +1074,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         },
                       ),
                       if (selectedStatus == "In Progress") ...[
-                        const SizedBox(height: 18),
+                        SizedBox(height: 18),
                         Row(
                           children: [
-                            const Text(
+                            Text(
                               "ESTIMATED TIME OF ARRIVAL (ETA)",
                               style: TextStyle(
                                   color: Color(0xFF00E5FF),
@@ -1085,7 +1085,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
@@ -1094,7 +1094,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child: Text(
                                 "CITIZEN VISIBLE",
                                 style: TextStyle(
                                   color: Color(0xFF00E5FF),
@@ -1105,7 +1105,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Wrap(
                           spacing: 8,
                           runSpacing: 6,
@@ -1155,7 +1155,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             );
                           }).toList(),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         TextField(
                           controller: etaController,
                           style: const TextStyle(
@@ -1165,7 +1165,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 "Or type custom ETA (e.g. 8 mins, On scene)...",
                             hintStyle: const TextStyle(
                                 color: Color(0xFF4A5568), fontSize: 12),
-                            prefixIcon: const Icon(Icons.timer_outlined,
+                            prefixIcon: Icon(Icons.timer_outlined,
                                 color: Color(0xFF00E5FF), size: 18),
                             filled: true,
                             fillColor: const Color(0xFF060D1A),
@@ -1186,8 +1186,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           ),
                         ),
                       ],
-                      const SizedBox(height: 18),
-                      const Text(
+                      SizedBox(height: 18),
+                      Text(
                         "DISPATCHER & OPERATIONAL NOTES",
                         style: TextStyle(
                             color: Color(0xFF7B8DB0),
@@ -1195,7 +1195,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       TextField(
                         controller: notesController,
                         maxLines: 4,
@@ -1230,7 +1230,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text("Cancel",
+                  child: Text("Cancel",
                       style: TextStyle(color: Color(0xFF7B8DB0))),
                 ),
                 ElevatedButton(
@@ -1275,7 +1275,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       ),
                     );
                   },
-                  child: const Text("Save & Broadcast Status",
+                  child: Text("Save & Broadcast Status",
                       style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
@@ -1335,10 +1335,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.shield_outlined,
+                child: Icon(Icons.shield_outlined,
                     color: Color(0xFF0A84FF), size: 22),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1352,7 +1352,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       _formatDateTime(report.timestamp),
                       style: const TextStyle(
@@ -1407,17 +1407,17 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               color: const Color(0xFFFF9500).withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.people_alt,
+                            child: Icon(Icons.people_alt,
                                 color: Color(0xFFFF9500), size: 22),
                           ),
-                          const SizedBox(width: 14),
+                          SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   children: [
-                                    const Text(
+                                    Text(
                                       "REPORTED ON BEHALF (OFF-SITE FILING)",
                                       style: TextStyle(
                                         color: Color(0xFFFF9500),
@@ -1426,7 +1426,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         letterSpacing: 0.6,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: 8),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 6, vertical: 2),
@@ -1435,7 +1435,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                             .withValues(alpha: 0.25),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
-                                      child: const Text(
+                                      child: Text(
                                         "ACTION REQUIRED",
                                         style: TextStyle(
                                           color: Color(0xFFFF9500),
@@ -1446,7 +1446,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 4),
+                                SizedBox(height: 4),
                                 Text(
                                   "On-Scene Victim: ${report.victimName?.isNotEmpty == true ? report.victimName! : 'Unspecified'}",
                                   style: const TextStyle(
@@ -1457,7 +1457,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 ),
                                 if (report.victimPhone != null &&
                                     report.victimPhone!.trim().isNotEmpty) ...[
-                                  const SizedBox(height: 2),
+                                  SizedBox(height: 2),
                                   Text(
                                     "Victim Phone: ${report.victimPhone!}",
                                     style: const TextStyle(
@@ -1480,7 +1480,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   await launchUrl(uri);
                                 }
                               },
-                              icon: const Icon(Icons.phone_in_talk,
+                              icon: Icon(Icons.phone_in_talk,
                                   color: Color(0xFF00E5FF), size: 20),
                               style: IconButton.styleFrom(
                                 backgroundColor: const Color(0xFF00E5FF)
@@ -1508,7 +1508,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "CATEGORY",
                                 style: TextStyle(
                                   color: Color(0xFF7B8DB0),
@@ -1517,7 +1517,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(
                                 report.category,
                                 style: const TextStyle(
@@ -1534,12 +1534,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           width: 1,
                           color: const Color(0xFF1E2D4A),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "TRIAGE URGENCY LEVEL",
                                 style: TextStyle(
                                   color: Color(0xFF7B8DB0),
@@ -1548,7 +1548,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Row(
                                 children: [
                                   Container(
@@ -1559,7 +1559,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                       shape: BoxShape.circle,
                                     ),
                                   ),
-                                  const SizedBox(width: 6),
+                                  SizedBox(width: 6),
                                   Text(
                                     urgency,
                                     style: TextStyle(
@@ -1578,11 +1578,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           width: 1,
                           color: const Color(0xFF1E2D4A),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               "COMMUNITY CONFIRMED",
                               style: TextStyle(
                                 color: Color(0xFF7B8DB0),
@@ -1591,7 +1591,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(
                               "${report.upvoteCount} citizen${report.upvoteCount == 1 ? '' : 's'}",
                               style: const TextStyle(
@@ -1609,11 +1609,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             width: 1,
                             color: const Color(0xFF1E2D4A),
                           ),
-                          const SizedBox(width: 16),
+                          SizedBox(width: 16),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 "DISPATCH ETA",
                                 style: TextStyle(
                                   color: Color(0xFF00E5FF),
@@ -1622,12 +1622,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   letterSpacing: 0.5,
                                 ),
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Row(
                                 children: [
-                                  const Icon(Icons.timer_outlined,
+                                  Icon(Icons.timer_outlined,
                                       size: 13, color: Color(0xFF00E5FF)),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 4),
                                   Text(
                                     report.estimatedResponseTime!,
                                     style: const TextStyle(
@@ -1645,12 +1645,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Reporter Identity Box
                   _buildSectionHeader(
                       Icons.person_pin, "REPORTER IDENTITY (LGU COMMAND VIEW)"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -1681,7 +1681,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     fontWeight: FontWeight.bold),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1720,7 +1720,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                       color: const Color(0xFFFF9500)
                                           .withValues(alpha: 0.4)),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.lock_outline,
@@ -1740,7 +1740,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           ],
                         ),
                         if (report.isAnonymous) ...[
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -1748,7 +1748,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   .withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Row(
+                            child: Row(
                               children: [
                                 Icon(Icons.info_outline,
                                     size: 14, color: Color(0xFFFF9500)),
@@ -1764,7 +1764,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             ),
                           ),
                         ],
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         Text(
                           "Account UID: ${report.reporterId}",
                           style: const TextStyle(
@@ -1777,10 +1777,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   ),
 
                   if (report.isReportingOnBehalf) ...[
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     _buildSectionHeader(Icons.people_alt,
                         "ON-SCENE AFFECTED PERSON (REPORTED ON BEHALF)"),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
@@ -1795,9 +1795,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.person_pin_circle,
+                              Icon(Icons.person_pin_circle,
                                   color: Color(0xFFFF9500), size: 18),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   report.victimName?.isNotEmpty == true
@@ -1817,7 +1817,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   color: const Color(0xFFFF9500).withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   "OFF-SITE FILING",
                                   style: TextStyle(
                                     color: Color(0xFFFF9500),
@@ -1830,15 +1830,15 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           ),
                           if (report.victimPhone != null &&
                               report.victimPhone!.trim().isNotEmpty) ...[
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.phone,
+                                    Icon(Icons.phone,
                                         color: Color(0xFF00E5FF), size: 14),
-                                    const SizedBox(width: 6),
+                                    SizedBox(width: 6),
                                     Text(
                                       "Contact: ${report.victimPhone!}",
                                       style: const TextStyle(
@@ -1869,7 +1869,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                           color: const Color(0xFF00E5FF)
                                               .withValues(alpha: 0.4)),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(Icons.phone_in_talk,
@@ -1895,12 +1895,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     ),
                   ],
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Location Information Box
                   _buildSectionHeader(Icons.location_on,
                       "GEOLOCATION & REVERSE-GEOCODED STREET"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -1915,9 +1915,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(Icons.place,
+                            Icon(Icons.place,
                                 color: Color(0xFF0A84FF), size: 18),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 fullAddress,
@@ -1932,7 +1932,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           ],
                         ),
                         if (hasCoords) ...[
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -1953,8 +1953,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8)),
                                 ),
-                                icon: const Icon(Icons.map, size: 14),
-                                label: const Text("Open in Google Maps",
+                                icon: Icon(Icons.map, size: 14),
+                                label: Text("Open in Google Maps",
                                     style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold)),
@@ -1973,12 +1973,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Description
                   _buildSectionHeader(
                       Icons.description, "INCIDENT DESCRIPTION"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
@@ -1996,11 +1996,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Multimedia Evidence (Photo & Video)
                   _buildSectionHeader(Icons.perm_media, "MULTIMEDIA EVIDENCE"),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   if (!hasPhoto && !hasVideo)
                     Container(
                       width: double.infinity,
@@ -2010,7 +2010,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: const Color(0xFF1E2D4A)),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
                           Icon(Icons.attachment,
                               color: Color(0xFF4A5568), size: 16),
@@ -2062,7 +2062,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                       return Container(
                                         height: 220,
                                         color: const Color(0xFF060D1A),
-                                        child: const Center(
+                                        child: Center(
                                             child: CircularProgressIndicator()),
                                       );
                                     },
@@ -2075,19 +2075,19 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            const Icon(Icons.broken_image_outlined,
+                                            Icon(Icons.broken_image_outlined,
                                                 color: Color(0xFF7B8DB0), size: 32),
-                                            const SizedBox(height: 6),
-                                            const Text(
+                                            SizedBox(height: 6),
+                                            Text(
                                               "Image preview blocked by browser security.",
                                               style: TextStyle(
                                                   color: Color(0xFF7B8DB0),
                                                   fontSize: 11),
                                             ),
-                                            const SizedBox(height: 6),
+                                            SizedBox(height: 6),
                                             TextButton.icon(
-                                              icon: const Icon(Icons.open_in_new, size: 14),
-                                              label: const Text("Open in Cloud Viewer",
+                                              icon: Icon(Icons.open_in_new, size: 14),
+                                              label: Text("Open in Cloud Viewer",
                                                   style: TextStyle(fontSize: 11)),
                                               onPressed: () => launchUrl(
                                                   Uri.parse(report.photoUrl!),
@@ -2108,12 +2108,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               mainAxisAlignment:
                                   MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text("Citizen Attached Photo",
+                                Text("Citizen Attached Photo",
                                     style: TextStyle(
                                         color: Color(0xFF7B8DB0), fontSize: 12)),
                                 TextButton.icon(
-                                  icon: const Icon(Icons.fullscreen_rounded, size: 16),
-                                  label: const Text("View Full Resolution",
+                                  icon: Icon(Icons.fullscreen_rounded, size: 16),
+                                  label: Text("View Full Resolution",
                                       style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                                   onPressed: () {
                                     InAppImageViewerDialog.show(
@@ -2129,7 +2129,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ] else if (isLocalPhoto) ...[
                     Container(
                       width: double.infinity,
@@ -2151,15 +2151,15 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   .withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.phonelink_erase_rounded,
+                            child: Icon(Icons.phonelink_erase_rounded,
                                 color: Color(0xFFFF9500), size: 20),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   "Evidence Stored Locally on Citizen Device",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -2167,8 +2167,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     fontSize: 13,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                const Text(
+                                SizedBox(height: 4),
+                                Text(
                                   "This report was saved while the citizen was offline or before cloud upload finished. The photo was cached on the reporting phone.",
                                   style: TextStyle(
                                     color: Color(0xFF7B8DB0),
@@ -2176,7 +2176,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     height: 1.35,
                                   ),
                                 ),
-                                const SizedBox(height: 6),
+                                SizedBox(height: 6),
                                 Text(
                                   "Path: ${report.photoUrl}",
                                   style: const TextStyle(
@@ -2192,7 +2192,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
 
                   // Video preview / action
@@ -2216,10 +2216,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   .withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.videocam,
+                            child: Icon(Icons.videocam,
                                 color: Color(0xFF0A84FF), size: 24),
                           ),
-                          const SizedBox(width: 14),
+                          SizedBox(width: 14),
                           const Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2252,8 +2252,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10)),
                                 ),
-                                icon: const Icon(Icons.play_circle_fill_rounded, size: 18),
-                                label: const Text("Play In-App",
+                                icon: Icon(Icons.play_circle_fill_rounded, size: 18),
+                                label: Text("Play In-App",
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold, fontSize: 12)),
                                 onPressed: () {
@@ -2264,9 +2264,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   );
                                 },
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8),
                               IconButton(
-                                icon: const Icon(Icons.open_in_new_rounded,
+                                icon: Icon(Icons.open_in_new_rounded,
                                     color: Color(0xFF7B8DB0), size: 18),
                                 tooltip: "Open in External Tab",
                                 onPressed: () => launchUrl(
@@ -2278,7 +2278,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ] else if (isLocalVideo) ...[
                     Container(
                       width: double.infinity,
@@ -2305,16 +2305,16 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                   ],
 
                   // Dispatcher Notes
                   if (report.dispatcherNotes != null &&
                       report.dispatcherNotes!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     _buildSectionHeader(
                         Icons.speaker_notes, "DISPATCHER & OPERATIONAL LOGS"),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
@@ -2340,7 +2340,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: const Text("Close",
+              child: Text("Close",
                   style: TextStyle(color: Color(0xFF7B8DB0))),
             ),
             ElevatedButton.icon(
@@ -2352,8 +2352,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
               ),
-              icon: const Icon(Icons.edit, size: 16),
-              label: const Text("Update Status / Notes",
+              icon: Icon(Icons.edit, size: 16),
+              label: Text("Update Status / Notes",
                   style: TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 Navigator.pop(dialogContext);
@@ -2370,7 +2370,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     return Row(
       children: [
         Icon(icon, size: 14, color: const Color(0xFF7B8DB0)),
-        const SizedBox(width: 6),
+        SizedBox(width: 6),
         Text(
           title,
           style: const TextStyle(

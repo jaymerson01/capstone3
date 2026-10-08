@@ -38,7 +38,7 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 "Area Management",
                 style: TextStyle(
                   fontSize: 22,
@@ -48,7 +48,7 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
               ),
               Row(
                 children: [
-                  const Text("Show Archived", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AdminColors.textDark)),
+                  Text("Show Archived", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AdminColors.textDark)),
                   Switch(
                     value: _showArchivedAreas,
                     activeThumbColor: AdminColors.primaryRose,
@@ -58,7 +58,7 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
                       });
                     },
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AdminColors.primaryRose,
@@ -69,15 +69,15 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
                     onPressed: () {
                       _showAddAreaDialog(context);
                     },
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add New Area", style: TextStyle(fontWeight: FontWeight.bold)),
+                    icon: Icon(Icons.add),
+                    label: Text("Add New Area", style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
             ],
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           Expanded(
             child: Custom3dCard(
@@ -114,13 +114,13 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
                           Row(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.blue),
+                                icon: Icon(Icons.edit, color: Colors.blue),
                                 onPressed: () {
                                   _showEditAreaDialog(context, area);
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(Icons.archive, color: Colors.red),
+                                icon: Icon(Icons.archive, color: Colors.red),
                                 onPressed: () {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(content: Text("Mock: Area archived. Pending BLoC.")));
@@ -147,8 +147,8 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("Add New Area", style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const SizedBox(
+          title: Text("Add New Area", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SizedBox(
             width: 400,
             child: Text("BLoC integration pending for adding areas."),
           ),
@@ -157,7 +157,7 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Close"),
+              child: Text("Close"),
             ),
           ],
         );
@@ -171,8 +171,8 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("Edit Area", style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const SizedBox(
+          title: Text("Edit Area", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SizedBox(
             width: 400,
             child: Text("BLoC integration pending for editing areas."),
           ),
@@ -181,7 +181,7 @@ class _AreaManagementPageState extends State<AreaManagementPage> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Close"),
+              child: Text("Close"),
             ),
           ],
         );

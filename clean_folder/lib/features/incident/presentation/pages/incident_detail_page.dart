@@ -95,10 +95,10 @@ class IncidentDetailPage extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: AppColors.surface,
             elevation: 0,
-            iconTheme: const IconThemeData(color: AppColors.textDark),
+            iconTheme: IconThemeData(color: AppColors.textDark),
             title: Text(
               currentIncident.category,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textDark,
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -140,37 +140,37 @@ class IncidentDetailPage extends StatelessWidget {
               children: [
                 // 1. Sync Status Banner
                 _buildSyncBanner(context, currentIncident),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 2. Metadata & Complainant Header Card
                 _buildMetadataCard(context, currentIncident),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 2.1 On Behalf of Someone Else Card (if applicable)
                 if (currentIncident.isReportingOnBehalf) ...[
                   _buildOnBehalfCard(context, currentIncident),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                 ],
 
                 // 3. Location & GPS Coordinates Block
                 _buildLocationCard(context, currentIncident),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 4. Resident Incident Description Block
                 _buildDescriptionCard(context, currentIncident),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 5. Official Dispatcher Remarks & Action Notes
                 _buildDispatcherNotesCard(context, currentIncident),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
 
                 // 6. Evidence Photo Block (with Tap-to-Zoom)
                 _buildEvidenceCard(context, currentIncident),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 // 7. Safety Action Protocol & Reactive Resolution Stage Timeline
                 IncidentStatusTimeline(incident: currentIncident),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
               ],
             ),
           ),
@@ -203,7 +203,7 @@ class IncidentDetailPage extends StatelessWidget {
               size: 24,
             ),
           ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,12 +218,12 @@ class IncidentDetailPage extends StatelessWidget {
                     color: bannerColor,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   isSynced
                       ? "This report has been uploaded to the live cloud database and received by Barangay Moonwalk dispatchers."
                       : "This report is safely preserved in your phone's offline storage. It will automatically upload to dispatch once connected to the cloud server.",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textLight,
                     height: 1.4,
@@ -258,11 +258,11 @@ class IncidentDetailPage extends StatelessWidget {
               ),
               Row(
                 children: [
-                  const Icon(Icons.access_time, size: 13, color: AppColors.textLight),
-                  const SizedBox(width: 4),
+                  Icon(Icons.access_time, size: 13, color: AppColors.textLight),
+                  SizedBox(width: 4),
                   Text(
                     _formatTimestamp(incident.timestamp),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textLight,
                       fontWeight: FontWeight.w600,
@@ -272,16 +272,16 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Text(
             incident.category,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
               color: AppColors.textDark,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
               final maxBadgeWidth = constraints.maxWidth;
@@ -301,9 +301,9 @@ class IncidentDetailPage extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.location_on_rounded,
+                          Icon(Icons.location_on_rounded,
                               size: 13, color: AppColors.primary),
-                          const SizedBox(width: 5),
+                          SizedBox(width: 5),
                           Flexible(
                             child: Text(
                               incident.areaSector!,
@@ -339,9 +339,9 @@ class IncidentDetailPage extends StatelessWidget {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.people_alt_rounded,
+                              Icon(Icons.people_alt_rounded,
                                   size: 13, color: Color(0xFFFF9500)),
-                              const SizedBox(width: 5),
+                              SizedBox(width: 5),
                               Flexible(
                                 child: Text(
                                   "For: $displayVictimName",
@@ -372,9 +372,9 @@ class IncidentDetailPage extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.timer_outlined,
+                          Icon(Icons.timer_outlined,
                               size: 13, color: Color(0xFF00E5FF)),
-                          const SizedBox(width: 5),
+                          SizedBox(width: 5),
                           Flexible(
                             child: Text(
                               "ETA: ${incident.estimatedResponseTime!}",
@@ -416,7 +416,7 @@ class IncidentDetailPage extends StatelessWidget {
                               ? AppColors.pending
                               : AppColors.solved,
                         ),
-                        const SizedBox(width: 5),
+                        SizedBox(width: 5),
                         Flexible(
                           child: Text(
                             incident.isAnonymous
@@ -486,20 +486,20 @@ class IncidentDetailPage extends StatelessWidget {
                   color: const Color(0xFFFF9500).withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.people_alt_rounded,
                   color: Color(0xFFFF9500),
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           "REPORTED ON BEHALF",
                           style: TextStyle(
                             fontSize: 12,
@@ -508,7 +508,7 @@ class IncidentDetailPage extends StatelessWidget {
                             letterSpacing: 0.6,
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         if (isOwnFiling)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -517,7 +517,7 @@ class IncidentDetailPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(color: AppColors.solved.withValues(alpha: 0.3)),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Your Filing",
                               style: TextStyle(
                                 fontSize: 10,
@@ -534,7 +534,7 @@ class IncidentDetailPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.shield_outlined, size: 10, color: AppColors.primary),
@@ -552,12 +552,12 @@ class IncidentDetailPage extends StatelessWidget {
                           ),
                       ],
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       isOwnFiling
                           ? "You filed this emergency report on behalf of your contact"
                           : "Off-Site Citizen Dispatch Filing (Anonymized for Public Safety)",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textLight,
                       ),
@@ -567,7 +567,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -580,7 +580,7 @@ class IncidentDetailPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "On-Scene Affected Person / Relative:",
                   style: TextStyle(
                     fontSize: 11,
@@ -588,7 +588,7 @@ class IncidentDetailPage extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   isOwnFiling
                       ? (incident.victimName?.isNotEmpty == true
@@ -603,14 +603,14 @@ class IncidentDetailPage extends StatelessWidget {
                 ),
                 if (incident.victimPhone != null &&
                     incident.victimPhone!.trim().isNotEmpty) ...[
-                  const Divider(color: AppColors.border, height: 16),
+                  Divider(color: AppColors.border, height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             "Victim Contact Number:",
                             style: TextStyle(
                               fontSize: 11,
@@ -618,7 +618,7 @@ class IncidentDetailPage extends StatelessWidget {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
                             isOwnFiling
                                 ? incident.victimPhone!
@@ -639,7 +639,7 @@ class IncidentDetailPage extends StatelessWidget {
                               await launchUrl(uri);
                             }
                           },
-                          icon: const Icon(Icons.phone_in_talk_rounded, color: AppColors.solved),
+                          icon: Icon(Icons.phone_in_talk_rounded, color: AppColors.solved),
                           style: IconButton.styleFrom(
                             backgroundColor: AppColors.solved.withValues(alpha: 0.15),
                           ),
@@ -653,7 +653,7 @@ class IncidentDetailPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.lock_rounded, size: 12, color: AppColors.textLight),
@@ -673,7 +673,7 @@ class IncidentDetailPage extends StatelessWidget {
                   ),
                 ],
                 if (!isOwnFiling) ...[
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(8),
@@ -682,7 +682,7 @@ class IncidentDetailPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.2)),
                     ),
-                    child: const Row(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Icon(Icons.privacy_tip_outlined, size: 14, color: Color(0xFF00E5FF)),
@@ -732,10 +732,10 @@ class IncidentDetailPage extends StatelessWidget {
                   color: AppColors.danger.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.location_on, color: AppColors.danger, size: 20),
+                child: Icon(Icons.location_on, color: AppColors.danger, size: 20),
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 "Incident Pinned Location",
                 style: TextStyle(
                   fontSize: 14,
@@ -745,17 +745,17 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             locationText,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: AppColors.textDark,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -766,12 +766,12 @@ class IncidentDetailPage extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.gps_fixed, size: 12, color: AppColors.textLight),
-                const SizedBox(width: 6),
+                Icon(Icons.gps_fixed, size: 12, color: AppColors.textLight),
+                SizedBox(width: 6),
                 Flexible(
                   child: Text(
                     "GPS: ${incident.latitude.toStringAsFixed(6)}, ${incident.longitude.toStringAsFixed(6)}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textLight,
@@ -805,11 +805,11 @@ class IncidentDetailPage extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.description_outlined,
+                child: Icon(Icons.description_outlined,
                     color: AppColors.primary, size: 20),
               ),
-              const SizedBox(width: 10),
-              const Text(
+              SizedBox(width: 10),
+              Text(
                 "Incident Narrative",
                 style: TextStyle(
                   fontSize: 14,
@@ -819,12 +819,12 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             incident.description.isNotEmpty
                 ? incident.description
                 : "No description provided.",
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               color: AppColors.textDark,
               height: 1.5,
@@ -862,12 +862,12 @@ class IncidentDetailPage extends StatelessWidget {
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Text(
                 hasNotes
                     ? "Dispatcher Remarks & Action Notes"
                     : "Command Center Status",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textDark,
@@ -875,7 +875,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           if (incident.estimatedResponseTime != null &&
               incident.estimatedResponseTime!.isNotEmpty) ...[
             Container(
@@ -897,15 +897,15 @@ class IncidentDetailPage extends StatelessWidget {
                       color: const Color(0xFF00E5FF).withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.timer_outlined,
+                    child: Icon(Icons.timer_outlined,
                         color: Color(0xFF00E5FF), size: 20),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           "RESPONDERS DISPATCHED • ESTIMATED ARRIVAL",
                           style: TextStyle(
                             color: Color(0xFF00E5FF),
@@ -914,7 +914,7 @@ class IncidentDetailPage extends StatelessWidget {
                             letterSpacing: 0.6,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           incident.estimatedResponseTime!,
                           style: const TextStyle(
@@ -943,7 +943,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
               child: Text(
                 incident.dispatcherNotes!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   color: AppColors.textDark,
                   height: 1.5,
@@ -952,7 +952,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ),
           ] else ...[
-            const Text(
+            Text(
               "Awaiting dispatcher evaluation. Updates, dispatched emergency units, or field verification remarks will be displayed here in real time.",
               style: TextStyle(
                 fontSize: 12,
@@ -988,11 +988,11 @@ class IncidentDetailPage extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.attachment_rounded,
+                  child: Icon(Icons.attachment_rounded,
                       color: AppColors.primary, size: 20),
                 ),
-                const SizedBox(width: 10),
-                const Text(
+                SizedBox(width: 10),
+                Text(
                   "Evidence Attachment",
                   style: TextStyle(
                     fontSize: 14,
@@ -1002,7 +1002,7 @@ class IncidentDetailPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             Container(
               width: double.infinity,
               height: 100,
@@ -1011,7 +1011,7 @@ class IncidentDetailPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.perm_media_outlined,
@@ -1049,11 +1049,11 @@ class IncidentDetailPage extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(Icons.perm_media_rounded,
+                    child: Icon(Icons.perm_media_rounded,
                         color: AppColors.primary, size: 20),
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
+                  SizedBox(width: 10),
+                  Text(
                     "Verified Evidence",
                     style: TextStyle(
                       fontSize: 14,
@@ -1064,7 +1064,7 @@ class IncidentDetailPage extends StatelessWidget {
                 ],
               ),
               if (hasPhoto)
-                const Text(
+                Text(
                   "Tap photo to zoom",
                   style: TextStyle(
                     fontSize: 11,
@@ -1075,7 +1075,7 @@ class IncidentDetailPage extends StatelessWidget {
             ],
           ),
           if (hasPhoto) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             GestureDetector(
               onTap: () => _openPhotoZoomDialog(context, photoUrl),
               child: Stack(
@@ -1093,7 +1093,7 @@ class IncidentDetailPage extends StatelessWidget {
                         color: Colors.black.withValues(alpha: 0.65),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.fullscreen,
                         color: Colors.white,
                         size: 20,
@@ -1105,7 +1105,7 @@ class IncidentDetailPage extends StatelessWidget {
             ),
           ],
           if (hasVideo) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -1125,11 +1125,11 @@ class IncidentDetailPage extends StatelessWidget {
                           color: AppColors.progress.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.videocam_rounded,
+                        child: Icon(Icons.videocam_rounded,
                             color: AppColors.progress, size: 20),
                       ),
-                      const SizedBox(width: 10),
-                      const Expanded(
+                      SizedBox(width: 10),
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1155,7 +1155,7 @@ class IncidentDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     height: 42,
@@ -1174,8 +1174,8 @@ class IncidentDetailPage extends StatelessWidget {
                           title: "${initialIncident.category} Evidence",
                         );
                       },
-                      icon: const Icon(Icons.play_circle_fill_rounded, size: 20),
-                      label: const Text(
+                      icon: Icon(Icons.play_circle_fill_rounded, size: 20),
+                      label: Text(
                         "Watch Evidence Video Stream",
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
                       ),
@@ -1218,7 +1218,7 @@ class IncidentDetailPage extends StatelessWidget {
       color: AppColors.surfaceLight,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Icon(Icons.broken_image_outlined, size: 36, color: AppColors.textLight),
           SizedBox(height: 6),
           Text(
@@ -1251,7 +1251,7 @@ class IncidentDetailPage extends StatelessWidget {
               top: 12,
               right: 12,
               child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 28),
+                icon: Icon(Icons.close, color: Colors.white, size: 28),
                 onPressed: () => Navigator.pop(ctx),
               ),
             ),

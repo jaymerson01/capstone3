@@ -48,13 +48,13 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.history_edu_rounded,
                       color: Color(0xFF00E5FF),
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -101,12 +101,12 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                       backgroundColor:
                           const Color(0xFF00E5FF).withValues(alpha: 0.08),
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.download_rounded,
                       size: 17,
                       color: Color(0xFF00E5FF),
                     ),
-                    label: const Text(
+                    label: Text(
                       "Export Audit CSV",
                       style: TextStyle(
                         color: Color(0xFF00E5FF),
@@ -119,7 +119,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // ── Search & Filter Row ────────────────────────────────────
           Row(
@@ -142,7 +142,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                         color: Color(0xFF5A6E8C),
                         fontSize: 12.5,
                       ),
-                      prefixIcon: const Icon(
+                      prefixIcon: Icon(
                         Icons.search,
                         color: Color(0xFF7B8DB0),
                         size: 20,
@@ -162,7 +162,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
 
               // Action Filter Dropdown
               Container(
@@ -180,7 +180,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                       color: Color(0xFFE8F0FE),
                       fontSize: 13,
                     ),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
                       color: Color(0xFF00E5FF),
                     ),
@@ -211,7 +211,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // ── Streamed Audit Log Table ───────────────────────────────
           Expanded(
@@ -228,7 +228,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                 }
 
                 if (!snapshot.hasData) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
                   );
                 }
@@ -261,8 +261,8 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                 color: const Color(0xFF2A3F60),
                                 size: 52,
                               ),
-                              const SizedBox(height: 12),
-                              const Text(
+                              SizedBox(height: 12),
+                              Text(
                                 "No audit log entries found for this filter.",
                                 style: TextStyle(
                                   color: Color(0xFF7B8DB0),

@@ -69,13 +69,13 @@ class _CustomPieChartState extends State<CustomPieChart> {
                         color: AppColors.primary.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.pie_chart_outline_rounded,
                       color: AppColors.primary,
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -90,7 +90,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                           letterSpacing: -0.2,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         _isCategoryView
                             ? "Emergency taxonomy breakdown"
@@ -127,7 +127,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
 
           // Donut & Legend Content
           Expanded(
@@ -156,7 +156,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                                     color: Color(0xFFE8F0FE),
                                   ),
                                 ),
-                                const Text(
+                                Text(
                                   "INCIDENTS",
                                   style: TextStyle(
                                     fontSize: 9,
@@ -170,7 +170,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: 16),
                       // Legend List
                       Expanded(
                         flex: 6,
@@ -200,7 +200,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                                         ],
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
                                         d.label,
@@ -274,8 +274,8 @@ class _CustomPieChartState extends State<CustomPieChart> {
             color: const Color(0xFF5A6E8C).withValues(alpha: 0.5),
             size: 36,
           ),
-          const SizedBox(height: 10),
-          const Text(
+          SizedBox(height: 10),
+          Text(
             "No recorded incident logs yet",
             style: TextStyle(
               color: Color(0xFF7B8DB0),

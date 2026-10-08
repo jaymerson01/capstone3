@@ -351,7 +351,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 ),
               ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.health_and_safety_rounded,
               color: Colors.white,
               size: 28,
@@ -406,18 +406,18 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 width: 1.5,
               ),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.shield_rounded,
               color: Colors.white,
               size: 20,
             ),
           ),
-          const SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Civil Defense Assistant",
                   style: TextStyle(
                     color: Colors.white,
@@ -431,13 +431,13 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                     Container(
                       width: 6,
                       height: 6,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: Color(0xFF00E676),
                       ),
                     ),
-                    const SizedBox(width: 5),
-                    const Text(
+                    SizedBox(width: 5),
+                    Text(
                       "Barangay Moonwalk • Active",
                       style: TextStyle(
                         color: Colors.white70,
@@ -459,14 +459,14 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.15),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.refresh_rounded,
                 color: Colors.white,
                 size: 16,
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           GestureDetector(
             onTap: () => setState(() => _isOpen = false),
             child: Container(
@@ -476,7 +476,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 shape: BoxShape.circle,
                 color: Colors.white.withValues(alpha: 0.15),
               ),
-              child: const Icon(Icons.close, color: Colors.white, size: 16),
+              child: Icon(Icons.close, color: Colors.white, size: 16),
             ),
           ),
         ],
@@ -492,7 +492,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Quick Civil Defense Guides",
             style: TextStyle(
               color: AppColors.textLight,
@@ -501,13 +501,13 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               letterSpacing: 0.4,
             ),
           ),
-          const SizedBox(height: 7),
+          SizedBox(height: 7),
           SizedBox(
             height: 32,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _suggestedQuestions.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 7),
+              separatorBuilder: (_, _) => SizedBox(width: 7),
               itemBuilder: (context, i) {
                 return GestureDetector(
                   onTap: () =>
@@ -526,8 +526,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                     ),
                     child: Text(
                       _suggestedQuestions[i],
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(color: AppColors.primary,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
                       ),
@@ -612,7 +611,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                     size: 12,
                     color: isAi ? AppColors.primary : AppColors.textLight,
                   ),
-                  const SizedBox(width: 4),
+                  SizedBox(width: 4),
                   Text(
                     isAi ? "RESQ GEMINI AI" : "CIVIL DEFENSE OFFICER",
                     style: TextStyle(
@@ -624,7 +623,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
             ],
             Text(
               text,
@@ -635,10 +634,10 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               ),
             ),
             if (!isUser && hotlines.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              const Divider(color: AppColors.border, height: 1),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 10),
+              Divider(color: AppColors.border, height: 1),
+              SizedBox(height: 8),
+              Text(
                 "Immediate Hotline Dialers:",
                 style: TextStyle(
                   color: AppColors.textLight,
@@ -646,7 +645,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
@@ -685,7 +684,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.call, size: 11, color: btnColor),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               title,
               style: TextStyle(
@@ -717,7 +716,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.border),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.contact_phone_outlined,
@@ -752,9 +751,9 @@ class _FloatingChatBotState extends State<FloatingChatBot>
           mainAxisSize: MainAxisSize.min,
           children: [
             _TypingDot(delay: 0),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             _TypingDot(delay: 200),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             _TypingDot(delay: 400),
           ],
         ),
@@ -767,7 +766,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: const Border(top: BorderSide(color: AppColors.border)),
+        border: Border(top: BorderSide(color: AppColors.border)),
       ),
       child: Row(
         children: [
@@ -780,8 +779,8 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               ),
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(fontSize: 13, color: AppColors.textDark),
-                decoration: const InputDecoration(
+                style: TextStyle(fontSize: 13, color: AppColors.textDark),
+                decoration: InputDecoration(
                   hintText: 'Ask safety or first-aid guide...',
                   hintStyle: TextStyle(
                     color: AppColors.textLight,
@@ -797,7 +796,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           GestureDetector(
             onTap: _sendMessage,
             child: Container(
@@ -814,7 +813,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.send_rounded,
                 color: Colors.white,
                 size: 18,

@@ -157,10 +157,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogCtx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D1627),
+        backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF1E2D4A)),
+          side: BorderSide(color: AppColors.border),
         ),
         title: Row(
           children: [
@@ -170,30 +170,30 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 color: AppColors.warning.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.warning_amber_rounded,
+              child: Icon(Icons.warning_amber_rounded,
                   color: AppColors.warning, size: 22),
             ),
-            const SizedBox(width: 12),
-            const Expanded(
+            SizedBox(width: 12),
+            Expanded(
               child: Text(
                 "Discard Report?",
                 style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textDark,
                     fontSize: 17,
                     fontWeight: FontWeight.bold),
               ),
             ),
           ],
         ),
-        content: const Text(
+        content: Text(
           "You have unsaved report details. Are you sure you want to leave? Your emergency report draft will be discarded.",
           style: TextStyle(
-              color: Color(0xFF98A6BE), fontSize: 13, height: 1.4),
+              color: AppColors.textLight, fontSize: 13, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: const Text("Keep Editing",
+            child: Text("Keep Editing",
                 style: TextStyle(
                     color: AppColors.primary, fontWeight: FontWeight.bold)),
           ),
@@ -205,7 +205,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: const Text("Discard",
+            child: Text("Discard",
                 style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
@@ -475,9 +475,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: AppColors.danger),
+          side: BorderSide(color: AppColors.danger),
         ),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: AppColors.danger, size: 24),
             SizedBox(width: 8),
@@ -493,7 +493,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ),
         content: Text(
           "Selected video is ${sizeMB.toStringAsFixed(1)} MB, which exceeds the emergency limit of 20 MB.\n\nTo prevent network delays during critical emergencies, please trim or record a shorter video clip (under 30 seconds).",
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textLight,
             fontSize: 13,
             height: 1.4,
@@ -506,7 +506,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("Understood", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text("Understood", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -752,7 +752,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           backgroundColor: const Color(0xFF0D1627),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
+            side: BorderSide(color: Color(0xFF1E2D4A)),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
@@ -970,7 +970,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -979,13 +979,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           isMyOwnReport
                               ? "You Already Reported This!"
                               : "Similar Incident Nearby!",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textDark,
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           isMyOwnReport
                               ? "Your ticket was filed ${minutesAgo == 0 ? 'just now' : '$minutesAgo mins ago'}"
@@ -1001,7 +1001,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               Container(
                 width: double.infinity,
@@ -1017,12 +1017,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.near_me_rounded,
+                        Icon(Icons.near_me_rounded,
                             color: AppColors.primary, size: 16),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                           "${distanceInMeters.round()} meters from your location",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primary,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -1037,7 +1037,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                               color: AppColors.primary.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text(
+                            child: Text(
                               "Your Report",
                               style: TextStyle(
                                 color: AppColors.primary,
@@ -1049,19 +1049,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         ],
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       duplicate.category,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textDark,
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       duplicate.description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textLight,
                         fontSize: 12,
                         height: 1.4,
@@ -1069,15 +1069,15 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.people_alt_rounded,
+                        Icon(Icons.people_alt_rounded,
                             color: AppColors.textLight, size: 14),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                           "${duplicate.upvoteCount + 1} citizen${(duplicate.upvoteCount + 1) == 1 ? '' : 's'} affected",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textLight,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -1088,19 +1088,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               Text(
                 isMyOwnReport
                     ? "Your earlier report is active (Status: ${duplicate.status}). Emergency dispatch and Tanods have already been alerted."
                     : "Corroborating ('Me Too') the existing report prevents overloading emergency dispatchers and elevates emergency urgency.",
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textLight,
                   fontSize: 12,
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
 
               // Button 1: Primary Action (View My Report vs Me Too)
               GestureDetector(
@@ -1150,12 +1150,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         color: Colors.white,
                         size: 18,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         isMyOwnReport
                             ? "View My Active Report & Notes"
                             : "Me Too / Corroborate Incident",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
                           fontSize: 13,
@@ -1165,7 +1165,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
 
               // Button 2: "Submit as Separate Incident / Anyway"
               Center(
@@ -1184,7 +1184,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     isMyOwnReport
                         ? "Submit New Separate Report Anyway"
                         : "Submit as Separate Incident",
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textLight,
                       fontWeight: FontWeight.w600,
                       fontSize: 12.5,
@@ -1231,7 +1231,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             'assets/images/logo.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.security, size: 18, color: AppColors.primary),
+                Icon(Icons.security, size: 18, color: AppColors.primary),
           ),
         ),
       ),
@@ -1266,26 +1266,26 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     ),
                   ],
                 ),
-                child: const Icon(Icons.phone_in_talk_rounded,
+                child: Icon(Icons.phone_in_talk_rounded,
                     color: AppColors.danger, size: 30),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 'Call $agencyName?',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 'Dial the official hotline for $agencyName ($phoneNumber) now?',
-                style: const TextStyle(
+                style: TextStyle(
                     color: AppColors.textLight, fontSize: 13, height: 1.5),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
               Row(
                 children: [
                   Expanded(
@@ -1298,7 +1298,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.border),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text('Cancel',
                               style: TextStyle(
                                   color: AppColors.textLight,
@@ -1307,7 +1307,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
@@ -1343,7 +1343,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: AppColors.dangerGlowShadow,
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             'Call Now',
                             style: TextStyle(
@@ -1403,8 +1403,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const CircularProgressIndicator(color: AppColors.primary),
-                    const SizedBox(height: 16),
-                    const Text("Gemini AI is analyzing incident threat levels...",
+                    SizedBox(height: 16),
+                    Text("Gemini AI is analyzing incident threat levels...",
                         style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -1429,16 +1429,16 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             barrierDismissible: false,
             builder: (context) => Dialog(
               backgroundColor: AppColors.surface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: const BorderSide(color: AppColors.primary)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: AppColors.primary)),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("AI Urgency Assessment", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
-                    const SizedBox(height: 12),
-                    Text("${state.triageResult.urgency} - ${state.triageResult.justification}", style: const TextStyle(fontSize: 14, color: AppColors.textLight)),
-                    const SizedBox(height: 20),
+                    Text("AI Urgency Assessment", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    SizedBox(height: 12),
+                    Text("${state.triageResult.urgency} - ${state.triageResult.justification}", style: TextStyle(fontSize: 14, color: AppColors.textLight)),
+                    SizedBox(height: 20),
                     Custom3dButton(
                       text: "Proceed to Submit",
                       onPressed: () {
@@ -1467,28 +1467,29 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             backgroundColor: AppColors.background,
             appBar: AppBar(
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+                icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
                 tooltip: "Back",
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
-              flexibleSpace: Container(
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  boxShadow: AppColors.primaryGlowShadow,
+              backgroundColor: AppColors.surface,
+              elevation: 0,
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(1),
+                child: Container(
+                  color: AppColors.border,
+                  height: 1,
                 ),
               ),
-              backgroundColor: Colors.transparent,
-              iconTheme: const IconThemeData(color: Colors.white),
+              iconTheme: IconThemeData(color: AppColors.textDark),
               titleSpacing: 0,
-              elevation: 0,
               title: Row(
                 children: [
                   _buildAppLogo(),
-                  const SizedBox(width: 12),
-                  const Text(
+                  SizedBox(width: 12),
+                  Text(
                     "Report Incident",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textDark,
                       fontSize: 17,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.2,
@@ -1504,23 +1505,24 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     height: 36,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: AppColors.surfaceLight,
+                      border: Border.all(color: AppColors.border),
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.help_outline,
-                          color: Colors.white, size: 20),
+                      icon: Icon(Icons.help_outline,
+                          color: AppColors.textLight, size: 20),
                       tooltip: "Filing Guidelines",
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: const Text(
+                            content: Text(
                                 "Ensure accurate data for priority responder handling."),
                             backgroundColor: AppColors.surface,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: AppColors.border),
                             ),
                           ),
                         );
@@ -1537,7 +1539,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildEmergencyHotlinesSection(),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   _buildPrimaryFormContainer(state),
                 ],
               ),
@@ -1569,14 +1571,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     ),
                   ],
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.flash_on,
                   color: AppColors.danger,
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 10),
-              const Expanded(
+              SizedBox(width: 10),
+              Expanded(
                 child: Text(
                   "Immediate Threat? Emergency Hotlines",
                   style: TextStyle(
@@ -1588,7 +1590,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
           Row(
             children: [
               Expanded(
@@ -1602,7 +1604,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: AppColors.dangerGlowShadow,
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -1622,7 +1624,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Expanded(
                 child: GestureDetector(
                   onTap: () => _showEmergencyCallConfirmation(
@@ -1642,7 +1644,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         ),
                       ],
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -1677,7 +1679,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Incident Details",
             style: TextStyle(
               fontSize: 18,
@@ -1685,14 +1687,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               color: AppColors.textDark,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
 
           // ── Reporting Mode Selector: Myself (At Scene) vs. On Behalf ───────
-          const Text(
+          Text(
             "Reporting Mode",
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
@@ -1732,7 +1734,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             size: 16,
                             color: !_isReportingOnBehalf ? Colors.white : AppColors.textLight,
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Flexible(
                             child: Text(
                               "Myself",
@@ -1788,7 +1790,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             size: 16,
                             color: _isReportingOnBehalf ? Colors.black : AppColors.textLight,
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Flexible(
                             child: Text(
                               "For Someone",
@@ -1809,7 +1811,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ],
             ),
           ),
-          const SizedBox(height: 14),
+          SizedBox(height: 14),
 
           // ── Victim Dossier Form (Active when Reporting on Behalf) ───────────
           if (_isReportingOnBehalf) ...[
@@ -1832,10 +1834,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           color: const Color(0xFFFF9500).withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.emergency_share_rounded, size: 16, color: Color(0xFFFF9500)),
+                        child: Icon(Icons.emergency_share_rounded, size: 16, color: Color(0xFFFF9500)),
                       ),
-                      const SizedBox(width: 8),
-                      const Expanded(
+                      SizedBox(width: 8),
+                      Expanded(
                         child: Text(
                           "Reporting for Someone Else (Off-Site)",
                           style: TextStyle(
@@ -1847,19 +1849,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  const Text(
+                  SizedBox(height: 6),
+                  Text(
                     "Enter the affected person's details and adjust the map pin below to their exact location in Barangay Moonwalk so responders can locate and assist them.",
                     style: TextStyle(fontSize: 11.5, color: AppColors.textLight, height: 1.4),
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Custom3dTextField(
                     controller: _victimNameController,
                     labelText: "Affected Person's Full Name *",
                     hintText: "E.g. Maria Santos / Lola Elena",
                     prefixIcon: Icons.person_rounded,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Custom3dTextField(
                     controller: _victimPhoneController,
                     labelText: "Affected Person's Contact Number (Optional)",
@@ -1873,11 +1875,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ],
 
           // Complainant Selection
-          const Text(
+          Text(
             "Complainant Identity",
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, authState) {
               final userName = authState is Authenticated
@@ -1890,34 +1892,34 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 initialValue: _selectedComplainant,
                 isExpanded: true,
                 dropdownColor: AppColors.surface,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: AppColors.textDark,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
-                icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
+                icon: Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AppColors.accentBg,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.border)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.border)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.primary, width: 1.5)),
                 ),
                 items: [
                   DropdownMenuItem(
                     value: "self",
                     child: Text(
                       "Self: $userName",
-                      style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const DropdownMenuItem(
+                  DropdownMenuItem(
                     value: "anonymous",
                     child: Text(
                       "Anonymous (Identity Shielded)",
-                      style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -1927,7 +1929,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             },
           ),
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // ── Real GPS / Interactive Location Section ────────────────────────
           Row(
@@ -1936,51 +1938,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               Expanded(
                 child: Text(
                   _isReportingOnBehalf ? "Victim / Incident Location" : "Incident Location",
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              if (_latitude != null) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _isReportingOnBehalf
-                        ? const Color(0xFFFF9500).withValues(alpha: 0.15)
-                        : AppColors.solved.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: _isReportingOnBehalf
-                          ? const Color(0xFFFF9500).withValues(alpha: 0.3)
-                          : AppColors.solved.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _isReportingOnBehalf ? Icons.place_rounded : Icons.gps_fixed_rounded,
-                        size: 10,
-                        color: _isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.solved,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _isReportingOnBehalf ? "PIN ADJUSTED" : "GPS PINNED",
-                        style: TextStyle(
-                          color: _isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.solved,
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Pinned Location Summary Card
           Container(
@@ -2021,7 +1986,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -2032,7 +1997,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             child: Text(
                               _resolvedAddress ?? "Location not pinned yet",
                               style: TextStyle(
-                                color: _resolvedAddress != null ? Colors.white : AppColors.textLight,
+                                color: _resolvedAddress != null ? AppColors.textDark : AppColors.textLight,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w800,
                                 height: 1.3,
@@ -2050,12 +2015,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         _latitude != null
                             ? "Coordinates: ${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}${_resolvedSector != null ? ' • $_resolvedSector' : ''}"
                             : "Drag pin or tap map below to pin exact house / compound",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textLight,
                           fontSize: 11,
                         ),
@@ -2066,7 +2031,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ],
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           // ── Interactive Draggable Pin Google Map ───────────────────────────
           ClipRRect(
@@ -2170,7 +2135,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             size: 14,
                             color: _isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.primary,
                           ),
-                          const SizedBox(width: 6),
+                          SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               _isDraggingPin
@@ -2189,7 +2154,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             ),
                           ),
                           if (_isReverseGeocoding && !_isDraggingPin)
-                            const SizedBox(
+                            SizedBox(
                               width: 10,
                               height: 10,
                               child: CircularProgressIndicator(strokeWidth: 1.5, color: Colors.white),
@@ -2219,14 +2184,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           );
                         }
                       },
-                      child: const Icon(Icons.center_focus_strong_rounded, size: 18),
+                      child: Icon(Icons.center_focus_strong_rounded, size: 18),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // Action Button: Pin / Re-Pin with Phone GPS
           SizedBox(
@@ -2239,14 +2204,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                   side: _latitude != null
-                      ? const BorderSide(color: AppColors.primary, width: 1.2)
+                      ? BorderSide(color: AppColors.primary, width: 1.2)
                       : BorderSide.none,
                 ),
                 elevation: _latitude != null ? 0 : 2,
               ),
               onPressed: _isLocating ? null : _getCurrentLocation,
               icon: _isLocating
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
@@ -2262,11 +2227,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 _isLocating
                     ? "Acquiring GPS & Address..."
                     : (_latitude != null ? "Use My Phone GPS Fix" : "Pin Exact Location with GPS"),
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // Landmark Note Input
           Custom3dTextField(
@@ -2275,32 +2240,32 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             hintText: "E.g. Near gate 2, corner store, 3rd floor unit",
             prefixIcon: Icons.add_location_alt_outlined,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Incident Category Selection
-          const Text(
+          Text(
             "Incident Category",
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           DropdownButtonFormField<String>(
             initialValue: _selectedIncidentCategory,
             isExpanded: true,
             dropdownColor: AppColors.surface,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: AppColors.textDark,
               fontSize: 13,
               fontWeight: FontWeight.w600,
             ),
-            icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
-            hint: const Text("Select Category", style: TextStyle(color: AppColors.textLight, fontSize: 13)),
+            icon: Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
+            hint: Text("Select Category", style: TextStyle(color: AppColors.textLight, fontSize: 13)),
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.accentBg,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.border)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.border)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
+              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.primary, width: 1.5)),
             ),
             items: _incidentCategories.map((cat) {
               return DropdownMenuItem(
@@ -2308,11 +2273,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 child: Row(
                   children: [
                     Icon(_getCategoryIcon(cat), size: 18, color: AppColors.primary),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         cat,
-                        style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                        style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -2328,7 +2293,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
 
           if (_selectedIncidentCategory == 'Other Emergency') ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Custom3dTextField(
               controller: _otherCategoryController,
               labelText: "Specify Emergency Type",
@@ -2338,7 +2303,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ),
           ],
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Description 3D text field
           Custom3dTextField(
@@ -2349,7 +2314,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             maxLines: 4,
           ),
 
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // Evidence Attachment Button
           Row(
@@ -2358,16 +2323,16 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
+                    side: BorderSide(color: AppColors.primary),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: _isUploadingImage ? null : _chooseEvidenceFile,
-                  icon: const Icon(Icons.photo_library_outlined),
-                  label: Text(_getFileDisplayText(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  icon: Icon(Icons.photo_library_outlined),
+                  label: Text(_getFileDisplayText(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.accentBg,
@@ -2375,7 +2340,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   border: Border.all(color: AppColors.border),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.camera_alt_outlined, color: AppColors.primary),
+                  icon: Icon(Icons.camera_alt_outlined, color: AppColors.primary),
                   onPressed: _isUploadingImage ? null : _takeEvidencePhoto,
                 ),
               ),
@@ -2383,7 +2348,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
 
           if (_selectedImageFile != null) ...[
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Stack(
               children: [
                 ClipRRect(
@@ -2411,7 +2376,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         color: Colors.black.withValues(alpha: 0.65),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close, color: Colors.white, size: 18),
+                      child: Icon(Icons.close, color: Colors.white, size: 18),
                     ),
                   ),
                 ),
@@ -2422,7 +2387,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         color: Colors.black.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: CircularProgressIndicator(color: AppColors.primary),
                       ),
                     ),
@@ -2431,7 +2396,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ),
           ],
 
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Video Evidence Section (Low Latency / Max 20MB / 30s)
           Row(
@@ -2440,21 +2405,21 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.progress,
-                    side: const BorderSide(color: AppColors.progress),
+                    side: BorderSide(color: AppColors.progress),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: _isUploadingVideo ? null : _chooseVideoFile,
-                  icon: const Icon(Icons.video_library_outlined),
+                  icon: Icon(Icons.video_library_outlined),
                   label: Text(
                     _isUploadingVideo
                         ? "Uploading video..."
                         : (_selectedVideoFile == null ? "Add Video (≤ 20MB)" : "Change Video"),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.accentBg,
@@ -2462,7 +2427,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   border: Border.all(color: AppColors.border),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.videocam_outlined, color: AppColors.progress),
+                  icon: Icon(Icons.videocam_outlined, color: AppColors.progress),
                   onPressed: _isUploadingVideo ? null : _recordEvidenceVideo,
                 ),
               ),
@@ -2470,7 +2435,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
 
           if (_selectedVideoFile != null) ...[
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -2486,16 +2451,16 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       color: AppColors.progress.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.videocam_rounded, color: AppColors.progress, size: 20),
+                    child: Icon(Icons.videocam_rounded, color: AppColors.progress, size: 20),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           _selectedVideoFile!.path.split('/').last.split('\\').last,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textDark,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -2503,10 +2468,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           "${_selectedVideoSizeMB.toStringAsFixed(1)} MB • Emergency low-latency verified",
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.progress,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -2516,14 +2481,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     ),
                   ),
                   if (_isUploadingVideo)
-                    const SizedBox(
+                    SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.progress),
                     )
                   else
                     IconButton(
-                      icon: const Icon(Icons.close, color: AppColors.textLight, size: 18),
+                      icon: Icon(Icons.close, color: AppColors.textLight, size: 18),
                       onPressed: () {
                         setState(() {
                           _selectedVideoFile = null;
@@ -2538,11 +2503,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ],
 
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // 3D Submit Button
           if (state is IncidentSubmitLoading || state is IncidentTriageLoading)
-            const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            Center(child: CircularProgressIndicator(color: AppColors.primary))
           else
             Custom3dButton(
               icon: Icons.send_rounded,
@@ -2779,12 +2744,12 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                       size: 26,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           "Report Dispatched",
                           style: TextStyle(
                             color: AppColors.primary,
@@ -2792,10 +2757,10 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           widget.category,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textDark,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -2807,7 +2772,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // Dynamic Assessed Priority Card (Replacing static "Pending Evaluation")
               Container(
@@ -2829,7 +2794,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                       ),
                       child: Icon(urgencyIcon, color: urgencyColor, size: 20),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2845,7 +2810,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              const SizedBox(width: 6),
+                              SizedBox(width: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 1.5),
@@ -2853,7 +2818,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                                   color: urgencyColor,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   "ASSESSED",
                                   style: TextStyle(
                                     color: Colors.white,
@@ -2864,7 +2829,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Text(
                             urgencySubtitle,
                             style: TextStyle(
@@ -2879,7 +2844,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Gemini AI Precautionary Advisory Card
               Container(
@@ -2898,13 +2863,13 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                   children: [
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.auto_awesome,
                           color: Color(0xFF00E5FF),
                           size: 18,
                         ),
-                        const SizedBox(width: 8),
-                        const Text(
+                        SizedBox(width: 8),
+                        Text(
                           "AI Safety Advice",
                           style: TextStyle(
                             color: Color(0xFF00E5FF),
@@ -2920,7 +2885,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                             color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Gemini 3.5",
                             style: TextStyle(
                               color: Color(0xFF00E5FF),
@@ -2931,12 +2896,12 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
 
                     if (_isLoadingAi) ...[
                       Row(
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 14,
                             height: 14,
                             child: CircularProgressIndicator(
@@ -2944,7 +2909,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                               color: Color(0xFF00E5FF),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               "Generating tailored safety advice for your situation...",
@@ -2973,11 +2938,11 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                                     color: Color(0xFF00E5FF),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     measure,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: AppColors.textDark,
                                       fontSize: 12,
                                       height: 1.35,
@@ -3006,11 +2971,11 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                                     color: Color(0xFF00E5FF),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     guideline,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: AppColors.textDark,
                                       fontSize: 12,
                                       height: 1.35,
@@ -3028,7 +2993,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Action Button
               Row(
@@ -3043,7 +3008,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: AppColors.primaryGlowShadow,
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             "I Understand & Done",
                             style: TextStyle(

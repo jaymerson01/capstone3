@@ -64,7 +64,7 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Device Services Sandbox"),
+        title: Text("Device Services Sandbox"),
         backgroundColor: const Color(0xFF49769F),
         foregroundColor: Colors.white,
       ),
@@ -76,26 +76,26 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.developer_mode,
                   size: 64,
                   color: Color(0xFF49769F),
                 ),
-                const SizedBox(height: 24),
-                const Text(
+                SizedBox(height: 24),
+                Text(
                   "Visual Sandbox Page",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   "Use this page to verify Location (GPS) and Camera services.",
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.grey),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
                 
                 // Location Section
                 Card(
@@ -109,14 +109,14 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
                       children: [
                         ElevatedButton.icon(
                           onPressed: _isLoadingLocation ? null : _testGps,
-                          icon: const Icon(Icons.gps_fixed),
-                          label: const Text("Test GPS"),
+                          icon: Icon(Icons.gps_fixed),
+                          label: Text("Test GPS"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF49769F),
                             foregroundColor: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Text(
                           _locationResult,
                           textAlign: TextAlign.center,
@@ -130,7 +130,7 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
                   ),
                 ),
                 
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 
                 // Camera Section
                 Card(
@@ -147,8 +147,8 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
                           children: [
                             ElevatedButton.icon(
                               onPressed: () => _testCamera(true),
-                              icon: const Icon(Icons.camera_alt),
-                              label: const Text("Camera"),
+                              icon: Icon(Icons.camera_alt),
+                              label: Text("Camera"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF49769F),
                                 foregroundColor: Colors.white,
@@ -156,8 +156,8 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
                             ),
                             ElevatedButton.icon(
                               onPressed: () => _testCamera(false),
-                              icon: const Icon(Icons.photo_library),
-                              label: const Text("Gallery"),
+                              icon: Icon(Icons.photo_library),
+                              label: Text("Gallery"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF49769F),
                                 foregroundColor: Colors.white,
@@ -165,13 +165,13 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         if (_imageFile != null) ...[
-                          const Text(
+                          Text(
                             "Selected Image Preview:",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.file(
@@ -182,7 +182,7 @@ class _TestSandboxPageState extends State<TestSandboxPage> {
                             ),
                           ),
                         ] else
-                          const Text("No image selected"),
+                          Text("No image selected"),
                       ],
                     ),
                   ),

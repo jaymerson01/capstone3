@@ -749,6 +749,61 @@ The platform targets two distinct user personas with separate deployment artifac
 
 ---
 
+### Phase 11: Dark & Light Mode Theme Adaptability, UI De-Cluttering, & Visual Polish
+**Goal:** Deliver a seamless dual-theme experience (Dark & Light Mode), eliminate visual clutter ("badge fatigue"), personalize the citizen interface, enhance report directory search capabilities, and ensure premium typography and layout standards across the app.
+
+#### 11.1 Reactive Dual-Theme Engine & Visual Contrast Audit
+- [x] **Theme-Adaptive Surface System (`AppColors` & `Custom3dCard`):**
+  - Integrated reactive `ValueListenableBuilder<bool>` listening to `AppColors.isDarkModeNotifier`.
+  - Replaced harsh neon box shadows with subtle, elevation-based ambient lighting (8px blur in Light Mode, 12px blur in Dark Mode).
+- [x] **Navigation Drawer (`SideMenu`):**
+  - Resolved dark mode lock: implemented theme-adaptive background gradients, borders, divider tones, icon contrasts, and typography.
+- [x] **Report Incident Page Form & Modal Contrast:**
+  - Standardized AppBar with adaptive border and `AppColors.surface`.
+  - Fixed white-on-white text readability in Complainant Identity and Incident Category dropdowns.
+  - Corrected GPS address text contrast and adapted the discard confirmation dialog for both themes.
+- [x] **Barangay Emergency Hotlines Page:**
+  - Eliminated harsh black top banner overlay in light mode by implementing an adaptive crimson gradient header.
+- [x] **Dashboard Header & Hero Card State Sync:**
+  - Removed stale `const` blocks from `_PremiumAppBar` and `_WelcomeHeroCard`.
+  - Connected components directly to `AppColors.isDarkModeNotifier` to prevent theme toggling lockups.
+- [x] **Resident Notification Sheet (`ResidentNotificationsSheet`):**
+  - Adapted notification modal background, container borders, and text contrasts for seamless switching.
+
+#### 11.2 Resident Personalization & Real Identity Integration
+- [x] **Dynamic First-Name Extraction:**
+  - Extracted resident's authentic first name reactively from `AuthBloc` (`fullName` or `displayName`, e.g. "Jaymerson"), with fallback to email username.
+  - Dynamically reflected the personalized greeting across `_PremiumAppBar` ("Hello, Jaymerson") and `_WelcomeHeroCard` ("Welcome back, Jaymerson").
+
+#### 11.3 My Reports Directory & Real-Time Search Filtering
+- [x] **Scroll View Boundary & Overlap Fix:**
+  - Removed `clipBehavior: Clip.none` from the reports directory list view to prevent list items from overflowing into the upper headers during bouncing scrolls.
+  - Balanced vertical list paddings and card margin heights.
+- [x] **Integrated Live Search Engine:**
+  - Implemented an animated, toggleable search bar in `MyReportsPage`.
+  - Connected real-time search queries to filter by incident category, description text, resolved address, area sector, and report ID concurrently with status tab filters (`All`, `Pending`, `In Progress`, `Resolved`).
+
+#### 11.4 Comprehensive Badge De-Cluttering & Information Hierarchy
+- [x] **My Reports Incident Cards (`_AnimatedReportCard`):**
+  - Merged area sector directly into the location row (`📍 Address • Sector`).
+  - Converted bulky `Live at Dispatch` / `Stored Locally` pill badges into clean, subtle inline timestamp metadata (`🕒 Date/Time • ☁️ Live/Local`).
+  - Retained primary status badge (`PENDING`, `IN PROGRESS`, `RESOLVED`) on the upper right as the sole prominent card tag.
+  - Sifted contextual chips (`For: Relative`, `ETA: X mins`) to only appear when actively applicable.
+- [x] **Dashboard Hero Card & Section Headers:**
+  - Replaced gamer/server-like `[🟢 Barangay Moonwalk — Online]` badge in the Hero Card with clean civic metadata: `📍 Barangay Moonwalk • Resident`.
+  - Removed redundant `[My Filings]` badge beside "MY REPORTS STATUS", properly aligning "View All >" in the top row.
+  - Replaced boxed `[4 Active]` badge beside "Community Incidents" with clean header typography.
+- [x] **Report Incident Page Location Header:**
+  - Removed redundant `[GPS PINNED] / [PIN ADJUSTED]` badge above the pinned location summary card to eliminate visual noise.
+- [x] **Settings Page Profile Header:**
+  - Transferred verified status to an inline verified shield icon (`✓`) beside the user's name.
+  - Merged area sector and verification into a clean location string (`📍 Area • Verified Resident`).
+  - Purged two separate boxy pill badges.
+  - Removed temporary developer-only "Alerts & Notification Diagnostics" section (`Test Emergency Alert & Chime` tile) and cleaned unused FCM imports.
+  - Resolved Flutter SDK `activeThumbColor` deprecation on the theme switch.
+
+---
+
 ## 4. Team Collaboration & Quality Standards
 
 1. **Strict Clean Architecture:** Never import presentation widgets into data or domain layers. Route all mutations through BLoC events.

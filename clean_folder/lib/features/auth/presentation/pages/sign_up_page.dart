@@ -103,7 +103,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
         }
       },
       builder: (context, state) {
-        final _isLoading = state is AuthLoading;
+        final isLoading = state is AuthLoading;
         return Scaffold(
           backgroundColor: AppColors.background,
           body: Stack(
@@ -115,7 +115,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                   return Stack(children: [
                     Container(
                         decoration:
-                            const BoxDecoration(gradient: AppColors.commandGradient)),
+                            BoxDecoration(gradient: AppColors.commandGradient)),
                     Positioned(
                       top: -80 + 60 * _bgCtrl.value,
                       left: -60,
@@ -154,7 +154,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       child: Column(
                         children: [
                           // ── Brand header ─────────────────────────────────────
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -173,22 +173,22 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Container(
+                                errorBuilder: (_, _, _) => Container(
                                   width: 60,
                                   height: 60,
                                   color: AppColors.primary,
-                                  child: const Icon(Icons.shield,
+                                  child: Icon(Icons.shield,
                                       color: Colors.white, size: 30),
                                 ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
                           ShaderMask(
                             shaderCallback: (b) =>
                                 AppColors.cyanGradient.createShader(b),
                             blendMode: BlendMode.srcIn,
-                            child: const Text(
+                            child: Text(
                               "CREATE ACCOUNT",
                               style: TextStyle(
                                 color: Colors.white,
@@ -198,14 +198,14 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          const Text(
+                          SizedBox(height: 6),
+                          Text(
                             "Join the RESQ Barangay Safety Network",
                             style: TextStyle(
                                 color: AppColors.textLight, fontSize: 13),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
 
                           // ── Glass Card Form ────────────────────────────────────
                           ClipRRect(
@@ -237,11 +237,13 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         hintText: "Enter your full name",
                                         prefixIcon: Icons.person_outline,
                                         validator: (v) {
-                                          if (v == null || v.trim().isEmpty)
+                                          if (v == null || v.trim().isEmpty) {
                                             return "Name is required.";
+                                          }
                                           if (!RegExp(r'^[a-zA-Z\s\-]{2,50}$')
-                                              .hasMatch(v.trim()))
+                                              .hasMatch(v.trim())) {
                                             return "Letters, spaces, hyphens only (2-50 chars).";
+                                          }
                                           return null;
                                         },
                                       ),
@@ -255,12 +257,14 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         prefixIcon: Icons.email_outlined,
                                         keyboardType: TextInputType.emailAddress,
                                         validator: (v) {
-                                          if (v == null || v.trim().isEmpty)
+                                          if (v == null || v.trim().isEmpty) {
                                             return "Email is required.";
+                                          }
                                           if (!RegExp(
                                                   r'^[\w-\.]+@gmail\.com$')
-                                              .hasMatch(v.trim().toLowerCase()))
+                                              .hasMatch(v.trim().toLowerCase())) {
                                             return "Enter a valid Gmail address.";
+                                          }
                                           return null;
                                         },
                                       ),
@@ -285,14 +289,17 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                               _obscurePassword = !_obscurePassword),
                                         ),
                                         validator: (v) {
-                                          if (v == null || v.isEmpty)
+                                          if (v == null || v.isEmpty) {
                                             return "Password is required.";
-                                          if (v.contains(' '))
+                                          }
+                                          if (v.contains(' ')) {
                                             return "No spaces allowed.";
+                                          }
                                           if (!RegExp(
                                                   r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_\-@#\$%&!?*.]).{8,20}$')
-                                              .hasMatch(v))
+                                              .hasMatch(v)) {
                                             return "8-20 chars, 1 upper, 1 lower, 1 num, 1 special.";
+                                          }
                                           return null;
                                         },
                                       ),
@@ -306,10 +313,12 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         prefixIcon: Icons.lock_outline,
                                         obscureText: _obscurePassword,
                                         validator: (v) {
-                                          if (v == null || v.isEmpty)
+                                          if (v == null || v.isEmpty) {
                                             return "Please confirm password.";
-                                          if (v != _passwordController.text)
+                                          }
+                                          if (v != _passwordController.text) {
                                             return "Passwords do not match.";
+                                          }
                                           return null;
                                         },
                                       ),
@@ -370,13 +379,13 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                                       : [],
                                                 ),
                                                 child: _termsAccepted
-                                                    ? const Icon(Icons.check,
+                                                    ? Icon(Icons.check,
                                                         color: Colors.white,
                                                         size: 14)
                                                     : null,
                                               ),
-                                              const SizedBox(width: 12),
-                                              const Expanded(
+                                              SizedBox(width: 12),
+                                              Expanded(
                                                 child: Text(
                                                   "I accept the Terms and Conditions",
                                                   style: TextStyle(
@@ -391,24 +400,26 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         ),
                                       ),
                                       ),
-                                      const SizedBox(height: 20),
+                                      SizedBox(height: 20),
 
                                       Semantics(
                                         button: true,
                                         label: 'register_button',
                                         child: Custom3dButton(
-                                          text: _isLoading
+                                          text: isLoading
                                               ? "REGISTERING..."
                                               : "CREATE ACCOUNT",
-                                        icon: _isLoading
+                                        icon: isLoading
                                             ? null
                                             : Icons.check_circle_outline,
                                         gradient: AppColors.primaryGradient,
-                                        onPressed: (!_termsAccepted || _isLoading)
+                                        onPressed: (!_termsAccepted || isLoading)
                                             ? null
                                             : () {
                                                 if (!_formKey.currentState!
-                                                    .validate()) return;
+                                                    .validate()) {
+                                                  return;
+                                                }
                                                 final email = _emailController
                                                     .text
                                                     .trim();
@@ -431,7 +442,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
 
                           // ── Divider ────────────────────────────────────────────
                           Row(children: [
@@ -439,7 +450,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                 child: Container(
                                     height: 1,
                                     color: Colors.white.withValues(alpha: 0.12))),
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
                               child: Text("or continue with",
                                   style: TextStyle(
@@ -450,7 +461,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                     height: 1,
                                     color: Colors.white.withValues(alpha: 0.12))),
                           ]),
-                          const SizedBox(height: 14),
+                          SizedBox(height: 14),
 
                           // ── Social Buttons ──────────────────────────────────────
                           _SocialButton(
@@ -460,25 +471,25 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                 "https://accounts.google.com/v3/signin/identifier",
                             onTap: (_) => context.read<AuthBloc>().add(const GoogleSignInRequested()),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
                           _SocialButton(
                             label: "Continue with Facebook",
                             icon: Icons.facebook,
                             url: "https://www.facebook.com/login/",
                             onTap: (url) => _launchAuthUrl(context, url),
                           ),
-                          const SizedBox(height: 10),
+                          SizedBox(height: 10),
                           _SocialButton(
                             label: "Continue with Apple",
                             icon: Icons.apple,
                             url: "https://appleid.apple.com/auth/authorize",
                             onTap: (url) => _launchAuthUrl(context, url),
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
 
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text(
+                            child: Text(
                               "Already have an account? Sign In",
                               style: TextStyle(
                                 color: AppColors.primary,
@@ -489,7 +500,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                         ],
                       ),
                     ),
@@ -535,25 +546,25 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       )
                     ],
                   ),
-                  child: const Icon(Icons.check_circle_outline,
+                  child: Icon(Icons.check_circle_outline,
                       color: AppColors.solved, size: 38),
                 ),
-                const SizedBox(height: 18),
-                const Text(
+                SizedBox(height: 18),
+                Text(
                   "Account Created!",
                   style: TextStyle(
                       color: AppColors.textDark,
                       fontSize: 20,
                       fontWeight: FontWeight.w900),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   "You have successfully registered. Please log in to continue.",
                   style: TextStyle(
                       color: AppColors.textLight, fontSize: 13, height: 1.5),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: Container(
@@ -568,7 +579,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () => Navigator.pop(ctx),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             "Proceed to Login",
                             style: TextStyle(
@@ -653,7 +664,7 @@ class _SocialButtonState extends State<_SocialButton> {
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.15),
                     blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    offset: Offset(0, 3),
                   )
                 ],
         ),
@@ -661,10 +672,10 @@ class _SocialButtonState extends State<_SocialButton> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(widget.icon, size: 24, color: AppColors.textDark),
-            const SizedBox(width: 10),
+            SizedBox(width: 10),
             Text(
               widget.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 14,
                 color: AppColors.textDark,

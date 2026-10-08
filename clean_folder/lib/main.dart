@@ -24,7 +24,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
-
+import 'package:community_safety_app/core/services/sync_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
@@ -39,6 +39,8 @@ void main() async {
   );
 
   await init();
+
+  SyncService().startSyncTimer();
 
   runApp(const MyApp());
 }

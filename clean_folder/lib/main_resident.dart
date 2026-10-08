@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
+import 'package:community_safety_app/core/services/sync_service.dart';
 import 'package:community_safety_app/core/widgets/floating_chat_bot.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -70,19 +72,26 @@ void main() async {
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     // Initialize FCM, local channels, and foreground/background listeners
-    await sl<FCMService>().initialize(
+    sl<FCMService>().initialize(
       onNotificationTap: (incidentId) {
         if (incidentId != null && incidentId.isNotEmpty) {
-          final ctx = residentNavigatorKey.currentContext;
-          if (ctx != null) {
-            IncidentDetailPage.openById(ctx, incidentId);
+          void attemptNav(int retries) {
+            final ctx = residentNavigatorKey.currentContext;
+            if (ctx != null) {
+              IncidentDetailPage.openById(ctx, incidentId);
+            } else if (retries > 0) {
+              Future.delayed(const Duration(milliseconds: 500), () => attemptNav(retries - 1));
+            }
           }
+          attemptNav(10); // Wait up to 5 seconds for the app to mount
         }
       },
     );
   } catch (e) {
     debugPrint("Notice: FCM / Notification service offline or skipped: $e");
   }
+
+  SyncService().startSyncTimer();
 
   runApp(const ResQResidentApp());
 }
@@ -102,14 +111,17 @@ class ResQResidentApp extends StatelessWidget {
               sl<IncidentBloc>()..add(const StreamActiveIncidentsRequested()),
         ),
       ],
-      child: MaterialApp(
-        navigatorKey: residentNavigatorKey,
-        title: 'ResQ Community Safety',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
-          scaffoldBackgroundColor: const Color(0xFF060D1A),
-          useMaterial3: true,
+      child: ValueListenableBuilder<bool>(
+        valueListenable: AppColors.isDarkModeNotifier,
+        builder: (context, isDark, child) {
+          return MaterialApp(
+            navigatorKey: residentNavigatorKey,
+            title: 'ResQ Community Safety',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
+              scaffoldBackgroundColor: AppColors.background,
+              useMaterial3: true,
         ),
         home: const ResidentAuthWrapper(),
         routes: {
@@ -137,8 +149,10 @@ class ResQResidentApp extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
+      );
+    }
+  ),
+);
   }
 }
 

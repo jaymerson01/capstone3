@@ -62,7 +62,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     children: [
                       // ── Welcome Header ──────────────────────────────────────
                       _buildWelcomeHeader(),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
 
                       // ── Live Stat Cards ──────────────────────────────────────
                       GridView.count(
@@ -101,7 +101,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
 
                       // ── Charts ──────────────────────────────────────────────
                       if (isDesktop)
@@ -112,7 +112,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               flex: 6,
                               child: CustomLineChart(incidents: incidents),
                             ),
-                            const SizedBox(width: 20),
+                            SizedBox(width: 20),
                             Expanded(
                               flex: 4,
                               child: CustomPieChart(incidents: incidents),
@@ -123,16 +123,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         Column(
                           children: [
                             CustomLineChart(incidents: incidents),
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20),
                             CustomPieChart(incidents: incidents),
                           ],
                         ),
 
-                      const SizedBox(height: 28),
+                      SizedBox(height: 28),
 
                       // ── Recent Urgent Incidents Table ───────────────────────
                       _buildRecentIncidentsCard(context, incidents),
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                     ],
                   ),
                 );
@@ -172,7 +172,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Barangay Moonwalk Command Center",
                   style: TextStyle(
                     fontSize: 22,
@@ -181,8 +181,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     letterSpacing: -0.3,
                   ),
                 ),
-                const SizedBox(height: 5),
-                const Text(
+                SizedBox(height: 5),
+                Text(
                   "Real-time community safety dispatch, municipal alerts, and telemetry overview.",
                   style: TextStyle(
                     fontSize: 13,
@@ -190,7 +190,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     height: 1.4,
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 // Live status pill
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -221,8 +221,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(width: 7),
-                      const Text(
+                      SizedBox(width: 7),
+                      Text(
                         "Command Center Online · Live Firestore Sync",
                         style: TextStyle(
                           color: AppColors.solved,
@@ -236,7 +236,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ],
             ),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
           // Date badge
           Container(
             padding: const EdgeInsets.symmetric(
@@ -252,15 +252,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             ),
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.calendar_today_outlined,
                   size: 18,
                   color: AppColors.primary,
                 ),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 Text(
                   "${now.day}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: AppColors.textDark,
@@ -268,7 +268,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
                 Text(
                   _monthName(now.month),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     color: AppColors.textLight,
                     fontWeight: FontWeight.w600,
@@ -309,14 +309,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.bolt_outlined,
                       color: AppColors.primary,
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  const Column(
+                  SizedBox(width: 10),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -341,12 +341,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ),
               TextButton.icon(
                 onPressed: widget.onViewAllReports,
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_forward,
                   size: 14,
                   color: AppColors.primary,
                 ),
-                label: const Text(
+                label: Text(
                   "View All in Dispatch",
                   style: TextStyle(
                     color: AppColors.primary,
@@ -357,9 +357,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Container(height: 1, color: AppColors.border),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           if (displayList.isEmpty)
             Container(
@@ -372,8 +372,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     color: const Color(0xFF30D158).withValues(alpha: 0.5),
                     size: 40,
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
+                  SizedBox(height: 10),
+                  Text(
                     "No active or pending incident reports",
                     style: TextStyle(
                       color: Color(0xFF7B8DB0),
@@ -447,7 +447,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               size: 20,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: 12),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -471,14 +471,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         ],
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                        icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
                         onPressed: () => Navigator.pop(dialogCtx),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
-                  const Divider(color: Color(0xFF1E2D4A)),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 18),
+                  Divider(color: Color(0xFF1E2D4A)),
+                  SizedBox(height: 14),
 
                   // Urgency and Status Tags
                   Row(
@@ -504,7 +504,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       if (isUrgent)
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -519,7 +519,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                   const Color(0xFFFF3B30).withValues(alpha: 0.35),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             "HIGH PRIORITY",
                             style: TextStyle(
                               color: Color(0xFFFF3B30),
@@ -539,10 +539,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
 
                   // Description
-                  const Text(
+                  Text(
                     "Citizen Description",
                     style: TextStyle(
                       fontSize: 12,
@@ -550,7 +550,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       color: Color(0xFF7B8DB0),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
@@ -570,7 +570,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
 
                   // Location & Reporter Details
                   _modalDetailRow(
@@ -580,7 +580,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         inc.areaSector ??
                         "GPS (${inc.latitude.toStringAsFixed(4)}, ${inc.longitude.toStringAsFixed(4)})",
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _modalDetailRow(
                     Icons.person_outline,
                     "Reporter",
@@ -588,7 +588,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         ? "Anonymous Citizen"
                         : (inc.reporterName ?? inc.reporterEmail ?? inc.reporterId),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   _modalDetailRow(
                     Icons.access_time_rounded,
                     "Reported At",
@@ -597,8 +597,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
                   // Evidence preview if present
                   if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    const Text(
+                    SizedBox(height: 14),
+                    Text(
                       "Photo Evidence",
                       style: TextStyle(
                         fontSize: 12,
@@ -606,7 +606,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         color: Color(0xFF7B8DB0),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     GestureDetector(
                       onTap: () {
                         InAppImageViewerDialog.show(
@@ -631,7 +631,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                   height: 80,
                                   color: const Color(0xFF060D1A),
                                   alignment: Alignment.center,
-                                  child: const Text(
+                                  child: Text(
                                     "Unable to load evidence image",
                                     style: TextStyle(
                                       color: Color(0xFF7B8DB0),
@@ -648,8 +648,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   ],
 
                   if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    const Text(
+                    SizedBox(height: 14),
+                    Text(
                       "Video Evidence",
                       style: TextStyle(
                         fontSize: 12,
@@ -657,7 +657,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         color: Color(0xFF7B8DB0),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -668,8 +668,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
-                          const SizedBox(width: 10),
+                          Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
+                          SizedBox(width: 10),
                           const Expanded(
                             child: Text(
                               "Video Recording Attached",
@@ -683,8 +683,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                            icon: const Icon(Icons.play_arrow_rounded, size: 16),
-                            label: const Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            icon: Icon(Icons.play_arrow_rounded, size: 16),
+                            label: Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                             onPressed: () {
                               InAppEvidencePlayerDialog.show(
                                 context,
@@ -700,8 +700,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
                   if (inc.dispatcherNotes != null &&
                       inc.dispatcherNotes!.isNotEmpty) ...[
-                    const SizedBox(height: 14),
-                    const Text(
+                    SizedBox(height: 14),
+                    Text(
                       "Dispatcher Remarks",
                       style: TextStyle(
                         fontSize: 12,
@@ -709,7 +709,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         color: Color(0xFF00E5FF),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
@@ -731,19 +731,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     ),
                   ],
 
-                  const SizedBox(height: 22),
+                  SizedBox(height: 22),
                   // Action buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
                         onPressed: () => Navigator.pop(dialogCtx),
-                        child: const Text(
+                        child: Text(
                           "Close",
                           style: TextStyle(color: Color(0xFF7B8DB0)),
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      SizedBox(width: 10),
                       ElevatedButton.icon(
                         onPressed: () {
                           Navigator.pop(dialogCtx);
@@ -761,12 +761,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             vertical: 12,
                           ),
                         ),
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.open_in_new,
                           size: 16,
                           color: Colors.white,
                         ),
-                        label: const Text(
+                        label: Text(
                           "Manage in Dispatch",
                           style: TextStyle(
                             color: Colors.white,
@@ -790,7 +790,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 16, color: const Color(0xFF7B8DB0)),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Text(
           "$title: ",
           style: const TextStyle(
@@ -906,24 +906,24 @@ class _IncidentListItemState extends State<_IncidentListItem> {
                   size: 19,
                 ),
               ),
-              const SizedBox(width: 14),
+              SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "${inc.category} — ${BarangaySectorHelper.normalizeSector(inc.areaSector, inc.resolvedAddress)}",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                         color: AppColors.textDark,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    SizedBox(height: 3),
                     Text(
                       "By ${inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? 'Citizen')} · ${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textLight,
                       ),

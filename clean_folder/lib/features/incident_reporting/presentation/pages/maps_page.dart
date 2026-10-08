@@ -232,7 +232,7 @@ class _MapsPageState extends State<MapsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
 
               // Header: Category Icon + Title + Urgency
               Row(
@@ -250,20 +250,20 @@ class _MapsPageState extends State<MapsPage> {
                     ),
                     child: Icon(categoryIcon, color: categoryColor, size: 24),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           incident.category,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
                             color: AppColors.textDark,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Row(
                           children: [
                             // Area / Location Badge
@@ -281,9 +281,9 @@ class _MapsPageState extends State<MapsPage> {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.location_on_rounded,
+                                    Icon(Icons.location_on_rounded,
                                         size: 11, color: AppColors.primary),
-                                    const SizedBox(width: 4),
+                                    SizedBox(width: 4),
                                     Flexible(
                                       child: Text(
                                         incident.areaSector ?? "Moonwalk",
@@ -300,11 +300,11 @@ class _MapsPageState extends State<MapsPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             // Relative time
                             Text(
                               _formatRelativeTime(incident.timestamp),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 11,
                                 color: AppColors.textLight,
                               ),
@@ -327,8 +327,7 @@ class _MapsPageState extends State<MapsPage> {
                     ),
                     child: Text(
                       incident.urgencyStatus ?? "PENDING",
-                      style: const TextStyle(
-                        color: AppColors.danger,
+                      style: TextStyle(color: AppColors.danger,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
@@ -337,7 +336,7 @@ class _MapsPageState extends State<MapsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // Description Snippet
               Container(
@@ -350,7 +349,7 @@ class _MapsPageState extends State<MapsPage> {
                 ),
                 child: Text(
                   incident.description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     height: 1.5,
                     color: AppColors.textDark,
@@ -359,7 +358,7 @@ class _MapsPageState extends State<MapsPage> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
 
               // Corroboration & Total Affected Stats
               Container(
@@ -374,15 +373,15 @@ class _MapsPageState extends State<MapsPage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.people_alt_rounded,
+                    Icon(Icons.people_alt_rounded,
                         color: AppColors.primary, size: 18),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         totalAffected == 1
-                            ? "1 citizen affected (original reporter). Awaiting neighborhood corroboration."
+                            ? "1 citizen affected (original reporter). Awaiting neighborhood confirmation."
                             : "$totalAffected citizens affected (original reporter + ${incident.upvoteCount} neighbor${incident.upvoteCount == 1 ? '' : 's'})",
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textDark,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -392,7 +391,7 @@ class _MapsPageState extends State<MapsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // Action Buttons Row
               Row(
@@ -426,7 +425,7 @@ class _MapsPageState extends State<MapsPage> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text(
-                                        "Your corroboration ('Me Too') has been recorded! Dispatch alerted.",
+                                        "Your confirmation has been recorded! Dispatch alerted.",
                                       ),
                                       backgroundColor: AppColors.solved,
                                       behavior: SnackBarBehavior.floating,
@@ -470,11 +469,11 @@ class _MapsPageState extends State<MapsPage> {
                                   : (hasVoted ? AppColors.solved : Colors.white),
                               size: 18,
                             ),
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Text(
                               isMyReport
                                   ? "Your Report"
-                                  : (hasVoted ? "Corroborated" : "Me Too / Affected"),
+                                  : (hasVoted ? "Confirmed" : "I witnessed this"),
                               style: TextStyle(
                                 color: isMyReport
                                     ? AppColors.primary
@@ -488,7 +487,7 @@ class _MapsPageState extends State<MapsPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
 
                   // View Live Details Button
                   Expanded(
@@ -512,7 +511,7 @@ class _MapsPageState extends State<MapsPage> {
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.border),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             "View Details",
                             style: TextStyle(
@@ -550,8 +549,11 @@ class _MapsPageState extends State<MapsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: Container(
@@ -559,7 +561,7 @@ class _MapsPageState extends State<MapsPage> {
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
           decoration: BoxDecoration(
             color: AppColors.surface,
-            border: const Border(
+            border: Border(
               bottom: BorderSide(color: AppColors.border, width: 1),
             ),
           ),
@@ -568,13 +570,13 @@ class _MapsPageState extends State<MapsPage> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+                  icon: Icon(Icons.arrow_back, color: AppColors.textDark),
                   onPressed: () => Navigator.pop(context),
                 ),
-                const Text(
+                Text(
                   "COMMUNITY MAP",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textDark,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.2,
@@ -598,7 +600,7 @@ class _MapsPageState extends State<MapsPage> {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: _filterCategories.length,
-              separatorBuilder: (ctx, idx) => const SizedBox(width: 8),
+              separatorBuilder: (ctx, idx) => SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final category = _filterCategories[index];
                 final isSelected = _selectedCategoryFilter == category;
@@ -664,7 +666,7 @@ class _MapsPageState extends State<MapsPage> {
                   children: [
                     GoogleMap(
                       initialCameraPosition: _initialPosition,
-                      style: _darkMapStyle,
+                      style: isDark ? _darkMapStyle : "[]",
                       myLocationEnabled: true,
                       myLocationButtonEnabled: false,
                       zoomControlsEnabled: false,
@@ -694,9 +696,36 @@ class _MapsPageState extends State<MapsPage> {
                     ),
 
                     if (state is IncidentLoading)
-                      const Center(
+                      Center(
                         child: CircularProgressIndicator(
                             color: AppColors.primary),
+                      ),
+
+                    if (state is IncidentError)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          color: AppColors.warning.withValues(alpha: 0.95),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(Icons.wifi_off_rounded, color: Colors.black87, size: 20),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  "You are currently offline. Live incidents cannot be loaded.",
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
 
                     // ── Map Floating Zoom & Location Controls ──────────────
@@ -711,14 +740,14 @@ class _MapsPageState extends State<MapsPage> {
                               CameraUpdate.zoomIn(),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           _MapControlButton(
                             icon: Icons.remove,
                             onTap: () => _mapController?.animateCamera(
                               CameraUpdate.zoomOut(),
                             ),
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           _MapControlButton(
                             icon: Icons.my_location,
                             color: AppColors.primary,
@@ -738,7 +767,7 @@ class _MapsPageState extends State<MapsPage> {
                             horizontal: 16, vertical: 10),
                         decoration: BoxDecoration(
                           color: AppColors.surface.withValues(alpha: 0.92),
-                          border: const Border(
+                          border: Border(
                             top: BorderSide(color: AppColors.border),
                           ),
                         ),
@@ -746,13 +775,13 @@ class _MapsPageState extends State<MapsPage> {
                           children: [
                             const _MapLegendDot(
                                 color: AppColors.danger, label: "Fire"),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             const _MapLegendDot(
                                 color: AppColors.pending, label: "Theft"),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             const _MapLegendDot(
                                 color: Color(0xFF0A84FF), label: "Medical"),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             const _MapLegendDot(
                                 color: Color(0xFF00D4FF), label: "Flood"),
                             const Spacer(),
@@ -765,8 +794,7 @@ class _MapsPageState extends State<MapsPage> {
                               ),
                               child: Text(
                                 "${activeIncidents.length} Active Incidents",
-                                style: const TextStyle(
-                                  color: AppColors.primary,
+                                style: TextStyle(color: AppColors.primary,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -783,6 +811,8 @@ class _MapsPageState extends State<MapsPage> {
           ),
         ],
       ),
+    );
+      }
     );
   }
 }
@@ -846,8 +876,8 @@ class _LiveBadgeState extends State<_LiveBadge>
                   ],
                 ),
               ),
-              const SizedBox(width: 6),
-              const Text(
+              SizedBox(width: 6),
+              Text(
                 "LIVE MAP",
                 style: TextStyle(
                   color: AppColors.danger,
@@ -911,7 +941,7 @@ class _MapControlButtonState extends State<_MapControlButton> {
         ),
         child: Icon(
           widget.icon,
-          color: Colors.white,
+          color: AppColors.textDark,
           size: 18,
         ),
       ),
@@ -941,10 +971,10 @@ class _MapLegendDot extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 5),
+        SizedBox(width: 5),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textLight,
             fontSize: 11,
             fontWeight: FontWeight.w600,

@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive/hive.dart';
 import 'package:dartz/dartz.dart';
 import 'package:community_safety_app/core/error/failures.dart';
+import 'package:community_safety_app/core/error/exceptions.dart';
 
 import '../../domain/entities/incident_entity.dart';
 import '../../domain/repositories/incident_repository.dart';
@@ -183,8 +184,9 @@ class IncidentRepositoryImpl implements IncidentRepository {
         type: 'new_report',
         incidentId: generatedId,
       );
-    } catch (_) {
+    } catch (e) {
       await localBox.put(generatedId, incidentModel);
+      throw OfflineException('Failed to upload report to server. Saved locally.');
     }
   }
 

@@ -85,7 +85,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                       'assets/images/logo.png',
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
+                        return Icon(
                           Icons.security,
                           color: Colors.white,
                           size: 22,
@@ -94,7 +94,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
                     ),
                   ),
                   if (!widget.isCollapsed) ...[
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14),
                     const Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,8 +126,8 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            const Divider(color: Color(0xFF1E2D4A), height: 1),
-            const SizedBox(height: 15),
+            Divider(color: Color(0xFF1E2D4A), height: 1),
+            SizedBox(height: 15),
 
             Expanded(
               child: ListView.builder(
@@ -221,8 +221,8 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            const Divider(color: Color(0xFF1E2D4A), height: 1),
-            const SizedBox(height: 10),
+            Divider(color: Color(0xFF1E2D4A), height: 1),
+            SizedBox(height: 10),
 
             Padding(
               padding: const EdgeInsets.all(12.0),
@@ -276,7 +276,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
           ],
         ),
       ),

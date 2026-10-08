@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/error/failures.dart';
@@ -34,7 +35,8 @@ class AuthRepositoryImpl implements AuthRepository {
           isVerified: true,
         ));
       }
-      final user = await _remoteDataSource.signInWithEmailAndPassword(email, password);
+      final user = await _remoteDataSource.signInWithEmailAndPassword(email, password)
+          .timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException("Login request timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
       return Left(ServerFailure(e.message ?? e.code));
@@ -46,7 +48,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserEntity>> signInWithGoogle() async {
     try {
-      final user = await _remoteDataSource.signInWithGoogle();
+      final user = await _remoteDataSource.signInWithGoogle()
+          .timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException("Google sign in timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
       return Left(ServerFailure(e.message ?? e.code));
@@ -71,7 +74,7 @@ class AuthRepositoryImpl implements AuthRepository {
         password,
         fullName: fullName,
         role: role,
-      );
+      ).timeout(const Duration(seconds: 15), onTimeout: () => throw TimeoutException("Registration request timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
       return Left(ServerFailure(e.message ?? e.code));

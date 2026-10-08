@@ -104,7 +104,7 @@ class _StatCardState extends State<StatCard> {
                         letterSpacing: -0.5,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    SizedBox(height: 6),
                     Text(
                       widget.title.toUpperCase(),
                       style: TextStyle(

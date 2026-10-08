@@ -97,19 +97,19 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   elevation: 3,
                 ),
                 onPressed: () => _showAddCategoryDialog(context),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text(
+                icon: Icon(Icons.add, size: 18),
+                label: Text(
                   "Add Category",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 25),
+          SizedBox(height: 25),
 
           Expanded(
             child: _dummyCategories.isEmpty
-                ? const Center(
+                ? Center(
                     child: Text(
                       "No incident categories defined yet.",
                       style: TextStyle(
@@ -157,13 +157,13 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                       color: AdminColors.primaryRose.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.folder_open_outlined,
                       color: AdminColors.primaryRose,
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Text(
                     category.name,
                     style: const TextStyle(
@@ -177,12 +177,12 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue, size: 18),
+                    icon: Icon(Icons.edit, color: Colors.blue, size: 18),
                     tooltip: "Edit Category",
                     onPressed: () => _showEditCategoryDialog(context, category),
                   ),
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.archive,
                       color: AdminColors.dangerRed,
                       size: 18,
@@ -194,7 +194,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Expanded(
             child: Text(
               category.description,
@@ -219,15 +219,15 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("Add New Category", style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const SizedBox(
+          title: Text("Add New Category", style: TextStyle(fontWeight: FontWeight.bold)),
+          content: SizedBox(
             width: 400,
             child: Text("BLoC integration pending for adding categories."),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: Text("Close"),
             ),
           ],
         );
@@ -243,14 +243,14 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text("Edit Category: ${category.name}", style: const TextStyle(fontWeight: FontWeight.bold)),
-          content: const SizedBox(
+          content: SizedBox(
             width: 400,
             child: Text("BLoC integration pending for editing categories."),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Close"),
+              child: Text("Close"),
             ),
           ],
         );
@@ -265,14 +265,14 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text("Archive Category", style: TextStyle(fontWeight: FontWeight.bold)),
+          title: Text("Archive Category", style: TextStyle(fontWeight: FontWeight.bold)),
           content: Text(
             "Are you sure you want to archive category '${category.name}'? This won't affect past submitted reports of this type but will prevent new submissions.",
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
+              child: Text("Cancel"),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -289,7 +289,7 @@ class _IncidentCategoriesPageState extends State<IncidentCategoriesPage> {
                   ),
                 );
               },
-              child: const Text("Archive"),
+              child: Text("Archive"),
             ),
           ],
         );

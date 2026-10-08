@@ -78,7 +78,7 @@ class _FloatingChatBotState extends State<FloatingChatBot> {
   Widget _buildChatButton() {
     return InkWell(
       onTap: () => setState(() => _isOpen = true),
-      child: const Center(
+      child: Center(
         child: Icon(Icons.smart_toy_rounded, color: Colors.white, size: 28),
       ),
     );
@@ -94,12 +94,12 @@ class _FloatingChatBotState extends State<FloatingChatBot> {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.smart_toy_rounded,
                 color: Colors.white,
                 size: 22,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10),
               const Expanded(
                 child: Text(
                   'Safety AI Assistant',
@@ -113,7 +113,7 @@ class _FloatingChatBotState extends State<FloatingChatBot> {
               IconButton(
                 constraints: const BoxConstraints(),
                 padding: EdgeInsets.zero,
-                icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                icon: Icon(Icons.close, color: Colors.white, size: 20),
                 onPressed: () => setState(() => _isOpen = false),
               ),
             ],
@@ -198,7 +198,7 @@ class _FloatingChatBotState extends State<FloatingChatBot> {
                 ),
               ),
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.send_rounded,
                   color: AppColors.darkGreen,
                 ),

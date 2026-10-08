@@ -196,7 +196,7 @@ class _Custom3dButtonState extends State<Custom3dButton>
                               : effectiveTextColor,
                           size: 22,
                         ),
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10),
                       ],
                       Text(
                         widget.text,

@@ -174,7 +174,7 @@ class AdminIncidentTable extends StatelessWidget {
             size: 14,
             color: textColor,
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(
             displayStatus,
             style: TextStyle(
@@ -193,19 +193,19 @@ class AdminIncidentTable extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
-          icon: const Icon(Icons.visibility_outlined, color: Colors.blue),
+          icon: Icon(Icons.visibility_outlined, color: Colors.blue),
           tooltip: 'View Details',
           splashRadius: 20,
           onPressed: () => onViewDetails(incident),
         ),
         IconButton(
-          icon: const Icon(Icons.edit_outlined, color: Colors.orange),
+          icon: Icon(Icons.edit_outlined, color: Colors.orange),
           tooltip: 'Update Status',
           splashRadius: 20,
           onPressed: () => onUpdateStatus(incident),
         ),
         IconButton(
-          icon: const Icon(Icons.block, color: Colors.red),
+          icon: Icon(Icons.block, color: Colors.red),
           tooltip: 'Mark as Spam',
           splashRadius: 20,
           onPressed: () => onMarkAsSpam(incident),

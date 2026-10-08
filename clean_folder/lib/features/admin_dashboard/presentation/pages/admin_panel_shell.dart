@@ -74,13 +74,13 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                           color: const Color(0xFFFF3B30).withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.emergency_rounded,
                           color: Color(0xFFFF3B30),
                           size: 24,
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +94,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                                 fontSize: 14,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(
                               n.message,
                               style: const TextStyle(
@@ -112,7 +112,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           setState(() => _selectedIndex = 2);
                         },
-                        child: const Text(
+                        child: Text(
                           "VIEW",
                           style: TextStyle(
                             color: Color(0xFF0A84FF),
@@ -215,11 +215,11 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.logout_rounded,
+                      child: Icon(Icons.logout_rounded,
                           color: Color(0xFFFF3B30), size: 30),
                     ),
-                    const SizedBox(height: 18),
-                    const Text(
+                    SizedBox(height: 18),
+                    Text(
                       "Confirm Logout",
                       style: TextStyle(
                         color: Color(0xFFE8F0FE),
@@ -227,8 +227,8 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
+                    SizedBox(height: 10),
+                    Text(
                       "Are you sure you want to log out of the Admin Command Center?",
                       style: TextStyle(
                         color: Color(0xFF7B8DB0),
@@ -237,7 +237,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Row(
                       children: [
                         Expanded(
@@ -251,7 +251,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                                 border: Border.all(
                                     color: Colors.white.withValues(alpha: 0.1)),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Text(
                                   "Cancel",
                                   style: TextStyle(
@@ -264,7 +264,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
@@ -291,7 +291,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                                   ),
                                 ],
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Text(
                                   "Logout",
                                   style: TextStyle(

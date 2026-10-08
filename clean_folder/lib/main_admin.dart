@@ -14,6 +14,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
+import 'package:community_safety_app/core/services/sync_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,8 @@ void main() async {
   );
 
   await init();
+
+  SyncService().startSyncTimer();
 
   runApp(const ResQAdminApp());
 }

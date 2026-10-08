@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 /// RESQ Smart City Command Center — Premium Color System 2026
 /// Deep Navy · Electric Blue · Cyan Glow · Emergency Crimson
 class AppColors {
+  // ─── Theme Mode Toggle ────────────────────────────────────────────────────
+  // Defaulting to light mode per user request
+  static final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier<bool>(false);
+  static bool get isDarkMode => isDarkModeNotifier.value;
+  static set isDarkMode(bool val) => isDarkModeNotifier.value = val;
+
   // ─── Core Brand Palette ───────────────────────────────────────────────────
   static const Color primary = Color(0xFF0A84FF);        // Electric blue
   static const Color secondary = Color(0xFF00D4FF);      // Cyan glow
@@ -13,22 +19,22 @@ class AppColors {
   static const Color darkNavy = Color(0xFF0A0F1E);       // Deep navy
 
   // ─── Background System ────────────────────────────────────────────────────
-  static const Color background = Color(0xFF060D1A);     // Near-black navy
-  static const Color surface = Color(0xFF0D1627);        // Card surface
-  static const Color cardBackground = Color(0xFF0D1627);
-  static const Color surfaceLight = Color(0xFF1A2540);   // Elevated surface
-  static const Color surfaceGlass = Color(0x1AFFFFFF);   // Glass overlay
+  static Color get background => isDarkMode ? const Color(0xFF060D1A) : const Color(0xFFF0F4F8);
+  static Color get surface => isDarkMode ? const Color(0xFF0D1627) : const Color(0xFFFFFFFF);
+  static Color get cardBackground => isDarkMode ? const Color(0xFF0D1627) : const Color(0xFFFFFFFF);
+  static Color get surfaceLight => isDarkMode ? const Color(0xFF1A2540) : const Color(0xFFE2E8F0);
+  static Color get surfaceGlass => isDarkMode ? const Color(0x1AFFFFFF) : const Color(0x4DFFFFFF);
 
   // ─── Text Colors ──────────────────────────────────────────────────────────
-  static const Color textDark = Color(0xFFE8F0FE);       // Primary text
-  static const Color textLight = Color(0xFF7B8DB0);      // Secondary text
-  static const Color textMuted = Color(0xFF4A5568);      // Muted text
-  static const Color border = Color(0xFF1E2D4A);         // Subtle border
+  static Color get textDark => isDarkMode ? const Color(0xFFE8F0FE) : const Color(0xFF1E293B);
+  static Color get textLight => isDarkMode ? const Color(0xFF7B8DB0) : const Color(0xFF64748B);
+  static Color get textMuted => isDarkMode ? const Color(0xFF4A5568) : const Color(0xFF94A3B8);
+  static Color get border => isDarkMode ? const Color(0xFF1E2D4A) : const Color(0xFFCBD5E1);
 
   // Legacy aliases
-  static const Color accentBg = Color(0xFF0D1627);
+  static Color get accentBg => isDarkMode ? const Color(0xFF0D1627) : const Color(0xFFFFFFFF);
   @Deprecated('Use AppColors.accentBg instead')
-  static const Color accentGreenBg = accentBg;
+  static Color get accentGreenBg => accentBg;
   @Deprecated('Use AppColors.primary instead')
   static const Color darkGreen = primary;
 

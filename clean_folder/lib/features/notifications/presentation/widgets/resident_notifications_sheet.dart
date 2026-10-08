@@ -63,17 +63,20 @@ class ResidentNotificationsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final notificationService = NotificationService();
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.78,
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D1627),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        border: Border(
-          top: BorderSide(color: Color(0xFF1E2D4A), width: 1.5),
-          left: BorderSide(color: Color(0xFF1E2D4A), width: 1),
-          right: BorderSide(color: Color(0xFF1E2D4A), width: 1),
-        ),
-      ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.78,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border(
+              top: BorderSide(color: AppColors.border, width: 1.5),
+              left: BorderSide(color: AppColors.border, width: 1),
+              right: BorderSide(color: AppColors.border, width: 1),
+            ),
+          ),
       child: Column(
         children: [
           // Drag handle
@@ -82,7 +85,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFF2A3D63),
+              color: AppColors.border,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -98,17 +101,17 @@ class ResidentNotificationsSheet extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.notifications_active_rounded,
                     color: AppColors.primary,
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
-                const Text(
+                SizedBox(width: 12),
+                Text(
                   "NOTIFICATIONS",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: AppColors.textDark,
                     fontWeight: FontWeight.w900,
                     fontSize: 16,
                     letterSpacing: 1,
@@ -119,9 +122,9 @@ class ResidentNotificationsSheet extends StatelessWidget {
                   onPressed: () {
                     notificationService.markAllResidentAsRead(userId);
                   },
-                  icon: const Icon(Icons.done_all_rounded,
+                  icon: Icon(Icons.done_all_rounded,
                       size: 16, color: Color(0xFF7B8DB0)),
-                  label: const Text(
+                  label: Text(
                     "Mark all read",
                     style: TextStyle(
                       color: Color(0xFF7B8DB0),
@@ -134,7 +137,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
             ),
           ),
 
-          const Divider(color: Color(0xFF1E2D4A), height: 1),
+          Divider(color: AppColors.border, height: 1),
 
           // Notification List
           Expanded(
@@ -142,7 +145,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
               stream: notificationService.streamResidentNotifications(userId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
+                  return Center(
                     child: CircularProgressIndicator(color: AppColors.primary),
                   );
                 }
@@ -160,25 +163,25 @@ class ResidentNotificationsSheet extends StatelessWidget {
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFF1E2D4A).withValues(alpha: 0.4),
+                              color: AppColors.border.withValues(alpha: 0.4),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.notifications_none_rounded,
                               size: 48,
                               color: Color(0xFF7B8DB0),
                             ),
                           ),
-                          const SizedBox(height: 16),
-                          const Text(
+                          SizedBox(height: 16),
+                          Text(
                             "No Notifications Yet",
                             style: TextStyle(
-                              color: Colors.white,
+                              color: AppColors.textDark,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          const Text(
+                          SizedBox(height: 8),
+                          Text(
                             "You will be alerted when dispatch updates your reports, neighbors corroborate incidents, or community sirens sound.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -196,7 +199,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                 return ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   itemCount: notifications.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final item = notifications[index];
                     final color = _getTypeColor(item.type);
@@ -243,22 +246,34 @@ class ResidentNotificationsSheet extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: item.isRead
-                                ? const Color(0xFF080F1E)
-                                : const Color(0xFF101C33),
+                            color: isDark
+                                ? (item.isRead
+                                    ? const Color(0xFF080F1E)
+                                    : const Color(0xFF101C33))
+                                : (item.isRead
+                                    ? const Color(0xFFF1F5F9)
+                                    : const Color(0xFFFFFFFF)),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: item.isRead
-                                  ? const Color(0xFF1E2D4A)
-                                  : color.withValues(alpha: 0.6),
+                                  ? AppColors.border
+                                  : color.withValues(alpha: isDark ? 0.6 : 0.35),
                               width: item.isRead ? 1 : 1.5,
                             ),
-                            boxShadow: item.isRead
-                                ? null
+                            boxShadow: isDark
+                                ? (item.isRead
+                                    ? null
+                                    : [
+                                        BoxShadow(
+                                          color: color.withValues(alpha: 0.15),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ])
                                 : [
                                     BoxShadow(
-                                      color: color.withValues(alpha: 0.15),
-                                      blurRadius: 10,
+                                      color: Colors.black.withValues(alpha: 0.04),
+                                      blurRadius: 6,
                                       offset: const Offset(0, 2),
                                     ),
                                   ],
@@ -279,7 +294,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                 ),
                                 child: Icon(icon, color: color, size: 20),
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
 
                               // Content
                               Expanded(
@@ -293,8 +308,8 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                             item.title,
                                             style: TextStyle(
                                               color: item.isRead
-                                                  ? const Color(0xFFE8F0FE)
-                                                  : Colors.white,
+                                                  ? AppColors.textLight
+                                                  : AppColors.textDark,
                                               fontWeight: item.isRead
                                                   ? FontWeight.w600
                                                   : FontWeight.bold,
@@ -303,7 +318,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                           ),
                                         ),
                                         if (!item.isRead) ...[
-                                          const SizedBox(width: 6),
+                                          SizedBox(width: 6),
                                           Container(
                                             width: 8,
                                             height: 8,
@@ -321,18 +336,20 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                         ],
                                       ],
                                     ),
-                                    const SizedBox(height: 5),
+                                    SizedBox(height: 5),
                                     Text(
                                       item.message,
                                       style: TextStyle(
                                         color: item.isRead
-                                            ? const Color(0xFF7B8DB0)
-                                            : const Color(0xFFC0CDF0),
+                                            ? AppColors.textLight.withValues(alpha: 0.8)
+                                            : (isDark
+                                                ? const Color(0xFFC0CDF0)
+                                                : AppColors.textDark.withValues(alpha: 0.85)),
                                         fontSize: 12.5,
                                         height: 1.35,
                                       ),
                                     ),
-                                    const SizedBox(height: 8),
+                                    SizedBox(height: 8),
                                     Row(
                                       children: [
                                         Icon(
@@ -340,10 +357,10 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                           size: 12,
                                           color: const Color(0xFF7B8DB0),
                                         ),
-                                        const SizedBox(width: 4),
+                                        SizedBox(width: 4),
                                         Text(
                                           timeStr,
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             color: Color(0xFF7B8DB0),
                                             fontSize: 11,
                                           ),
@@ -368,7 +385,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
 
                               // Delete button
                               IconButton(
-                                icon: const Icon(Icons.close,
+                                icon: Icon(Icons.close,
                                     size: 16, color: Color(0xFF7B8DB0)),
                                 onPressed: () {
                                   notificationService.deleteNotification(item.id);
@@ -389,6 +406,8 @@ class ResidentNotificationsSheet extends StatelessWidget {
           ),
         ],
       ),
+    );
+      },
     );
   }
 }

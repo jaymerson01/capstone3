@@ -36,7 +36,7 @@ class IncidentTrackingSheet extends StatelessWidget {
       maxChildSize: 0.95,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
           ),
@@ -68,14 +68,14 @@ class IncidentTrackingSheet extends StatelessWidget {
                           ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 28, color: Colors.black54),
+                      icon: Icon(Icons.close_rounded, size: 28, color: Colors.black54),
                       onPressed: () => Navigator.of(context).pop(),
                       tooltip: 'Close tracking panel',
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1, thickness: 1),
+              Divider(height: 1, thickness: 1),
               // Scrollable Dynamic Content Body
               Expanded(
                 child: SingleChildScrollView(

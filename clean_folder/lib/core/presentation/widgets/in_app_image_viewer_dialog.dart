@@ -72,7 +72,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
               // ── Header Bar ───────────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.surface,
                   border: Border(
                     bottom: BorderSide(color: AppColors.border, width: 1),
@@ -86,13 +86,13 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                         color: AppColors.primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.image_rounded,
                         color: AppColors.primary,
                         size: 18,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         widget.title ?? "Photo Evidence Viewer",
@@ -107,17 +107,17 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                     ),
                     // Reset Zoom Button
                     IconButton(
-                      icon: const Icon(Icons.zoom_out_map_rounded,
+                      icon: Icon(Icons.zoom_out_map_rounded,
                           color: AppColors.textLight, size: 20),
                       tooltip: "Reset Zoom",
                       onPressed: _resetZoom,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     // Open External Button
                     IconButton(
-                      icon: const Icon(Icons.open_in_new_rounded,
+                      icon: Icon(Icons.open_in_new_rounded,
                           color: AppColors.textLight, size: 18),
                       tooltip: "Open Full Image in New Tab",
                       onPressed: () {
@@ -129,10 +129,10 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     // Close Button
                     IconButton(
-                      icon: const Icon(Icons.close_rounded,
+                      icon: Icon(Icons.close_rounded,
                           color: AppColors.textLight, size: 20),
                       tooltip: "Close",
                       onPressed: () => Navigator.pop(context),
@@ -159,7 +159,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                       fit: BoxFit.contain,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
-                        return const Center(
+                        return Center(
                           child: CircularProgressIndicator(
                             color: AppColors.primary,
                             strokeWidth: 2.5,
@@ -171,16 +171,16 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.broken_image_rounded,
+                            Icon(Icons.broken_image_rounded,
                                 color: AppColors.danger, size: 48),
-                            const SizedBox(height: 12),
-                            const Text(
+                            SizedBox(height: 12),
+                            Text(
                               "Unable to display image in-app",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold),
                             ),
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.primary,
@@ -190,8 +190,8 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                                 launchUrl(Uri.parse(widget.imageUrl),
                                     mode: LaunchMode.externalApplication);
                               },
-                              icon: const Icon(Icons.open_in_browser, size: 16),
-                              label: const Text("Open in External Tab"),
+                              icon: Icon(Icons.open_in_browser, size: 16),
+                              label: Text("Open in External Tab"),
                             ),
                           ],
                         ),
@@ -205,14 +205,14 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.surface,
                   border: Border(
                     top: BorderSide(color: AppColors.border, width: 1),
                   ),
                 ),
                 child: Row(
-                  children: const [
+                  children: [
                     Icon(Icons.pinch_rounded, size: 14, color: AppColors.textLight),
                     SizedBox(width: 8),
                     Text(

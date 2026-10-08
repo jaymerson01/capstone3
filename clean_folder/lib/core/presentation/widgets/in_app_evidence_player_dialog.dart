@@ -149,7 +149,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
               // ── Header Bar ───────────────────────────────────────────────
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.surface,
                   border: Border(
                     bottom: BorderSide(color: AppColors.border, width: 1),
@@ -163,13 +163,13 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                         color: AppColors.progress.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.videocam_rounded,
                         color: AppColors.progress,
                         size: 18,
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         widget.title ?? "Evidence Video Stream",
@@ -183,7 +183,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.open_in_new_rounded,
+                      icon: Icon(Icons.open_in_new_rounded,
                           color: AppColors.textLight, size: 18),
                       tooltip: "Open in External Tab",
                       onPressed: () {
@@ -195,9 +195,9 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     IconButton(
-                      icon: const Icon(Icons.close_rounded,
+                      icon: Icon(Icons.close_rounded,
                           color: AppColors.textLight, size: 20),
                       tooltip: "Close",
                       onPressed: () => Navigator.pop(context),
@@ -226,13 +226,13 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.error_outline_rounded,
                                 color: AppColors.danger,
                                 size: 40,
                               ),
-                              const SizedBox(height: 12),
-                              const Text(
+                              SizedBox(height: 12),
+                              Text(
                                 "Unable to stream video in-app",
                                 style: TextStyle(
                                   color: Colors.white,
@@ -240,17 +240,17 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                                   fontSize: 14,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              SizedBox(height: 6),
                               Text(
                                 _errorMessage,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.textLight,
                                   fontSize: 11,
                                 ),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.primary,
@@ -265,18 +265,18 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                                     mode: LaunchMode.externalApplication,
                                   );
                                 },
-                                icon: const Icon(Icons.open_in_browser, size: 16),
-                                label: const Text("Open in External Player", style: TextStyle(fontSize: 12)),
+                                icon: Icon(Icons.open_in_browser, size: 16),
+                                label: Text("Open in External Player", style: TextStyle(fontSize: 12)),
                               ),
                             ],
                           ),
                         )
                       else if (!_isInitialized)
                         Padding(
-                          padding: const EdgeInsets.all(40.0),
+                          padding: EdgeInsets.all(40.0),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: const [
+                            children: [
                               CircularProgressIndicator(
                                 color: AppColors.progress,
                                 strokeWidth: 2.5,
@@ -318,7 +318,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                                 width: 1.5,
                               ),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.play_arrow_rounded,
                               color: Colors.white,
                               size: 38,
@@ -334,7 +334,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
               if (_isInitialized)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: AppColors.surface,
                     border: Border(
                       top: BorderSide(color: AppColors.border, width: 1),
@@ -407,7 +407,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                           // Timestamp Indicator
                           Text(
                             "${_formatDuration(_controller.value.position)} / ${_formatDuration(_controller.value.duration)}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textLight,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -418,7 +418,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
 
                           // Loop/Replay
                           IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.replay_rounded,
                               color: AppColors.textLight,
                               size: 20,

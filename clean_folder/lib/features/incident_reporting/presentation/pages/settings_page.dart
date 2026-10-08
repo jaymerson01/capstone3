@@ -15,7 +15,6 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
-import 'package:community_safety_app/core/services/fcm_service.dart';
 
 
 class SettingsPage extends StatefulWidget {
@@ -30,20 +29,23 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+          icon: Icon(Icons.arrow_back, color: AppColors.textDark, size: 24),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "SETTINGS",
           style: TextStyle(
-            color: Colors.white,
+            color: AppColors.textDark,
             fontWeight: FontWeight.w900,
             letterSpacing: 1.5,
             fontSize: 18,
@@ -60,11 +62,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   /// 1. DYNAMIC PROFILE HEADER CARD
                   _buildProfileHeaderCard(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
                   /// 2. EMERGENCY SERVICES
                   _buildSectionTitle("Emergency Services"),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _buildSettingTile(
                     icon: Icons.phone_in_talk_rounded,
                     iconColor: AppColors.danger,
@@ -77,11 +79,11 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
 
                   /// 3. ACCOUNT SETTINGS
                   _buildSectionTitle("Account Settings"),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _buildSettingTile(
                     icon: Icons.person_outline_rounded,
                     title: "Edit Personal Details",
@@ -104,49 +106,36 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  /// 4. ALERTS & NOTIFICATION DIAGNOSTICS
-                  _buildSectionTitle("Alerts & Notification Diagnostics"),
-                  const SizedBox(height: 12),
-                  _buildSettingTile(
-                    icon: Icons.notifications_active_rounded,
-                    iconColor: const Color(0xFF0A84FF),
-                    title: "Test Emergency Alert & Chime",
-                    subtitle: "Trigger a test notification banner & dual-harmonic chime",
-                    onTap: () async {
-                      try {
-                        await sl<FCMService>().showLocalNotification(
-                          title: "🚨 Test Alert: ResQ Emergency Chime",
-                          body: "Notification permissions and audio subsystem active!",
-                        );
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Color(0xFF0A84FF),
-                              content: Text("🔔 Test notification sent to drawer!"),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        debugPrint("Error sending test notification: $e");
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: AppColors.danger,
-                              content: Text("Notification Error: $e"),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      }
-                    },
+                  SizedBox(height: 24),
 
+                  /// APP PREFERENCES
+                  _buildSectionTitle("App Preferences"),
+                  SizedBox(height: 12),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: AppColors.isDarkModeNotifier,
+                    builder: (context, isDark, child) {
+                      return _buildSettingTile(
+                        icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                        title: "App Theme",
+                        subtitle: isDark ? "Dark Mode" : "Light Mode",
+                        trailing: Switch(
+                          value: isDark,
+                          onChanged: (value) {
+                            AppColors.isDarkMode = value;
+                          },
+                          activeThumbColor: AppColors.primary,
+                        ),
+                        onTap: () {
+                          AppColors.isDarkMode = !isDark;
+                        },
+                      );
+                    },
                   ),
-                  const SizedBox(height: 24),
+
 
                   /// 5. SUPPORT & CIVIC INFORMATION
                   _buildSectionTitle("Support & Information"),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _buildSettingTile(
                     icon: Icons.info_outline_rounded,
                     title: "About ResQ Community Safety",
@@ -169,11 +158,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     subtitle: "Report issues or suggest platform improvements",
                     onTap: () => _showFeedbackDialog(context),
                   ),
-                  const SizedBox(height: 28),
+                  SizedBox(height: 28),
 
                   /// 5. DESTRUCTIVE ACTIONS
                   _buildDestructiveActionButtons(),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                 ],
               ),
             ),
@@ -188,7 +177,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text(
                     "ResQ Community Safety",
                     style: TextStyle(
@@ -211,6 +200,8 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
+      }
+    );
   }
 
   Widget _buildSectionTitle(String title) {
@@ -230,10 +221,10 @@ class _SettingsPageState extends State<SettingsPage> {
             ],
           ),
         ),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Text(
           title.toUpperCase(),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
             fontWeight: FontWeight.w900,
             color: AppColors.textLight,
@@ -315,8 +306,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               errorBuilder: (ctx, err, stack) => Center(
                                 child: Text(
                                   initials,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(color: AppColors.textDark,
                                     fontSize: 22,
                                     fontWeight: FontWeight.w900,
                                   ),
@@ -329,8 +319,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               errorBuilder: (ctx, err, stack) => Center(
                                 child: Text(
                                   initials,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(color: AppColors.textDark,
                                     fontSize: 22,
                                     fontWeight: FontWeight.w900,
                                   ),
@@ -340,8 +329,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       : Center(
                           child: Text(
                             initials,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(color: AppColors.textDark,
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
                             ),
@@ -349,103 +337,86 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
 
               // User Meta
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.textDark,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    // Name + Verified Badge
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            name,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w900,
+                              color: AppColors.textDark,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isVerified) ...[
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.verified_rounded,
+                            size: 16,
+                            color: AppColors.primary,
+                          ),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 3),
                     Text(
                       email,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         color: AppColors.textLight,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      crossAxisAlignment: WrapCrossAlignment.center,
+                    const SizedBox(height: 7),
+                    // Location & Verification Metadata
+                    Row(
                       children: [
-                        // Sector Badge
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 130),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                            ),
-                          ),
+                        Icon(
+                          Icons.location_on_outlined,
+                          size: 13,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
                           child: Text(
                             sector,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w700,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              color: AppColors.textLight,
+                              fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-
-                        // Verification Status
+                        const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                          width: 3,
+                          height: 3,
                           decoration: BoxDecoration(
-                            color: isVerified
-                                ? AppColors.solved.withValues(alpha: 0.12)
-                                : AppColors.warning.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isVerified
-                                  ? AppColors.solved.withValues(alpha: 0.3)
-                                  : AppColors.warning.withValues(alpha: 0.3),
-                            ),
+                            color: AppColors.textLight.withValues(alpha: 0.5),
+                            shape: BoxShape.circle,
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 5,
-                                height: 5,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isVerified
-                                      ? AppColors.solved
-                                      : AppColors.warning,
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                isVerified ? "Verified" : "Citizen",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: isVerified
-                                      ? AppColors.solved
-                                      : AppColors.warning,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          isVerified ? "Verified Resident" : "Resident Citizen",
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isVerified ? AppColors.solved : AppColors.textLight,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -456,7 +427,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
               // Quick Edit Icon
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.edit_outlined,
                   color: AppColors.primary,
                   size: 20,
@@ -492,7 +463,7 @@ class _SettingsPageState extends State<SettingsPage> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.logout_rounded, color: AppColors.textLight, size: 18),
@@ -509,14 +480,14 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         TextButton(
           onPressed: () => _triggerAccountActionDialog(
             "Delete Account",
             "Warning: Deleting your resident account permanently clears all filed report logs and saved profile information. This action is irreversible.",
             true,
           ),
-          child: const Text(
+          child: Text(
             "Permanently Delete Account",
             style: TextStyle(
               color: AppColors.danger,
@@ -564,26 +535,26 @@ class _SettingsPageState extends State<SettingsPage> {
                   size: 28,
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 contextTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 briefMsg,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textLight,
                   fontSize: 13,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22),
               Row(
                 children: [
                   Expanded(
@@ -596,7 +567,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: AppColors.border),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             "Cancel",
                             style: TextStyle(
@@ -608,7 +579,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
@@ -737,7 +708,7 @@ class _SettingsPageState extends State<SettingsPage> {
     showModalBottomSheet(
       context: ctx,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         side: BorderSide(color: AppColors.border),
       ),
@@ -757,7 +728,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             Row(
               children: [
                 Container(
@@ -766,17 +737,17 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.info_outline,
                     color: AppColors.primary,
                     size: 18,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     head,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
                       color: AppColors.textDark,
@@ -785,16 +756,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             Text(
               paragraph,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 height: 1.6,
                 color: AppColors.textLight,
               ),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
@@ -805,11 +776,11 @@ class _SettingsPageState extends State<SettingsPage> {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: AppColors.primaryGlowShadow,
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
                     "Close",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.textDark,
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
                     ),
@@ -827,7 +798,7 @@ class _SettingsPageState extends State<SettingsPage> {
     showModalBottomSheet(
       context: ctx,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         side: BorderSide(color: AppColors.border),
       ),
@@ -848,7 +819,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: 18),
               Row(
                 children: [
                   Container(
@@ -857,17 +828,17 @@ class _SettingsPageState extends State<SettingsPage> {
                       color: AppColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.account_balance_rounded,
                       color: AppColors.primary,
                       size: 22,
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           "Barangay Administrative Help Desk",
                           style: TextStyle(
@@ -889,7 +860,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
@@ -904,7 +875,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       "Office Address",
                       "Armstrong Ave., Moonwalk, Parañaque City",
                     ),
-                    const Divider(color: AppColors.border, height: 20),
+                    Divider(color: AppColors.border, height: 20),
                     _buildHelpDeskRow(
                       Icons.access_time_rounded,
                       "Public Service Hours",
@@ -913,7 +884,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -932,19 +903,19 @@ class _SettingsPageState extends State<SettingsPage> {
                           await launchUrl(uri);
                         }
                       },
-                      icon: const Icon(Icons.phone, size: 18),
-                      label: const Text(
+                      icon: Icon(Icons.phone, size: 18),
+                      label: Text(
                         "Call Office",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textDark,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -960,8 +931,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           await launchUrl(uri);
                         }
                       },
-                      icon: const Icon(Icons.email_outlined, size: 18),
-                      label: const Text(
+                      icon: Icon(Icons.email_outlined, size: 18),
+                      label: Text(
                         "Send Email",
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
@@ -969,10 +940,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Icon(Icons.info_outline, size: 14, color: AppColors.warning),
                   SizedBox(width: 6),
                   Expanded(
@@ -999,23 +970,23 @@ class _SettingsPageState extends State<SettingsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 18, color: AppColors.textLight),
-        const SizedBox(width: 10),
+        SizedBox(width: 10),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textLight,
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textDark,
@@ -1040,7 +1011,7 @@ class _SettingsPageState extends State<SettingsPage> {
           backgroundColor: AppColors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: AppColors.border),
+            side: BorderSide(color: AppColors.border),
           ),
           title: Row(
             children: [
@@ -1050,14 +1021,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: AppColors.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.rate_review_rounded,
                   color: AppColors.primary,
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 12),
-              const Text(
+              SizedBox(width: 12),
+              Text(
                 "Submit App Feedback",
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
@@ -1072,12 +1043,12 @@ class _SettingsPageState extends State<SettingsPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Help us improve ResQ for Barangay Moonwalk. Your feedback is sent directly to the development team.",
                   style: TextStyle(fontSize: 12.5, color: AppColors.textLight, height: 1.4),
                 ),
-                const SizedBox(height: 14),
-                const Text(
+                SizedBox(height: 14),
+                Text(
                   "FEEDBACK CATEGORY",
                   style: TextStyle(
                     fontSize: 10,
@@ -1086,7 +1057,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     color: AppColors.textLight,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
@@ -1119,23 +1090,23 @@ class _SettingsPageState extends State<SettingsPage> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 TextField(
                   controller: feedbackCtrl,
                   maxLines: 4,
-                  style: const TextStyle(color: AppColors.textDark, fontSize: 13),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 13),
                   decoration: InputDecoration(
                     hintText: "Describe your feedback, suggestion, or bug encounter...",
-                    hintStyle: const TextStyle(fontSize: 12.5, color: AppColors.textLight),
+                    hintStyle: TextStyle(fontSize: 12.5, color: AppColors.textLight),
                     filled: true,
                     fillColor: AppColors.background,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -1149,12 +1120,12 @@ class _SettingsPageState extends State<SettingsPage> {
           actions: [
             TextButton(
               onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
-              child: const Text("Cancel", style: TextStyle(color: AppColors.textLight)),
+              child: Text("Cancel", style: TextStyle(color: AppColors.textLight)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
+                foregroundColor: AppColors.textDark,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -1211,15 +1182,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       }
                     },
               child: isSubmitting
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
-                        color: Colors.white,
+                        color: AppColors.textDark,
                         strokeWidth: 2,
                       ),
                     )
-                  : const Text("Submit"),
+                  : Text("Submit"),
             ),
           ],
         ),
@@ -1261,23 +1232,23 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   child: Icon(icon, size: 20, color: effectiveColor),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                           color: AppColors.textDark,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textLight,
                           fontSize: 11.5,
                         ),
@@ -1289,7 +1260,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 ?trailing,
                 if (onTap != null && trailing == null)
-                  const Icon(
+                  Icon(
                     Icons.arrow_forward_ios_rounded,
                     color: AppColors.textLight,
                     size: 13,
@@ -1386,7 +1357,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         side: BorderSide(color: AppColors.border),
       ),
@@ -1396,7 +1367,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               "Profile Photo",
               style: TextStyle(
                 fontSize: 16,
@@ -1404,11 +1375,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 color: AppColors.textDark,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.camera_alt_rounded,
+              leading: Icon(Icons.camera_alt_rounded,
                   color: AppColors.primary),
-              title: const Text(
+              title: Text(
                 "Take Photo with Camera",
                 style: TextStyle(color: AppColors.textDark, fontSize: 14),
               ),
@@ -1423,8 +1394,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             ListTile(
               leading:
-                  const Icon(Icons.photo_library_rounded, color: AppColors.primary),
-              title: const Text(
+                  Icon(Icons.photo_library_rounded, color: AppColors.primary),
+              title: Text(
                 "Choose from Gallery",
                 style: TextStyle(color: AppColors.textDark, fontSize: 14),
               ),
@@ -1512,10 +1483,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Edit Profile',
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
@@ -1555,7 +1526,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         existingPhoto,
                                         fit: BoxFit.cover,
                                         errorBuilder: (ctx, err, stack) =>
-                                            const Icon(Icons.person,
+                                            Icon(Icons.person,
                                                 size: 54,
                                                 color: AppColors.primary),
                                       )
@@ -1563,11 +1534,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         File(existingPhoto),
                                         fit: BoxFit.cover,
                                         errorBuilder: (ctx, err, stack) =>
-                                            const Icon(Icons.person,
+                                            Icon(Icons.person,
                                                 size: 54,
                                                 color: AppColors.primary),
                                       ))
-                                : const Icon(
+                                : Icon(
                                     Icons.person,
                                     size: 54,
                                     color: AppColors.primary,
@@ -1589,10 +1560,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                 color: AppColors.background, width: 2),
                             boxShadow: AppColors.primaryGlowShadow,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.camera_alt_rounded,
                             size: 16,
-                            color: Colors.white,
+                            color: AppColors.textDark,
                           ),
                         ),
                       ),
@@ -1600,10 +1571,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               _buildSectionSubHeader("Personal Credentials"),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildValidatedField(
                 controller: _nameController,
                 label: "Full Name",
@@ -1612,30 +1583,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ? "Please enter your full name"
                     : null,
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               // Email (Read-only credential)
               TextFormField(
                 controller: _emailController,
                 readOnly: true,
-                style: const TextStyle(color: AppColors.textLight),
+                style: TextStyle(color: AppColors.textLight),
                 decoration: InputDecoration(
                   labelText: "Email Address (Account ID)",
-                  labelStyle: const TextStyle(color: AppColors.textLight),
+                  labelStyle: TextStyle(color: AppColors.textLight),
                   prefixIcon:
-                      const Icon(Icons.email_outlined, color: AppColors.textLight),
+                      Icon(Icons.email_outlined, color: AppColors.textLight),
                   suffixIcon:
-                      const Icon(Icons.lock_outline, color: AppColors.textLight, size: 16),
+                      Icon(Icons.lock_outline, color: AppColors.textLight, size: 16),
                   helperText: "Primary login credential cannot be changed",
                   helperStyle:
-                      const TextStyle(color: AppColors.textLight, fontSize: 11),
+                      TextStyle(color: AppColors.textLight, fontSize: 11),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   filled: true,
                   fillColor: AppColors.surface.withValues(alpha: 0.6),
@@ -1643,7 +1614,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 ),
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               _buildValidatedField(
                 controller: _phoneController,
@@ -1655,34 +1626,33 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     : null,
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildSectionSubHeader("Barangay Jurisdiction & Address"),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               /// BARANGAY SECTOR DROPDOWN
               DropdownButtonFormField<String>(
                 initialValue: _selectedBarangay,
                 dropdownColor: AppColors.surface,
                 isExpanded: true,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(color: AppColors.textDark,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
                   labelText: "Barangay Area / Sector",
-                  labelStyle: const TextStyle(color: AppColors.textLight),
-                  prefixIcon: const Icon(
+                  labelStyle: TextStyle(color: AppColors.textLight),
+                  prefixIcon: Icon(
                     Icons.holiday_village_outlined,
                     color: AppColors.primary,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1698,7 +1668,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           value: b,
                           child: Text(
                             b,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: AppColors.textDark),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ))
@@ -1707,7 +1677,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   if (val != null) setState(() => _selectedBarangay = val);
                 },
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               _buildValidatedField(
                 controller: _savedAddressController,
@@ -1718,9 +1688,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     : null,
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildSectionSubHeader("Emergency Contact Fallback"),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               _buildValidatedField(
                 controller: _emergencyContactNameController,
@@ -1730,7 +1700,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     ? "Please provide an emergency contact person"
                     : null,
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: 14),
 
               _buildValidatedField(
                 controller: _emergencyContactNumberController,
@@ -1742,33 +1712,32 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     : null,
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               _buildSectionSubHeader("Language Preference"),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
 
               DropdownButtonFormField<String>(
                 initialValue: _selectedLanguage,
                 dropdownColor: AppColors.surface,
                 isExpanded: true,
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(color: AppColors.textDark,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
                   labelText: "App Interface Language",
-                  labelStyle: const TextStyle(color: AppColors.textLight),
-                  prefixIcon: const Icon(
+                  labelStyle: TextStyle(color: AppColors.textLight),
+                  prefixIcon: Icon(
                     Icons.translate_rounded,
                     color: AppColors.primary,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.border),
+                    borderSide: BorderSide(color: AppColors.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1784,7 +1753,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                           value: l,
                           child: Text(
                             l,
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: AppColors.textDark),
                           ),
                         ))
                     .toList(),
@@ -1793,7 +1762,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 },
               ),
 
-              const SizedBox(height: 36),
+              SizedBox(height: 36),
 
               SizedBox(
                 width: double.infinity,
@@ -1808,22 +1777,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      foregroundColor: Colors.white,
+                      foregroundColor: AppColors.textDark,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     onPressed: _isSaving ? null : _saveProfileChanges,
                     child: _isSaving
-                        ? const SizedBox(
+                        ? SizedBox(
                             width: 22,
                             height: 22,
                             child: CircularProgressIndicator(
-                              color: Colors.white,
+                              color: AppColors.textDark,
                               strokeWidth: 2.5,
                             ),
                           )
-                        : const Text(
+                        : Text(
                             'SAVE PROFILE CHANGES',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -1834,7 +1803,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),
@@ -1845,7 +1814,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget _buildSectionSubHeader(String label) {
     return Text(
       label,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 13,
         fontWeight: FontWeight.bold,
         color: AppColors.textLight,
@@ -1864,18 +1833,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
       controller: controller,
       keyboardType: keyboardType,
       validator: validator,
-      style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+      style: TextStyle(color: AppColors.textDark, fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.textLight),
+        labelStyle: TextStyle(color: AppColors.textLight),
         prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1883,8 +1852,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         filled: true,
         fillColor: AppColors.surface,
-        errorStyle: const TextStyle(
-          color: AppColors.danger,
+        errorStyle: TextStyle(color: AppColors.danger,
           fontWeight: FontWeight.w600,
         ),
         contentPadding:
@@ -1934,10 +1902,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.textDark,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Privacy & Security',
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
@@ -1946,7 +1914,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(20.0),
         children: [
-          const Text(
+          Text(
             'Credentials & Access',
             style: TextStyle(
               fontSize: 13,
@@ -1954,7 +1922,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               color: AppColors.textLight,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           Container(
             decoration: BoxDecoration(
@@ -1969,13 +1937,13 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   color: AppColors.primary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.lock_reset_rounded,
                   color: AppColors.primary,
                   size: 20,
                 ),
               ),
-              title: const Text(
+              title: Text(
                 'Change Account Password',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
@@ -1983,11 +1951,11 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   fontSize: 14,
                 ),
               ),
-              subtitle: const Text(
+              subtitle: Text(
                 'Update password for resident account credentials',
                 style: TextStyle(fontSize: 12, color: AppColors.textLight),
               ),
-              trailing: const Icon(
+              trailing: Icon(
                 Icons.arrow_forward_ios,
                 size: 13,
                 color: AppColors.textLight,
@@ -1996,8 +1964,8 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
             ),
           ),
 
-          const SizedBox(height: 28),
-          const Text(
+          SizedBox(height: 28),
+          Text(
             'Civic Security & Anti-Spam Policy',
             style: TextStyle(
               fontSize: 13,
@@ -2005,7 +1973,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               color: AppColors.textLight,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           Container(
             padding: const EdgeInsets.all(16),
@@ -2023,20 +1991,20 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     color: AppColors.solved.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.verified_user_rounded,
                     color: AppColors.solved,
                     size: 22,
                   ),
                 ),
-                const SizedBox(width: 14),
+                SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          const Text(
+                          Text(
                             'Biometric Verification',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -2044,14 +2012,14 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                               color: AppColors.textDark,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: AppColors.solved.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text(
+                            child: Text(
                               'ENFORCED',
                               style: TextStyle(
                                 fontSize: 9,
@@ -2063,12 +2031,12 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       Text(
                         _isHardwareSupported
                             ? 'Biometric confirmation (fingerprint or face authentication) is enforced by Barangay Moonwalk municipal policy when submitting emergency reports to deter false alarms and prank filings.'
                             : 'Hardware biometrics not detected on this device. Device PIN or secure credential confirmation will serve as anti-spam verification.',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textLight,
                           height: 1.45,
@@ -2100,7 +2068,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
       context: ctx,
       isScrollControlled: true,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         side: BorderSide(color: AppColors.border),
       ),
@@ -2118,7 +2086,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Change Password',
                   style: TextStyle(
                     fontSize: 18,
@@ -2126,30 +2094,30 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     color: AppColors.textDark,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   'Please enter your current password followed by your new password.',
                   style: TextStyle(fontSize: 12, color: AppColors.textLight),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
 
                 TextFormField(
                   controller: currentPassCtrl,
                   obscureText: obscureCurrent,
-                  style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   validator: (val) => val == null || val.isEmpty
                       ? "Please enter your current password"
                       : null,
                   decoration: InputDecoration(
                     labelText: 'Current Password',
-                    labelStyle: const TextStyle(color: AppColors.textLight),
+                    labelStyle: TextStyle(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2169,25 +2137,25 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
 
                 TextFormField(
                   controller: newPassCtrl,
                   obscureText: obscureNew,
-                  style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   validator: (val) => val == null || val.length < 6
                       ? "Password must be at least 6 characters"
                       : null,
                   decoration: InputDecoration(
                     labelText: 'New Password',
-                    labelStyle: const TextStyle(color: AppColors.textLight),
+                    labelStyle: TextStyle(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2204,25 +2172,25 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
 
                 TextFormField(
                   controller: confirmPassCtrl,
                   obscureText: obscureConfirm,
-                  style: const TextStyle(color: AppColors.textDark, fontSize: 14),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   validator: (val) => val != newPassCtrl.text
                       ? "Passwords do not match"
                       : null,
                   decoration: InputDecoration(
                     labelText: 'Confirm New Password',
-                    labelStyle: const TextStyle(color: AppColors.textLight),
+                    labelStyle: TextStyle(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.border),
+                      borderSide: BorderSide(color: AppColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2242,7 +2210,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
 
                 Align(
                   alignment: Alignment.centerRight,
@@ -2288,8 +2256,8 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                         );
                       }
                     },
-                    icon: const Icon(Icons.mail_outline_rounded, size: 14, color: AppColors.primary),
-                    label: const Text(
+                    icon: Icon(Icons.mail_outline_rounded, size: 14, color: AppColors.primary),
+                    label: Text(
                       "Forgot current password? Send reset link to email",
                       style: TextStyle(
                         color: AppColors.primary,
@@ -2299,7 +2267,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                SizedBox(height: 18),
 
                 SizedBox(
                   width: double.infinity,
@@ -2314,7 +2282,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
-                        foregroundColor: Colors.white,
+                        foregroundColor: AppColors.textDark,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -2359,15 +2327,15 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                               );
                             },
                       child: isSubmitting
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
-                                color: Colors.white,
+                                color: AppColors.textDark,
                                 strokeWidth: 2,
                               ),
                             )
-                          : const Text(
+                          : Text(
                               'UPDATE PASSWORD',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,

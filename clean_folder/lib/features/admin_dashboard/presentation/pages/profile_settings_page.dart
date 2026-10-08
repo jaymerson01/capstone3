@@ -279,9 +279,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             duration: const Duration(seconds: 5),
             content: Row(
               children: [
-                const Icon(Icons.mark_email_read_rounded,
+                Icon(Icons.mark_email_read_rounded,
                     color: Color(0xFF30D158), size: 18),
-                const SizedBox(width: 10),
+                SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     "Password reset link dispatched to $email! Please check your Gmail.",
@@ -322,7 +322,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(color: Color(0xFF1E2D4A)),
           ),
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.lock_reset_rounded, color: Color(0xFF30D158), size: 22),
               SizedBox(width: 10),
@@ -375,7 +375,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           actions: [
             TextButton(
               onPressed: isUpdating ? null : () => Navigator.pop(dialogCtx),
-              child: const Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+              child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -422,12 +422,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       }
                     },
               child: isUpdating
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
                     )
-                  : const Text("Update Password",
+                  : Text("Update Password",
                       style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
@@ -450,7 +450,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: AdminColors.primaryGreen),
       );
     }
@@ -481,13 +481,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         color: const Color(0xFF30D158).withValues(alpha: 0.3),
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.admin_panel_settings_rounded,
                       color: Color(0xFF30D158),
                       size: 28,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -514,7 +514,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── 1. Avatar & Credentials Card ────────────────────────
               Custom3dCard(
@@ -546,13 +546,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             ),
                             padding: const EdgeInsets.all(3.5),
                             child: Container(
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Color(0xFF0D1627),
                               ),
                               child: ClipOval(
                                 child: _isUploadingPhoto
-                                    ? const Center(
+                                    ? Center(
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
                                           color: Color(0xFF30D158),
@@ -607,7 +607,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                     ),
                                   ],
                                 ),
-                                child: const Icon(Icons.camera_alt_rounded,
+                                child: Icon(Icons.camera_alt_rounded,
                                     size: 16, color: Colors.black),
                               ),
                             ),
@@ -615,7 +615,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
                     Text(
                       _nameController.text.trim().isNotEmpty
                           ? _nameController.text
@@ -626,7 +626,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         color: AdminColors.textDark,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       _emailController.text,
                       style: const TextStyle(
@@ -634,7 +634,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         color: AdminColors.textLight,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     // Non-technical Admin Badge
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -645,7 +645,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           color: const Color(0xFF30D158).withValues(alpha: 0.4),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.shield_rounded, color: Color(0xFF30D158), size: 14),
@@ -665,7 +665,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── 2. Profile Details Form ──────────────────────────────
               Custom3dCard(
@@ -676,7 +676,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Administrator Identity & Contact",
                         style: TextStyle(
                           fontSize: 15,
@@ -684,7 +684,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           color: AdminColors.textDark,
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      SizedBox(height: 18),
 
                       Custom3dTextField(
                         controller: _nameController,
@@ -700,7 +700,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         labelText: "Registered Google Account Email",
                         prefixIcon: Icons.email_outlined,
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       const Padding(
                         padding: EdgeInsets.only(left: 4, bottom: 8),
                         child: Row(
@@ -735,7 +735,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         prefixIcon: Icons.location_city_outlined,
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
 
                       SizedBox(
                         width: double.infinity,
@@ -750,7 +750,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── 3. Security & Password Management ────────────────────
               Custom3dCard(
@@ -759,7 +759,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.security_rounded, color: Color(0xFF0A84FF), size: 20),
                         SizedBox(width: 10),
@@ -773,12 +773,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       "Manage your login password or dispatch an official password reset link directly to your registered Google inbox.",
                       style: TextStyle(fontSize: 12.5, color: AdminColors.textLight, height: 1.4),
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: 18),
 
                     Row(
                       children: [
@@ -792,15 +792,15 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            icon: const Icon(Icons.mark_email_read_outlined, size: 18),
-                            label: const Text(
+                            icon: Icon(Icons.mark_email_read_outlined, size: 18),
+                            label: Text(
                               "Send Reset Link to Gmail",
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                             ),
                             onPressed: _sendPasswordReset,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
@@ -811,8 +811,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                             ),
-                            icon: const Icon(Icons.password_rounded, size: 18),
-                            label: const Text(
+                            icon: Icon(Icons.password_rounded, size: 18),
+                            label: Text(
                               "Change Password Directly",
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                             ),
@@ -824,7 +824,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
 
               // ── 4. Station Audio & System Check ──────────────────────
               Custom3dCard(
@@ -833,7 +833,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Icon(Icons.volume_up_rounded, color: Color(0xFFFF9500), size: 20),
                         SizedBox(width: 10),
@@ -847,12 +847,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       "Verify that your command center desktop speakers are operational so you do not miss incoming citizen emergency alerts or siren broadcasts.",
                       style: TextStyle(fontSize: 12.5, color: AdminColors.textLight, height: 1.4),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
 
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
@@ -878,7 +878,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── 5. Logout Option ─────────────────────────────────────
               Center(
@@ -887,8 +887,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     foregroundColor: AdminColors.dangerRed,
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
-                  icon: const Icon(Icons.logout_rounded, size: 18),
-                  label: const Text(
+                  icon: Icon(Icons.logout_rounded, size: 18),
+                  label: Text(
                     "Log Out of Admin Command Center",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
                   ),
@@ -901,16 +901,16 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           borderRadius: BorderRadius.circular(20),
                           side: const BorderSide(color: Color(0xFF1E2D4A)),
                         ),
-                        title: const Text("Confirm Logout",
+                        title: Text("Confirm Logout",
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        content: const Text(
+                        content: Text(
                           "Are you sure you want to log out of the municipal admin panel?",
                           style: TextStyle(color: Color(0xFF7B8DB0)),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
-                            child: const Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+                            child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
                           ),
                           TextButton(
                             onPressed: () {
@@ -918,7 +918,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                               context.read<AuthBloc>().add(const LogoutRequested());
                               Navigator.pushReplacementNamed(context, '/admin/login');
                             },
-                            child: const Text("Log Out",
+                            child: Text("Log Out",
                                 style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                           ),
                         ],
@@ -927,7 +927,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
             ],
           ),
         ),

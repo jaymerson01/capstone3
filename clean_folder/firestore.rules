@@ -70,7 +70,7 @@ service cloud.firestore {
     // ── 3. Audit Logs (Immutable Security Trail) ──────────────────────
     match /audit_logs/{logId} {
       // Authorized desk administrators can view municipal audit logs
-      allow read: if isAuthenticated();
+      allow read: if isAdmin();
 
       // Authenticated users and administrators can append new audit records
       allow create: if isAuthenticated();
@@ -84,13 +84,13 @@ service cloud.firestore {
       // Emergency disaster alerts and sirens are public safety advisories (readable by all devices)
       allow read: if true;
 
-      // Only authenticated users/admins can publish, alter, or cancel emergency alerts
-      allow write: if isAuthenticated();
+      // Only authenticated admins can publish, alter, or cancel emergency alerts
+      allow write: if isAdmin();
     }
 
     match /emergency_broadcasts/{broadcastId} {
       allow read: if true;
-      allow write: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
 

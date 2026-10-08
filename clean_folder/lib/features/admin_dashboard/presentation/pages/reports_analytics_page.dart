@@ -89,7 +89,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               avgResponseSpeed = "$avgMins min";
             } else {
               final hrs = (avgMins / 60).toStringAsFixed(1);
-              avgResponseSpeed = "${hrs} hr";
+              avgResponseSpeed = "$hrs hr";
             }
             responseSpeedSubtitle = "Based on $validSamples active dispatches";
           }
@@ -121,11 +121,11 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
             children: [
               // ── Top Header & Actions Bar ───────────────────────────────
               _buildHeaderBar(context, filteredIncidents),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── Timeframe Selector Bar ─────────────────────────────────
               _buildTimeframeSelector(),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // ── KPI Summary Cards ──────────────────────────────────────
               _buildKpiCards(
@@ -138,7 +138,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 avgResponseSpeed: avgResponseSpeed,
                 responseSpeedSubtitle: responseSpeedSubtitle,
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               // ── Charts Row (Trend Curve & Sector Ranking) ───────────────
               Row(
@@ -148,18 +148,18 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     flex: 6,
                     child: _buildTrendChartCard(filteredIncidents),
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: 20),
                   Expanded(
                     flex: 4,
                     child: _buildSectorRankingCard(sectorCounts, totalCount),
                   ),
                 ],
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
 
               // ── Incident Blotter Ledger Table ──────────────────────────
               _buildBlotterLedgerCard(searchedIncidents),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
           ),
         );
@@ -192,13 +192,13 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.analytics_rounded,
                 color: Colors.white,
                 size: 22,
               ),
             ),
-            const SizedBox(width: 14),
+            SizedBox(width: 14),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -242,12 +242,12 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 ),
                 backgroundColor: const Color(0xFF00E5FF).withValues(alpha: 0.08),
               ),
-              icon: const Icon(
+              icon: Icon(
                 Icons.table_chart_outlined,
                 size: 17,
                 color: Color(0xFF00E5FF),
               ),
-              label: const Text(
+              label: Text(
                 "Export Blotter CSV",
                 style: TextStyle(
                   color: Color(0xFF00E5FF),
@@ -256,7 +256,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             // Official PDF Report Generator Button
             ElevatedButton.icon(
               onPressed: _isExporting
@@ -275,8 +275,8 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 elevation: 4,
                 shadowColor: const Color(0xFFFF3B30).withValues(alpha: 0.4),
               ),
-              icon: const Icon(Icons.picture_as_pdf_rounded, size: 18),
-              label: const Text(
+              icon: Icon(Icons.picture_as_pdf_rounded, size: 18),
+              label: Text(
                 "Official PDF Report",
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
               ),
@@ -355,7 +355,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               size: 15,
               color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
@@ -487,7 +487,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(
             value,
             style: const TextStyle(
@@ -499,7 +499,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             subtitle,
             style: TextStyle(
@@ -587,7 +587,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           SizedBox(
             height: 220,
             child: CustomPaint(
@@ -619,7 +619,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
@@ -646,12 +646,12 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               Icon(Icons.bar_chart_rounded, color: Color(0xFF0A84FF), size: 20),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           if (sortedSectors.isEmpty)
             Container(
               height: 200,
               alignment: Alignment.center,
-              child: const Text(
+              child: Text(
                 "No sector logs found",
                 style: TextStyle(color: Color(0xFF7B8DB0), fontSize: 12),
               ),
@@ -661,7 +661,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: min(5, sortedSectors.length),
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              separatorBuilder: (context, index) => SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final entry = sortedSectors[index];
                 final double pct =
@@ -700,7 +700,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 5),
+                    SizedBox(height: 5),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: Stack(
@@ -758,13 +758,13 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.folder_shared_outlined,
                       color: AppColors.primary,
                       size: 18,
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -802,7 +802,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       color: Color(0xFF5A6E8C),
                       fontSize: 12,
                     ),
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.search,
                       color: Color(0xFF7B8DB0),
                       size: 18,
@@ -834,15 +834,15 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: 18),
           Container(height: 1, color: const Color(0xFF1E2D4A)),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           if (incidents.isEmpty)
             Container(
               padding: const EdgeInsets.symmetric(vertical: 40),
               alignment: Alignment.center,
-              child: const Text(
+              child: Text(
                 "No matching incident ledger records in this timeframe.",
                 style: TextStyle(color: Color(0xFF7B8DB0), fontSize: 13),
               ),

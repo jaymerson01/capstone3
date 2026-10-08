@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:community_safety_app/core/theme/app_colors.dart';
 class EmergencyBroadcastListener extends StatefulWidget {
   final Widget child;
   final GlobalKey<NavigatorState>? navigatorKey;
@@ -167,6 +167,7 @@ class _EmergencyBroadcastListenerState
 
     // Defer dialog display to post-frame to ensure Navigator is mounted and frame build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 1500));
       if (!mounted) {
         _isDialogShowing = false;
         _activeDialogBroadcastId = null;
@@ -193,7 +194,7 @@ class _EmergencyBroadcastListenerState
               margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
               constraints: const BoxConstraints(maxWidth: 480),
               decoration: BoxDecoration(
-                color: const Color(0xFF0D1627),
+                color: AppColors.surface,
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(color: const Color(0xFFFF3B30), width: 2.5),
                 boxShadow: [
@@ -222,13 +223,13 @@ class _EmergencyBroadcastListenerState
                           border: Border.all(
                               color: const Color(0xFFFF3B30), width: 2),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.crisis_alert_rounded,
                           color: Color(0xFFFF3B30),
                           size: 40,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 6),
@@ -246,13 +247,13 @@ class _EmergencyBroadcastListenerState
                             Container(
                               width: 8,
                               height: 8,
-                              decoration: const BoxDecoration(
+                              decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 color: Color(0xFFFF3B30),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            const Text(
+                            SizedBox(width: 8),
+                            Text(
                               "MUNICIPAL EMERGENCY SIREN",
                               style: TextStyle(
                                 color: Color(0xFFFF3B30),
@@ -264,26 +265,25 @@ class _EmergencyBroadcastListenerState
                           ],
                         ),
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: 14),
                       Text(
                         title.toUpperCase(),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(color: AppColors.textDark,
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.5,
                           height: 1.25,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: const Color(0xFF060D1A),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFF1E2D4A)),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,9 +294,9 @@ class _EmergencyBroadcastListenerState
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.warning_rounded,
+                                    Icon(Icons.warning_rounded,
                                         size: 16, color: Color(0xFFFF9500)),
-                                    const SizedBox(width: 6),
+                                    SizedBox(width: 6),
                                     Text(
                                       alertType,
                                       style: const TextStyle(
@@ -316,12 +316,12 @@ class _EmergencyBroadcastListenerState
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            SizedBox(height: 8),
                             Row(
                               children: [
-                                const Icon(Icons.place_outlined,
+                                Icon(Icons.place_outlined,
                                     size: 15, color: Color(0xFF0A84FF)),
-                                const SizedBox(width: 6),
+                                SizedBox(width: 6),
                                 Text(
                                   "Target Sector: $sector",
                                   style: const TextStyle(
@@ -332,8 +332,8 @@ class _EmergencyBroadcastListenerState
                                 ),
                               ],
                             ),
-                            const Divider(
-                                color: Color(0xFF1E2D4A), height: 20),
+                            Divider(
+                                color: AppColors.border, height: 20),
                             Text(
                               message,
                               style: const TextStyle(
@@ -342,7 +342,7 @@ class _EmergencyBroadcastListenerState
                                 height: 1.45,
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            SizedBox(height: 10),
                             Text(
                               "Origin: $source",
                               style: const TextStyle(
@@ -354,23 +354,23 @@ class _EmergencyBroadcastListenerState
                           ],
                         ),
                       ),
-                      const SizedBox(height: 22),
+                      SizedBox(height: 22),
                       Row(
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFFF3B30),
-                                foregroundColor: Colors.white,
+                                foregroundColor: AppColors.textDark,
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 14),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                               ),
-                              icon: const Icon(Icons.check_circle_outline,
+                              icon: Icon(Icons.check_circle_outline,
                                   size: 18),
-                              label: const Text(
+                              label: Text(
                                 "ACKNOWLEDGE ALERT",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,

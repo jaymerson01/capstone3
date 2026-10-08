@@ -150,10 +150,10 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                   color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.lock_reset_rounded,
+                child: Icon(Icons.lock_reset_rounded,
                     color: AppColors.primary, size: 22),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               const Expanded(
                 child: Text(
                   "Reset Admin Password",
@@ -170,12 +170,12 @@ class _AdminLoginPageState extends State<AdminLoginPage>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Enter your registered municipal admin email address. We will dispatch a secure Google password reset link directly to your inbox.",
                 style: TextStyle(
                     color: Color(0xFF98A6BE), fontSize: 12.5, height: 1.4),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Custom3dTextField(
                 controller: resetEmailController,
                 labelText: "Admin Email",
@@ -188,7 +188,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
           actions: [
             TextButton(
               onPressed: isSending ? null : () => Navigator.pop(dialogCtx),
-              child: const Text("Cancel",
+              child: Text("Cancel",
                   style: TextStyle(color: AppColors.textLight)),
             ),
             ElevatedButton(
@@ -237,13 +237,13 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                       }
                     },
               child: isSending
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text("Send Reset Link"),
+                  : Text("Send Reset Link"),
             ),
           ],
         ),
@@ -264,7 +264,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
               return Stack(
                 children: [
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                         gradient: AppColors.commandGradient),
                   ),
                   // Ambient orbs
@@ -320,9 +320,9 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                             alignment: Alignment.centerLeft,
                             child: TextButton.icon(
                               onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back,
+                              icon: Icon(Icons.arrow_back,
                                   size: 16, color: AppColors.textLight),
-                              label: const Text(
+                              label: Text(
                                 "Back",
                                 style: TextStyle(
                                   color: AppColors.textLight,
@@ -332,7 +332,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                               ),
                             ),
                           ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
 
                         // Admin shield icon
                         Container(
@@ -353,19 +353,19 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                               ),
                             ],
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.admin_panel_settings,
                             color: Colors.white,
                             size: 44,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
 
                         ShaderMask(
                           shaderCallback: (bounds) =>
                               AppColors.cyanGradient.createShader(bounds),
                           blendMode: BlendMode.srcIn,
-                          child: const Text(
+                          child: Text(
                             "ADMIN PORTAL",
                             style: TextStyle(
                               color: Colors.white,
@@ -375,8 +375,8 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                             ),
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        const Text(
+                        SizedBox(height: 6),
+                        Text(
                           "Barangay Safety & Incident Command Center",
                           style: TextStyle(
                             color: AppColors.textLight,
@@ -384,7 +384,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 28),
+                        SizedBox(height: 28),
 
                         // ── Glass Card Form ─────────────────────────────────
                         ConstrainedBox(
@@ -429,15 +429,14 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                           ),
                                           child: Row(
                                             children: [
-                                              const Icon(Icons.error_outline,
+                                              Icon(Icons.error_outline,
                                                   color: AppColors.danger,
                                                   size: 18),
-                                              const SizedBox(width: 10),
+                                              SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
                                                   _errorMessage!,
-                                                  style: const TextStyle(
-                                                    color: AppColors.danger,
+                                                  style: TextStyle(color: AppColors.danger,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -494,7 +493,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                         },
                                       ),
 
-                                      const SizedBox(height: 4),
+                                      SizedBox(height: 4),
 
                                       // Forgot Password trigger
                                       Align(
@@ -508,7 +507,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                                 horizontal: 4, vertical: 2),
                                             visualDensity: VisualDensity.compact,
                                           ),
-                                          child: const Text(
+                                          child: Text(
                                             "Forgot Password?",
                                             style: TextStyle(
                                               color: AppColors.primary,
@@ -519,7 +518,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                         ),
                                       ),
 
-                                      const SizedBox(height: 12),
+                                      SizedBox(height: 12),
 
                                       Custom3dButton(
                                         text: _isLoading
@@ -534,7 +533,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                             : _handleLogin,
                                       ),
 
-                                      const SizedBox(height: 20),
+                                      SizedBox(height: 20),
 
                                       // Municipal Security Notice
                                       Container(
@@ -548,7 +547,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                             color: const Color(0xFF1E2D4A),
                                           ),
                                         ),
-                                        child: const Row(
+                                        child: Row(
                                           children: [
                                             Icon(
                                               Icons.shield_outlined,

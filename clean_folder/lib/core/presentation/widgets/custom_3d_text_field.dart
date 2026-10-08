@@ -118,7 +118,7 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
             maxLines: widget.maxLines,
             validator: widget.validator,
             onChanged: widget.onChanged,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textDark,
               fontSize: 15,
               fontWeight: FontWeight.w500,
@@ -131,7 +131,7 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
                 fontSize: 14,
               ),
               hintText: widget.hintText,
-              hintStyle: const TextStyle(color: AppColors.textLight, fontSize: 14),
+              hintStyle: TextStyle(color: AppColors.textLight, fontSize: 14),
               prefixIcon: widget.prefixIcon != null
                   ? AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
@@ -160,8 +160,7 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
                 borderSide:
                     const BorderSide(color: AppColors.danger, width: 2),
               ),
-              errorStyle: const TextStyle(
-                color: AppColors.danger,
+              errorStyle: TextStyle(color: AppColors.danger,
                 fontSize: 12,
               ),
             ),
