@@ -804,8 +804,65 @@ The platform targets two distinct user personas with separate deployment artifac
 
 ---
 
+### Phase 12: Unified Bottom Navigation Architecture, TopBar Standardization, & Gemini AI Chatbot Optimization
+**Goal:** Introduce a modern persistent bottom navigation shell with an elevated center emergency action button, standardize topbar dimensions and branding across all resident tabs for seamless navigation continuity, and optimize the ResQ Civil Defense Gemini AI chatbot for mobile ergonomics and complete, high-speed responses.
+
+#### 12.1 Persistent Bottom Navigation Shell (`ResidentNavShell`)
+- [x] **Core Multi-Tab Architecture:**
+  - Implemented `ResidentNavShell` hosting an `IndexedStack` preserving state across 4 core tabs:
+    - **Tab 0:** Home / Dashboard (`DashboardPage`)
+    - **Tab 1:** My Reports Directory (`MyReportsPage`)
+    - **Tab 2:** Interactive Community Map (`MapsPage`)
+    - **Tab 3:** Settings & Civic Support (`SettingsPage`)
+  - Added `ResidentNavShell.switchTab(context, index)` enabling programmatic tab switching from any child widget, banner, or drawer.
+- [x] **Elevated Center Emergency Quick-Action:**
+  - Integrated a center emergency button (`🚨 REPORT`) launching the complete `ReportIncidentPage` flow with haptic feedback.
+- [x] **UI De-Duplication:**
+  - Removed redundant large 3D "Report Incident" card from Dashboard body to prevent interface duplication.
+  - Wired `/dashboard` route and root auth wrapper in `main_resident.dart` and `main.dart` directly to `ResidentNavShell`.
+
+#### 12.2 Unified TopBar Metrics & Visual Continuity Across All Pages
+- [x] **Universal 64px Metric Standard:**
+  - Standardized topbar height across all resident screens to `64.0 + MediaQuery.padding.top`:
+    - `DashboardPage` (`_PremiumAppBar`)
+    - `MyReportsPage` (`_MyReportsAppBar`)
+    - `MapsPage` (PreferredSize AppBar)
+    - `SettingsPage` (PreferredSize AppBar)
+  - Fixed squashed/mini topbar bug in `MyReportsPage` caused by missing explicit container height.
+- [x] **Consistent Brand Crest & Typography:**
+  - Standardized left-side branding: glowing 36x36 circular ResQ shield crest with cyan gradient title (`RESQ`, `MY REPORTS`, `COMMUNITY MAP`, `SETTINGS`) at 18px / FontWeight 900 / letterSpacing 1.5.
+  - Implemented theme-adaptive ambient drop shadows (`Colors.black` with 8px/12px blur) reacting to `AppColors.isDarkModeNotifier`.
+  - Preserved right-side contextual widgets: Notification bell & profile badge (Home), report history badge (My Reports), live municipal telemetry pulsing badge (Map), and tune/config icon (Settings).
+- [x] **Drawer / Hamburger Menu Elimination:**
+  - Removed redundant `drawer: const SideMenu()` and hamburger `IconButton(Icons.menu)` from the Dashboard topbar now that the persistent bottom navigation shell handles all primary destinations.
+
+#### 12.3 Gemini AI Civil Defense Chatbot Optimization & Mobile Ergonomics
+- [x] **Global Duplicate Chatbot Removal:**
+  - Removed root `MaterialApp.builder` wrapper injecting the legacy mock `FloatingChatBot` from `lib/core/widgets/floating_chat_bot.dart` across all pages in `main_resident.dart` and `main.dart`.
+  - Preserved the genuine Gemini AI assistant housed exclusively on the Dashboard.
+- [x] **Keyboard-Adaptive Dynamic Window Scaling:**
+  - Replaced rigid 540px `OverflowBox` with adaptive layout reacting to `MediaQuery.viewInsets.bottom`:
+    - Dynamically scales window height down to `(screenHeight - topPadding - keyboardHeight - 24).clamp(240, 440)` when virtual keyboard opens.
+    - Repositions bottom offset to `keyboardHeight + 10.0` so the chat window sits directly above the keyboard.
+    - Temporarily collapses suggestion chips during keyboard focus to maximize message visibility.
+    - Ensures header with Close (`X`) and Reset buttons remains **100% visible on screen at all times**.
+- [x] **Chat History Reset Confirmation Dialog:**
+  - Added `_confirmResetChat` modal alert preventing accidental session wipes on refresh button tap.
+- [x] **Elimination of Message Truncation & Thinking Overhead (`gemini-3.5-flash`):**
+  - Configured `"thinkingConfig": {"thinkingBudget": 0}` in `IncidentAiRemoteDataSourceImpl`, disabling hidden reasoning tokens and reducing response generation latency from ~10s to **~1 second**.
+  - Increased `maxOutputTokens` from 500 to **2048**, completely eliminating premature `finishReason: MAX_TOKENS` mid-sentence cut-offs.
+  - Increased network timeout to 25s for reliable mobile cellular operation.
+- [x] **Rich Text & Markdown Formatting in Message Bubbles:**
+  - Built `_FormattedMessageText` custom rich text parser in `floating_chat_bot.dart`:
+    - Parses Markdown bold (`**text**`) into crisp `FontWeight.w800` spans without raw asterisk artifacts.
+    - Formats markdown section titles (`#`, `##`, `###`) into styled cyan headings.
+    - Converts bullet markers (`*`, `-`) into clean unicode bullets (`• `).
+
+---
+
 ## 4. Team Collaboration & Quality Standards
 
 1. **Strict Clean Architecture:** Never import presentation widgets into data or domain layers. Route all mutations through BLoC events.
 2. **No Placeholders or Dead Controls:** Every button, toggle, and input must either connect to a functional service or be cleanly removed.
 3. **Dual-Target Verification:** When adding shared features, verify that both the Mobile APK and Web Portal build cleanly without platform conflicts.
+

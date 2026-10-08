@@ -9,7 +9,6 @@ import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
-import 'package:community_safety_app/core/widgets/floating_chat_bot.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
@@ -21,12 +20,12 @@ import 'package:community_safety_app/features/incident/presentation/pages/incide
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/my_reports_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 
 
@@ -128,7 +127,7 @@ class ResQResidentApp extends StatelessWidget {
           '/welcome': (context) => const WelcomePage(),
           '/login': (context) => const LoginPage(),
           '/sign-up': (context) => const SignUpPage(),
-          '/dashboard': (context) => const DashboardPage(),
+          '/dashboard': (context) => const ResidentNavShell(),
           '/report-incident': (context) => const ReportIncidentPage(),
           '/my-reports': (context) => const MyReportsPage(),
           '/maps': (context) => const MapsPage(),
@@ -138,15 +137,7 @@ class ResQResidentApp extends StatelessWidget {
         builder: (context, child) {
           return EmergencyBroadcastListener(
             navigatorKey: residentNavigatorKey,
-            child: Scaffold(
-              body: Stack(
-                children: [
-                  // ignore: use_null_aware_elements
-                  if (child != null) child,
-                  const FloatingChatBot(),
-                ],
-              ),
-            ),
+            child: child ?? const SizedBox.shrink(),
           );
         },
       );
@@ -193,7 +184,7 @@ class ResidentAuthWrapper extends StatelessWidget {
               );
             },
           );
-          return const DashboardPage();
+          return const ResidentNavShell();
         }
 
 

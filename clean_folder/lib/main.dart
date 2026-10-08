@@ -12,13 +12,12 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
-import 'package:community_safety_app/core/widgets/floating_chat_bot.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
@@ -72,7 +71,7 @@ class MyApp extends StatelessWidget {
           '/welcome': (context) => const WelcomePage(),
           '/login': (context) => const LoginPage(),
           '/sign-up': (context) => const SignUpPage(),
-          '/dashboard': (context) => const DashboardPage(),
+          '/dashboard': (context) => const ResidentNavShell(),
           '/report-incident': (context) => const ReportIncidentPage(),
           '/my-reports': (context) => const MyReportsPage(),
           '/maps': (context) => const MapsPage(),
@@ -83,15 +82,7 @@ class MyApp extends StatelessWidget {
         },
         builder: (context, child) {
           return EmergencyBroadcastListener(
-            child: Scaffold(
-              body: Stack(
-                children: [
-                  // ignore: use_null_aware_elements
-                  if (child != null) child,
-                  const FloatingChatBot(),
-                ],
-              ),
-            ),
+            child: child ?? const SizedBox.shrink(),
           );
         },
       ),
@@ -110,7 +101,7 @@ class AuthWrapper extends StatelessWidget {
           if (state.user.isAdmin) {
             return const AdminPanelShell();
           } else {
-            return const DashboardPage();
+            return const ResidentNavShell();
           }
         }
         return const WelcomePage();

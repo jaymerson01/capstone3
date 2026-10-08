@@ -11,7 +11,8 @@ import 'package:community_safety_app/features/incident/presentation/pages/incide
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 
 class MyReportsPage extends StatefulWidget {
-  const MyReportsPage({super.key});
+  final bool isRootTab;
+  const MyReportsPage({super.key, this.isRootTab = false});
 
   @override
   State<MyReportsPage> createState() => _MyReportsPageState();
@@ -71,7 +72,7 @@ class _MyReportsPageState extends State<MyReportsPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const _MyReportsAppBar(),
+      appBar: _MyReportsAppBar(isRootTab: widget.isRootTab),
       body: FadeTransition(
         opacity: _entranceController,
         child: Padding(
@@ -355,81 +356,98 @@ class _MyReportsPageState extends State<MyReportsPage>
 // ─── Supporting Widgets ───────────────────────────────────────────────────────
 
 class _MyReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _MyReportsAppBar();
+  final bool isRootTab;
+  const _MyReportsAppBar({this.isRootTab = false});
 
   @override
   Size get preferredSize => const Size.fromHeight(64);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-            bottom: BorderSide(color: AppColors.border, width: 1)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            IconButton(
-              icon: Icon(Icons.arrow_back, color: AppColors.textDark),
-              onPressed: () => Navigator.pop(context),
-            ),
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                  ),
-                ],
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        final topPadding = MediaQuery.of(context).padding.top;
+        return Container(
+          height: 64 + topPadding,
+          padding: EdgeInsets.only(top: topPadding),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border(
+                bottom: BorderSide(color: AppColors.border, width: 1)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: isDark ? 12 : 8,
+                offset: const Offset(0, 2),
               ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/logo.png',
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: AppColors.primary,
-                    child: Icon(Icons.shield,
-                        color: AppColors.textDark, size: 14),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                if (!isRootTab) ...[
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: AppColors.textDark),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: AppColors.primary,
+                        child: Icon(Icons.shield,
+                            color: AppColors.textDark, size: 16),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                ShaderMask(
+                  shaderCallback: (bounds) =>
+                      AppColors.cyanGradient.createShader(bounds),
+                  blendMode: BlendMode.srcIn,
+                  child: const Text(
+                    "MY REPORTS",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.history_edu_rounded,
+                      color: AppColors.primary, size: 20),
+                ),
+              ],
             ),
-            SizedBox(width: 10),
-            Text(
-              "My Reports",
-              style: TextStyle(
-                color: AppColors.textDark,
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.person,
-                  color: AppColors.primary, size: 20),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

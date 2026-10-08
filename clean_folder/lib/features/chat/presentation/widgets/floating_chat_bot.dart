@@ -275,6 +275,78 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     _scrollToBottom();
   }
 
+  Future<void> _confirmResetChat() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: AppColors.border),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.refresh_rounded, color: AppColors.primary, size: 20),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              "Reset Conversation?",
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.w800,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          "Are you sure you want to clear your chat history with ResQ Civil Defense Assistant? This will start a fresh session.",
+          style: TextStyle(
+            color: AppColors.textLight,
+            fontSize: 13,
+            height: 1.45,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: AppColors.textLight,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.danger,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              "Reset",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _clearChat();
+    }
+  }
+
   void _clearChat() {
     setState(() {
       _messages
@@ -292,17 +364,33 @@ class _FloatingChatBotState extends State<FloatingChatBot>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
+    final keyboardHeight = mediaQuery.viewInsets.bottom;
+    final topPadding = mediaQuery.padding.top;
+
     final chatWidth = (screenWidth - 32).clamp(300.0, 360.0);
-    const chatHeight = 540.0;
+
+    // Responsive height that shrinks to avoid top header pushed off-screen
+    final double maxAvailableHeight =
+        screenHeight - topPadding - keyboardHeight - 24.0;
+    final double chatHeight = keyboardHeight > 0
+        ? maxAvailableHeight.clamp(240.0, 440.0)
+        : (screenHeight * 0.65).clamp(420.0, 540.0);
+
+    // Responsive bottom position: sits snugly right above keyboard
+    final double bottomOffset = keyboardHeight > 0
+        ? keyboardHeight + 10.0
+        : 16.0;
 
     return Positioned(
       right: 16.0,
-      bottom: 16.0,
+      bottom: bottomOffset,
       child: AnimatedContainer(
         width: _isOpen ? chatWidth : 60,
         height: _isOpen ? chatHeight : 60,
-        duration: const Duration(milliseconds: 280),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
           color: _isOpen ? AppColors.surface : Colors.transparent,
@@ -324,7 +412,9 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               : [],
         ),
         clipBehavior: Clip.antiAlias,
-        child: _isOpen ? _buildChatWindow(chatWidth, chatHeight) : _buildFAB(),
+        child: _isOpen
+            ? _buildChatWindow(chatWidth, chatHeight, keyboardHeight > 0)
+            : _buildFAB(),
       ),
     );
   }
@@ -351,7 +441,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 ),
               ],
             ),
-            child: Icon(
+            child: const Icon(
               Icons.health_and_safety_rounded,
               color: Colors.white,
               size: 28,
@@ -362,17 +452,14 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     );
   }
 
-  Widget _buildChatWindow(double width, double height) {
-    return OverflowBox(
-      minWidth: width,
-      maxWidth: width,
-      minHeight: height,
-      maxHeight: height,
-      alignment: Alignment.bottomCenter,
+  Widget _buildChatWindow(double width, double height, bool isKeyboardOpen) {
+    return SizedBox(
+      width: width,
+      height: height,
       child: Column(
         children: [
           _buildHeader(),
-          _buildQuickChips(),
+          if (!isKeyboardOpen) _buildQuickChips(),
           Expanded(child: _buildMessages()),
           _buildInputBar(),
         ],
@@ -451,7 +538,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
             ),
           ),
           GestureDetector(
-            onTap: _clearChat,
+            onTap: _confirmResetChat,
             child: Container(
               width: 32,
               height: 32,
@@ -625,13 +712,9 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               ),
               SizedBox(height: 6),
             ],
-            Text(
-              text,
-              style: TextStyle(
-                color: isUser ? Colors.white : AppColors.textDark,
-                fontSize: 12.5,
-                height: 1.45,
-              ),
+            _FormattedMessageText(
+              text: text,
+              isUser: isUser,
             ),
             if (!isUser && hotlines.isNotEmpty) ...[
               SizedBox(height: 10),
@@ -881,5 +964,85 @@ class _TypingDotState extends State<_TypingDot>
         ),
       ),
     );
+  }
+}
+
+/// Lightweight rich text parser for AI messages (handles bold, headings, bullets)
+class _FormattedMessageText extends StatelessWidget {
+  final String text;
+  final bool isUser;
+
+  const _FormattedMessageText({
+    required this.text,
+    required this.isUser,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = isUser ? Colors.white : AppColors.textDark;
+    final spans = _parseMarkdown(text, baseColor);
+
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(
+          color: baseColor,
+          fontSize: 12.5,
+          height: 1.45,
+          fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
+        ),
+        children: spans,
+      ),
+    );
+  }
+
+  static List<InlineSpan> _parseMarkdown(String input, Color baseColor) {
+    final List<InlineSpan> spans = [];
+    final lines = input.split('\n');
+
+    for (int l = 0; l < lines.length; l++) {
+      String line = lines[l];
+      bool isHeading = false;
+
+      // Handle markdown headings (###, ##, #)
+      if (line.startsWith('### ')) {
+        isHeading = true;
+        line = line.substring(4);
+      } else if (line.startsWith('## ')) {
+        isHeading = true;
+        line = line.substring(3);
+      } else if (line.startsWith('# ')) {
+        isHeading = true;
+        line = line.substring(2);
+      }
+
+      // Convert bullet markers (* or -) to clean unicode bullet
+      if (line.startsWith('* ') || line.startsWith('- ')) {
+        line = '•  ${line.substring(2)}';
+      }
+
+      // Parse bold **text** within line
+      final parts = line.split('**');
+      for (int i = 0; i < parts.length; i++) {
+        final part = parts[i];
+        if (part.isEmpty) continue;
+        final bool isBold = isHeading || (i % 2 == 1);
+        spans.add(
+          TextSpan(
+            text: part,
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w400,
+              fontSize: isHeading ? 13.0 : 12.5,
+              color: isHeading ? AppColors.primary : baseColor,
+            ),
+          ),
+        );
+      }
+
+      if (l < lines.length - 1) {
+        spans.add(const TextSpan(text: '\n'));
+      }
+    }
+
+    return spans;
   }
 }

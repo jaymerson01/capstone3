@@ -3,14 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/dashboard_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/my_reports_page.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -206,16 +203,11 @@ class _SideMenuState extends State<SideMenu> {
               ),
               hoverColor: Colors.transparent,
               onTap: () {
-                Navigator.pop(context); // Close Drawer
-
                 if (title == "User Dashboard") {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DashboardPage(),
-                    ),
-                  );
+                  ResidentNavShell.switchTab(context, 0);
+                  Navigator.pop(context);
                 } else if (title == "Report Incident") {
+                  Navigator.pop(context);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -226,26 +218,16 @@ class _SideMenuState extends State<SideMenu> {
                     ),
                   );
                 } else if (title == "My Reports") {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => BlocProvider.value(
-                        value: sl<IncidentBloc>(),
-                        child: const MyReportsPage(),
-                      ),
-                    ),
-                  );
+                  ResidentNavShell.switchTab(context, 1);
+                  Navigator.pop(context);
                 } else if (title == "Maps") {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MapsPage()),
-                  );
+                  ResidentNavShell.switchTab(context, 2);
+                  Navigator.pop(context);
                 } else if (title == "Settings") {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SettingsPage()),
-                  );
+                  ResidentNavShell.switchTab(context, 3);
+                  Navigator.pop(context);
                 } else if (title == "Logout") {
+                  Navigator.pop(context);
                   context.read<AuthBloc>().add(const LogoutRequested());
 
                   Navigator.pushAndRemoveUntil(

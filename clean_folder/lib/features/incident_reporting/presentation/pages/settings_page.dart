@@ -18,7 +18,8 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({super.key});
+  final bool isRootTab;
+  const SettingsPage({super.key, this.isRootTab = false});
 
   @override
   State<SettingsPage> createState() => _SettingsPageState();
@@ -34,21 +35,86 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context, isDark, _) {
         return Scaffold(
           backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppColors.textDark, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          "SETTINGS",
-          style: TextStyle(
-            color: AppColors.textDark,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            fontSize: 18,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(64),
+        child: Container(
+          height: 64 + MediaQuery.of(context).padding.top,
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border(
+              bottom: BorderSide(color: AppColors.border, width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: isDark ? 12 : 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                if (!widget.isRootTab) ...[
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: AppColors.textDark),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: AppColors.primary,
+                        child: Icon(Icons.shield,
+                            color: AppColors.textDark, size: 16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ShaderMask(
+                  shaderCallback: (bounds) =>
+                      AppColors.cyanGradient.createShader(bounds),
+                  blendMode: BlendMode.srcIn,
+                  child: const Text(
+                    "SETTINGS",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.tune_rounded,
+                      color: AppColors.primary, size: 20),
+                ),
+              ],
+            ),
           ),
         ),
       ),

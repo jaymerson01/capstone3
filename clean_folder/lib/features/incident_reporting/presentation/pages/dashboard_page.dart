@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/widgets/side_menu.dart';
-import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/my_reports_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
@@ -12,7 +10,6 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/chat/presentation/widgets/floating_chat_bot.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
@@ -434,7 +431,6 @@ class _DashboardPageState extends State<DashboardPage>
           children: [
             Scaffold(
               backgroundColor: AppColors.background,
-              drawer: const SideMenu(),
               appBar: _PremiumAppBar(userName: userName),
               body: FadeTransition(
                 opacity: _fadeAnimation,
@@ -468,30 +464,12 @@ class _DashboardPageState extends State<DashboardPage>
 
                             // ── Video / Info Banner ────────────────────────────────────
                             _InfoBanner(),
-                            SizedBox(height: 20),
+                            SizedBox(height: 24),
 
-                        // ── Report Button ──────────────────────────────────────────
-                        Custom3dButton(
-                          icon: Icons.warning_amber_rounded,
-                          text: "Report Incident",
-                          gradient: AppColors.emergencyGradient,
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BlocProvider.value(
-                                value: sl<IncidentBloc>(),
-                                child: const ReportIncidentPage(),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        SizedBox(height: 28),
-
-                        // ── Community Reports ──────────────────────────────────────
-                        _buildCommunityReportsSection(state),
-                        SizedBox(height: 30),
-                      ],
+                            // ── Community Reports ──────────────────────────────────────
+                            _buildCommunityReportsSection(state),
+                            SizedBox(height: 30),
+                          ],
                     );
                   },
                 ),
@@ -704,14 +682,9 @@ class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-            IconButton(
-              icon: Icon(Icons.menu, color: AppColors.textDark),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-            SizedBox(width: 4),
-            Container(
-              width: 34,
-              height: 34,
+                Container(
+                  width: 36,
+                  height: 36,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [

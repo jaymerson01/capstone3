@@ -14,8 +14,9 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.
 
 class MapsPage extends StatefulWidget {
   final IncidentEntity? focusedIncident;
+  final bool isRootTab;
 
-  const MapsPage({super.key, this.focusedIncident});
+  const MapsPage({super.key, this.focusedIncident, this.isRootTab = false});
 
   @override
   State<MapsPage> createState() => _MapsPageState();
@@ -555,31 +556,71 @@ class _MapsPageState extends State<MapsPage> {
         return Scaffold(
           backgroundColor: AppColors.background,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(64),
         child: Container(
-          height: 60 + MediaQuery.of(context).padding.top,
+          height: 64 + MediaQuery.of(context).padding.top,
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
           decoration: BoxDecoration(
             color: AppColors.surface,
             border: Border(
               bottom: BorderSide(color: AppColors.border, width: 1),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                blurRadius: isDark ? 12 : 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back, color: AppColors.textDark),
-                  onPressed: () => Navigator.pop(context),
+                if (!widget.isRootTab) ...[
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: AppColors.textDark),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: AppColors.primary,
+                        child: Icon(Icons.shield,
+                            color: AppColors.textDark, size: 16),
+                      ),
+                    ),
+                  ),
                 ),
-                Text(
-                  "COMMUNITY MAP",
-                  style: TextStyle(
-                    color: AppColors.textDark,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
+                const SizedBox(width: 10),
+                ShaderMask(
+                  shaderCallback: (bounds) =>
+                      AppColors.cyanGradient.createShader(bounds),
+                  blendMode: BlendMode.srcIn,
+                  child: const Text(
+                    "COMMUNITY MAP",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
                 const Spacer(),

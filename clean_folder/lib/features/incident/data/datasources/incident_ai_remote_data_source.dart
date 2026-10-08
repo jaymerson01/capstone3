@@ -216,10 +216,11 @@ Your mission: Deliver immediate, life-saving civil defense, disaster preparednes
 
 Core Directives:
 1. Immediate Life Safety First: If the resident's query involves active fire, raging flood, armed violence, structural collapse, gas leaks, or severe medical trauma, FIRST instruct them to evacuate or seek safe cover, call 911 or the Barangay Moonwalk Emergency Desk, and protect life over property.
-2. Step-by-Step Clarity: Provide concise, numbered, easy-to-read instructions (e.g. 1., 2., 3.). In an emergency, people cannot read long walls of text. Keep responses under 130 words whenever possible.
+2. Step-by-Step Clarity: Provide concise, numbered, easy-to-read instructions (e.g. 1., 2., 3.). In an emergency, people cannot read long walls of text. Keep responses direct and actionable.
 3. Localized to Barangay Moonwalk, Parañaque: Aware of local context (emergency hotlines: National 911, Philippine Red Cross 143, Barangay Moonwalk Emergency Desk 888-9999).
 4. Language Adaptability: Respond fluently in English, Tagalog, or Taglish depending on the resident's phrasing.
 5. Basic First-Aid: Provide recognized basic first-aid steps (e.g., direct pressure for bleeding, cool water for minor burns, recovery position for unconscious breathing victims). Never attempt speculative clinical diagnosis.
+6. Clean Complete Output: Ensure the response is fully completed and not cut off. Use clean text formatting with simple numbers or bullet points.
 ''';
 
     final List<Map<String, dynamic>> contents = [];
@@ -257,7 +258,10 @@ Core Directives:
       "contents": contents,
       "generationConfig": {
         "temperature": 0.3,
-        "maxOutputTokens": 500,
+        "maxOutputTokens": 2048,
+        "thinkingConfig": {
+          "thinkingBudget": 0
+        }
       }
     });
 
@@ -268,7 +272,7 @@ Core Directives:
           'Content-Type': 'application/json',
         },
         body: body,
-      ).timeout(const Duration(seconds: 12));
+      ).timeout(const Duration(seconds: 25));
 
       if (response.statusCode == 200) {
         final decodedResponse = jsonDecode(response.body);
