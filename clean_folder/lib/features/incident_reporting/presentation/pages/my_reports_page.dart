@@ -70,9 +70,12 @@ class _MyReportsPageState extends State<MyReportsPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: _MyReportsAppBar(isRootTab: widget.isRootTab),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          appBar: _MyReportsAppBar(isRootTab: widget.isRootTab),
       body: FadeTransition(
         opacity: _entranceController,
         child: Padding(
@@ -328,7 +331,9 @@ class _MyReportsPageState extends State<MyReportsPage>
         ),
       ),
     );
-  }
+  },
+);
+}
 
   Widget _emptyBox(String placeholderText) {
     return Custom3dCard(
@@ -631,12 +636,15 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
             incident.estimatedResponseTime != null &&
             incident.estimatedResponseTime!.isNotEmpty);
 
-    return FadeTransition(
-      opacity: _fade,
-      child: SlideTransition(
-        position: _slide,
-        child: GestureDetector(
-          onTap: widget.onTap,
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return FadeTransition(
+          opacity: _fade,
+          child: SlideTransition(
+            position: _slide,
+            child: GestureDetector(
+              onTap: widget.onTap,
           child: Custom3dCard(
             margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
             padding: const EdgeInsets.all(16),
@@ -855,5 +863,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
         ),
       ),
     );
-  }
+  },
+);
+}
 }
