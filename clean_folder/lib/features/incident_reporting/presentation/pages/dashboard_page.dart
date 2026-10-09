@@ -751,18 +751,24 @@ class _PremiumAppBar extends StatelessWidget implements PreferredSizeWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: unreadCount > 0
-                                  ? const Color(0xFF162544)
-                                  : AppColors.primary.withValues(alpha: 0.12),
+                                  ? (AppColors.isDarkMode
+                                      ? const Color(0xFF162544)
+                                      : AppColors.primary.withValues(alpha: 0.15))
+                                  : (AppColors.isDarkMode
+                                      ? AppColors.primary.withValues(alpha: 0.12)
+                                      : Colors.white),
                               border: Border.all(
                                 color: unreadCount > 0
                                     ? AppColors.primary
-                                    : AppColors.primary.withValues(alpha: 0.3),
+                                    : (AppColors.isDarkMode
+                                        ? AppColors.primary.withValues(alpha: 0.3)
+                                        : AppColors.border),
                                 width: unreadCount > 0 ? 1.5 : 1,
                               ),
                               boxShadow: [
                                 BoxShadow(
                                   color: AppColors.primary.withValues(
-                                      alpha: unreadCount > 0 ? 0.35 : 0.15),
+                                      alpha: unreadCount > 0 ? 0.35 : (AppColors.isDarkMode ? 0.15 : 0.06)),
                                   blurRadius: unreadCount > 0 ? 12 : 8,
                                 ),
                               ],
@@ -1341,20 +1347,29 @@ class _ActiveEmergencyBanner extends StatelessWidget {
         final message = data['message'] as String? ?? "";
         final sector = data['sector'] as String? ?? "All Sectors";
 
+        final isDark = AppColors.isDarkMode;
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF2A0A10), Color(0xFF160A14)],
+            gradient: LinearGradient(
+              colors: isDark
+                  ? const [Color(0xFF2A0A10), Color(0xFF160A14)]
+                  : const [Color(0xFFFFF0F2), Color(0xFFFFE5E8)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFFF3B30), width: 1.5),
+            border: Border.all(
+              color: isDark
+                  ? const Color(0xFFFF3B30)
+                  : const Color(0xFFFF3B30).withValues(alpha: 0.7),
+              width: 1.5,
+            ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF3B30).withValues(alpha: 0.25),
+                color: const Color(0xFFFF3B30)
+                    .withValues(alpha: isDark ? 0.25 : 0.12),
                 blurRadius: 18,
                 offset: const Offset(0, 4),
               ),
@@ -1371,10 +1386,10 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                       color: const Color(0xFFFF3B30).withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.campaign_rounded,
+                    child: const Icon(Icons.campaign_rounded,
                         color: Color(0xFFFF3B30), size: 20),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1390,7 +1405,7 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                                 letterSpacing: 0.5,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
@@ -1399,7 +1414,7 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                                     .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(
+                              child: const Text(
                                 "ACTIVE SIREN",
                                 style: TextStyle(
                                   color: Color(0xFFFF3B30),
@@ -1410,10 +1425,11 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           title,
-                          style: TextStyle(color: AppColors.textDark,
+                          style: TextStyle(
+                            color: AppColors.textDark,
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
                           ),
@@ -1426,11 +1442,11 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                 ],
               ),
               if (message.isNotEmpty) ...[
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   message,
-                  style: const TextStyle(
-                    color: Color(0xFFE8F0FE),
+                  style: TextStyle(
+                    color: AppColors.textDark,
                     fontSize: 12,
                     height: 1.35,
                   ),
@@ -1438,16 +1454,16 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   Icon(Icons.place_outlined,
-                      size: 13, color: Color(0xFF7B8DB0)),
-                  SizedBox(width: 4),
+                      size: 13, color: AppColors.textLight),
+                  const SizedBox(width: 4),
                   Text(
                     "Target: $sector",
-                    style: const TextStyle(
-                      color: Color(0xFF7B8DB0),
+                    style: TextStyle(
+                      color: AppColors.textLight,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),

@@ -17,9 +17,12 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/email_verification_page.dart';
+import 'package:community_safety_app/features/auth/presentation/widgets/auth_modals.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/my_reports_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
@@ -127,6 +130,7 @@ class ResQResidentApp extends StatelessWidget {
           '/welcome': (context) => const WelcomePage(),
           '/login': (context) => const LoginPage(),
           '/sign-up': (context) => const SignUpPage(),
+          '/email-verification': (context) => const EmailVerificationPage(),
           '/dashboard': (context) => const ResidentNavShell(),
           '/report-incident': (context) => const ReportIncidentPage(),
           '/my-reports': (context) => const MyReportsPage(),
@@ -155,24 +159,42 @@ class ResidentAuthWrapper extends StatelessWidget {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          sl<FCMService>().syncUserToken(state.user.id);
-          NotificationService().startForegroundNotificationListener(
-            userId: state.user.id,
-            onNotificationReceived: (title, body, incidentId) {
-              sl<FCMService>().showLocalNotification(
-                title: title,
-                body: body,
-                incidentId: incidentId,
-              );
-            },
-          );
+          if (state.user.isAdmin) {
+            context.read<AuthBloc>().add(const LogoutRequested());
+            final navContext = residentNavigatorKey.currentContext ?? context;
+            AuthModals.showAdminAccountBlocked(navContext);
+            return;
+          }
+
+          // Always ensure community active incidents stream is fresh and active for Dashboard & Maps
+          context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
+
+          final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
+          if (isVerified) {
+            sl<FCMService>().syncUserToken(state.user.id);
+            NotificationService().startForegroundNotificationListener(
+              userId: state.user.id,
+              onNotificationReceived: (title, body, incidentId) {
+                sl<FCMService>().showLocalNotification(
+                  title: title,
+                  body: body,
+                  incidentId: incidentId,
+                );
+              },
+            );
+          }
         } else if (state is Unauthenticated) {
           NotificationService().stopForegroundNotificationListener();
         }
       },
       builder: (context, state) {
-        if (state is Authenticated) {
-          // Sync device token immediately if user is already logged in
+        if (state is Authenticated && !state.user.isAdmin) {
+          final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
+          if (!isVerified) {
+            return EmailVerificationPage(user: state.user);
+          }
+
+          // Sync device token immediately if user is already logged in and verified
           sl<FCMService>().syncUserToken(state.user.id);
           NotificationService().startForegroundNotificationListener(
             userId: state.user.id,
@@ -186,7 +208,6 @@ class ResidentAuthWrapper extends StatelessWidget {
           );
           return const ResidentNavShell();
         }
-
 
         return const WelcomePage();
       },

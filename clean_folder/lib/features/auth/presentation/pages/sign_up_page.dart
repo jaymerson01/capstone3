@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
@@ -10,7 +9,8 @@ import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_fi
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
-import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/email_verification_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -63,25 +63,6 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _launchAuthUrl(BuildContext context, String url) async {
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw "Could not launch.";
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Redirect Error: $e"),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -93,135 +74,176 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
             behavior: SnackBarBehavior.floating,
           ));
         } else if (state is Authenticated) {
-          await _showSuccessDialog(context);
-          if (context.mounted) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
-            );
+          final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
+          if (!isVerified) {
+            await _showSuccessDialog(context, email: state.user.email);
+            if (context.mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EmailVerificationPage(user: state.user),
+                ),
+              );
+            }
+          } else {
+            if (context.mounted) {
+              Navigator.pushReplacementNamed(context, '/dashboard');
+            }
           }
         }
       },
       builder: (context, state) {
         final isLoading = state is AuthLoading;
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
-            children: [
-              // ── Animated Background ─────────────────────────────────────────
-              AnimatedBuilder(
-                animation: _bgCtrl,
-                builder: (context, _) {
-                  return Stack(children: [
-                    Container(
-                        decoration:
-                            BoxDecoration(gradient: AppColors.commandGradient)),
-                    Positioned(
-                      top: -80 + 60 * _bgCtrl.value,
-                      left: -60,
-                      child: _GlowOrb(
-                          size: 320,
-                          color: AppColors.primary.withValues(alpha: 0.09)),
-                    ),
-                    Positioned(
-                      bottom: -60,
-                      right: -40 + 30 * (1 - _bgCtrl.value),
-                      child: _GlowOrb(
-                          size: 380,
-                          color: AppColors.secondary.withValues(alpha: 0.07)),
-                    ),
-                    Positioned(
-                      top: MediaQuery.of(context).size.height * 0.4,
-                      right: MediaQuery.of(context).size.width * 0.1,
-                      child: _GlowOrb(
-                          size: 220,
-                          color: AppColors.accent.withValues(alpha: 0.05)),
-                    ),
-                  ]);
-                },
-              ),
+        return ValueListenableBuilder<bool>(
+          valueListenable: AppColors.isDarkModeNotifier,
+          builder: (context, isDark, _) {
+            return Scaffold(
+              backgroundColor: AppColors.background,
+              body: Stack(
+                children: [
+                  // ── Animated Background ─────────────────────────────────────────
+                  AnimatedBuilder(
+                    animation: _bgCtrl,
+                    builder: (context, _) {
+                      return Stack(children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: isDark
+                                ? const LinearGradient(
+                                    colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                : const LinearGradient(
+                                    colors: [Color(0xFFF8FAFC), Color(0xFFEDF2F7)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                          ),
+                        ),
+                        Positioned(
+                          top: -80 + 60 * _bgCtrl.value,
+                          left: -60,
+                          child: _GlowOrb(
+                              size: 320,
+                              color: AppColors.primary
+                                  .withValues(alpha: isDark ? 0.09 : 0.06)),
+                        ),
+                        Positioned(
+                          bottom: -60,
+                          right: -40 + 30 * (1 - _bgCtrl.value),
+                          child: _GlowOrb(
+                              size: 380,
+                              color: AppColors.secondary
+                                  .withValues(alpha: isDark ? 0.07 : 0.04)),
+                        ),
+                        Positioned(
+                          top: MediaQuery.of(context).size.height * 0.4,
+                          right: MediaQuery.of(context).size.width * 0.1,
+                          child: _GlowOrb(
+                              size: 220,
+                              color: AppColors.accent
+                                  .withValues(alpha: isDark ? 0.05 : 0.03)),
+                        ),
+                      ]);
+                    },
+                  ),
 
-              // ── Content ──────────────────────────────────────────────────────
-              SafeArea(
-                child: FadeTransition(
-                  opacity: _cardFade,
-                  child: SlideTransition(
-                    position: _cardSlide,
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      child: Column(
-                        children: [
-                          // ── Brand header ─────────────────────────────────────
-                          SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.4),
-                                  blurRadius: 24,
-                                  spreadRadius: 4,
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                width: 60,
-                                height: 60,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Container(
-                                  width: 60,
-                                  height: 60,
-                                  color: AppColors.primary,
-                                  child: Icon(Icons.shield,
-                                      color: Colors.white, size: 30),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 14),
-                          ShaderMask(
-                            shaderCallback: (b) =>
-                                AppColors.cyanGradient.createShader(b),
-                            blendMode: BlendMode.srcIn,
-                            child: Text(
-                              "CREATE ACCOUNT",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 24,
-                                letterSpacing: 3,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 6),
-                          Text(
-                            "Join the RESQ Barangay Safety Network",
-                            style: TextStyle(
-                                color: AppColors.textLight, fontSize: 13),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: 24),
-
-                          // ── Glass Card Form ────────────────────────────────────
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: BackdropFilter(
-                              filter:
-                                  ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                              child: Container(
+                  // ── Content ──────────────────────────────────────────────────────
+                  SafeArea(
+                    child: FadeTransition(
+                      opacity: _cardFade,
+                      child: SlideTransition(
+                        position: _cardSlide,
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 16),
+                          child: Column(
+                            children: [
+                              // ── Brand header ─────────────────────────────────────
+                              const SizedBox(height: 8),
+                              Container(
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.06),
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary
+                                          .withValues(alpha: isDark ? 0.4 : 0.2),
+                                      blurRadius: 24,
+                                      spreadRadius: 4,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    'assets/images/logo.png',
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, _, _) => Container(
+                                      width: 60,
+                                      height: 60,
+                                      color: AppColors.primary,
+                                      child: const Icon(Icons.shield,
+                                          color: Colors.white, size: 30),
+                                    ),
                                   ),
                                 ),
-                                padding: const EdgeInsets.all(24),
+                              ),
+                              const SizedBox(height: 14),
+                              ShaderMask(
+                                shaderCallback: (b) =>
+                                    AppColors.cyanGradient.createShader(b),
+                                blendMode: BlendMode.srcIn,
+                                child: const Text(
+                                  "CREATE ACCOUNT",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 24,
+                                    letterSpacing: 3,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                "Join the RESQ Barangay Safety Network",
+                                style: TextStyle(
+                                    color: AppColors.textLight, fontSize: 13),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // ── Glass Card Form ────────────────────────────────────
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child: BackdropFilter(
+                                  filter:
+                                      ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.06)
+                                          : Colors.white.withValues(alpha: 0.92),
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(
+                                        color: isDark
+                                            ? Colors.white.withValues(alpha: 0.1)
+                                            : AppColors.border,
+                                      ),
+                                      boxShadow: isDark
+                                          ? []
+                                          : [
+                                              BoxShadow(
+                                                color: const Color(0x140A1628),
+                                                blurRadius: 24,
+                                                offset: const Offset(0, 8),
+                                              ),
+                                            ],
+                                    ),
+                                    padding: const EdgeInsets.all(24),
                                 child: Form(
                                   key: _formKey,
                                   autovalidateMode:
@@ -338,7 +360,9 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                             color: _termsAccepted
                                                 ? AppColors.primary
                                                     .withValues(alpha: 0.08)
-                                                : AppColors.surfaceLight,
+                                                : (isDark
+                                                    ? AppColors.surfaceLight
+                                                    : Colors.white),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
@@ -449,9 +473,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                             Expanded(
                                 child: Container(
                                     height: 1,
-                                    color: Colors.white.withValues(alpha: 0.12))),
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.12)
+                                        : AppColors.border)),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Text("or continue with",
                                   style: TextStyle(
                                       color: AppColors.textLight, fontSize: 12)),
@@ -459,33 +485,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                             Expanded(
                                 child: Container(
                                     height: 1,
-                                    color: Colors.white.withValues(alpha: 0.12))),
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.12)
+                                        : AppColors.border)),
                           ]),
-                          SizedBox(height: 14),
+                          const SizedBox(height: 14),
 
-                          // ── Social Buttons ──────────────────────────────────────
-                          _SocialButton(
-                            label: "Continue with Google",
-                            icon: Icons.g_mobiledata,
-                            url:
-                                "https://accounts.google.com/v3/signin/identifier",
-                            onTap: (_) => context.read<AuthBloc>().add(const GoogleSignInRequested()),
-                          ),
-                          SizedBox(height: 10),
-                          _SocialButton(
-                            label: "Continue with Facebook",
-                            icon: Icons.facebook,
-                            url: "https://www.facebook.com/login/",
-                            onTap: (url) => _launchAuthUrl(context, url),
-                          ),
-                          SizedBox(height: 10),
-                          _SocialButton(
-                            label: "Continue with Apple",
-                            icon: Icons.apple,
-                            url: "https://appleid.apple.com/auth/authorize",
-                            onTap: (url) => _launchAuthUrl(context, url),
-                          ),
-                          SizedBox(height: 24),
+                          // ── Google Sign-In Button ──────────────────────────────
+                          _googleSignUpButton(context, isDark: isDark),
+
+                          const SizedBox(height: 24),
 
                           TextButton(
                             onPressed: () => Navigator.pop(context),
@@ -500,7 +509,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               ),
                             ),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                         ],
                       ),
                     ),
@@ -509,12 +518,14 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
               ),
             ],
           ),
+            );
+          },
         );
       },
     );
   }
 
-  Future<void> _showSuccessDialog(BuildContext context) async {
+  Future<void> _showSuccessDialog(BuildContext context, {String? email}) async {
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -546,10 +557,10 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       )
                     ],
                   ),
-                  child: Icon(Icons.check_circle_outline,
+                  child: Icon(Icons.mark_email_unread_rounded,
                       color: AppColors.solved, size: 38),
                 ),
-                SizedBox(height: 18),
+                const SizedBox(height: 18),
                 Text(
                   "Account Created!",
                   style: TextStyle(
@@ -557,14 +568,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       fontSize: 20,
                       fontWeight: FontWeight.w900),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  "You have successfully registered. Please log in to continue.",
+                  email != null && email.isNotEmpty
+                      ? "A verification link was sent to $email. Please verify your email to activate your account."
+                      : "A verification link was sent to your email. Please verify your email to activate your account.",
                   style: TextStyle(
                       color: AppColors.textLight, fontSize: 13, height: 1.5),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: Container(
@@ -579,9 +592,9 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () => Navigator.pop(ctx),
-                        child: Center(
+                        child: const Center(
                           child: Text(
-                            "Proceed to Login",
+                            "Proceed to Verification",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
@@ -594,6 +607,55 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _googleSignUpButton(BuildContext context, {required bool isDark}) {
+    return Container(
+      width: double.infinity,
+      height: 52,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceLight : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark
+              ? AppColors.border
+              : AppColors.border.withValues(alpha: 0.8),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
+            offset: const Offset(0, 3),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            context.read<AuthBloc>().add(const GoogleSignInRequested());
+          },
+          splashColor: AppColors.primary.withValues(alpha: 0.08),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.g_mobiledata, size: 28, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text(
+                "Continue with Google",
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14.5,
+                  color: AppColors.textDark,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -616,73 +678,6 @@ class _GlowOrb extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: RadialGradient(colors: [color, Colors.transparent]),
-      ),
-    );
-  }
-}
-
-class _SocialButton extends StatefulWidget {
-  final String label;
-  final IconData icon;
-  final String url;
-  final void Function(String) onTap;
-  const _SocialButton(
-      {required this.label,
-      required this.icon,
-      required this.url,
-      required this.onTap});
-
-  @override
-  State<_SocialButton> createState() => _SocialButtonState();
-}
-
-class _SocialButtonState extends State<_SocialButton> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) {
-        setState(() => _pressed = false);
-        widget.onTap(widget.url);
-      },
-      onTapCancel: () => setState(() => _pressed = false),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        width: double.infinity,
-        height: 52,
-        decoration: BoxDecoration(
-          color: _pressed
-              ? Colors.white.withValues(alpha: 0.1)
-              : AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
-          boxShadow: _pressed
-              ? []
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.15),
-                    blurRadius: 10,
-                    offset: Offset(0, 3),
-                  )
-                ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(widget.icon, size: 24, color: AppColors.textDark),
-            SizedBox(width: 10),
-            Text(
-              widget.label,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
-                color: AppColors.textDark,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

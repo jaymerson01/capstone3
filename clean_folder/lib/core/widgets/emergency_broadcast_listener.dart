@@ -187,197 +187,203 @@ class _EmergencyBroadcastListenerState
               transitionDuration: const Duration(milliseconds: 350),
               pageBuilder: (dialogContext, anim1, anim2) {
                 _activeDialogContext = dialogContext;
-                return PopScope(
-          canPop: false,
-          child: Center(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-              constraints: const BoxConstraints(maxWidth: 480),
-              decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: const Color(0xFFFF3B30), width: 2.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFF3B30).withValues(alpha: 0.4),
-                    blurRadius: 36,
-                    spreadRadius: 6,
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Pulsing Siren Header
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color:
-                              const Color(0xFFFF3B30).withValues(alpha: 0.15),
-                          border: Border.all(
-                              color: const Color(0xFFFF3B30), width: 2),
-                        ),
-                        child: Icon(
-                          Icons.crisis_alert_rounded,
-                          color: Color(0xFFFF3B30),
-                          size: 40,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color:
-                              const Color(0xFFFF3B30).withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: const Color(0xFFFF3B30)
-                                  .withValues(alpha: 0.5)),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Color(0xFFFF3B30),
+                return ValueListenableBuilder<bool>(
+                  valueListenable: AppColors.isDarkModeNotifier,
+                  builder: (context, isDark, _) {
+                    return PopScope(
+                      canPop: false,
+                      child: Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+                          constraints: const BoxConstraints(maxWidth: 480),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(color: const Color(0xFFFF3B30), width: 2.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF3B30).withValues(alpha: 0.4),
+                                blurRadius: 36,
+                                spreadRadius: 6,
                               ),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "MUNICIPAL EMERGENCY SIREN",
-                              style: TextStyle(
-                                color: Color(0xFFFF3B30),
-                                fontWeight: FontWeight.w900,
-                                fontSize: 11,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 14),
-                      Text(
-                        title.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textDark,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                          height: 1.25,
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF060D1A),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.warning_rounded,
-                                        size: 16, color: Color(0xFFFF9500)),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      alertType,
-                                      style: const TextStyle(
-                                        color: Color(0xFFFF9500),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Padding(
+                              padding: const EdgeInsets.all(24.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Pulsing Siren Header
+                                  Container(
+                                    width: 72,
+                                    height: 72,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color:
+                                          const Color(0xFFFF3B30).withValues(alpha: 0.15),
+                                      border: Border.all(
+                                          color: const Color(0xFFFF3B30), width: 2),
                                     ),
-                                  ],
-                                ),
-                                Text(
-                                  timeStr,
-                                  style: const TextStyle(
-                                    color: Color(0xFF7B8DB0),
-                                    fontSize: 11,
+                                    child: const Icon(
+                                      Icons.crisis_alert_rounded,
+                                      color: Color(0xFFFF3B30),
+                                      size: 40,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.place_outlined,
-                                    size: 15, color: Color(0xFF0A84FF)),
-                                SizedBox(width: 6),
-                                Text(
-                                  "Target Sector: $sector",
-                                  style: const TextStyle(
-                                    color: Color(0xFF0A84FF),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          const Color(0xFFFF3B30).withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                          color: const Color(0xFFFF3B30)
+                                              .withValues(alpha: 0.5)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          width: 8,
+                                          height: 8,
+                                          decoration: const BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: Color(0xFFFF3B30),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          "MUNICIPAL EMERGENCY SIREN",
+                                          style: TextStyle(
+                                            color: Color(0xFFFF3B30),
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 11,
+                                            letterSpacing: 1.2,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            Divider(
-                                color: AppColors.border, height: 20),
-                            Text(
-                              message,
-                              style: const TextStyle(
-                                color: Color(0xFFE8F0FE),
-                                fontSize: 13.5,
-                                height: 1.45,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              "Origin: $source",
-                              style: const TextStyle(
-                                color: Color(0xFF7B8DB0),
-                                fontSize: 10.5,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 22),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFF3B30),
-                                foregroundColor: AppColors.textDark,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                              ),
-                              icon: Icon(Icons.check_circle_outline,
-                                  size: 18),
-                              label: Text(
-                                "ACKNOWLEDGE ALERT",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              onPressed: () {
+                                  const SizedBox(height: 14),
+                                  Text(
+                                    title.toUpperCase(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: AppColors.textDark,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                      height: 1.25,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(14),
+                                    decoration: BoxDecoration(
+                                      color: isDark
+                                          ? const Color(0xFF060D1A)
+                                          : const Color(0xFFF1F5F9),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: AppColors.border),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.warning_rounded,
+                                                    size: 16, color: Color(0xFFFF9500)),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  alertType,
+                                                  style: const TextStyle(
+                                                    color: Color(0xFFFF9500),
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Text(
+                                              timeStr,
+                                              style: TextStyle(
+                                                color: AppColors.textLight,
+                                                fontSize: 11,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.place_outlined,
+                                                size: 15, color: Color(0xFF0A84FF)),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              "Target Sector: $sector",
+                                              style: const TextStyle(
+                                                color: Color(0xFF0A84FF),
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Divider(
+                                            color: AppColors.border, height: 20),
+                                        Text(
+                                          message,
+                                          style: TextStyle(
+                                            color: AppColors.textDark,
+                                            fontSize: 13.5,
+                                            height: 1.45,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Text(
+                                          "Origin: $source",
+                                          style: TextStyle(
+                                            color: AppColors.textLight,
+                                            fontSize: 10.5,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 22),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFFFF3B30),
+                                            foregroundColor: Colors.white,
+                                            padding:
+                                                const EdgeInsets.symmetric(vertical: 14),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(14),
+                                            ),
+                                          ),
+                                          icon: const Icon(Icons.check_circle_outline,
+                                              size: 18),
+                                          label: const Text(
+                                            "ACKNOWLEDGE ALERT",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                          onPressed: () {
                                 _recordDismissal(broadcastId);
                                 Navigator.pop(dialogContext);
                               },
@@ -393,6 +399,8 @@ class _EmergencyBroadcastListenerState
           ),
         );
       },
+    );
+  },
       transitionBuilder: (context, anim1, anim2, child) {
         return ScaleTransition(
           scale: CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),

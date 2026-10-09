@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
-import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
-import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
-import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
+import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 
@@ -26,10 +26,13 @@ class _MyReportsPageState extends State<MyReportsPage>
   String _searchQuery = "";
   late AnimationController _entranceController;
 
+  Stream<List<IncidentEntity>>? _userReportsStream;
+  String _activeUserId = '';
+
   @override
   void initState() {
     super.initState();
-    _loadUserReports();
+    _initUserStream();
     _entranceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 700),
@@ -37,11 +40,19 @@ class _MyReportsPageState extends State<MyReportsPage>
     _entranceController.forward();
   }
 
-  void _loadUserReports() {
+  void _initUserStream() {
     final authState = context.read<AuthBloc>().state;
-    final currentUserId =
-        (authState is Authenticated) ? authState.user.id : 'resident_local';
-    context.read<IncidentBloc>().add(StreamUserIncidentsRequested(currentUserId));
+    _activeUserId = (authState is Authenticated)
+        ? authState.user.id
+        : (FirebaseAuth.instance.currentUser?.uid ?? 'resident_local');
+    _userReportsStream = sl<IncidentRepository>().streamUserIncidents(_activeUserId);
+  }
+
+  Future<void> _refreshUserReports() async {
+    setState(() {
+      _initUserStream();
+    });
+    await Future.delayed(const Duration(milliseconds: 400));
   }
 
   @override
@@ -227,28 +238,47 @@ class _MyReportsPageState extends State<MyReportsPage>
 
               // ── Report List ──────────────────────────────────────────────
               Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    _loadUserReports();
+                child: BlocListener<AuthBloc, AuthState>(
+                  listener: (context, authState) {
+                    final currentId = (authState is Authenticated)
+                        ? authState.user.id
+                        : (FirebaseAuth.instance.currentUser?.uid ?? 'resident_local');
+                    if (currentId != _activeUserId) {
+                      setState(() {
+                        _initUserStream();
+                      });
+                    }
                   },
-                  child: BlocBuilder<IncidentBloc, IncidentState>(
-                    builder: (context, state) {
-                      if (state is IncidentLoading) {
-                        return Center(
-                          child: CircularProgressIndicator(
-                              color: AppColors.primary),
-                        );
-                      } else if (state is IncidentError) {
-                        return ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          children: [
-                            _emptyBox("Error fetching reports: ${state.message}"),
-                          ],
-                        );
-                      } else if (state is IncidentLoaded) {
-                        final incidents = state.incidents;
+                  child: RefreshIndicator(
+                    onRefresh: _refreshUserReports,
+                    color: AppColors.primary,
+                    child: StreamBuilder<List<IncidentEntity>>(
+                      stream: _userReportsStream,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting &&
+                            !snapshot.hasData) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                                color: AppColors.primary),
+                          );
+                        } else if (snapshot.hasError) {
+                          return ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              _emptyBox("Error fetching reports: ${snapshot.error}"),
+                            ],
+                          );
+                        }
+
+                        final incidents = snapshot.data ?? [];
 
                         final filteredIncidents = incidents.where((incident) {
+                          // 0. Ownership Filter: strictly show only reports owned by this resident
+                          if (_activeUserId != 'resident_local' &&
+                              incident.reporterId != _activeUserId) {
+                            return false;
+                          }
+
                           // 1. Status Filter
                           bool matchesStatus = true;
                           if (selectedFilter != "ALL") {
@@ -314,15 +344,8 @@ class _MyReportsPageState extends State<MyReportsPage>
                             );
                           },
                         );
-                      }
-
-                      return ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          _emptyBox("Pull down to load reported incidents."),
-                        ],
-                      );
-                    },
+                      },
+                    ),
                   ),
                 ),
               ),

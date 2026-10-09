@@ -68,7 +68,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return newModel;
     }
 
-    return UserModel.fromFirestore(docSnapshot);
+    final model = UserModel.fromFirestore(docSnapshot);
+    if (firebaseUser.emailVerified && !model.isVerified) {
+      try {
+        await docRef.update({'isVerified': true});
+      } catch (_) {}
+      return model.copyWith(isVerified: true);
+    }
+    return model;
   }
 
   @override
@@ -94,6 +101,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (fullName != null && fullName.isNotEmpty) {
       await firebaseUser.updateDisplayName(fullName);
     }
+
+    // Send verification email link
+    try {
+      await firebaseUser.sendEmailVerification();
+    } catch (_) {}
 
     // Role is strictly 'resident' or 'admin'
     final enforcedRole = (role == 'admin') ? 'admin' : 'resident';
@@ -197,7 +209,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return fallbackModel;
       }
 
-      return UserModel.fromFirestore(docSnapshot);
+      final model = UserModel.fromFirestore(docSnapshot);
+      if (firebaseUser.emailVerified && !model.isVerified) {
+        try {
+          await docRef.update({'isVerified': true});
+        } catch (_) {}
+        return model.copyWith(isVerified: true);
+      }
+      return model;
     } catch (_) {
       // Offline fallback: Use Hive cache or fallback to firebaseUser credentials
       String cachedRole = 'resident';
