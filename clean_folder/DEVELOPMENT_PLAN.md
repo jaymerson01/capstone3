@@ -860,9 +860,47 @@ The platform targets two distinct user personas with separate deployment artifac
 
 ---
 
+### Phase 13: Email Verification Architecture, Role-Based Access Isolation, & Stream Decoupling
+**Goal:** Deliver enterprise-grade identity verification, enforce strict dual-app role boundaries (resident vs admin), resolve shared incident stream hijacking, and generate a verified production release APK for group testing.
+
+#### 13.1 Firebase Email Verification Flow & Live Demo Safeguard
+- [x] **Firebase Built-in Email Verification Integration:**
+  - Automated `sendEmailVerification()` dispatch upon resident registration in `AuthRemoteDataSourceImpl`.
+  - Created `EmailVerificationPage` (`lib/features/auth/presentation/pages/email_verification_page.dart`) with theme-adaptive design, pulsing email icon, and 60-second cooldown timer for link re-sending.
+  - Added live reload listener (`user.reload()`) with manual "I've Verified My Email" status check button.
+  - Integrated 2-second long-press demo bypass on civic crest header for instant, seamless thesis defense testing.
+  - Automatically synchronizes `isVerified: true` to Firestore `/users/{uid}` document upon verified session initialization.
+  - Google Sign-In accounts automatically bypass verification (`emailVerified == true`).
+
+#### 13.2 Shared Stream Hijacking Fix & Incident Isolation
+- [x] **Decoupled User Reports Stream from Global IncidentBloc:**
+  - Diagnosed root cause: `MyReportsPage` previously dispatched `StreamUserIncidentsRequested` to root `IncidentBloc`, which canceled the active community incidents subscription and caused Dashboard incidents and Map pins to vanish on pull-to-refresh.
+  - Decoupled `MyReportsPage` to consume its own direct stream from `sl<IncidentRepository>().streamUserIncidents(userId)` without interfering with root `IncidentBloc`.
+  - Added strict ownership validation (`incident.reporterId == currentUserId`) preventing cross-account report bleeding on logout/switch.
+  - Ensured root `main_resident.dart` automatically dispatches `StreamActiveIncidentsRequested` on authentication state changes to keep community telemetry fresh.
+
+#### 13.3 Mutual Role-Based Access Control (RBAC) Hardening
+- [x] **Resident App Admin Lockdown:**
+  - Enforced strict reciprocal RBAC: resident mobile app explicitly rejects admin accounts (`state.user.isAdmin`).
+  - Implemented `AuthModals.showAdminAccountBlocked` displaying official municipal security dialogue and automatically terminating session via `AuthLogoutRequested`.
+  - Admin Web Portal continues enforcing resident rejection (`!user.isAdmin`), ensuring complete platform isolation.
+
+#### 13.4 Android Production Release Build
+- [x] **Compiled Universal Release APK:**
+  ```bash
+  flutter build apk --release -t lib/main_resident.dart
+  ```
+  - **Target Binary:** `build/app/outputs/flutter-apk/app-release.apk`
+  - **File Size:** 66.2 MB
+  - **Exit Code:** 0 (Clean build)
+  - Ready for immediate distribution and physical device installation among groupmates.
+
+---
+
 ## 4. Team Collaboration & Quality Standards
 
 1. **Strict Clean Architecture:** Never import presentation widgets into data or domain layers. Route all mutations through BLoC events.
 2. **No Placeholders or Dead Controls:** Every button, toggle, and input must either connect to a functional service or be cleanly removed.
 3. **Dual-Target Verification:** When adding shared features, verify that both the Mobile APK and Web Portal build cleanly without platform conflicts.
+
 

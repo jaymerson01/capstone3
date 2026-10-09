@@ -1,9 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
@@ -27,7 +26,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _rememberMe = false;
 
   late AnimationController _bgController;
   late AnimationController _cardController;
@@ -71,27 +69,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _launchAuthUrl(BuildContext context, String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
-        throw "Could not redirect to authorization screen.";
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text("Redirect Error: ${e.toString()}"),
-            backgroundColor: AppColors.danger,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -110,6 +87,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             );
           }
         } else if (state is Authenticated) {
+          if (state.user.isAdmin) {
+            context.read<AuthBloc>().add(const LogoutRequested());
+            AuthModals.showAdminAccountBlocked(context);
+            return;
+          }
+
+          final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
+          if (!isVerified) {
+            Navigator.pushReplacementNamed(context, '/email-verification');
+            return;
+          }
           await showDialog(
             context: context,
             barrierDismissible: false,
@@ -123,127 +111,155 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       builder: (context, state) {
         final isLoading = state is AuthLoading;
 
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
-            children: [
-              // ── Animated Background ─────────────────────────────────────────
-              AnimatedBuilder(
-                animation: _bgController,
-                builder: (context, _) {
-                  return Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: AppColors.commandGradient,
-                        ),
-                      ),
-                      Positioned(
-                        top: -60 + (40 * _bgController.value),
-                        right: -40,
-                        child: _Orb(
-                            size: 280,
-                            color: AppColors.primary.withValues(alpha: 0.1)),
-                      ),
-                      Positioned(
-                        bottom: -100,
-                        left: -60 + (20 * (1 - _bgController.value)),
-                        child: _Orb(
-                            size: 320,
-                            color: AppColors.secondary.withValues(alpha: 0.07)),
-                      ),
-                      CustomPaint(
-                        size: Size(
-                          MediaQuery.of(context).size.width,
-                          MediaQuery.of(context).size.height,
-                        ),
-                        painter: _GridPainter(),
-                      ),
-                    ],
-                  );
-                },
-              ),
-
-              // ── Main Content ────────────────────────────────────────────────
-              SafeArea(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    child: FadeTransition(
-                      opacity: _cardFade,
-                      child: SlideTransition(
-                        position: _cardSlide,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Logo
-                            Container(
-                              width: 88,
-                              height: 88,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.primary.withValues(alpha: 0.35),
-                                    blurRadius: 24,
-                                    spreadRadius: 4,
-                                  ),
-                                ],
-                              ),
-                              child: ClipOval(
-                                child: Image.asset(
-                                  'assets/images/logo.png',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => Container(
-                                    color: AppColors.primary,
-                                    child: Icon(Icons.shield,
-                                        color: Colors.white, size: 40),
-                                  ),
-                                ),
-                              ),
+        return ValueListenableBuilder<bool>(
+          valueListenable: AppColors.isDarkModeNotifier,
+          builder: (context, isDark, _) {
+            return Scaffold(
+              backgroundColor: AppColors.background,
+              body: Stack(
+                children: [
+                  // ── Animated Background ─────────────────────────────────────────
+                  AnimatedBuilder(
+                    animation: _bgController,
+                    builder: (context, _) {
+                      return Stack(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: isDark
+                                  ? const LinearGradient(
+                                      colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    )
+                                  : const LinearGradient(
+                                      colors: [Color(0xFFF8FAFC), Color(0xFFEDF2F7)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
                             ),
-                            SizedBox(height: 20),
-
-                            ShaderMask(
-                              shaderCallback: (bounds) =>
-                                  AppColors.cyanGradient.createShader(bounds),
-                              blendMode: BlendMode.srcIn,
-                              child: Text(
-                                "SIGN IN",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 28,
-                                  letterSpacing: 4,
-                                ),
-                              ),
+                          ),
+                          Positioned(
+                            top: -60 + (40 * _bgController.value),
+                            right: -40,
+                            child: _Orb(
+                                size: 280,
+                                color: AppColors.primary
+                                    .withValues(alpha: isDark ? 0.1 : 0.07)),
+                          ),
+                          Positioned(
+                            bottom: -100,
+                            left: -60 + (20 * (1 - _bgController.value)),
+                            child: _Orb(
+                                size: 320,
+                                color: AppColors.secondary
+                                    .withValues(alpha: isDark ? 0.07 : 0.04)),
+                          ),
+                          CustomPaint(
+                            size: Size(
+                              MediaQuery.of(context).size.width,
+                              MediaQuery.of(context).size.height,
                             ),
-                            SizedBox(height: 6),
-                            Text(
-                              "Barangay Incident & Public Safety Portal",
-                              style:
-                                  TextStyle(color: AppColors.textLight, fontSize: 13),
-                            ),
-                            SizedBox(height: 28),
+                            painter: _GridPainter(isDark: isDark),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
 
-                            // ── Glass Login Card ──────────────────────────────────
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(24),
-                              child: BackdropFilter(
-                                filter:
-                                    ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                                child: Container(
+                  // ── Main Content ────────────────────────────────────────────────
+                  SafeArea(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                        child: FadeTransition(
+                          opacity: _cardFade,
+                          child: SlideTransition(
+                            position: _cardSlide,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // Logo
+                                Container(
+                                  width: 88,
+                                  height: 88,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.06),
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.1),
-                                      width: 1,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primary
+                                            .withValues(alpha: isDark ? 0.35 : 0.2),
+                                        blurRadius: 24,
+                                        spreadRadius: 4,
+                                      ),
+                                    ],
+                                  ),
+                                  child: ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/logo.png',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, _, _) => Container(
+                                        color: AppColors.primary,
+                                        child: const Icon(Icons.shield,
+                                            color: Colors.white, size: 40),
+                                      ),
                                     ),
                                   ),
-                                  padding: const EdgeInsets.all(24),
+                                ),
+                                const SizedBox(height: 20),
+
+                                ShaderMask(
+                                  shaderCallback: (bounds) =>
+                                      AppColors.cyanGradient.createShader(bounds),
+                                  blendMode: BlendMode.srcIn,
+                                  child: const Text(
+                                    "SIGN IN",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 28,
+                                      letterSpacing: 4,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  "Barangay Incident & Public Safety Portal",
+                                  style: TextStyle(
+                                      color: AppColors.textLight, fontSize: 13),
+                                ),
+                                const SizedBox(height: 28),
+
+                                // ── Glass Login Card ──────────────────────────────────
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(24),
+                                  child: BackdropFilter(
+                                    filter:
+                                        ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: isDark
+                                            ? Colors.white.withValues(alpha: 0.06)
+                                            : Colors.white.withValues(alpha: 0.92),
+                                        borderRadius: BorderRadius.circular(24),
+                                        border: Border.all(
+                                          color: isDark
+                                              ? Colors.white.withValues(alpha: 0.1)
+                                              : AppColors.border,
+                                          width: 1,
+                                        ),
+                                        boxShadow: isDark
+                                            ? []
+                                            : [
+                                                BoxShadow(
+                                                  color: const Color(0x140A1628),
+                                                  blurRadius: 24,
+                                                  offset: const Offset(0, 8),
+                                                ),
+                                              ],
+                                      ),
+                                      padding: const EdgeInsets.all(24),
                                   child: Form(
                                     key: _formKey,
                                     autovalidateMode:
@@ -307,66 +323,30 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           ),
                                         ),
 
-                                        // Remember Me & Forgot Password
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                SizedBox(
-                                                  height: 22,
-                                                  width: 22,
-                                                  child: Checkbox(
-                                                    value: _rememberMe,
-                                                    onChanged: (v) => setState(
-                                                        () => _rememberMe =
-                                                            v ?? false),
-                                                    activeColor:
-                                                        AppColors.primary,
-                                                    side: BorderSide(
-                                                        color: AppColors.border),
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(width: 8),
-                                                Text(
-                                                  "Remember Me",
-                                                  style: TextStyle(
-                                                    fontSize: 12.5,
-                                                    color: AppColors.textLight,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ],
+                                        // Forgot Password
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: TextButton(
+                                            onPressed: () =>
+                                                _showForgotPasswordDialog(
+                                                    context),
+                                            style: TextButton.styleFrom(
+                                              padding: EdgeInsets.zero,
+                                              tapTargetSize:
+                                                  MaterialTapTargetSize
+                                                      .shrinkWrap,
                                             ),
-                                            TextButton(
-                                              onPressed: () =>
-                                                  _showForgotPasswordDialog(
-                                                      context),
-                                              style: TextButton.styleFrom(
-                                                padding: EdgeInsets.zero,
-                                                tapTargetSize:
-                                                    MaterialTapTargetSize
-                                                        .shrinkWrap,
-                                              ),
-                                              child: Text(
-                                                "Forgot Password?",
-                                                style: TextStyle(
-                                                  color: AppColors.primary,
-                                                  fontSize: 12.5,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
+                                            child: Text(
+                                              "Forgot Password?",
+                                              style: TextStyle(
+                                                color: AppColors.primary,
+                                                fontSize: 12.5,
+                                                fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                        SizedBox(height: 22),
+                                        const SizedBox(height: 18),
 
                                         Semantics(
                                           label: 'login_button',
@@ -393,7 +373,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                                     final password =
                                                         _passwordController.text;
                                                     
-                                                    // Delegate to BLoC instead of MockDatabaseService
                                                     context.read<AuthBloc>().add(
                                                       LoginRequested(email, password)
                                                     );
@@ -407,7 +386,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               ),
                             ),
 
-                             SizedBox(height: 20),
+                            const SizedBox(height: 24),
 
                             // Divider
                             Row(
@@ -415,10 +394,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 Expanded(
                                   child: Container(
                                       height: 1,
-                                      color: AppColors.border),
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.12)
+                                          : AppColors.border),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child: Text(
                                     "or continue with",
                                     style: TextStyle(
@@ -429,21 +410,18 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 Expanded(
                                   child: Container(
                                       height: 1,
-                                      color: AppColors.border),
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.12)
+                                          : AppColors.border),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
-                            // Social Buttons
-                            _socialButton(
-                              context,
-                              "Continue with Google",
-                              Icons.g_mobiledata,
-                              "https://accounts.google.com/signin",
-                            ),
+                            // Google Sign-In Button
+                            _googleSignInButton(context, isDark: isDark),
 
-                            SizedBox(height: 24),
+                            const SizedBox(height: 24),
 
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -474,7 +452,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                           ],
                         ),
                       ),
@@ -484,27 +462,28 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
             ],
           ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _socialButton(
-    BuildContext context,
-    String text,
-    IconData icon,
-    String targetUrl,
-  ) {
+  Widget _googleSignInButton(BuildContext context, {required bool isDark}) {
     return Container(
       width: double.infinity,
-      height: 50,
+      height: 52,
       decoration: BoxDecoration(
-        color: AppColors.surfaceLight,
+        color: isDark ? AppColors.surfaceLight : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: isDark
+              ? AppColors.border
+              : AppColors.border.withValues(alpha: 0.8),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.15),
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.05),
             offset: const Offset(0, 3),
             blurRadius: 10,
           ),
@@ -516,23 +495,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            if (text.toLowerCase().contains("google")) {
-              context.read<AuthBloc>().add(const GoogleSignInRequested());
-            } else {
-              _launchAuthUrl(context, targetUrl);
-            }
+            context.read<AuthBloc>().add(const GoogleSignInRequested());
           },
           splashColor: AppColors.primary.withValues(alpha: 0.08),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 24, color: AppColors.textDark),
-              SizedBox(width: 10),
+              Icon(Icons.g_mobiledata, size: 28, color: AppColors.primary),
+              const SizedBox(width: 8),
               Text(
-                text,
+                "Continue with Google",
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 14,
+                  fontSize: 14.5,
                   color: AppColors.textDark,
                 ),
               ),
@@ -717,10 +692,15 @@ class _Orb extends StatelessWidget {
 }
 
 class _GridPainter extends CustomPainter {
+  final bool isDark;
+  const _GridPainter({this.isDark = true});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.025)
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.025)
+          : const Color(0xFF0F172A).withValues(alpha: 0.035)
       ..strokeWidth = 0.5;
     const spacing = 50.0;
     for (double x = 0; x < size.width; x += spacing) {
@@ -732,7 +712,8 @@ class _GridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _GridPainter oldDelegate) =>
+      oldDelegate.isDark != isDark;
 }
 
 class _SuccessDialog extends StatelessWidget {

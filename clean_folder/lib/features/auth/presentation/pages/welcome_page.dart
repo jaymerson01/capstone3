@@ -146,56 +146,69 @@ class _WelcomePageState extends State<WelcomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: AnimatedBuilder(
-        animation: Listenable.merge([_bgAnimation, _logoPulse]),
-        builder: (context, child) {
-          return Stack(
-            children: [
-              // ── Animated Mesh Gradient Background ──────────────────────────
-              Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: AppColors.commandGradient,
-                ),
-              ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppColors.isDarkModeNotifier,
+      builder: (context, isDark, _) {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: AnimatedBuilder(
+            animation: Listenable.merge([_bgAnimation, _logoPulse]),
+            builder: (context, child) {
+              return Stack(
+                children: [
+                  // ── Animated Mesh Gradient Background ──────────────────────────
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: isDark
+                          ? const LinearGradient(
+                              colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : const LinearGradient(
+                              colors: [Color(0xFFF8FAFC), Color(0xFFEDF2F7)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                    ),
+                  ),
 
-              // ── Ambient Orbs ───────────────────────────────────────────────
-              Positioned(
-                top: -80 + (40 * _bgAnimation.value),
-                left: -60 + (20 * _bgAnimation.value),
-                child: _Orb(
-                  size: 300,
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                ),
-              ),
-              Positioned(
-                bottom: -100 + (30 * (1 - _bgAnimation.value)),
-                right: -80,
-                child: _Orb(
-                  size: 350,
-                  color: AppColors.secondary.withValues(alpha: 0.08),
-                ),
-              ),
-              Positioned(
-                top: MediaQuery.of(context).size.height * 0.4,
-                left: MediaQuery.of(context).size.width * 0.6,
-                child: _Orb(
-                  size: 200,
-                  color: AppColors.accent.withValues(alpha: 0.08),
-                ),
-              ),
+                  // ── Ambient Orbs ───────────────────────────────────────────────
+                  Positioned(
+                    top: -80 + (40 * _bgAnimation.value),
+                    left: -60 + (20 * _bgAnimation.value),
+                    child: _Orb(
+                      size: 300,
+                      color: AppColors.primary.withValues(alpha: isDark ? 0.12 : 0.08),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: -100 + (30 * (1 - _bgAnimation.value)),
+                    right: -80,
+                    child: _Orb(
+                      size: 350,
+                      color: AppColors.secondary.withValues(alpha: isDark ? 0.08 : 0.05),
+                    ),
+                  ),
+                  Positioned(
+                    top: MediaQuery.of(context).size.height * 0.4,
+                    left: MediaQuery.of(context).size.width * 0.6,
+                    child: _Orb(
+                      size: 200,
+                      color: AppColors.accent.withValues(alpha: isDark ? 0.08 : 0.05),
+                    ),
+                  ),
 
-              // ── Grid Overlay ───────────────────────────────────────────────
-              CustomPaint(
-                size: Size(
-                  MediaQuery.of(context).size.width,
-                  MediaQuery.of(context).size.height,
-                ),
-                painter: _GridPainter(),
-              ),
+                  // ── Grid Overlay ───────────────────────────────────────────────
+                  CustomPaint(
+                    size: Size(
+                      MediaQuery.of(context).size.width,
+                      MediaQuery.of(context).size.height,
+                    ),
+                    painter: _GridPainter(isDark: isDark),
+                  ),
 
               // ── Main Content ────────────────────────────────────────────────
               SafeArea(
@@ -343,25 +356,28 @@ class _WelcomePageState extends State<WelcomePage>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 7),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.15),
+                                color: isDark
+                                    ? AppColors.primary.withValues(alpha: 0.15)
+                                    : AppColors.primary.withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.3)),
+                                    color: isDark
+                                        ? AppColors.primary.withValues(alpha: 0.3)
+                                        : AppColors.primary.withValues(alpha: 0.25)),
                               ),
                               child: Text(
                                 'Smart Barangay Command System',
                                 style: TextStyle(
-                                  color: AppColors.secondary,
+                                  color: isDark ? AppColors.secondary : AppColors.primary,
                                   fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: 1.0,
                                 ),
                               ),
                             ),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 48),
+                              padding: const EdgeInsets.symmetric(horizontal: 48),
                               child: Text(
                                 'Your safety and community trust are our priority',
                                 textAlign: TextAlign.center,
@@ -377,7 +393,7 @@ class _WelcomePageState extends State<WelcomePage>
                       ),
                     ),
 
-                    SizedBox(height: 48),
+                    const SizedBox(height: 48),
 
                     // ── Action Buttons (Staggered) ──────────────────────────────
                     Padding(
@@ -393,7 +409,7 @@ class _WelcomePageState extends State<WelcomePage>
                               onPressed: () => _showLoginRequired(context),
                             ),
                           ),
-                          SizedBox(height: 14),
+                          const SizedBox(height: 14),
                           FadeTransition(
                             opacity: _btn2Fade,
                             child: Custom3dButton(
@@ -412,39 +428,44 @@ class _WelcomePageState extends State<WelcomePage>
                       ),
                     ),
 
-
-
                     const Spacer(),
 
-                    // Status bar
+                    // ── Official Municipal Civic Trust Badge ────────────────────
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.solved,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.solved.withValues(alpha: 0.6),
-                                  blurRadius: 8,
-                                ),
-                              ],
-                            ),
+                      padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.white.withValues(alpha: 0.85),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : AppColors.border.withValues(alpha: 0.7),
                           ),
-                          SizedBox(width: 8),
-                          Text(
-                            'System Online · Barangay Moonwalk',
-                            style: TextStyle(
-                              color: AppColors.textLight,
-                              fontSize: 12,
-                            ),
+                          boxShadow: isDark
+                              ? []
+                              : [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                        ),
+                        child: Text(
+                          '🛡️ Republic of the Philippines • Barangay Moonwalk, Parañaque City',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.2,
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ],
@@ -455,6 +476,8 @@ class _WelcomePageState extends State<WelcomePage>
         },
       ),
     );
+  },
+);
   }
 }
 
@@ -511,6 +534,7 @@ class _GlassTopButtonState extends State<_GlassTopButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDarkMode;
     return GestureDetector(
       onTap: _handleTap,
       child: Container(
@@ -518,12 +542,16 @@ class _GlassTopButtonState extends State<_GlassTopButton> {
         decoration: BoxDecoration(
           color: widget.filled
               ? AppColors.primary
-              : Colors.white.withValues(alpha: 0.08),
+              : (isDark
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.9)),
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             color: widget.filled
                 ? AppColors.primary
-                : Colors.white.withValues(alpha: 0.15),
+                : (isDark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : AppColors.primary.withValues(alpha: 0.35)),
           ),
           boxShadow: widget.filled
               ? [
@@ -533,12 +561,22 @@ class _GlassTopButtonState extends State<_GlassTopButton> {
                     offset: const Offset(0, 4),
                   ),
                 ]
-              : [],
+              : (isDark
+                  ? []
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]),
         ),
         child: Text(
           widget.text,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: widget.filled
+                ? Colors.white
+                : (isDark ? Colors.white : AppColors.primary),
             fontWeight: FontWeight.w700,
             fontSize: 13,
           ),
@@ -549,10 +587,15 @@ class _GlassTopButtonState extends State<_GlassTopButton> {
 }
 
 class _GridPainter extends CustomPainter {
+  final bool isDark;
+  const _GridPainter({this.isDark = true});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.025)
+      ..color = isDark
+          ? Colors.white.withValues(alpha: 0.025)
+          : const Color(0xFF0F172A).withValues(alpha: 0.035)
       ..strokeWidth = 0.5
       ..style = PaintingStyle.stroke;
 
@@ -566,7 +609,8 @@ class _GridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _GridPainter oldDelegate) =>
+      oldDelegate.isDark != isDark;
 }
 
 class _PremiumDialog extends StatelessWidget {

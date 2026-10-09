@@ -55,6 +55,37 @@ class AuthModals {
       },
     );
   }
+
+  /// ── Admin Blocked from Resident App ─────────────────────────────────────
+  static void showAdminAccountBlocked(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Dismiss',
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      transitionDuration: const Duration(milliseconds: 350),
+      pageBuilder: (context, anim1, anim2) => const SizedBox.shrink(),
+      transitionBuilder: (context, anim1, anim2, child) {
+        return FadeTransition(
+          opacity: anim1,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.88, end: 1.0)
+                .animate(CurvedAnimation(parent: anim1, curve: Curves.easeOutBack)),
+            child: _PremiumDialog(
+              icon: Icons.admin_panel_settings_rounded,
+              iconColor: const Color(0xFFF59E0B),
+              title: "Admin Account Detected",
+              message:
+                  "This account is registered with Barangay Official & Dispatcher privileges.\n\nPlease log in via the ResQ Admin Command Center web portal.",
+              actionLabel: "Understood",
+              actionColor: const Color(0xFFF59E0B),
+              onAction: () => Navigator.of(context).pop(),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 // ─── Premium Dialog Shell ─────────────────────────────────────────────────────

@@ -68,9 +68,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return newModel;
     }
 
-    final existingUser = UserModel.fromFirestore(docSnapshot);
-    await _ensureAccountActive(existingUser);
-    return existingUser;
+    var model = UserModel.fromFirestore(docSnapshot);
+    await _ensureAccountActive(model);
+    if (firebaseUser.emailVerified && !model.isVerified) {
+      try {
+        await docRef.update({'isVerified': true});
+      } catch (_) {}
+      model = model.copyWith(isVerified: true);
+    }
+    return model;
   }
 
   /// Signs the user out and throws if an admin has suspended this account.
@@ -107,6 +113,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     if (fullName != null && fullName.isNotEmpty) {
       await firebaseUser.updateDisplayName(fullName);
     }
+
+    // Send verification email link
+    try {
+      await firebaseUser.sendEmailVerification();
+    } catch (_) {}
 
     // Self-registration always creates a resident. Admin accounts are
     // promoted by an existing admin (Firestore rules block anything else).
@@ -214,7 +225,14 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return fallbackModel;
       }
 
-      onlineUser = UserModel.fromFirestore(docSnapshot);
+      var model = UserModel.fromFirestore(docSnapshot);
+      if (firebaseUser.emailVerified && !model.isVerified) {
+        try {
+          await docRef.update({'isVerified': true});
+        } catch (_) {}
+        model = model.copyWith(isVerified: true);
+      }
+      onlineUser = model;
     } catch (_) {
       // Offline fallback: Use Hive cache or fallback to firebaseUser credentials
       String cachedRole = 'resident';
