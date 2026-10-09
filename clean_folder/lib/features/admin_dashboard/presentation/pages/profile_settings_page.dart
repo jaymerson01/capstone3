@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:community_safety_app/core/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -123,8 +123,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
     try {
       final bytes = await pickedFile.readAsBytes();
-      final cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? 'g45cmboy';
-      final uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? 'crkjnmhd';
+      const cloudName = AppConfig.cloudinaryCloudName;
+      const uploadPreset = AppConfig.cloudinaryUploadPreset;
 
       final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
       final request = http.MultipartRequest('POST', uri)

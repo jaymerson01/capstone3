@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/foundation.dart';
 
@@ -46,12 +47,17 @@ class SyncService {
       if (!Hive.isBoxOpen('incidents')) return;
       final localBox = Hive.box<IncidentModel>('incidents');
       
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+
+      // Every report in this box was saved because the upload failed.
+      // (isSynced is not persisted by Hive, so it can't be used as the flag.)
       final pendingKeys = <dynamic>[];
       final pendingIncidents = <IncidentModel>[];
-      
+
       for (final key in localBox.keys) {
         final incident = localBox.get(key);
-        if (incident != null && !incident.isSynced) {
+        if (incident != null && incident.reporterId == uid) {
           pendingKeys.add(key);
           pendingIncidents.add(incident);
         }
@@ -60,7 +66,27 @@ class SyncService {
       for (int i = 0; i < pendingIncidents.length; i++) {
         final incident = pendingIncidents[i];
         try {
-          await _firestore.collection('incidents').doc(incident.id).set(incident.toFirestore()).timeout(const Duration(seconds: 15));
+          final docRef = _firestore.collection('incidents').doc(incident.id);
+
+          // Firestore may already have it (its own offline queue can deliver
+          // the write too). Never overwrite a report the admin has updated.
+          final existing = await docRef
+              .get(const GetOptions(source: Source.server))
+              .timeout(const Duration(seconds: 15));
+          if (existing.exists) {
+            await localBox.delete(pendingKeys[i]);
+            continue;
+          }
+
+          final batch = _firestore.batch();
+          batch.set(docRef, incident.toFirestore());
+          batch.set(
+            docRef
+                .collection(IncidentModel.confidentialCollection)
+                .doc(IncidentModel.confidentialDocId),
+            incident.toConfidentialFirestore(),
+          );
+          await batch.commit().timeout(const Duration(seconds: 15));
           
           // Send notification
           final notifTitle = incident.isReportingOnBehalf
@@ -78,10 +104,8 @@ class SyncService {
             incidentId: incident.id,
           );
 
-          // Mark as synced
-          final updatedIncident = incident.copyWith(isSynced: true);
-          
-          await localBox.put(pendingKeys[i], updatedIncident);
+          // Uploaded: the live Firestore copy takes over from here.
+          await localBox.delete(pendingKeys[i]);
           debugPrint('Synced incident ${incident.id}');
         } catch (e) {
           debugPrint('Failed to sync incident ${incident.id}: $e');

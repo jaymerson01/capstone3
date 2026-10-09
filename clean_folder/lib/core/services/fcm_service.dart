@@ -120,6 +120,10 @@ class FCMService {
     // 5. Handle Foreground Messages (App is active and on screen)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       debugPrint("🔔 [FCM Foreground] Received: ${message.notification?.title}");
+      // Pushes from our Cloud Functions mirror Firestore events that the open
+      // app already shows (siren modal, notification bell + local alert), so
+      // showing them again here would double-alert the resident.
+      if (message.data['origin'] == 'resq_functions') return;
       _displayForegroundNotification(message);
     });
 

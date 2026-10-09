@@ -407,31 +407,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               ),
                             ),
 
-                             SizedBox(height: 12),
-
-                             Center(
-                               child: TextButton.icon(
-                                 onPressed: isLoading
-                                     ? null
-                                     : () {
-                                         _emailController.text = 'demo@resident.ph';
-                                         _passwordController.text = 'resident123';
-                                         context.read<AuthBloc>().add(
-                                           const LoginRequested('demo@resident.ph', 'resident123'),
-                                         );
-                                       },
-                                 icon: Icon(Icons.flash_on, size: 16, color: AppColors.secondary),
-                                 label: Text(
-                                   "Quick Demo Resident Sign In",
-                                   style: TextStyle(
-                                     color: AppColors.secondary,
-                                     fontSize: 13,
-                                     fontWeight: FontWeight.w600,
-                                   ),
-                                 ),
-                               ),
-                             ),
-
                              SizedBox(height: 20),
 
                             // Divider
@@ -466,20 +441,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               "Continue with Google",
                               Icons.g_mobiledata,
                               "https://accounts.google.com/signin",
-                            ),
-                            SizedBox(height: 10),
-                            _socialButton(
-                              context,
-                              "Continue with Facebook",
-                              Icons.facebook,
-                              "https://www.facebook.com/login/",
-                            ),
-                            SizedBox(height: 10),
-                            _socialButton(
-                              context,
-                              "Continue with Apple",
-                              Icons.apple,
-                              "https://appleid.apple.com/auth/authorize",
                             ),
 
                             SizedBox(height: 24),

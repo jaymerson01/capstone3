@@ -282,15 +282,22 @@ class IncidentModel extends IncidentEntity {
       parsedRespondedAt = DateTime.tryParse(rawRespondedAt);
     }
 
-    final rawUrgency = data['urgencyStatus'] as String?;
+    // Urgency shown = the higher of the stored level (set at filing / by admin)
+    // and the level reached through neighbour "Me Too" upvotes. Residents can
+    // no longer write urgencyStatus directly, so escalation is computed here.
+    final rawUrgency = (data['urgencyStatus'] as String?)?.toUpperCase();
+    final String escalatedUrgency =
+        IncidentTriageHelper.calculateEffectiveUrgency(
+      category: data['category'] as String? ?? '',
+      upvoteCount: (data['upvoteCount'] as num?)?.toInt() ?? 0,
+    );
     final String resolvedUrgency = (rawUrgency != null &&
             rawUrgency.isNotEmpty &&
-            rawUrgency.toLowerCase() != 'pending')
+            rawUrgency != 'PENDING' &&
+            IncidentTriageHelper.getUrgencyWeight(rawUrgency) >=
+                IncidentTriageHelper.getUrgencyWeight(escalatedUrgency))
         ? rawUrgency
-        : IncidentTriageHelper.calculateEffectiveUrgency(
-            category: data['category'] as String? ?? '',
-            upvoteCount: (data['upvoteCount'] as num?)?.toInt() ?? 0,
-          );
+        : escalatedUrgency;
 
     return IncidentModel(
       id: doc.id,
@@ -307,7 +314,7 @@ class IncidentModel extends IncidentEntity {
       resolvedAddress: (data['resolvedAddress'] as String?)?.isNotEmpty == true
           ? data['resolvedAddress'] as String
           : data['areaSector'] as String?,
-      upvoteCount: data['upvoteCount'] as int? ?? 0,
+      upvoteCount: (data['upvoteCount'] as num?)?.toInt() ?? 0,
       validatedUserIds: List<String>.from(data['validatedUserIds'] ?? []),
       areaSector: (data['areaSector'] as String?)?.isNotEmpty == true
           ? data['areaSector'] as String
@@ -325,6 +332,65 @@ class IncidentModel extends IncidentEntity {
     );
   }
 
+  /// Sub-collection that holds contact details (reporter name/email, victim
+  /// name/phone). Only the reporter and admins can read it (firestore.rules).
+  static const String confidentialCollection = 'confidential';
+  static const String confidentialDocId = 'contact';
+
+  /// Keys that must never be stored in the public incident document.
+  static const List<String> confidentialKeys = [
+    'reporterName',
+    'reporterEmail',
+    'victimName',
+    'victimPhone',
+  ];
+
+  /// Private contact details, stored at
+  /// incidents/{id}/confidential/contact.
+  Map<String, dynamic> toConfidentialFirestore() {
+    return {
+      'reporterId': reporterId,
+      'reporterName': reporterName,
+      'reporterEmail': reporterEmail,
+      'victimName': victimName,
+      'victimPhone': victimPhone,
+    };
+  }
+
+  /// Returns a copy filled with contact details from the confidential doc.
+  IncidentModel withConfidential(Map<String, dynamic>? data) {
+    if (data == null) return this;
+    return IncidentModel(
+      id: id,
+      reporterId: reporterId,
+      description: description,
+      category: category,
+      photoUrl: photoUrl,
+      videoUrl: videoUrl,
+      status: status,
+      urgencyStatus: urgencyStatus,
+      timestamp: timestamp,
+      latitude: latitude,
+      longitude: longitude,
+      resolvedAddress: resolvedAddress,
+      upvoteCount: upvoteCount,
+      validatedUserIds: validatedUserIds,
+      areaSector: areaSector,
+      isAnonymous: isAnonymous,
+      dispatcherNotes: dispatcherNotes,
+      reporterName: data['reporterName'] as String? ?? reporterName,
+      reporterEmail: data['reporterEmail'] as String? ?? reporterEmail,
+      isSynced: isSynced,
+      respondedAt: respondedAt,
+      isReportingOnBehalf: isReportingOnBehalf,
+      victimName: data['victimName'] as String? ?? victimName,
+      victimPhone: data['victimPhone'] as String? ?? victimPhone,
+      estimatedResponseTime: estimatedResponseTime,
+    );
+  }
+
+  /// Public incident document (community map / feed). Contact details are
+  /// written separately with [toConfidentialFirestore].
   Map<String, dynamic> toFirestore() {
     final mappedStatus = IncidentStatusExtension.normalize(status);
     final effectiveAddress = (resolvedAddress != null && resolvedAddress!.isNotEmpty)
@@ -340,7 +406,7 @@ class IncidentModel extends IncidentEntity {
       'photoUrl': photoUrl,
       'videoUrl': videoUrl,
       'status': mappedStatus,
-      'urgencyStatus': urgencyStatus,
+      'urgencyStatus': urgencyStatus?.toUpperCase(),
       'timestamp': Timestamp.fromDate(timestamp),
       'latitude': latitude,
       'longitude': longitude,
@@ -350,11 +416,7 @@ class IncidentModel extends IncidentEntity {
       'areaSector': effectiveSector,
       'isAnonymous': isAnonymous,
       'dispatcherNotes': dispatcherNotes,
-      'reporterName': reporterName,
-      'reporterEmail': reporterEmail,
       'isReportingOnBehalf': isReportingOnBehalf,
-      'victimName': victimName,
-      'victimPhone': victimPhone,
       'estimatedResponseTime': estimatedResponseTime,
     };
     if (respondedAt != null) {

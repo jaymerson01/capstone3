@@ -68,7 +68,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return newModel;
     }
 
-    return UserModel.fromFirestore(docSnapshot);
+    final existingUser = UserModel.fromFirestore(docSnapshot);
+    await _ensureAccountActive(existingUser);
+    return existingUser;
+  }
+
+  /// Signs the user out and throws if an admin has suspended this account.
+  Future<void> _ensureAccountActive(UserModel user) async {
+    if (user.isActive) return;
+    await signOut();
+    throw FirebaseAuthException(
+      code: 'user-disabled',
+      message:
+          'This account has been suspended by the Barangay Moonwalk admin. Please contact the barangay help desk.',
+    );
   }
 
   @override
@@ -95,8 +108,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await firebaseUser.updateDisplayName(fullName);
     }
 
-    // Role is strictly 'resident' or 'admin'
-    final enforcedRole = (role == 'admin') ? 'admin' : 'resident';
+    // Self-registration always creates a resident. Admin accounts are
+    // promoted by an existing admin (Firestore rules block anything else).
+    const enforcedRole = 'resident';
 
     final newUser = UserModel(
       id: firebaseUser.uid,
@@ -156,7 +170,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await docRef.set(newModel.toMap());
       return newModel;
     } else {
-      return UserModel.fromFirestore(docSnapshot);
+      final existingUser = UserModel.fromFirestore(docSnapshot);
+      await _ensureAccountActive(existingUser);
+      return existingUser;
     }
   }
 
@@ -173,6 +189,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final firebaseUser = _firebaseAuth.currentUser;
     if (firebaseUser == null) return null;
 
+    UserModel? onlineUser;
     try {
       final docRef = _firestore.collection('users').doc(firebaseUser.uid);
       final docSnapshot =
@@ -197,7 +214,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return fallbackModel;
       }
 
-      return UserModel.fromFirestore(docSnapshot);
+      onlineUser = UserModel.fromFirestore(docSnapshot);
     } catch (_) {
       // Offline fallback: Use Hive cache or fallback to firebaseUser credentials
       String cachedRole = 'resident';
@@ -219,12 +236,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         createdAt: DateTime.now(),
       );
     }
+
+    // Suspended while signed in: end the session on next app start.
+    final current = onlineUser;
+    if (!current.isActive) {
+      await signOut();
+      return null;
+    }
+    return current;
   }
 
   @override
   Future<UserModel> updateUserProfile(UserModel user) async {
     final docRef = _firestore.collection('users').doc(user.id);
-    await docRef.update(user.toMap());
+    // Role, suspension, verification and creation date are managed by admins
+    // only; never send them from a profile edit.
+    final updates = Map<String, dynamic>.from(user.toMap())
+      ..remove('role')
+      ..remove('isActive')
+      ..remove('isVerified')
+      ..remove('createdAt');
+    await docRef.update(updates);
 
     if (user.displayName != null && user.displayName!.isNotEmpty) {
       await _firebaseAuth.currentUser?.updateDisplayName(user.displayName);
@@ -259,8 +291,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     final user = _firebaseAuth.currentUser;
     if (user == null) return;
 
-    // Soft delete / flag inactive in firestore
-    await _firestore.collection('users').doc(user.uid).update({'isActive': false});
+    // Right to erasure (RA 10173): remove the profile, then the login.
+    await _firestore.collection('users').doc(user.uid).delete();
     await user.delete();
   }
 }

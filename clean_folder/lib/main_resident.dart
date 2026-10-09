@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -35,11 +34,6 @@ final GlobalKey<NavigatorState> residentNavigatorKey =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint("Notice: .env load skipped or not found: $e");
-  }
 
   try {
     await Hive.initFlutter();

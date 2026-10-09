@@ -3,88 +3,143 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── Helper Functions ──────────────────────────────────────────────
-    
-    // Checks if the user is authenticated with Firebase Auth
+
     function isAuthenticated() {
       return request.auth != null;
     }
 
-    // Checks if the current user has an 'admin' role in the /users collection
-    function isAdmin() {
-      return isAuthenticated() && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    function userDoc() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
     }
 
-    // Checks if the authenticated user is the document owner
+    // Admin = the user's own /users document says role == 'admin'.
+    // Residents can never set this themselves (see the users rules below).
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(userDoc()) &&
+        get(userDoc()).data.get('role', 'resident') == 'admin';
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // ── 1. Users Collection ───────────────────────────────────────────
+    // Signed-in user whose account has not been suspended by an admin.
+    function isActiveUser() {
+      return isAuthenticated() &&
+        exists(userDoc()) &&
+        get(userDoc()).data.get('isActive', true) != false;
+    }
+
+    function changedKeys() {
+      return request.resource.data.diff(resource.data).affectedKeys();
+    }
+
+    // Fields only an admin may change on a user profile.
+    function protectedUserFields() {
+      return ['role', 'status', 'isActive', 'isVerified'];
+    }
+
+    // Contact details that must never sit in the public incident document.
+    function privateIncidentFields() {
+      return ['reporterName', 'reporterEmail', 'victimName', 'victimPhone'];
+    }
+
+    // ── 1. Users ──────────────────────────────────────────────────────
     match /users/{userId} {
-      // Authenticated users can read profile documents
-      allow read: if isAuthenticated();
+      // Only the owner and admins can see a profile (phone, address, tokens).
+      allow read: if isOwner(userId) || isAdmin();
 
-      // New users can only create their own user document during registration
-      allow create: if isAuthenticated() && request.auth.uid == userId;
+      // Self-registration: always a normal, active resident.
+      // isVerified may only be true when the sign-in email is verified (e.g. Google).
+      allow create: if isOwner(userId) &&
+        request.resource.data.get('role', 'resident') == 'resident' &&
+        request.resource.data.get('isActive', true) == true &&
+        (request.resource.data.get('isVerified', false) == false ||
+         request.auth.token.email_verified == true);
 
-      // Users can update their own personal info (name, phone, fcmToken, avatar)
-      // but CANNOT self-escalate their role to 'admin' or alter account verification status
-      // Only an existing admin can modify 'role' or 'status'
-      allow update: if (isOwner(userId) && 
-                        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status'])))
-                    || isAdmin();
+      // Owners edit their own details but never role / suspension / verification.
+      allow update: if isAdmin() ||
+        (isOwner(userId) && !changedKeys().hasAny(protectedUserFields()));
 
-      // Only administrators can remove a user document
-      allow delete: if isAdmin();
+      // Right to erasure (RA 10173): owners may delete their own profile.
+      allow delete: if isOwner(userId) || isAdmin();
     }
 
-    // ── 2. Incidents Collection ───────────────────────────────────────
+    // ── 2. Incidents (public part) ────────────────────────────────────
     match /incidents/{incidentId} {
-      // Any authenticated citizen or admin can read community incidents
+      // Community map / feed. Contains NO names, emails or phone numbers.
       allow read: if isAuthenticated();
 
-      // Authenticated users can submit new incident reports
-      // The submitted reporterId or userId must match the authenticated user's UID
-      allow create: if isAuthenticated() && 
-                    ((!('reporterId' in request.resource.data) || request.resource.data.reporterId == request.auth.uid) &&
-                     (!('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid));
+      // New report: active resident, filed as themselves, clean starting state,
+      // no private contact fields in the public document.
+      allow create: if isActiveUser() &&
+        request.resource.data.reporterId == request.auth.uid &&
+        request.resource.data.get('status', 'pending') == 'pending' &&
+        request.resource.data.get('upvoteCount', 0) == 0 &&
+        request.resource.data.get('validatedUserIds', []).size() == 0 &&
+        request.resource.data.get('dispatcherNotes', null) == null &&
+        request.resource.data.get('estimatedResponseTime', null) == null &&
+        (request.resource.data.get('urgencyStatus', null) == null ||
+         request.resource.data.urgencyStatus in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) &&
+        !request.resource.data.keys().hasAny(privateIncidentFields());
 
-      // 1. Admins have full mutation authority (status changes, ETA, dispatch notes, archive)
-      // 2. Any authenticated resident can upvote / validate community incidents
-      // 3. Original reporters can update their own report while it remains 'Pending'
-      allow update: if isAdmin() || 
-                    (isAuthenticated() && 
-                     request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvoteCount', 'validatedUserIds', 'urgencyStatus'])) ||
-                    (isAuthenticated() && 
-                     ((('reporterId' in resource.data) && resource.data.reporterId == request.auth.uid) || 
-                      (('userId' in resource.data) && resource.data.userId == request.auth.uid)) && 
-                     resource.data.status == 'Pending' && 
-                     !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status', 'estimatedResponseTime', 'assignedResponders', 'dispatcherNotes']));
+      // 1. Admins: status, ETA, dispatcher notes, archive.
+      // 2. "Me Too" upvote: exactly +1, only your own uid added, once, not on your own report.
+      // 3. Reporter may fix the text/location of their own report while it is still pending.
+      allow update: if isAdmin() || isValidUpvote() || isOwnerPendingEdit();
 
-      // Only municipal admins can delete or archive incident records
       allow delete: if isAdmin();
+
+      function isValidUpvote() {
+        let oldIds = resource.data.get('validatedUserIds', []);
+        let newIds = request.resource.data.get('validatedUserIds', []);
+        return isActiveUser() &&
+          changedKeys().hasOnly(['upvoteCount', 'validatedUserIds']) &&
+          request.resource.data.get('upvoteCount', 0) == resource.data.get('upvoteCount', 0) + 1 &&
+          !(request.auth.uid in oldIds) &&
+          newIds.size() == oldIds.size() + 1 &&
+          newIds.toSet().difference(oldIds.toSet()).hasOnly([request.auth.uid]) &&
+          resource.data.get('reporterId', '') != request.auth.uid;
+      }
+
+      function isOwnerPendingEdit() {
+        return isActiveUser() &&
+          resource.data.get('reporterId', '') == request.auth.uid &&
+          resource.data.get('status', '') == 'pending' &&
+          changedKeys().hasOnly(['description', 'photoUrl', 'videoUrl', 'resolvedAddress',
+                                 'areaSector', 'latitude', 'longitude', 'isAnonymous']);
+      }
+
+      // ── 2b. Incident contact details (private) ──────────────────────
+      // Reporter name/email and victim name/phone live here, readable only
+      // by the person who filed the report and by admins.
+      match /confidential/{docId} {
+        allow read: if isAdmin() ||
+          (isAuthenticated() && resource.data.reporterId == request.auth.uid);
+        allow create: if isAdmin() || (isActiveUser() &&
+          request.resource.data.reporterId == request.auth.uid &&
+          getAfter(/databases/$(database)/documents/incidents/$(incidentId)).data.reporterId == request.auth.uid);
+        allow update, delete: if isAdmin();
+      }
     }
 
-    // ── 3. Audit Logs (Immutable Security Trail) ──────────────────────
+    // Collection-group reads of contact details (admin desk, "My Reports").
+    match /{path=**}/confidential/{docId} {
+      allow read: if isAdmin() ||
+        (isAuthenticated() && resource.data.reporterId == request.auth.uid);
+    }
+
+    // ── 3. Audit Logs (immutable, admin only) ─────────────────────────
     match /audit_logs/{logId} {
-      // Authorized desk administrators can view municipal audit logs
       allow read: if isAdmin();
-
-      // Authenticated users and administrators can append new audit records
-      allow create: if isAuthenticated();
-
-      // Audit logs are strictly immutable: no alterations or deletions permitted!
+      allow create: if isAdmin();
       allow update, delete: if false;
     }
 
-    // ── 4. Emergency Broadcasts (Both collection aliases supported) ───
+    // ── 4. Emergency Broadcasts ───────────────────────────────────────
     match /broadcasts/{broadcastId} {
-      // Emergency disaster alerts and sirens are public safety advisories (readable by all devices)
       allow read: if true;
-
-      // Only authenticated admins can publish, alter, or cancel emergency alerts
       allow write: if isAdmin();
     }
 
@@ -93,21 +148,70 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-
-    // ── 5. Notifications Collection ───────────────────────────────────
+    // ── 5. Notifications ──────────────────────────────────────────────
+    // recipientId is a user uid, 'admin', or a shared audience
+    // ('all_residents' / 'broadcast'). Shared notifications track read and
+    // dismissed state per person in readBy / hiddenFor.
     match /notifications/{notifId} {
-      // Authenticated users and administrators can stream notifications
+      function isShared(rid) {
+        return rid in ['all_residents', 'broadcast'];
+      }
+
+      allow read: if isAdmin() ||
+        (isAuthenticated() &&
+          (resource.data.recipientId == request.auth.uid || isShared(resource.data.recipientId)));
+
+      // Residents may only create the two notifications the app sends for them:
+      //  - 'new_report' to the admin desk, about their own report
+      //  - 'upvote' to the author of a report they just corroborated
+      allow create: if isAdmin() || (isActiveUser() && isResidentNotification());
+
+      function isResidentNotification() {
+        let data = request.resource.data;
+        let incidentPath = /databases/$(database)/documents/incidents/$(data.get('incidentId', 'none'));
+        return data.get('isRead', false) == false &&
+          exists(incidentPath) &&
+          (
+            (data.recipientId == 'admin' && data.type == 'new_report' &&
+              get(incidentPath).data.reporterId == request.auth.uid) ||
+            (data.type == 'upvote' &&
+              data.recipientId == get(incidentPath).data.reporterId &&
+              request.auth.uid in get(incidentPath).data.get('validatedUserIds', []))
+          );
+      }
+
+      allow update: if isAdmin() ||
+        (isAuthenticated() && resource.data.recipientId == request.auth.uid &&
+          changedKeys().hasOnly(['isRead'])) ||
+        (isAuthenticated() && isShared(resource.data.recipientId) &&
+          changedKeys().hasOnly(['readBy', 'hiddenFor']) &&
+          request.resource.data.get('readBy', []).toSet()
+            .difference(resource.data.get('readBy', []).toSet()).hasOnly([request.auth.uid]) &&
+          request.resource.data.get('hiddenFor', []).toSet()
+            .difference(resource.data.get('hiddenFor', []).toSet()).hasOnly([request.auth.uid]));
+
+      allow delete: if isAdmin() ||
+        (isAuthenticated() && resource.data.recipientId == request.auth.uid);
+    }
+
+    // ── 6. Resident feedback & bug reports ────────────────────────────
+    match /app_feedback/{feedbackId} {
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() <= 2000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ── 7. Incident categories & barangay areas (admin managed) ───────
+    match /categories/{categoryId} {
       allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
 
-      // Authenticated users can create notifications (incident updates, citizen reports, SOS)
-      allow create: if isAuthenticated();
-
-      // Users can mark notifications as read (update isRead)
-      allow update: if isAuthenticated();
-
-      // Administrators or notification recipients can delete notifications
-      allow delete: if isAdmin() || (isAuthenticated() && resource.data.recipientId == request.auth.uid);
+    match /areas/{areaId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
   }
 }
-

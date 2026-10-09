@@ -10,6 +10,15 @@ class NotificationModel {
   final bool isRead;
   final DateTime createdAt;
 
+  /// For shared notifications ('all_residents' / 'broadcast'): residents who
+  /// have read / dismissed it. Each resident has their own read state.
+  final List<String> readBy;
+  final List<String> hiddenFor;
+
+  static const List<String> sharedRecipients = ['all_residents', 'broadcast'];
+
+  bool get isShared => sharedRecipients.contains(recipientId);
+
   const NotificationModel({
     required this.id,
     required this.recipientId,
@@ -19,9 +28,13 @@ class NotificationModel {
     this.incidentId,
     required this.isRead,
     required this.createdAt,
+    this.readBy = const [],
+    this.hiddenFor = const [],
   });
 
-  factory NotificationModel.fromFirestore(DocumentSnapshot doc) {
+  /// [viewerId] = the resident looking at the list. For shared notifications
+  /// "read" means this resident has read it, not anyone.
+  factory NotificationModel.fromFirestore(DocumentSnapshot doc, {String? viewerId}) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
     
     DateTime parsedTime = DateTime.now();
@@ -31,15 +44,25 @@ class NotificationModel {
       parsedTime = DateTime.tryParse(data['createdAt']) ?? DateTime.now();
     }
 
+    final recipientId = data['recipientId'] as String? ?? '';
+    final readBy = List<String>.from(data['readBy'] as List? ?? const []);
+    final hiddenFor = List<String>.from(data['hiddenFor'] as List? ?? const []);
+    final bool sharedDoc = sharedRecipients.contains(recipientId);
+    final bool readState = (sharedDoc && viewerId != null)
+        ? readBy.contains(viewerId)
+        : (data['isRead'] as bool? ?? false);
+
     return NotificationModel(
       id: doc.id,
-      recipientId: data['recipientId'] as String? ?? '',
+      recipientId: recipientId,
       title: data['title'] as String? ?? 'Notification',
       message: data['message'] as String? ?? '',
       type: data['type'] as String? ?? 'general',
       incidentId: data['incidentId'] as String?,
-      isRead: data['isRead'] as bool? ?? false,
+      isRead: readState,
       createdAt: parsedTime,
+      readBy: readBy,
+      hiddenFor: hiddenFor,
     );
   }
 
@@ -74,6 +97,8 @@ class NotificationModel {
       incidentId: incidentId ?? this.incidentId,
       isRead: isRead ?? this.isRead,
       createdAt: createdAt ?? this.createdAt,
+      readBy: readBy,
+      hiddenFor: hiddenFor,
     );
   }
 }

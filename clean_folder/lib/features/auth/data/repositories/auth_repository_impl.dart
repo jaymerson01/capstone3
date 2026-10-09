@@ -23,18 +23,6 @@ class AuthRepositoryImpl implements AuthRepository {
       if (email.trim().isEmpty || password.isEmpty) {
         return const Left(ServerFailure("Email and password cannot be empty."));
       }
-      if (email.trim().toLowerCase() == 'demo@resident.ph' && password == 'resident123') {
-        await Hive.box('auth').put('isDemoLoggedIn', true);
-        await Hive.box('auth').put('demo_role', 'resident');
-        return const Right(UserEntity(
-          id: 'resident_demo_01',
-          email: 'demo@resident.ph',
-          displayName: 'Juan Dela Cruz',
-          role: 'resident',
-          phoneNumber: '09171234567',
-          isVerified: true,
-        ));
-      }
       final user = await _remoteDataSource.signInWithEmailAndPassword(email, password)
           .timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException("Login request timed out. Please check your internet connection."));
       return Right(user);
@@ -102,40 +90,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = await _remoteDataSource.getCurrentUser();
       if (user != null) return Right(user);
-      final isDemoLoggedIn =
-          Hive.box('auth').get('isDemoLoggedIn', defaultValue: false);
-      if (isDemoLoggedIn == true) {
-        final demoRole =
-            Hive.box('auth').get('demo_role', defaultValue: 'resident');
-        if (demoRole == 'admin') {
-          return const Right(UserEntity(
-            id: 'admin_demo_01',
-            email: 'admin@safe.gov',
-            displayName: 'Barangay Captain / Dispatcher',
-            role: 'admin',
-            phoneNumber: '09170000911',
-            isVerified: true,
-          ));
-        }
-        final cached = Hive.box('auth').get('demo_user_profile');
-        if (cached is Map) {
-          final map = Map<String, dynamic>.from(cached);
-          return Right(
-              UserModel.fromMap(map, map['id'] ?? 'resident_demo_01'));
-        }
-        return const Right(UserEntity(
-          id: 'resident_demo_01',
-          email: 'demo@resident.ph',
-          displayName: 'Juan Dela Cruz',
-          role: 'resident',
-          phoneNumber: '09171234567',
-          address: 'Bldg 4, St. Francis Compound, Moonwalk',
-          barangayArea: 'Area 1 - San Jose',
-          emergencyContactName: 'Maria Dela Cruz',
-          emergencyContactNumber: '09198887766',
-          isVerified: true,
-        ));
-      }
       return const Right(null);
     } on FirebaseAuthException catch (e) {
       return Left(ServerFailure(e.message ?? e.code));
@@ -147,8 +101,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserEntity>> updateUserProfile(UserEntity user) async {
     try {
-      final isDemoLoggedIn =
-          Hive.box('auth').get('isDemoLoggedIn', defaultValue: false);
       final model = UserModel(
         id: user.id,
         email: user.email,
@@ -165,11 +117,6 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: user.createdAt,
       );
 
-      if (isDemoLoggedIn == true || user.id == 'resident_demo_01') {
-        await Hive.box('auth').put('demo_user_profile', model.toMap());
-        return Right(model);
-      }
-
       final updated = await _remoteDataSource.updateUserProfile(model);
       return Right(updated);
     } on FirebaseAuthException catch (e) {
@@ -185,11 +132,6 @@ class AuthRepositoryImpl implements AuthRepository {
     String newPassword,
   ) async {
     try {
-      final isDemoLoggedIn =
-          Hive.box('auth').get('isDemoLoggedIn', defaultValue: false);
-      if (isDemoLoggedIn == true) {
-        return const Right(null);
-      }
       await _remoteDataSource.changePassword(currentPassword, newPassword);
       return const Right(null);
     } on FirebaseAuthException catch (e) {

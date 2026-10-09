@@ -29,14 +29,124 @@ class IncidentRepositoryImpl implements IncidentRepository {
     required this.aiRemoteDataSource,
   });
 
+  CollectionReference<Map<String, dynamic>> get _incidents =>
+      firestore.collection('incidents');
+
+  /// incidents/{id}/confidential/contact — reporter & victim contact details.
+  DocumentReference<Map<String, dynamic>> _confidentialRef(String incidentId) =>
+      _incidents
+          .doc(incidentId)
+          .collection(IncidentModel.confidentialCollection)
+          .doc(IncidentModel.confidentialDocId);
+
+  /// Contact details the signed-in resident may read: only their own filings.
+  Query<Map<String, dynamic>>? _ownConfidentialQuery() {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return null;
+    return firestore
+        .collectionGroup(IncidentModel.confidentialCollection)
+        .where('reporterId', isEqualTo: uid);
+  }
+
+  /// Joins the public incident stream with the contact details the current
+  /// user is allowed to see. If contact details can't be read, the public
+  /// data still flows (names simply stay hidden).
+  Stream<List<IncidentEntity>> _withConfidential(
+    Stream<QuerySnapshot<Map<String, dynamic>>> publicStream,
+    Query<Map<String, dynamic>>? confidentialQuery,
+    List<IncidentEntity> Function(
+      QuerySnapshot<Map<String, dynamic>> snapshot,
+      Map<String, Map<String, dynamic>> contacts,
+    ) build,
+  ) {
+    if (confidentialQuery == null) {
+      return publicStream.map((snapshot) => build(snapshot, const {}));
+    }
+
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? publicSub;
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? contactSub;
+    QuerySnapshot<Map<String, dynamic>>? lastPublic;
+    Map<String, Map<String, dynamic>> contacts = {};
+    late final StreamController<List<IncidentEntity>> controller;
+
+    void emitLatest() {
+      final snapshot = lastPublic;
+      if (snapshot != null && !controller.isClosed) {
+        controller.add(build(snapshot, contacts));
+      }
+    }
+
+    controller = StreamController<List<IncidentEntity>>.broadcast(
+      onListen: () {
+        publicSub = publicStream.listen(
+          (snapshot) {
+            lastPublic = snapshot;
+            emitLatest();
+          },
+          onError: controller.addError,
+        );
+        contactSub = confidentialQuery.snapshots().listen(
+          (snapshot) {
+            contacts = {
+              for (final doc in snapshot.docs)
+                if (doc.reference.parent.parent != null)
+                  doc.reference.parent.parent!.id: doc.data(),
+            };
+            emitLatest();
+          },
+          onError: (Object error) {
+            debugPrint('[IncidentRepository] Contact details unavailable: $error');
+          },
+        );
+      },
+      onCancel: () async {
+        await publicSub?.cancel();
+        await contactSub?.cancel();
+      },
+    );
+    return controller.stream;
+  }
+
+  /// One-time clean-up for reports filed before contact details were split
+  /// out: moves names/emails/phones from the public doc into the
+  /// confidential sub-document. Runs from the admin desk (admins only).
+  final Set<String> _migratedIncidentIds = {};
+
+  void _migrateLegacyContactFields(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    for (final doc in snapshot.docs) {
+      final data = doc.data();
+      final legacyKeys =
+          IncidentModel.confidentialKeys.where(data.containsKey).toList();
+      if (legacyKeys.isEmpty || _migratedIncidentIds.contains(doc.id)) continue;
+      _migratedIncidentIds.add(doc.id);
+
+      final batch = firestore.batch();
+      batch.set(
+        _confidentialRef(doc.id),
+        {
+          'reporterId': data['reporterId'] ?? data['userId'] ?? '',
+          for (final key in legacyKeys) key: data[key],
+        },
+        SetOptions(merge: true),
+      );
+      batch.update(doc.reference, {
+        for (final key in legacyKeys) key: FieldValue.delete(),
+      });
+      batch.commit().catchError((Object error) {
+        debugPrint('[IncidentRepository] Contact migration skipped for ${doc.id}: $error');
+        _migratedIncidentIds.remove(doc.id);
+      });
+    }
+  }
+
   @override
   Stream<List<IncidentEntity>> streamActiveIncidents() {
-    return firestore
-        .collection('incidents')
-        .snapshots(includeMetadataChanges: true)
-        .map((snapshot) {
+    return _withConfidential(
+        _incidents.snapshots(includeMetadataChanges: true),
+        _ownConfidentialQuery(), (snapshot, contacts) {
       final List<IncidentModel> firestoreIncidents = snapshot.docs
-          .map((doc) => IncidentModel.fromFirestore(doc))
+          .map((doc) =>
+              IncidentModel.fromFirestore(doc).withConfidential(contacts[doc.id]))
           .where((i) => i.status.toLowerCase() != 'archived')
           .toList();
 
@@ -82,13 +192,14 @@ class IncidentRepositoryImpl implements IncidentRepository {
 
   @override
   Stream<List<IncidentEntity>> streamUserIncidents(String userId) {
-    return firestore
-        .collection('incidents')
-        .where('reporterId', isEqualTo: userId)
-        .snapshots(includeMetadataChanges: true)
-        .map((snapshot) {
+    return _withConfidential(
+        _incidents
+            .where('reporterId', isEqualTo: userId)
+            .snapshots(includeMetadataChanges: true),
+        _ownConfidentialQuery(), (snapshot, contacts) {
       final List<IncidentModel> firestoreIncidents = snapshot.docs
-          .map((doc) => IncidentModel.fromFirestore(doc))
+          .map((doc) =>
+              IncidentModel.fromFirestore(doc).withConfidential(contacts[doc.id]))
           .toList();
 
       // Retrieve any offline reports saved in Hive not yet registered in Firestore
@@ -145,7 +256,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
       videoUrl: incident.videoUrl,
       status: incident.status,
       urgencyStatus: (incident.urgencyStatus != null && incident.urgencyStatus!.isNotEmpty)
-          ? incident.urgencyStatus
+          ? incident.urgencyStatus!.toUpperCase()
           : IncidentTriageHelper.getBaselineUrgency(incident.category),
       timestamp: incident.timestamp,
       latitude: incident.latitude,
@@ -165,9 +276,10 @@ class IncidentRepositoryImpl implements IncidentRepository {
     );
 
     try {
-      await docRef
-          .set(incidentModel.toFirestore())
-          .timeout(const Duration(seconds: 15));
+      final batch = firestore.batch();
+      batch.set(docRef, incidentModel.toFirestore());
+      batch.set(_confidentialRef(generatedId), incidentModel.toConfidentialFirestore());
+      await batch.commit().timeout(const Duration(seconds: 15));
 
       // Notify admin command center of incoming report
       final notifTitle = incident.isReportingOnBehalf
@@ -216,34 +328,17 @@ class IncidentRepositoryImpl implements IncidentRepository {
 
   @override
   Future<void> upvoteIncident(String incidentId, String userId) async {
+    bool upvoteSaved = false;
     try {
       final docRef = firestore.collection('incidents').doc(incidentId);
-      final docSnap = await docRef.get();
 
-      int currentUpvotes = 0;
-      String category = '';
-      String? currentUrgency;
-      if (docSnap.exists) {
-        final data = docSnap.data();
-        currentUpvotes = (data?['upvoteCount'] as int?) ?? 0;
-        category = (data?['category'] as String?) ?? '';
-        currentUrgency = data?['urgencyStatus'] as String?;
-      }
-      final newUpvoteCount = currentUpvotes + 1;
-
-      final calculatedUrgency = IncidentTriageHelper.calculateEffectiveUrgency(
-        category: category,
-        upvoteCount: newUpvoteCount,
-        currentUrgency: currentUrgency,
-      );
-
-      final Map<String, dynamic> updateData = {
+      // Security rules only accept exactly +1 with the voter's own uid, once.
+      // Urgency escalation is derived from upvoteCount when the report is read.
+      await docRef.update({
         'upvoteCount': FieldValue.increment(1),
         'validatedUserIds': FieldValue.arrayUnion([userId]),
-        'urgencyStatus': calculatedUrgency,
-      };
-
-      await docRef.update(updateData);
+      });
+      upvoteSaved = true;
     } catch (_) {
       // Local Hive fallback for offline or demo testing
       if (localBox.containsKey(incidentId)) {
@@ -292,6 +387,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
     }
 
     // Dispatch notification to original report author
+    if (!upvoteSaved) return;
     try {
       final docSnap =
           await firestore.collection('incidents').doc(incidentId).get();
@@ -316,12 +412,15 @@ class IncidentRepositoryImpl implements IncidentRepository {
 
   @override
   Stream<List<IncidentEntity>> streamAllIncidents() {
-    return firestore
-        .collection('incidents')
-        .snapshots(includeMetadataChanges: true)
-        .map((snapshot) {
+    // Admin desk: every report plus every contact sub-document.
+    return _withConfidential(
+        _incidents.snapshots(includeMetadataChanges: true),
+        firestore.collectionGroup(IncidentModel.confidentialCollection),
+        (snapshot, contacts) {
+      _migrateLegacyContactFields(snapshot);
       final List<IncidentModel> firestoreIncidents = snapshot.docs
-          .map((doc) => IncidentModel.fromFirestore(doc))
+          .map((doc) =>
+              IncidentModel.fromFirestore(doc).withConfidential(contacts[doc.id]))
           .toList();
 
       final Set<String> existingIds = firestoreIncidents.map((i) => i.id).toSet();

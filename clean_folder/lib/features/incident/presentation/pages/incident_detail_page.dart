@@ -32,7 +32,16 @@ class IncidentDetailPage extends StatelessWidget {
           .doc(incidentId)
           .get();
       if (doc.exists && context.mounted) {
-        final model = IncidentModel.fromFirestore(doc);
+        IncidentModel model = IncidentModel.fromFirestore(doc);
+        // Contact details are only readable by the reporter and admins.
+        try {
+          final contact = await doc.reference
+              .collection(IncidentModel.confidentialCollection)
+              .doc(IncidentModel.confidentialDocId)
+              .get();
+          model = model.withConfidential(contact.data());
+        } catch (_) {}
+        if (!context.mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(

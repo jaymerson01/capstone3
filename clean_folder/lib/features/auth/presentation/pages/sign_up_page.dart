@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
@@ -61,25 +60,6 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
     _bgCtrl.dispose();
     _cardCtrl.dispose();
     super.dispose();
-  }
-
-  Future<void> _launchAuthUrl(BuildContext context, String url) async {
-    final uri = Uri.parse(url);
-    try {
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        throw "Could not launch.";
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Redirect Error: $e"),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ));
-      }
-    }
   }
 
   @override
@@ -470,20 +450,6 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                             url:
                                 "https://accounts.google.com/v3/signin/identifier",
                             onTap: (_) => context.read<AuthBloc>().add(const GoogleSignInRequested()),
-                          ),
-                          SizedBox(height: 10),
-                          _SocialButton(
-                            label: "Continue with Facebook",
-                            icon: Icons.facebook,
-                            url: "https://www.facebook.com/login/",
-                            onTap: (url) => _launchAuthUrl(context, url),
-                          ),
-                          SizedBox(height: 10),
-                          _SocialButton(
-                            label: "Continue with Apple",
-                            icon: Icons.apple,
-                            url: "https://appleid.apple.com/auth/authorize",
-                            onTap: (url) => _launchAuthUrl(context, url),
                           ),
                           SizedBox(height: 24),
 

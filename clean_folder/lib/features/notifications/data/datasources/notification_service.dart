@@ -50,7 +50,8 @@ class NotificationService {
           if (_seenNotificationIds.contains(doc.id)) continue;
           _seenNotificationIds.add(doc.id);
 
-          final notif = NotificationModel.fromFirestore(doc);
+          final notif = NotificationModel.fromFirestore(doc, viewerId: userId);
+          if (notif.hiddenFor.contains(userId)) continue;
           debugPrint(
               "🔔 [NotificationService] New notification received: ${notif.title} - ${notif.message}");
 
@@ -83,7 +84,8 @@ class NotificationService {
         .snapshots()
         .map((snapshot) {
           final list = snapshot.docs
-              .map((doc) => NotificationModel.fromFirestore(doc))
+              .map((doc) => NotificationModel.fromFirestore(doc, viewerId: userId))
+              .where((n) => !n.hiddenFor.contains(userId))
               .toList();
 
           // Sort descending by creation date
@@ -143,17 +145,56 @@ class NotificationService {
     }
   }
 
+  /// Mark one notification as read for this resident. Shared notifications
+  /// ('all_residents' / 'broadcast') are marked only for this resident.
+  Future<void> markAsReadForUser(NotificationModel item, String userId) async {
+    try {
+      if (item.isShared) {
+        await _notificationsRef.doc(item.id).update({
+          'readBy': FieldValue.arrayUnion([userId]),
+        });
+      } else {
+        await _notificationsRef.doc(item.id).update({'isRead': true});
+      }
+    } catch (e) {
+      debugPrint("Error marking notification as read: $e");
+    }
+  }
+
+  /// Remove a notification from this resident's list. Personal ones are
+  /// deleted; shared ones are only hidden for this resident.
+  Future<void> dismissForUser(NotificationModel item, String userId) async {
+    try {
+      if (item.isShared) {
+        await _notificationsRef.doc(item.id).update({
+          'hiddenFor': FieldValue.arrayUnion([userId]),
+        });
+      } else {
+        await _notificationsRef.doc(item.id).delete();
+      }
+    } catch (e) {
+      debugPrint("Error removing notification: $e");
+    }
+  }
+
   /// Mark all unread notifications for a resident as read
   Future<void> markAllResidentAsRead(String userId) async {
     try {
       final snapshot = await _notificationsRef
           .where('recipientId', whereIn: [userId, 'all_residents', 'broadcast'])
-          .where('isRead', isEqualTo: false)
           .get();
 
       final batch = FirebaseFirestore.instance.batch();
       for (final doc in snapshot.docs) {
-        batch.update(doc.reference, {'isRead': true});
+        final notif = NotificationModel.fromFirestore(doc, viewerId: userId);
+        if (notif.isRead) continue;
+        if (notif.isShared) {
+          batch.update(doc.reference, {
+            'readBy': FieldValue.arrayUnion([userId]),
+          });
+        } else {
+          batch.update(doc.reference, {'isRead': true});
+        }
       }
       await batch.commit();
     } catch (e) {

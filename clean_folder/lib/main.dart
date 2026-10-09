@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
@@ -26,8 +25,6 @@ import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-
   await Hive.initFlutter();
   Hive.registerAdapter(IncidentModelAdapter());
   await Hive.openBox('auth');

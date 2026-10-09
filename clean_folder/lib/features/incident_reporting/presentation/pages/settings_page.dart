@@ -315,11 +315,11 @@ class _SettingsPageState extends State<SettingsPage> {
             : "Resident Citizen";
         final String email = user?.email.isNotEmpty == true
             ? user!.email
-            : "demo@resident.ph";
+            : "";
         final String sector = user?.barangayArea?.isNotEmpty == true
             ? user!.barangayArea!
-            : "Area 1 - San Jose";
-        final bool isVerified = user?.isVerified ?? true;
+            : "Sector not set";
+        final bool isVerified = user?.isVerified ?? false;
         final String? photoUrl = user?.photoUrl;
 
         String initials = "R";
@@ -1384,22 +1384,22 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final UserEntity? user = authState is Authenticated ? authState.user : null;
 
     _nameController = TextEditingController(
-      text: user?.displayName ?? 'Juan Dela Cruz',
+      text: user?.displayName ?? '',
     );
     _emailController = TextEditingController(
-      text: user?.email ?? 'demo@resident.ph',
+      text: user?.email ?? '',
     );
     _phoneController = TextEditingController(
-      text: user?.phoneNumber ?? '09171234567',
+      text: user?.phoneNumber ?? '',
     );
     _emergencyContactNameController = TextEditingController(
-      text: user?.emergencyContactName ?? 'Maria Dela Cruz',
+      text: user?.emergencyContactName ?? '',
     );
     _emergencyContactNumberController = TextEditingController(
-      text: user?.emergencyContactNumber ?? '09198887766',
+      text: user?.emergencyContactNumber ?? '',
     );
     _savedAddressController = TextEditingController(
-      text: user?.address ?? 'Bldg 4, St. Francis Compound, Moonwalk',
+      text: user?.address ?? '',
     );
 
     if (user?.barangayArea != null &&

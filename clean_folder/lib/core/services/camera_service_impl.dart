@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:community_safety_app/core/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'camera_service.dart';
@@ -83,8 +83,8 @@ class CameraServiceImpl implements CameraService {
   }
 
   Future<String> _uploadToCloudinary(File file, {required bool isVideo}) async {
-    final cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? 'g45cmboy';
-    final uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? 'crkjnmhd';
+    const cloudName = AppConfig.cloudinaryCloudName;
+    const uploadPreset = AppConfig.cloudinaryUploadPreset;
 
     const maxRetries = 3;
     for (int attempt = 1; attempt <= maxRetries; attempt++) {

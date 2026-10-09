@@ -212,7 +212,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                         onTap: () async {
                           // Mark as read
                           if (!item.isRead) {
-                            notificationService.markAsRead(item.id);
+                            notificationService.markAsReadForUser(item, userId);
                           }
 
                           // If linked to an incident, navigate to its details
@@ -388,7 +388,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                 icon: Icon(Icons.close,
                                     size: 16, color: Color(0xFF7B8DB0)),
                                 onPressed: () {
-                                  notificationService.deleteNotification(item.id);
+                                  notificationService.dismissForUser(item, userId);
                                 },
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
