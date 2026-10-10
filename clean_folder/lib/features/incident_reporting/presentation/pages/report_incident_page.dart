@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -684,7 +685,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     final authState = context.read<AuthBloc>().state;
     final isAuth = authState is Authenticated;
     final currentUser = isAuth ? authState.user : null;
-    final currentUserId = currentUser?.id ?? 'resident_local';
+    final currentUserId = (currentUser?.id != null && currentUser!.id.isNotEmpty && currentUser.id != 'resident_local')
+        ? currentUser.id
+        : (FirebaseAuth.instance.currentUser?.uid ?? 'resident_local');
     final currentUserName = currentUser?.fullName ??
         (currentUser?.email.isNotEmpty == true
             ? currentUser!.email.split('@').first

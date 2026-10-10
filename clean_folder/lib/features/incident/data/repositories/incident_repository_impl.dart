@@ -247,9 +247,14 @@ class IncidentRepositoryImpl implements IncidentRepository {
         : firestore.collection('incidents').doc(incident.id);
     final generatedId = docRef.id;
 
+    final actualUid = FirebaseAuth.instance.currentUser?.uid;
+    final effectiveReporterId = (actualUid != null && actualUid.isNotEmpty)
+        ? actualUid
+        : (incident.reporterId.isNotEmpty ? incident.reporterId : 'resident_local');
+
     final incidentModel = IncidentModel(
       id: generatedId,
-      reporterId: incident.reporterId,
+      reporterId: effectiveReporterId,
       description: incident.description,
       category: incident.category,
       photoUrl: incident.photoUrl,
@@ -280,7 +285,24 @@ class IncidentRepositoryImpl implements IncidentRepository {
       batch.set(docRef, incidentModel.toFirestore());
       batch.set(_confidentialRef(generatedId), incidentModel.toConfidentialFirestore());
       await batch.commit().timeout(const Duration(seconds: 15));
+    } catch (batchErr) {
+      debugPrint('[IncidentRepository] Batch commit warning: $batchErr. Falling back to primary doc.');
+      try {
+        await docRef.set(incidentModel.toFirestore()).timeout(const Duration(seconds: 10));
+        try {
+          await _confidentialRef(generatedId)
+              .set(incidentModel.toConfidentialFirestore())
+              .timeout(const Duration(seconds: 10));
+        } catch (subErr) {
+          debugPrint('[IncidentRepository] Confidential doc write notice: $subErr');
+        }
+      } catch (e) {
+        await localBox.put(generatedId, incidentModel);
+        throw OfflineException('Failed to upload report to server. Saved locally.');
+      }
+    }
 
+    try {
       // Notify admin command center of incoming report
       final notifTitle = incident.isReportingOnBehalf
           ? '🚨 On Behalf: ${incident.category}'
@@ -296,9 +318,8 @@ class IncidentRepositoryImpl implements IncidentRepository {
         type: 'new_report',
         incidentId: generatedId,
       );
-    } catch (e) {
-      await localBox.put(generatedId, incidentModel);
-      throw OfflineException('Failed to upload report to server. Saved locally.');
+    } catch (notifErr) {
+      debugPrint('[IncidentRepository] Admin notification notice: $notifErr');
     }
   }
 

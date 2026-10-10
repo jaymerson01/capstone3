@@ -29,6 +29,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 
 final GlobalKey<NavigatorState> residentNavigatorKey =
@@ -36,6 +37,12 @@ final GlobalKey<NavigatorState> residentNavigatorKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Notice: .env loading skipped or warning: $e");
+  }
 
 
   try {

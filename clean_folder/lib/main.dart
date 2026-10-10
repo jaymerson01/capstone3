@@ -23,8 +23,15 @@ import 'package:community_safety_app/features/incident/data/models/incident_mode
 import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Notice: .env loading skipped or warning: $e");
+  }
   await Hive.initFlutter();
   Hive.registerAdapter(IncidentModelAdapter());
   await Hive.openBox('auth');
