@@ -5,6 +5,7 @@ import '../../domain/entities/incident_entity.dart';
 import '../bloc/incident_bloc.dart';
 import '../bloc/incident_state.dart';
 import 'incident_status_timeline.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class IncidentTrackingSheet extends StatelessWidget {
   final IncidentEntity initialIncident;
@@ -61,7 +62,7 @@ class IncidentTrackingSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Live Incident Tracking',
+                      AppLocalizations.of(context).trackingTitle,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: Colors.black87,
@@ -70,7 +71,7 @@ class IncidentTrackingSheet extends StatelessWidget {
                     IconButton(
                       icon: Icon(Icons.close_rounded, size: 28, color: Colors.black54),
                       onPressed: () => Navigator.of(context).pop(),
-                      tooltip: 'Close tracking panel',
+                      tooltip: AppLocalizations.of(context).trackingClose,
                     ),
                   ],
                 ),

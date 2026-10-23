@@ -951,4 +951,381 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get authErrorEmptyCredentials =>
       'Hindi puwedeng walang laman ang email at password.';
+
+  @override
+  String commonError(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get commonRelative => 'Kamag-anak';
+
+  @override
+  String commonEta(String eta) {
+    return 'ETA: $eta';
+  }
+
+  @override
+  String reportForPerson(String name) {
+    return 'Para kay: $name';
+  }
+
+  @override
+  String get statusSolved => 'Nalutas na';
+
+  @override
+  String get dashboardBiometricTitle => 'I-on ang Mabilis na Biometric Access';
+
+  @override
+  String get dashboardBiometricMessage =>
+      'Protektahan ang iyong ResQ account at agad na i-verify ang mga emergency report gamit ang Fingerprint o Face ID.';
+
+  @override
+  String get dashboardMaybeLater => 'Mamaya na Lang';
+
+  @override
+  String get dashboardBiometricReason =>
+      'I-scan ang fingerprint o mukha para i-on ang Biometric Quick Access';
+
+  @override
+  String get dashboardBiometricEnabled =>
+      'Naka-on na ang biometric verification para sa ResQ!';
+
+  @override
+  String get dashboardEnableNow => 'I-on Ngayon';
+
+  @override
+  String dashboardReportedOn(String date) {
+    return 'Iniulat noong $date';
+  }
+
+  @override
+  String get dashboardMyReportsStatus => 'STATUS NG AKING MGA ULAT';
+
+  @override
+  String get dashboardViewAll => 'Tingnan Lahat';
+
+  @override
+  String get dashboardMyReportsSubtitle =>
+      'Mga personal na ulat • Real-time na pagsubaybay sa pagresponde';
+
+  @override
+  String get dashboardCommunityIncidents => 'Mga Insidente sa Komunidad';
+
+  @override
+  String dashboardActiveCount(int count) {
+    return '$count Aktibo';
+  }
+
+  @override
+  String get dashboardCommunitySubtitle =>
+      'Mga bagong ulat mula sa kalapit na compound at kalye';
+
+  @override
+  String get dashboardNoActiveIncidents => 'Walang aktibong insidente';
+
+  @override
+  String get dashboardWelcomeBack => 'Maligayang pagbabalik,';
+
+  @override
+  String get dashboardStatPending => 'Nakabinbin';
+
+  @override
+  String get dashboardStatInQueue => 'Nakapila';
+
+  @override
+  String get dashboardStatActive => 'Aktibo';
+
+  @override
+  String get dashboardStatResponding => 'Nirerespondehan';
+
+  @override
+  String get dashboardStatSolved => 'Nalutas';
+
+  @override
+  String get dashboardStatResolved => 'Naresolba';
+
+  @override
+  String get dashboardVideoInstructions => 'Mga Video na Gabay';
+
+  @override
+  String get dashboardVideoSubtitle =>
+      'Paano mag-ulat ng mga problema sa kaligtasan sa Moonwalk';
+
+  @override
+  String get dashboardAdvisoryFallback => 'EMERGENCY ADVISORY';
+
+  @override
+  String get dashboardSirenAlertFallback => 'Siren Alert';
+
+  @override
+  String get dashboardAllSectors => 'Lahat ng Sektor';
+
+  @override
+  String get dashboardActiveSiren => 'AKTIBONG SIREN';
+
+  @override
+  String dashboardBroadcastTarget(String sector) {
+    return 'Para sa: $sector';
+  }
+
+  @override
+  String get myReportsTitle => 'AKING MGA ULAT';
+
+  @override
+  String get myReportsDirectory => 'Listahan ng mga Ulat';
+
+  @override
+  String get myReportsSubtitle => 'Ang mga ulat na isinumite mo';
+
+  @override
+  String get myReportsSearchHint =>
+      'Maghanap ayon sa pamagat, lokasyon, kategorya...';
+
+  @override
+  String get myReportsFilterAll => 'LAHAT';
+
+  @override
+  String myReportsLoadError(String error) {
+    return 'Hindi makuha ang mga ulat: $error';
+  }
+
+  @override
+  String myReportsNoMatch(String query) {
+    return 'Walang ulat na tugma sa \'$query\'.';
+  }
+
+  @override
+  String get myReportsNoneForFilter => 'Walang ulat sa filter na ito.';
+
+  @override
+  String get myReportsCloseSearch => 'Isara';
+
+  @override
+  String get myReportsSearch => 'Maghanap';
+
+  @override
+  String get myReportsLive => 'Live';
+
+  @override
+  String get myReportsLocal => 'Lokal';
+
+  @override
+  String get detailLiveTitle => 'Natanggap na ng Command Center';
+
+  @override
+  String get detailLocalTitle =>
+      'Naka-save sa Phone (Hinihintay ang Cloud Sync)';
+
+  @override
+  String get detailLiveMessage =>
+      'Na-upload na ang ulat na ito sa cloud at natanggap na ng mga dispatcher ng Barangay Moonwalk.';
+
+  @override
+  String get detailLocalMessage =>
+      'Ligtas na naka-save ang ulat na ito sa offline storage ng phone mo. Kusa itong maa-upload sa dispatch kapag nakakonekta na sa cloud server.';
+
+  @override
+  String detailIncidentId(String id) {
+    return 'Incident ID: #$id';
+  }
+
+  @override
+  String get detailLocalId => 'LOKAL';
+
+  @override
+  String get detailProtectedResident => 'Protektadong Residente';
+
+  @override
+  String get detailAnonymousFiling => 'Anonymous na Ulat';
+
+  @override
+  String get detailRegisteredResident => 'Rehistradong Residente';
+
+  @override
+  String get detailOnBehalfBadge => 'INIULAT PARA SA IBA';
+
+  @override
+  String get detailYourFiling => 'Ulat Mo';
+
+  @override
+  String get detailPrivacyBadge => 'Protektado ng RA 10173';
+
+  @override
+  String get detailOnBehalfOwn =>
+      'Isinumite mo ang emergency report na ito para sa iyong kakilala';
+
+  @override
+  String get detailOnBehalfOther =>
+      'Ulat ng Mamamayan na Wala sa Lugar (Nakatago ang Detalye para sa Kaligtasan)';
+
+  @override
+  String get detailAffectedPerson => 'Apektadong Tao / Kamag-anak sa Lugar:';
+
+  @override
+  String get detailUnspecifiedName => 'Walang Pangalan';
+
+  @override
+  String get detailVictimContact => 'Contact Number ng Biktima:';
+
+  @override
+  String get detailCallVictim => 'Tawagan ang Biktima';
+
+  @override
+  String get detailDispatcherOnly => 'Para sa Dispatcher Lang';
+
+  @override
+  String get detailPrivacyNotice =>
+      'Alinsunod sa RA 10173 (Data Privacy Act of 2012), nakatago sa publiko ang contact info at para lang sa mga awtorisadong emergency responder.';
+
+  @override
+  String get detailPinnedLocation => 'Naka-pin na Lokasyon ng Insidente';
+
+  @override
+  String detailGps(String coordinates) {
+    return 'GPS: $coordinates';
+  }
+
+  @override
+  String get detailNarrative => 'Salaysay ng Insidente';
+
+  @override
+  String get detailNoDescription => 'Walang inilagay na paglalarawan.';
+
+  @override
+  String get detailDispatcherNotes => 'Puna at Aksyon ng Dispatcher';
+
+  @override
+  String get detailCommandStatus => 'Status sa Command Center';
+
+  @override
+  String get detailRespondersDispatched =>
+      'NAIPADALA NA ANG MGA RESPONDER • TINATAYANG PAGDATING';
+
+  @override
+  String get detailAwaitingDispatcher =>
+      'Hinihintay ang pagsusuri ng dispatcher. Dito lalabas nang real time ang mga update, ipinadalang emergency unit, o puna mula sa field verification.';
+
+  @override
+  String get detailEvidence => 'Kalakip na Ebidensya';
+
+  @override
+  String get detailNoEvidence => 'Walang kalakip na ebidensya ang ulat na ito';
+
+  @override
+  String get detailVerifiedEvidence => 'Beripikadong Ebidensya';
+
+  @override
+  String get detailTapToZoom => 'I-tap ang larawan para i-zoom';
+
+  @override
+  String get detailVideoEvidence => 'Video na Ebidensya ng Emergency';
+
+  @override
+  String get detailVideoVerified => 'Clip na beripikado ng responder network';
+
+  @override
+  String detailEvidenceTitle(String category) {
+    return 'Ebidensya: $category';
+  }
+
+  @override
+  String get detailWatchVideo => 'Panoorin ang Video na Ebidensya';
+
+  @override
+  String get detailPhotoStoredLocally =>
+      'Naka-save sa phone ang larawang ebidensya (hinihintay ma-upload)';
+
+  @override
+  String get timelineSafetyProtocol => 'Mga Hakbang para sa Kaligtasan';
+
+  @override
+  String get timelineResolutionStage => 'Yugto ng Paglutas ng Insidente';
+
+  @override
+  String timelineRespondersOnTheWay(String eta) {
+    return 'Papunta na ang mga responder • Tinatayang Pagdating: $eta';
+  }
+
+  @override
+  String get trackingTitle => 'Live na Pagsubaybay sa Insidente';
+
+  @override
+  String get trackingClose => 'Isara ang tracking panel';
+
+  @override
+  String get kitFire1 =>
+      '**Lumikas agad** gamit ang pinakaligtas at pinakamalapit na labasan.';
+
+  @override
+  String get kitFire2 =>
+      '**Yumuko** malapit sa sahig para hindi makalanghap ng nakalalasong usok.';
+
+  @override
+  String get kitFire3 =>
+      '**Huwag gumamit ng elevator**; laging gumamit ng hagdan kapag may sunog.';
+
+  @override
+  String get kitFire4 =>
+      'Paglabas, dumiretso sa **Moonwalk Multipurpose Hall** o sa itinalagang evacuation area.';
+
+  @override
+  String get kitFlood1 =>
+      '**Bantayan ang taas ng tubig** at ang mga opisyal na anunsyo ng Barangay Moonwalk.';
+
+  @override
+  String get kitFlood2 =>
+      '**Patayin ang main switch ng kuryente** para maiwasan ang pagkakuryente at sunog.';
+
+  @override
+  String get kitFlood3 =>
+      '**Ilipat agad ang mahahalagang gamit at ang pamilya** sa itaas na palapag.';
+
+  @override
+  String get kitFlood4 =>
+      'Ihanda ang emergency Go-Bag at **lumikas** kapag iniutos ng awtoridad.';
+
+  @override
+  String get kitMedical1 =>
+      '**Tingnan kung tumutugon** ang biktima at kung humihinga siya.';
+
+  @override
+  String get kitMedical2 =>
+      '**Paluwagin ang paligid** para may sapat na espasyo at hangin ang biktima.';
+
+  @override
+  String get kitMedical3 =>
+      '**Huwag galawin ang biktima** maliban kung nasa agarang panganib ang buhay niya.';
+
+  @override
+  String get kitMedical4 =>
+      '**Maghintay nang kalmado** sa rescue ambulance ng Barangay at sa mga medical personnel.';
+
+  @override
+  String get kitEarthquake1 =>
+      'Gawin agad ang **Duck, Cover, and Hold** hanggang tumigil ang pagyanig.';
+
+  @override
+  String get kitEarthquake2 =>
+      '**Lumayo sa mga bintanang salamin**, nahuhulog na debris, at mabibigat na muwebles.';
+
+  @override
+  String get kitEarthquake3 =>
+      '**Huwag gumamit ng elevator** habang o pagkatapos agad ng lindol.';
+
+  @override
+  String get kitEarthquake4 =>
+      'Pumunta nang ligtas sa **bukas na lugar** o sa itinalagang safe zone kapag tuluyan nang tumigil ang pagyanig.';
+
+  @override
+  String get kitGeneral1 =>
+      '**Manatiling kalmado** at agad na suriin ang iyong paligid.';
+
+  @override
+  String get kitGeneral2 =>
+      '**Lumayo** sa anumang agarang panganib o sa mga istrukturang hindi matibay.';
+
+  @override
+  String get kitGeneral3 =>
+      '**Hintayin ang opisyal na abiso** mula sa security personnel o mga opisyal ng Barangay Moonwalk.';
 }

@@ -967,4 +967,381 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authErrorEmptyCredentials => 'Email and password cannot be empty.';
+
+  @override
+  String commonError(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get commonRelative => 'Relative';
+
+  @override
+  String commonEta(String eta) {
+    return 'ETA: $eta';
+  }
+
+  @override
+  String reportForPerson(String name) {
+    return 'For: $name';
+  }
+
+  @override
+  String get statusSolved => 'Solved';
+
+  @override
+  String get dashboardBiometricTitle => 'Enable Quick Biometric Access';
+
+  @override
+  String get dashboardBiometricMessage =>
+      'Protect your ResQ account and instantly verify emergency incident reports using your Fingerprint or Face ID.';
+
+  @override
+  String get dashboardMaybeLater => 'Maybe Later';
+
+  @override
+  String get dashboardBiometricReason =>
+      'Scan fingerprint or face to enable Biometric Quick Access';
+
+  @override
+  String get dashboardBiometricEnabled =>
+      'Biometric verification enabled for ResQ!';
+
+  @override
+  String get dashboardEnableNow => 'Enable Now';
+
+  @override
+  String dashboardReportedOn(String date) {
+    return 'Reported $date';
+  }
+
+  @override
+  String get dashboardMyReportsStatus => 'MY REPORTS STATUS';
+
+  @override
+  String get dashboardViewAll => 'View All';
+
+  @override
+  String get dashboardMyReportsSubtitle =>
+      'Personal incident filings • Real-time response tracking';
+
+  @override
+  String get dashboardCommunityIncidents => 'Community Incidents';
+
+  @override
+  String dashboardActiveCount(int count) {
+    return '$count Active';
+  }
+
+  @override
+  String get dashboardCommunitySubtitle =>
+      'Recent reports from nearby compounds and streets';
+
+  @override
+  String get dashboardNoActiveIncidents => 'No active incidents';
+
+  @override
+  String get dashboardWelcomeBack => 'Welcome back,';
+
+  @override
+  String get dashboardStatPending => 'Pending';
+
+  @override
+  String get dashboardStatInQueue => 'In Queue';
+
+  @override
+  String get dashboardStatActive => 'Active';
+
+  @override
+  String get dashboardStatResponding => 'Responding';
+
+  @override
+  String get dashboardStatSolved => 'Solved';
+
+  @override
+  String get dashboardStatResolved => 'Resolved';
+
+  @override
+  String get dashboardVideoInstructions => 'Video Instructions';
+
+  @override
+  String get dashboardVideoSubtitle =>
+      'How to report safety issues in Moonwalk';
+
+  @override
+  String get dashboardAdvisoryFallback => 'EMERGENCY ADVISORY';
+
+  @override
+  String get dashboardSirenAlertFallback => 'Siren Alert';
+
+  @override
+  String get dashboardAllSectors => 'All Sectors';
+
+  @override
+  String get dashboardActiveSiren => 'ACTIVE SIREN';
+
+  @override
+  String dashboardBroadcastTarget(String sector) {
+    return 'Target: $sector';
+  }
+
+  @override
+  String get myReportsTitle => 'MY REPORTS';
+
+  @override
+  String get myReportsDirectory => 'Report Directory';
+
+  @override
+  String get myReportsSubtitle => 'Your submitted incident reports';
+
+  @override
+  String get myReportsSearchHint => 'Search title, location, category...';
+
+  @override
+  String get myReportsFilterAll => 'ALL';
+
+  @override
+  String myReportsLoadError(String error) {
+    return 'Error fetching reports: $error';
+  }
+
+  @override
+  String myReportsNoMatch(String query) {
+    return 'No reports matching \'$query\' found.';
+  }
+
+  @override
+  String get myReportsNoneForFilter =>
+      'No reports found under this status filter.';
+
+  @override
+  String get myReportsCloseSearch => 'Close';
+
+  @override
+  String get myReportsSearch => 'Search';
+
+  @override
+  String get myReportsLive => 'Live';
+
+  @override
+  String get myReportsLocal => 'Local';
+
+  @override
+  String get detailLiveTitle => 'Live at Command Center';
+
+  @override
+  String get detailLocalTitle => 'Stored Locally (Pending Cloud Sync)';
+
+  @override
+  String get detailLiveMessage =>
+      'This report has been uploaded to the live cloud database and received by Barangay Moonwalk dispatchers.';
+
+  @override
+  String get detailLocalMessage =>
+      'This report is safely preserved in your phone\'s offline storage. It will automatically upload to dispatch once connected to the cloud server.';
+
+  @override
+  String detailIncidentId(String id) {
+    return 'Incident ID: #$id';
+  }
+
+  @override
+  String get detailLocalId => 'LOCAL';
+
+  @override
+  String get detailProtectedResident => 'Protected Resident';
+
+  @override
+  String get detailAnonymousFiling => 'Anonymous Filing';
+
+  @override
+  String get detailRegisteredResident => 'Registered Resident';
+
+  @override
+  String get detailOnBehalfBadge => 'REPORTED ON BEHALF';
+
+  @override
+  String get detailYourFiling => 'Your Filing';
+
+  @override
+  String get detailPrivacyBadge => 'RA 10173 Protected';
+
+  @override
+  String get detailOnBehalfOwn =>
+      'You filed this emergency report on behalf of your contact';
+
+  @override
+  String get detailOnBehalfOther =>
+      'Off-Site Citizen Dispatch Filing (Anonymized for Public Safety)';
+
+  @override
+  String get detailAffectedPerson => 'On-Scene Affected Person / Relative:';
+
+  @override
+  String get detailUnspecifiedName => 'Unspecified Name';
+
+  @override
+  String get detailVictimContact => 'Victim Contact Number:';
+
+  @override
+  String get detailCallVictim => 'Call Victim On-Site';
+
+  @override
+  String get detailDispatcherOnly => 'Dispatcher Only';
+
+  @override
+  String get detailPrivacyNotice =>
+      'In compliance with RA 10173 (Data Privacy Act of 2012), contact info is masked for public viewing and restricted to authorized emergency responders.';
+
+  @override
+  String get detailPinnedLocation => 'Incident Pinned Location';
+
+  @override
+  String detailGps(String coordinates) {
+    return 'GPS: $coordinates';
+  }
+
+  @override
+  String get detailNarrative => 'Incident Narrative';
+
+  @override
+  String get detailNoDescription => 'No description provided.';
+
+  @override
+  String get detailDispatcherNotes => 'Dispatcher Remarks & Action Notes';
+
+  @override
+  String get detailCommandStatus => 'Command Center Status';
+
+  @override
+  String get detailRespondersDispatched =>
+      'RESPONDERS DISPATCHED • ESTIMATED ARRIVAL';
+
+  @override
+  String get detailAwaitingDispatcher =>
+      'Awaiting dispatcher evaluation. Updates, dispatched emergency units, or field verification remarks will be displayed here in real time.';
+
+  @override
+  String get detailEvidence => 'Evidence Attachment';
+
+  @override
+  String get detailNoEvidence => 'No media evidence attached to this report';
+
+  @override
+  String get detailVerifiedEvidence => 'Verified Evidence';
+
+  @override
+  String get detailTapToZoom => 'Tap photo to zoom';
+
+  @override
+  String get detailVideoEvidence => 'Emergency Video Evidence';
+
+  @override
+  String get detailVideoVerified =>
+      'Low-latency clip verified by responder network';
+
+  @override
+  String detailEvidenceTitle(String category) {
+    return '$category Evidence';
+  }
+
+  @override
+  String get detailWatchVideo => 'Watch Evidence Video Stream';
+
+  @override
+  String get detailPhotoStoredLocally =>
+      'Evidence photo stored locally (pending upload)';
+
+  @override
+  String get timelineSafetyProtocol => 'Safety Action Protocol';
+
+  @override
+  String get timelineResolutionStage => 'Incident Resolution Stage';
+
+  @override
+  String timelineRespondersOnTheWay(String eta) {
+    return 'Responders on the way • Estimated Arrival: $eta';
+  }
+
+  @override
+  String get trackingTitle => 'Live Incident Tracking';
+
+  @override
+  String get trackingClose => 'Close tracking panel';
+
+  @override
+  String get kitFire1 =>
+      '**Evacuate immediately** using the safest and nearest exit.';
+
+  @override
+  String get kitFire2 =>
+      '**Stay low** to the ground to avoid inhaling toxic smoke.';
+
+  @override
+  String get kitFire3 =>
+      '**Do not use elevators**; always use the stairs during a fire.';
+
+  @override
+  String get kitFire4 =>
+      'Once outside, proceed directly to the **Moonwalk Multipurpose Hall** or your designated evacuation area.';
+
+  @override
+  String get kitFlood1 =>
+      '**Monitor local water levels** and official Barangay Moonwalk announcements.';
+
+  @override
+  String get kitFlood2 =>
+      '**Turn off main electrical switches** to prevent electrocution and electrical fires.';
+
+  @override
+  String get kitFlood3 =>
+      '**Move critical belongings and your family** to upper floors immediately.';
+
+  @override
+  String get kitFlood4 =>
+      'Prepare your emergency Go-Bag and **evacuate** if ordered by authorities.';
+
+  @override
+  String get kitMedical1 =>
+      '**Check for responsiveness** and ensure the victim is breathing.';
+
+  @override
+  String get kitMedical2 =>
+      '**Clear the immediate surroundings** to give the victim adequate space and air.';
+
+  @override
+  String get kitMedical3 =>
+      '**Do not move the victim** unless they are in immediate, life-threatening danger.';
+
+  @override
+  String get kitMedical4 =>
+      '**Wait calmly** for the Barangay rescue ambulance and professional medical personnel.';
+
+  @override
+  String get kitEarthquake1 =>
+      'Execute **Duck, Cover, and Hold** immediately until the shaking stops.';
+
+  @override
+  String get kitEarthquake2 =>
+      '**Stay clear of glass windows**, falling debris, and heavy furniture.';
+
+  @override
+  String get kitEarthquake3 =>
+      '**Do not use elevators** during or immediately after the earthquake.';
+
+  @override
+  String get kitEarthquake4 =>
+      'Head safely to **open fields** or designated safe zones after the shaking entirely stops.';
+
+  @override
+  String get kitGeneral1 =>
+      '**Stay calm** and quickly assess your immediate surroundings.';
+
+  @override
+  String get kitGeneral2 =>
+      '**Move away** from any immediate danger, hazards, or unstable structures.';
+
+  @override
+  String get kitGeneral3 =>
+      '**Wait for official instructions** from Barangay Moonwalk security personnel or officials.';
 }

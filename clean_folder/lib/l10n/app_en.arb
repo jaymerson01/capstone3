@@ -1228,5 +1228,489 @@
   "authErrorEmptyCredentials": "Email and password cannot be empty.",
   "@authErrorEmptyCredentials": {
     "description": "Login error."
+  },
+  "commonError": "Error: {message}",
+  "@commonError": {
+    "description": "Generic error line.",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "commonRelative": "Relative",
+  "@commonRelative": {
+    "description": "Fallback when the person reported for has no name."
+  },
+  "commonEta": "ETA: {eta}",
+  "@commonEta": {
+    "description": "Estimated arrival written by the dispatcher (not translated).",
+    "placeholders": {
+      "eta": {
+        "type": "String"
+      }
+    }
+  },
+  "reportForPerson": "For: {name}",
+  "@reportForPerson": {
+    "description": "Person the report was filed for.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "statusSolved": "Solved",
+  "@statusSolved": {
+    "description": "Incident status as shown on the home screen."
+  },
+  "dashboardBiometricTitle": "Enable Quick Biometric Access",
+  "@dashboardBiometricTitle": {
+    "description": "Biometric prompt title."
+  },
+  "dashboardBiometricMessage": "Protect your ResQ account and instantly verify emergency incident reports using your Fingerprint or Face ID.",
+  "@dashboardBiometricMessage": {
+    "description": "Biometric prompt text."
+  },
+  "dashboardMaybeLater": "Maybe Later",
+  "@dashboardMaybeLater": {
+    "description": "Biometric prompt: skip."
+  },
+  "dashboardBiometricReason": "Scan fingerprint or face to enable Biometric Quick Access",
+  "@dashboardBiometricReason": {
+    "description": "Shown by the phone's biometric prompt."
+  },
+  "dashboardBiometricEnabled": "Biometric verification enabled for ResQ!",
+  "@dashboardBiometricEnabled": {
+    "description": "Biometric turned on."
+  },
+  "dashboardEnableNow": "Enable Now",
+  "@dashboardEnableNow": {
+    "description": "Biometric prompt: enable."
+  },
+  "dashboardReportedOn": "Reported {date}",
+  "@dashboardReportedOn": {
+    "description": "Report card date (month/day/year).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dashboardMyReportsStatus": "MY REPORTS STATUS",
+  "@dashboardMyReportsStatus": {
+    "description": "Section title (uppercase)."
+  },
+  "dashboardViewAll": "View All",
+  "@dashboardViewAll": {
+    "description": "Link to all reports."
+  },
+  "dashboardMyReportsSubtitle": "Personal incident filings • Real-time response tracking",
+  "@dashboardMyReportsSubtitle": {
+    "description": "Section subtitle."
+  },
+  "dashboardCommunityIncidents": "Community Incidents",
+  "@dashboardCommunityIncidents": {
+    "description": "Section title."
+  },
+  "dashboardActiveCount": "{count} Active",
+  "@dashboardActiveCount": {
+    "description": "Number of active community incidents.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dashboardCommunitySubtitle": "Recent reports from nearby compounds and streets",
+  "@dashboardCommunitySubtitle": {
+    "description": "Section subtitle."
+  },
+  "dashboardNoActiveIncidents": "No active incidents",
+  "@dashboardNoActiveIncidents": {
+    "description": "Empty state."
+  },
+  "dashboardWelcomeBack": "Welcome back,",
+  "@dashboardWelcomeBack": {
+    "description": "Greeting before the resident's name."
+  },
+  "dashboardStatPending": "Pending",
+  "@dashboardStatPending": {
+    "description": "Stat card label."
+  },
+  "dashboardStatInQueue": "In Queue",
+  "@dashboardStatInQueue": {
+    "description": "Stat card sublabel."
+  },
+  "dashboardStatActive": "Active",
+  "@dashboardStatActive": {
+    "description": "Stat card label."
+  },
+  "dashboardStatResponding": "Responding",
+  "@dashboardStatResponding": {
+    "description": "Stat card sublabel."
+  },
+  "dashboardStatSolved": "Solved",
+  "@dashboardStatSolved": {
+    "description": "Stat card label."
+  },
+  "dashboardStatResolved": "Resolved",
+  "@dashboardStatResolved": {
+    "description": "Stat card sublabel."
+  },
+  "dashboardVideoInstructions": "Video Instructions",
+  "@dashboardVideoInstructions": {
+    "description": "Banner title."
+  },
+  "dashboardVideoSubtitle": "How to report safety issues in Moonwalk",
+  "@dashboardVideoSubtitle": {
+    "description": "Banner subtitle."
+  },
+  "dashboardAdvisoryFallback": "EMERGENCY ADVISORY",
+  "@dashboardAdvisoryFallback": {
+    "description": "Broadcast title when the admin gave none (uppercase)."
+  },
+  "dashboardSirenAlertFallback": "Siren Alert",
+  "@dashboardSirenAlertFallback": {
+    "description": "Broadcast type when the admin gave none."
+  },
+  "dashboardAllSectors": "All Sectors",
+  "@dashboardAllSectors": {
+    "description": "Broadcast target when the admin gave none."
+  },
+  "dashboardActiveSiren": "ACTIVE SIREN",
+  "@dashboardActiveSiren": {
+    "description": "Broadcast badge (uppercase)."
+  },
+  "dashboardBroadcastTarget": "Target: {sector}",
+  "@dashboardBroadcastTarget": {
+    "description": "Who the broadcast is for (area name not translated).",
+    "placeholders": {
+      "sector": {
+        "type": "String"
+      }
+    }
+  },
+  "myReportsTitle": "MY REPORTS",
+  "@myReportsTitle": {
+    "description": "Screen title (uppercase)."
+  },
+  "myReportsDirectory": "Report Directory",
+  "@myReportsDirectory": {
+    "description": "Header title."
+  },
+  "myReportsSubtitle": "Your submitted incident reports",
+  "@myReportsSubtitle": {
+    "description": "Header subtitle."
+  },
+  "myReportsSearchHint": "Search title, location, category...",
+  "@myReportsSearchHint": {
+    "description": "Search field hint."
+  },
+  "myReportsFilterAll": "ALL",
+  "@myReportsFilterAll": {
+    "description": "Filter chip showing every report (uppercase)."
+  },
+  "myReportsLoadError": "Error fetching reports: {error}",
+  "@myReportsLoadError": {
+    "description": "Reports failed to load.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "myReportsNoMatch": "No reports matching '{query}' found.",
+  "@myReportsNoMatch": {
+    "description": "Empty search result.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "myReportsNoneForFilter": "No reports found under this status filter.",
+  "@myReportsNoneForFilter": {
+    "description": "Empty filter result."
+  },
+  "myReportsCloseSearch": "Close",
+  "@myReportsCloseSearch": {
+    "description": "Closes the search field."
+  },
+  "myReportsSearch": "Search",
+  "@myReportsSearch": {
+    "description": "Opens the search field."
+  },
+  "myReportsLive": "Live",
+  "@myReportsLive": {
+    "description": "Report is uploaded."
+  },
+  "myReportsLocal": "Local",
+  "@myReportsLocal": {
+    "description": "Report is only on the phone."
+  },
+  "detailLiveTitle": "Live at Command Center",
+  "@detailLiveTitle": {
+    "description": "Sync banner: uploaded."
+  },
+  "detailLocalTitle": "Stored Locally (Pending Cloud Sync)",
+  "@detailLocalTitle": {
+    "description": "Sync banner: offline."
+  },
+  "detailLiveMessage": "This report has been uploaded to the live cloud database and received by Barangay Moonwalk dispatchers.",
+  "@detailLiveMessage": {
+    "description": "Sync banner text: uploaded."
+  },
+  "detailLocalMessage": "This report is safely preserved in your phone's offline storage. It will automatically upload to dispatch once connected to the cloud server.",
+  "@detailLocalMessage": {
+    "description": "Sync banner text: offline."
+  },
+  "detailIncidentId": "Incident ID: #{id}",
+  "@detailIncidentId": {
+    "description": "Short incident id.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "detailLocalId": "LOCAL",
+  "@detailLocalId": {
+    "description": "Shown instead of an id for offline reports."
+  },
+  "detailProtectedResident": "Protected Resident",
+  "@detailProtectedResident": {
+    "description": "Hidden name of another resident."
+  },
+  "detailAnonymousFiling": "Anonymous Filing",
+  "@detailAnonymousFiling": {
+    "description": "Reporter shown as anonymous."
+  },
+  "detailRegisteredResident": "Registered Resident",
+  "@detailRegisteredResident": {
+    "description": "Reporter with no name."
+  },
+  "detailOnBehalfBadge": "REPORTED ON BEHALF",
+  "@detailOnBehalfBadge": {
+    "description": "Badge (uppercase)."
+  },
+  "detailYourFiling": "Your Filing",
+  "@detailYourFiling": {
+    "description": "Badge on the resident's own report."
+  },
+  "detailPrivacyBadge": "RA 10173 Protected",
+  "@detailPrivacyBadge": {
+    "description": "Data Privacy Act badge."
+  },
+  "detailOnBehalfOwn": "You filed this emergency report on behalf of your contact",
+  "@detailOnBehalfOwn": {
+    "description": "On-behalf card text: own report."
+  },
+  "detailOnBehalfOther": "Off-Site Citizen Dispatch Filing (Anonymized for Public Safety)",
+  "@detailOnBehalfOther": {
+    "description": "On-behalf card text: someone else's report."
+  },
+  "detailAffectedPerson": "On-Scene Affected Person / Relative:",
+  "@detailAffectedPerson": {
+    "description": "Label before the name."
+  },
+  "detailUnspecifiedName": "Unspecified Name",
+  "@detailUnspecifiedName": {
+    "description": "No name given."
+  },
+  "detailVictimContact": "Victim Contact Number:",
+  "@detailVictimContact": {
+    "description": "Label before the phone number."
+  },
+  "detailCallVictim": "Call Victim On-Site",
+  "@detailCallVictim": {
+    "description": "Tooltip of the call button."
+  },
+  "detailDispatcherOnly": "Dispatcher Only",
+  "@detailDispatcherOnly": {
+    "description": "Masked phone badge."
+  },
+  "detailPrivacyNotice": "In compliance with RA 10173 (Data Privacy Act of 2012), contact info is masked for public viewing and restricted to authorized emergency responders.",
+  "@detailPrivacyNotice": {
+    "description": "Privacy notice."
+  },
+  "detailPinnedLocation": "Incident Pinned Location",
+  "@detailPinnedLocation": {
+    "description": "Location card title."
+  },
+  "detailGps": "GPS: {coordinates}",
+  "@detailGps": {
+    "description": "Coordinates line.",
+    "placeholders": {
+      "coordinates": {
+        "type": "String"
+      }
+    }
+  },
+  "detailNarrative": "Incident Narrative",
+  "@detailNarrative": {
+    "description": "Description card title."
+  },
+  "detailNoDescription": "No description provided.",
+  "@detailNoDescription": {
+    "description": "Empty description."
+  },
+  "detailDispatcherNotes": "Dispatcher Remarks & Action Notes",
+  "@detailDispatcherNotes": {
+    "description": "Notes card title with notes."
+  },
+  "detailCommandStatus": "Command Center Status",
+  "@detailCommandStatus": {
+    "description": "Notes card title without notes."
+  },
+  "detailRespondersDispatched": "RESPONDERS DISPATCHED • ESTIMATED ARRIVAL",
+  "@detailRespondersDispatched": {
+    "description": "ETA box label (uppercase)."
+  },
+  "detailAwaitingDispatcher": "Awaiting dispatcher evaluation. Updates, dispatched emergency units, or field verification remarks will be displayed here in real time.",
+  "@detailAwaitingDispatcher": {
+    "description": "No dispatcher notes yet."
+  },
+  "detailEvidence": "Evidence Attachment",
+  "@detailEvidence": {
+    "description": "Evidence card title."
+  },
+  "detailNoEvidence": "No media evidence attached to this report",
+  "@detailNoEvidence": {
+    "description": "No photo or video."
+  },
+  "detailVerifiedEvidence": "Verified Evidence",
+  "@detailVerifiedEvidence": {
+    "description": "Evidence card title with media."
+  },
+  "detailTapToZoom": "Tap photo to zoom",
+  "@detailTapToZoom": {
+    "description": "Hint on the photo."
+  },
+  "detailVideoEvidence": "Emergency Video Evidence",
+  "@detailVideoEvidence": {
+    "description": "Video box title."
+  },
+  "detailVideoVerified": "Low-latency clip verified by responder network",
+  "@detailVideoVerified": {
+    "description": "Video box subtitle."
+  },
+  "detailEvidenceTitle": "{category} Evidence",
+  "@detailEvidenceTitle": {
+    "description": "Video player title; category already translated.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "detailWatchVideo": "Watch Evidence Video Stream",
+  "@detailWatchVideo": {
+    "description": "Button that plays the video."
+  },
+  "detailPhotoStoredLocally": "Evidence photo stored locally (pending upload)",
+  "@detailPhotoStoredLocally": {
+    "description": "Photo not uploaded yet."
+  },
+  "timelineSafetyProtocol": "Safety Action Protocol",
+  "@timelineSafetyProtocol": {
+    "description": "Safety tips title."
+  },
+  "timelineResolutionStage": "Incident Resolution Stage",
+  "@timelineResolutionStage": {
+    "description": "Timeline title."
+  },
+  "timelineRespondersOnTheWay": "Responders on the way • Estimated Arrival: {eta}",
+  "@timelineRespondersOnTheWay": {
+    "description": "ETA from the dispatcher (not translated).",
+    "placeholders": {
+      "eta": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingTitle": "Live Incident Tracking",
+  "@trackingTitle": {
+    "description": "Tracking sheet title."
+  },
+  "trackingClose": "Close tracking panel",
+  "@trackingClose": {
+    "description": "Tooltip of the close button."
+  },
+  "kitFire1": "**Evacuate immediately** using the safest and nearest exit.",
+  "@kitFire1": {
+    "description": "Fire safety step."
+  },
+  "kitFire2": "**Stay low** to the ground to avoid inhaling toxic smoke.",
+  "@kitFire2": {
+    "description": "Fire safety step."
+  },
+  "kitFire3": "**Do not use elevators**; always use the stairs during a fire.",
+  "@kitFire3": {
+    "description": "Fire safety step."
+  },
+  "kitFire4": "Once outside, proceed directly to the **Moonwalk Multipurpose Hall** or your designated evacuation area.",
+  "@kitFire4": {
+    "description": "Fire safety step."
+  },
+  "kitFlood1": "**Monitor local water levels** and official Barangay Moonwalk announcements.",
+  "@kitFlood1": {
+    "description": "Flood safety step."
+  },
+  "kitFlood2": "**Turn off main electrical switches** to prevent electrocution and electrical fires.",
+  "@kitFlood2": {
+    "description": "Flood safety step."
+  },
+  "kitFlood3": "**Move critical belongings and your family** to upper floors immediately.",
+  "@kitFlood3": {
+    "description": "Flood safety step."
+  },
+  "kitFlood4": "Prepare your emergency Go-Bag and **evacuate** if ordered by authorities.",
+  "@kitFlood4": {
+    "description": "Flood safety step."
+  },
+  "kitMedical1": "**Check for responsiveness** and ensure the victim is breathing.",
+  "@kitMedical1": {
+    "description": "Medical safety step."
+  },
+  "kitMedical2": "**Clear the immediate surroundings** to give the victim adequate space and air.",
+  "@kitMedical2": {
+    "description": "Medical safety step."
+  },
+  "kitMedical3": "**Do not move the victim** unless they are in immediate, life-threatening danger.",
+  "@kitMedical3": {
+    "description": "Medical safety step."
+  },
+  "kitMedical4": "**Wait calmly** for the Barangay rescue ambulance and professional medical personnel.",
+  "@kitMedical4": {
+    "description": "Medical safety step."
+  },
+  "kitEarthquake1": "Execute **Duck, Cover, and Hold** immediately until the shaking stops.",
+  "@kitEarthquake1": {
+    "description": "Earthquake safety step."
+  },
+  "kitEarthquake2": "**Stay clear of glass windows**, falling debris, and heavy furniture.",
+  "@kitEarthquake2": {
+    "description": "Earthquake safety step."
+  },
+  "kitEarthquake3": "**Do not use elevators** during or immediately after the earthquake.",
+  "@kitEarthquake3": {
+    "description": "Earthquake safety step."
+  },
+  "kitEarthquake4": "Head safely to **open fields** or designated safe zones after the shaking entirely stops.",
+  "@kitEarthquake4": {
+    "description": "Earthquake safety step."
+  },
+  "kitGeneral1": "**Stay calm** and quickly assess your immediate surroundings.",
+  "@kitGeneral1": {
+    "description": "General safety step."
+  },
+  "kitGeneral2": "**Move away** from any immediate danger, hazards, or unstable structures.",
+  "@kitGeneral2": {
+    "description": "General safety step."
+  },
+  "kitGeneral3": "**Wait for official instructions** from Barangay Moonwalk security personnel or officials.",
+  "@kitGeneral3": {
+    "description": "General safety step."
   }
 }

@@ -1711,6 +1711,642 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email and password cannot be empty.'**
   String get authErrorEmptyCredentials;
+
+  /// Generic error line.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {message}'**
+  String commonError(String message);
+
+  /// Fallback when the person reported for has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Relative'**
+  String get commonRelative;
+
+  /// Estimated arrival written by the dispatcher (not translated).
+  ///
+  /// In en, this message translates to:
+  /// **'ETA: {eta}'**
+  String commonEta(String eta);
+
+  /// Person the report was filed for.
+  ///
+  /// In en, this message translates to:
+  /// **'For: {name}'**
+  String reportForPerson(String name);
+
+  /// Incident status as shown on the home screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved'**
+  String get statusSolved;
+
+  /// Biometric prompt title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Quick Biometric Access'**
+  String get dashboardBiometricTitle;
+
+  /// Biometric prompt text.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect your ResQ account and instantly verify emergency incident reports using your Fingerprint or Face ID.'**
+  String get dashboardBiometricMessage;
+
+  /// Biometric prompt: skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Maybe Later'**
+  String get dashboardMaybeLater;
+
+  /// Shown by the phone's biometric prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan fingerprint or face to enable Biometric Quick Access'**
+  String get dashboardBiometricReason;
+
+  /// Biometric turned on.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric verification enabled for ResQ!'**
+  String get dashboardBiometricEnabled;
+
+  /// Biometric prompt: enable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Now'**
+  String get dashboardEnableNow;
+
+  /// Report card date (month/day/year).
+  ///
+  /// In en, this message translates to:
+  /// **'Reported {date}'**
+  String dashboardReportedOn(String date);
+
+  /// Section title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'MY REPORTS STATUS'**
+  String get dashboardMyReportsStatus;
+
+  /// Link to all reports.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get dashboardViewAll;
+
+  /// Section subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal incident filings • Real-time response tracking'**
+  String get dashboardMyReportsSubtitle;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Community Incidents'**
+  String get dashboardCommunityIncidents;
+
+  /// Number of active community incidents.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Active'**
+  String dashboardActiveCount(int count);
+
+  /// Section subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent reports from nearby compounds and streets'**
+  String get dashboardCommunitySubtitle;
+
+  /// Empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'No active incidents'**
+  String get dashboardNoActiveIncidents;
+
+  /// Greeting before the resident's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back,'**
+  String get dashboardWelcomeBack;
+
+  /// Stat card label.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get dashboardStatPending;
+
+  /// Stat card sublabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In Queue'**
+  String get dashboardStatInQueue;
+
+  /// Stat card label.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get dashboardStatActive;
+
+  /// Stat card sublabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Responding'**
+  String get dashboardStatResponding;
+
+  /// Stat card label.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved'**
+  String get dashboardStatSolved;
+
+  /// Stat card sublabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get dashboardStatResolved;
+
+  /// Banner title.
+  ///
+  /// In en, this message translates to:
+  /// **'Video Instructions'**
+  String get dashboardVideoInstructions;
+
+  /// Banner subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How to report safety issues in Moonwalk'**
+  String get dashboardVideoSubtitle;
+
+  /// Broadcast title when the admin gave none (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'EMERGENCY ADVISORY'**
+  String get dashboardAdvisoryFallback;
+
+  /// Broadcast type when the admin gave none.
+  ///
+  /// In en, this message translates to:
+  /// **'Siren Alert'**
+  String get dashboardSirenAlertFallback;
+
+  /// Broadcast target when the admin gave none.
+  ///
+  /// In en, this message translates to:
+  /// **'All Sectors'**
+  String get dashboardAllSectors;
+
+  /// Broadcast badge (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE SIREN'**
+  String get dashboardActiveSiren;
+
+  /// Who the broadcast is for (area name not translated).
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {sector}'**
+  String dashboardBroadcastTarget(String sector);
+
+  /// Screen title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'MY REPORTS'**
+  String get myReportsTitle;
+
+  /// Header title.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Directory'**
+  String get myReportsDirectory;
+
+  /// Header subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your submitted incident reports'**
+  String get myReportsSubtitle;
+
+  /// Search field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search title, location, category...'**
+  String get myReportsSearchHint;
+
+  /// Filter chip showing every report (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'ALL'**
+  String get myReportsFilterAll;
+
+  /// Reports failed to load.
+  ///
+  /// In en, this message translates to:
+  /// **'Error fetching reports: {error}'**
+  String myReportsLoadError(String error);
+
+  /// Empty search result.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports matching \'{query}\' found.'**
+  String myReportsNoMatch(String query);
+
+  /// Empty filter result.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports found under this status filter.'**
+  String get myReportsNoneForFilter;
+
+  /// Closes the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get myReportsCloseSearch;
+
+  /// Opens the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get myReportsSearch;
+
+  /// Report is uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get myReportsLive;
+
+  /// Report is only on the phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Local'**
+  String get myReportsLocal;
+
+  /// Sync banner: uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Live at Command Center'**
+  String get detailLiveTitle;
+
+  /// Sync banner: offline.
+  ///
+  /// In en, this message translates to:
+  /// **'Stored Locally (Pending Cloud Sync)'**
+  String get detailLocalTitle;
+
+  /// Sync banner text: uploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'This report has been uploaded to the live cloud database and received by Barangay Moonwalk dispatchers.'**
+  String get detailLiveMessage;
+
+  /// Sync banner text: offline.
+  ///
+  /// In en, this message translates to:
+  /// **'This report is safely preserved in your phone\'s offline storage. It will automatically upload to dispatch once connected to the cloud server.'**
+  String get detailLocalMessage;
+
+  /// Short incident id.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident ID: #{id}'**
+  String detailIncidentId(String id);
+
+  /// Shown instead of an id for offline reports.
+  ///
+  /// In en, this message translates to:
+  /// **'LOCAL'**
+  String get detailLocalId;
+
+  /// Hidden name of another resident.
+  ///
+  /// In en, this message translates to:
+  /// **'Protected Resident'**
+  String get detailProtectedResident;
+
+  /// Reporter shown as anonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous Filing'**
+  String get detailAnonymousFiling;
+
+  /// Reporter with no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered Resident'**
+  String get detailRegisteredResident;
+
+  /// Badge (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'REPORTED ON BEHALF'**
+  String get detailOnBehalfBadge;
+
+  /// Badge on the resident's own report.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Filing'**
+  String get detailYourFiling;
+
+  /// Data Privacy Act badge.
+  ///
+  /// In en, this message translates to:
+  /// **'RA 10173 Protected'**
+  String get detailPrivacyBadge;
+
+  /// On-behalf card text: own report.
+  ///
+  /// In en, this message translates to:
+  /// **'You filed this emergency report on behalf of your contact'**
+  String get detailOnBehalfOwn;
+
+  /// On-behalf card text: someone else's report.
+  ///
+  /// In en, this message translates to:
+  /// **'Off-Site Citizen Dispatch Filing (Anonymized for Public Safety)'**
+  String get detailOnBehalfOther;
+
+  /// Label before the name.
+  ///
+  /// In en, this message translates to:
+  /// **'On-Scene Affected Person / Relative:'**
+  String get detailAffectedPerson;
+
+  /// No name given.
+  ///
+  /// In en, this message translates to:
+  /// **'Unspecified Name'**
+  String get detailUnspecifiedName;
+
+  /// Label before the phone number.
+  ///
+  /// In en, this message translates to:
+  /// **'Victim Contact Number:'**
+  String get detailVictimContact;
+
+  /// Tooltip of the call button.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Victim On-Site'**
+  String get detailCallVictim;
+
+  /// Masked phone badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatcher Only'**
+  String get detailDispatcherOnly;
+
+  /// Privacy notice.
+  ///
+  /// In en, this message translates to:
+  /// **'In compliance with RA 10173 (Data Privacy Act of 2012), contact info is masked for public viewing and restricted to authorized emergency responders.'**
+  String get detailPrivacyNotice;
+
+  /// Location card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident Pinned Location'**
+  String get detailPinnedLocation;
+
+  /// Coordinates line.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS: {coordinates}'**
+  String detailGps(String coordinates);
+
+  /// Description card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident Narrative'**
+  String get detailNarrative;
+
+  /// Empty description.
+  ///
+  /// In en, this message translates to:
+  /// **'No description provided.'**
+  String get detailNoDescription;
+
+  /// Notes card title with notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispatcher Remarks & Action Notes'**
+  String get detailDispatcherNotes;
+
+  /// Notes card title without notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Command Center Status'**
+  String get detailCommandStatus;
+
+  /// ETA box label (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'RESPONDERS DISPATCHED • ESTIMATED ARRIVAL'**
+  String get detailRespondersDispatched;
+
+  /// No dispatcher notes yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting dispatcher evaluation. Updates, dispatched emergency units, or field verification remarks will be displayed here in real time.'**
+  String get detailAwaitingDispatcher;
+
+  /// Evidence card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence Attachment'**
+  String get detailEvidence;
+
+  /// No photo or video.
+  ///
+  /// In en, this message translates to:
+  /// **'No media evidence attached to this report'**
+  String get detailNoEvidence;
+
+  /// Evidence card title with media.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Evidence'**
+  String get detailVerifiedEvidence;
+
+  /// Hint on the photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap photo to zoom'**
+  String get detailTapToZoom;
+
+  /// Video box title.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Video Evidence'**
+  String get detailVideoEvidence;
+
+  /// Video box subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Low-latency clip verified by responder network'**
+  String get detailVideoVerified;
+
+  /// Video player title; category already translated.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} Evidence'**
+  String detailEvidenceTitle(String category);
+
+  /// Button that plays the video.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch Evidence Video Stream'**
+  String get detailWatchVideo;
+
+  /// Photo not uploaded yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence photo stored locally (pending upload)'**
+  String get detailPhotoStoredLocally;
+
+  /// Safety tips title.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety Action Protocol'**
+  String get timelineSafetyProtocol;
+
+  /// Timeline title.
+  ///
+  /// In en, this message translates to:
+  /// **'Incident Resolution Stage'**
+  String get timelineResolutionStage;
+
+  /// ETA from the dispatcher (not translated).
+  ///
+  /// In en, this message translates to:
+  /// **'Responders on the way • Estimated Arrival: {eta}'**
+  String timelineRespondersOnTheWay(String eta);
+
+  /// Tracking sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Incident Tracking'**
+  String get trackingTitle;
+
+  /// Tooltip of the close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close tracking panel'**
+  String get trackingClose;
+
+  /// Fire safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Evacuate immediately** using the safest and nearest exit.'**
+  String get kitFire1;
+
+  /// Fire safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Stay low** to the ground to avoid inhaling toxic smoke.'**
+  String get kitFire2;
+
+  /// Fire safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Do not use elevators**; always use the stairs during a fire.'**
+  String get kitFire3;
+
+  /// Fire safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'Once outside, proceed directly to the **Moonwalk Multipurpose Hall** or your designated evacuation area.'**
+  String get kitFire4;
+
+  /// Flood safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Monitor local water levels** and official Barangay Moonwalk announcements.'**
+  String get kitFlood1;
+
+  /// Flood safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Turn off main electrical switches** to prevent electrocution and electrical fires.'**
+  String get kitFlood2;
+
+  /// Flood safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Move critical belongings and your family** to upper floors immediately.'**
+  String get kitFlood3;
+
+  /// Flood safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'Prepare your emergency Go-Bag and **evacuate** if ordered by authorities.'**
+  String get kitFlood4;
+
+  /// Medical safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Check for responsiveness** and ensure the victim is breathing.'**
+  String get kitMedical1;
+
+  /// Medical safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Clear the immediate surroundings** to give the victim adequate space and air.'**
+  String get kitMedical2;
+
+  /// Medical safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Do not move the victim** unless they are in immediate, life-threatening danger.'**
+  String get kitMedical3;
+
+  /// Medical safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Wait calmly** for the Barangay rescue ambulance and professional medical personnel.'**
+  String get kitMedical4;
+
+  /// Earthquake safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'Execute **Duck, Cover, and Hold** immediately until the shaking stops.'**
+  String get kitEarthquake1;
+
+  /// Earthquake safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Stay clear of glass windows**, falling debris, and heavy furniture.'**
+  String get kitEarthquake2;
+
+  /// Earthquake safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Do not use elevators** during or immediately after the earthquake.'**
+  String get kitEarthquake3;
+
+  /// Earthquake safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'Head safely to **open fields** or designated safe zones after the shaking entirely stops.'**
+  String get kitEarthquake4;
+
+  /// General safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Stay calm** and quickly assess your immediate surroundings.'**
+  String get kitGeneral1;
+
+  /// General safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Move away** from any immediate danger, hazards, or unstable structures.'**
+  String get kitGeneral2;
+
+  /// General safety step.
+  ///
+  /// In en, this message translates to:
+  /// **'**Wait for official instructions** from Barangay Moonwalk security personnel or officials.'**
+  String get kitGeneral3;
 }
 
 class _AppLocalizationsDelegate

@@ -15,6 +15,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../bloc/incident_bloc.dart';
 import '../bloc/incident_state.dart';
 import '../widgets/incident_status_timeline.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 class IncidentDetailPage extends StatelessWidget {
   final IncidentEntity initialIncident;
@@ -106,7 +108,7 @@ class IncidentDetailPage extends StatelessWidget {
             elevation: 0,
             iconTheme: IconThemeData(color: AppColors.textDark),
             title: Text(
-              currentIncident.category,
+              LocalizedLabels.category(context, currentIncident.category),
               style: TextStyle(
                 color: AppColors.textDark,
                 fontSize: 17,
@@ -125,7 +127,7 @@ class IncidentDetailPage extends StatelessWidget {
                       border: Border.all(color: statusColor.withValues(alpha: 0.35)),
                     ),
                     child: Text(
-                      currentIncident.status.toUpperCase(),
+                      LocalizedLabels.status(context, currentIncident.status).toUpperCase(),
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -219,8 +221,8 @@ class IncidentDetailPage extends StatelessWidget {
               children: [
                 Text(
                   isSynced
-                      ? "Live at Command Center"
-                      : "Stored Locally (Pending Cloud Sync)",
+                      ? AppLocalizations.of(context).detailLiveTitle
+                      : AppLocalizations.of(context).detailLocalTitle,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -230,8 +232,8 @@ class IncidentDetailPage extends StatelessWidget {
                 SizedBox(height: 4),
                 Text(
                   isSynced
-                      ? "This report has been uploaded to the live cloud database and received by Barangay Moonwalk dispatchers."
-                      : "This report is safely preserved in your phone's offline storage. It will automatically upload to dispatch once connected to the cloud server.",
+                      ? AppLocalizations.of(context).detailLiveMessage
+                      : AppLocalizations.of(context).detailLocalMessage,
                   style: TextStyle(
                     fontSize: 12,
                     color: AppColors.textLight,
@@ -258,7 +260,7 @@ class IncidentDetailPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Incident ID: #${incident.id.isNotEmpty ? (incident.id.length > 8 ? incident.id.substring(0, 8).toUpperCase() : incident.id.toUpperCase()) : 'LOCAL'}",
+                AppLocalizations.of(context).detailIncidentId(incident.id.isNotEmpty ? (incident.id.length > 8 ? incident.id.substring(0, 8).toUpperCase() : incident.id.toUpperCase()) : AppLocalizations.of(context).detailLocalId),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -283,7 +285,7 @@ class IncidentDetailPage extends StatelessWidget {
           ),
           SizedBox(height: 14),
           Text(
-            incident.category,
+            LocalizedLabels.category(context, incident.category),
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -334,8 +336,8 @@ class IncidentDetailPage extends StatelessWidget {
                         final currentUserId = FirebaseAuth.instance.currentUser?.uid;
                         final isOwnFiling = currentUserId != null && currentUserId == incident.reporterId;
                         final displayVictimName = isOwnFiling
-                            ? (incident.victimName?.isNotEmpty == true ? incident.victimName! : 'Relative')
-                            : (incident.victimName?.isNotEmpty == true ? _maskName(incident.victimName) : 'Protected Resident');
+                            ? (incident.victimName?.isNotEmpty == true ? incident.victimName! : AppLocalizations.of(context).commonRelative)
+                            : (incident.victimName?.isNotEmpty == true ? _maskName(context, incident.victimName) : AppLocalizations.of(context).detailProtectedResident);
 
                         return Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -353,7 +355,7 @@ class IncidentDetailPage extends StatelessWidget {
                               SizedBox(width: 5),
                               Flexible(
                                 child: Text(
-                                  "For: $displayVictimName",
+                                  AppLocalizations.of(context).reportForPerson(displayVictimName),
                                   style: const TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -386,7 +388,7 @@ class IncidentDetailPage extends StatelessWidget {
                           SizedBox(width: 5),
                           Flexible(
                             child: Text(
-                              "ETA: ${incident.estimatedResponseTime!}",
+                              AppLocalizations.of(context).commonEta(incident.estimatedResponseTime!),
                               style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
@@ -429,10 +431,10 @@ class IncidentDetailPage extends StatelessWidget {
                         Flexible(
                           child: Text(
                             incident.isAnonymous
-                                ? "Anonymous Filing"
+                                ? AppLocalizations.of(context).detailAnonymousFiling
                                 : (incident.reporterName?.isNotEmpty == true
                                     ? incident.reporterName!
-                                    : "Registered Resident"),
+                                    : AppLocalizations.of(context).detailRegisteredResident),
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -456,8 +458,8 @@ class IncidentDetailPage extends StatelessWidget {
     );
   }
 
-  String _maskName(String? name) {
-    if (name == null || name.trim().isEmpty) return "Protected Resident";
+  String _maskName(BuildContext context, String? name) {
+    if (name == null || name.trim().isEmpty) return AppLocalizations.of(context).detailProtectedResident;
     final parts = name.trim().split(RegExp(r'\s+'));
     return parts.map((part) {
       if (part.length <= 1) return part;
@@ -509,7 +511,7 @@ class IncidentDetailPage extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          "REPORTED ON BEHALF",
+                          AppLocalizations.of(context).detailOnBehalfBadge,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w900,
@@ -527,7 +529,7 @@ class IncidentDetailPage extends StatelessWidget {
                               border: Border.all(color: AppColors.solved.withValues(alpha: 0.3)),
                             ),
                             child: Text(
-                              "Your Filing",
+                              AppLocalizations.of(context).detailYourFiling,
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.bold,
@@ -549,7 +551,7 @@ class IncidentDetailPage extends StatelessWidget {
                                 Icon(Icons.shield_outlined, size: 10, color: AppColors.primary),
                                 SizedBox(width: 3),
                                 Text(
-                                  "RA 10173 Protected",
+                                  AppLocalizations.of(context).detailPrivacyBadge,
                                   style: TextStyle(
                                     fontSize: 9.5,
                                     fontWeight: FontWeight.bold,
@@ -564,8 +566,8 @@ class IncidentDetailPage extends StatelessWidget {
                     SizedBox(height: 2),
                     Text(
                       isOwnFiling
-                          ? "You filed this emergency report on behalf of your contact"
-                          : "Off-Site Citizen Dispatch Filing (Anonymized for Public Safety)",
+                          ? AppLocalizations.of(context).detailOnBehalfOwn
+                          : AppLocalizations.of(context).detailOnBehalfOther,
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textLight,
@@ -590,7 +592,7 @@ class IncidentDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "On-Scene Affected Person / Relative:",
+                  AppLocalizations.of(context).detailAffectedPerson,
                   style: TextStyle(
                     fontSize: 11,
                     color: AppColors.textLight,
@@ -602,8 +604,8 @@ class IncidentDetailPage extends StatelessWidget {
                   isOwnFiling
                       ? (incident.victimName?.isNotEmpty == true
                           ? incident.victimName!
-                          : "Unspecified Name")
-                      : _maskName(incident.victimName),
+                          : AppLocalizations.of(context).detailUnspecifiedName)
+                      : _maskName(context, incident.victimName),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -620,7 +622,7 @@ class IncidentDetailPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Victim Contact Number:",
+                            AppLocalizations.of(context).detailVictimContact,
                             style: TextStyle(
                               fontSize: 11,
                               color: AppColors.textLight,
@@ -652,7 +654,7 @@ class IncidentDetailPage extends StatelessWidget {
                           style: IconButton.styleFrom(
                             backgroundColor: AppColors.solved.withValues(alpha: 0.15),
                           ),
-                          tooltip: "Call Victim On-Site",
+                          tooltip: AppLocalizations.of(context).detailCallVictim,
                         )
                       else
                         Container(
@@ -668,7 +670,7 @@ class IncidentDetailPage extends StatelessWidget {
                               Icon(Icons.lock_rounded, size: 12, color: AppColors.textLight),
                               SizedBox(width: 4),
                               Text(
-                                "Dispatcher Only",
+                                AppLocalizations.of(context).detailDispatcherOnly,
                                 style: TextStyle(
                                   fontSize: 10.5,
                                   color: AppColors.textLight,
@@ -698,7 +700,7 @@ class IncidentDetailPage extends StatelessWidget {
                         SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            "In compliance with RA 10173 (Data Privacy Act of 2012), contact info is masked for public viewing and restricted to authorized emergency responders.",
+                            AppLocalizations.of(context).detailPrivacyNotice,
                             style: TextStyle(
                               fontSize: 10,
                               color: AppColors.textLight,
@@ -745,7 +747,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                "Incident Pinned Location",
+                AppLocalizations.of(context).detailPinnedLocation,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -779,7 +781,7 @@ class IncidentDetailPage extends StatelessWidget {
                 SizedBox(width: 6),
                 Flexible(
                   child: Text(
-                    "GPS: ${incident.latitude.toStringAsFixed(6)}, ${incident.longitude.toStringAsFixed(6)}",
+                    AppLocalizations.of(context).detailGps("${incident.latitude.toStringAsFixed(6)}, ${incident.longitude.toStringAsFixed(6)}"),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -819,7 +821,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                "Incident Narrative",
+                AppLocalizations.of(context).detailNarrative,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -832,7 +834,7 @@ class IncidentDetailPage extends StatelessWidget {
           Text(
             incident.description.isNotEmpty
                 ? incident.description
-                : "No description provided.",
+                : AppLocalizations.of(context).detailNoDescription,
             style: TextStyle(
               fontSize: 13,
               color: AppColors.textDark,
@@ -874,8 +876,8 @@ class IncidentDetailPage extends StatelessWidget {
               SizedBox(width: 10),
               Text(
                 hasNotes
-                    ? "Dispatcher Remarks & Action Notes"
-                    : "Command Center Status",
+                    ? AppLocalizations.of(context).detailDispatcherNotes
+                    : AppLocalizations.of(context).detailCommandStatus,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
@@ -915,7 +917,7 @@ class IncidentDetailPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "RESPONDERS DISPATCHED • ESTIMATED ARRIVAL",
+                          AppLocalizations.of(context).detailRespondersDispatched,
                           style: TextStyle(
                             color: Color(0xFF00E5FF),
                             fontSize: 10,
@@ -962,7 +964,7 @@ class IncidentDetailPage extends StatelessWidget {
             ),
           ] else ...[
             Text(
-              "Awaiting dispatcher evaluation. Updates, dispatched emergency units, or field verification remarks will be displayed here in real time.",
+              AppLocalizations.of(context).detailAwaitingDispatcher,
               style: TextStyle(
                 fontSize: 12,
                 color: AppColors.textLight,
@@ -1002,7 +1004,7 @@ class IncidentDetailPage extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Text(
-                  "Evidence Attachment",
+                  AppLocalizations.of(context).detailEvidence,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -1027,7 +1029,7 @@ class IncidentDetailPage extends StatelessWidget {
                       size: 28, color: AppColors.textLight),
                   SizedBox(height: 6),
                   Text(
-                    "No media evidence attached to this report",
+                    AppLocalizations.of(context).detailNoEvidence,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.textLight,
@@ -1063,7 +1065,7 @@ class IncidentDetailPage extends StatelessWidget {
                   ),
                   SizedBox(width: 10),
                   Text(
-                    "Verified Evidence",
+                    AppLocalizations.of(context).detailVerifiedEvidence,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
@@ -1074,7 +1076,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
               if (hasPhoto)
                 Text(
-                  "Tap photo to zoom",
+                  AppLocalizations.of(context).detailTapToZoom,
                   style: TextStyle(
                     fontSize: 11,
                     color: AppColors.primary,
@@ -1143,7 +1145,7 @@ class IncidentDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Emergency Video Evidence",
+                              AppLocalizations.of(context).detailVideoEvidence,
                               style: TextStyle(
                                 color: AppColors.textDark,
                                 fontSize: 13,
@@ -1152,7 +1154,7 @@ class IncidentDetailPage extends StatelessWidget {
                             ),
                             SizedBox(height: 2),
                             Text(
-                              "Low-latency clip verified by responder network",
+                              AppLocalizations.of(context).detailVideoVerified,
                               style: TextStyle(
                                 color: AppColors.progress,
                                 fontSize: 11,
@@ -1180,12 +1182,13 @@ class IncidentDetailPage extends StatelessWidget {
                         InAppEvidencePlayerDialog.show(
                           context,
                           videoUrl: videoUrl,
-                          title: "${initialIncident.category} Evidence",
+                          title: AppLocalizations.of(context).detailEvidenceTitle(
+                              LocalizedLabels.category(context, initialIncident.category)),
                         );
                       },
                       icon: Icon(Icons.play_circle_fill_rounded, size: 20),
                       label: Text(
-                        "Watch Evidence Video Stream",
+                        AppLocalizations.of(context).detailWatchVideo,
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
                       ),
                     ),
@@ -1206,7 +1209,7 @@ class IncidentDetailPage extends StatelessWidget {
         width: double.infinity,
         height: height,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildImageErrorBlock(height),
+        errorBuilder: (context, error, stackTrace) => _buildImageErrorBlock(context, height),
       );
     }
 
@@ -1216,11 +1219,11 @@ class IncidentDetailPage extends StatelessWidget {
       width: double.infinity,
       height: height,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => _buildImageErrorBlock(height),
+      errorBuilder: (context, error, stackTrace) => _buildImageErrorBlock(context, height),
     );
   }
 
-  Widget _buildImageErrorBlock(double? height) {
+  Widget _buildImageErrorBlock(BuildContext context, double? height) {
     return Container(
       width: double.infinity,
       height: height ?? 140,
@@ -1231,7 +1234,7 @@ class IncidentDetailPage extends StatelessWidget {
           Icon(Icons.broken_image_outlined, size: 36, color: AppColors.textLight),
           SizedBox(height: 6),
           Text(
-            "Evidence photo stored locally (pending upload)",
+            AppLocalizations.of(context).detailPhotoStoredLocally,
             style: TextStyle(fontSize: 11, color: AppColors.textLight),
           ),
         ],
