@@ -1344,4 +1344,622 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get kitGeneral3 =>
       '**Wait for official instructions** from Barangay Moonwalk security personnel or officials.';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonConfirm => 'Confirm';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonSubmit => 'Submit';
+
+  @override
+  String get commonCallNow => 'Call Now';
+
+  @override
+  String get timeShortJustNow => 'Just now';
+
+  @override
+  String timeShortMinutes(int count) {
+    return '${count}m ago';
+  }
+
+  @override
+  String timeShortHours(int count) {
+    return '${count}h ago';
+  }
+
+  @override
+  String timeShortDays(int count) {
+    return '${count}d ago';
+  }
+
+  @override
+  String get locationErrorGpsOff =>
+      'GPS is turned off. Please swipe down from the top of your screen and turn on Location.';
+
+  @override
+  String get locationErrorDenied =>
+      'Location permission was denied. Please allow location access.';
+
+  @override
+  String get locationErrorDeniedForever =>
+      'Location permission is permanently denied. Please enable it in your phone App Settings.';
+
+  @override
+  String get locationErrorNoFix =>
+      'Could not acquire GPS fix. Please ensure you have GPS turned on and a clear signal.';
+
+  @override
+  String get mapsTitle => 'COMMUNITY MAP';
+
+  @override
+  String get mapsLive => 'LIVE MAP';
+
+  @override
+  String get mapsFilterAll => 'All';
+
+  @override
+  String get mapsFilterFire => 'Fire';
+
+  @override
+  String get mapsFilterMedical => 'Medical';
+
+  @override
+  String get mapsFilterFlood => 'Flood';
+
+  @override
+  String get mapsFilterTheft => 'Theft';
+
+  @override
+  String get mapsFilterAccident => 'Accident';
+
+  @override
+  String get mapsFilterViolence => 'Violence';
+
+  @override
+  String get mapsAffectedOriginal =>
+      '1 citizen affected (original reporter). Awaiting neighborhood confirmation.';
+
+  @override
+  String mapsAffectedWithNeighbors(int total, int neighbors) {
+    String _temp0 = intl.Intl.pluralLogic(
+      neighbors,
+      locale: localeName,
+      other: '$neighbors neighbors',
+      one: '1 neighbor',
+    );
+    return '$total citizens affected (original reporter + $_temp0)';
+  }
+
+  @override
+  String get mapsYouAreAuthor =>
+      'You are the author of this report. Tap \'View Details\' to track progress.';
+
+  @override
+  String get mapsConfirmationRecorded =>
+      'Your confirmation has been recorded! Dispatch alerted.';
+
+  @override
+  String get mapsConfirmed => 'Confirmed';
+
+  @override
+  String get mapsIWitnessed => 'I witnessed this';
+
+  @override
+  String get mapsViewDetails => 'View Details';
+
+  @override
+  String get mapsOffline =>
+      'You are currently offline. Live incidents cannot be loaded.';
+
+  @override
+  String mapsActiveIncidents(int count) {
+    return '$count Active Incidents';
+  }
+
+  @override
+  String get hotlinesConfirmTitle => 'Call Dispatch Line?';
+
+  @override
+  String hotlinesConfirmMessage(String title, String number) {
+    return 'Are you sure you want to dial the official hotline for $title ($number) now?';
+  }
+
+  @override
+  String get hotlinesPortal => 'EMERGENCY CALL PORTAL';
+
+  @override
+  String get hotlinesGuestNote =>
+      'Unauthenticated guest access enabled. Dial emergency responders directly below.';
+
+  @override
+  String get hotlinesPolice => 'Police Department Dispatch';
+
+  @override
+  String get hotlinesPoliceDesc =>
+      'Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.';
+
+  @override
+  String get hotlinesFire => 'Fire Command Station';
+
+  @override
+  String get hotlinesFireDesc =>
+      'Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.';
+
+  @override
+  String get hotlinesAmbulance => 'Ambulance Medical Team';
+
+  @override
+  String get hotlinesAmbulanceDesc =>
+      'Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.';
+
+  @override
+  String get hotlinesBarangay => 'Barangay Desk Center';
+
+  @override
+  String get hotlinesBarangayDesc =>
+      'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.';
+
+  @override
+  String get hotlinesTooltip =>
+      'Tap to call directly • Long-press for confirmation';
+
+  @override
+  String get hotlinesCall => 'CALL';
+
+  @override
+  String get notificationsTitle => 'NOTIFICATIONS';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsEmptyTitle => 'No Notifications Yet';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'You will be alerted when dispatch updates your reports, neighbors corroborate incidents, or community sirens sound.';
+
+  @override
+  String get notificationsViewReport => 'View report →';
+
+  @override
+  String get notificationsRemove => 'Remove';
+
+  @override
+  String get broadcastDefaultTitle => 'MUNICIPAL EMERGENCY ADVISORY';
+
+  @override
+  String get broadcastDefaultType => 'Emergency Siren';
+
+  @override
+  String get broadcastDefaultMessage =>
+      'Immediate safety precautions are advised by Barangay authorities.';
+
+  @override
+  String get broadcastDefaultSource => 'Barangay Command Center';
+
+  @override
+  String get broadcastBarrierLabel => 'Emergency Siren Alert';
+
+  @override
+  String get broadcastHeader => 'MUNICIPAL EMERGENCY SIREN';
+
+  @override
+  String broadcastTargetSector(String sector) {
+    return 'Target Sector: $sector';
+  }
+
+  @override
+  String broadcastOrigin(String source) {
+    return 'Origin: $source';
+  }
+
+  @override
+  String get broadcastAcknowledge => 'ACKNOWLEDGE ALERT';
+
+  @override
+  String get settingsTitle => 'SETTINGS';
+
+  @override
+  String get settingsEmergencyServices => 'Emergency Services';
+
+  @override
+  String get settingsHotlinesTitle => 'Barangay Emergency Hotlines';
+
+  @override
+  String get settingsHotlinesSubtitle =>
+      'Police (911), Fire (112), Medical (143) & BDRRMC';
+
+  @override
+  String get settingsAccount => 'Account Settings';
+
+  @override
+  String get settingsEditProfile => 'Edit Personal Details';
+
+  @override
+  String get settingsEditProfileSubtitle =>
+      'Full name, mobile number, sector & home address';
+
+  @override
+  String get settingsPrivacy => 'Privacy & Account Security';
+
+  @override
+  String get settingsPrivacySubtitle =>
+      'Update account credentials & view anti-spam security policy';
+
+  @override
+  String get settingsPreferences => 'App Preferences';
+
+  @override
+  String get settingsTheme => 'App Theme';
+
+  @override
+  String get settingsDarkMode => 'Dark Mode';
+
+  @override
+  String get settingsLightMode => 'Light Mode';
+
+  @override
+  String get settingsSupport => 'Support & Information';
+
+  @override
+  String get settingsAbout => 'About ResQ Community Safety';
+
+  @override
+  String get settingsAboutSubtitle =>
+      'Platform guidelines, emergency mandates & version';
+
+  @override
+  String get settingsAboutBody =>
+      'ResQ Community Safety is a civic-tech emergency response platform connecting residents with the Barangay Command Operations Center for rapid incident dispatch, verification, and community resilience.';
+
+  @override
+  String get settingsHelpDesk => 'Barangay Help Desk';
+
+  @override
+  String get settingsHelpDeskSubtitle =>
+      'Contact municipal administrative support team';
+
+  @override
+  String get settingsFeedback => 'Submit App Feedback & Bug Report';
+
+  @override
+  String get settingsFeedbackSubtitle =>
+      'Report issues or suggest platform improvements';
+
+  @override
+  String get settingsResidentCitizen => 'Resident Citizen';
+
+  @override
+  String get settingsSectorNotSet => 'Sector not set';
+
+  @override
+  String get settingsVerifiedResident => 'Verified Resident';
+
+  @override
+  String get settingsLogOut => 'Log Out';
+
+  @override
+  String get settingsLogOutConfirm =>
+      'Are you sure you want to log out of your ResQ resident account?';
+
+  @override
+  String get settingsDeleteAccount => 'Delete Account';
+
+  @override
+  String get settingsDeleteWarning =>
+      'Warning: Deleting your resident account permanently clears all filed report logs and saved profile information. This action is irreversible.';
+
+  @override
+  String get settingsDeleteForever => 'Permanently Delete Account';
+
+  @override
+  String get settingsNoSession => 'No active resident session found.';
+
+  @override
+  String get settingsAccountErased =>
+      'Your account and personal data have been permanently erased (RA 10173).';
+
+  @override
+  String get settingsRecentLoginRequired =>
+      'Security Alert: Account deletion requires recent authentication. Please log out, sign in again, and retry.';
+
+  @override
+  String settingsDeleteFailed(String error) {
+    return 'Account deletion failed: $error';
+  }
+
+  @override
+  String settingsDeleteError(String error) {
+    return 'Error deleting account: $error';
+  }
+
+  @override
+  String get settingsHelpDeskTitle => 'Barangay Administrative Help Desk';
+
+  @override
+  String get settingsOfficeAddress => 'Office Address';
+
+  @override
+  String get settingsServiceHours => 'Public Service Hours';
+
+  @override
+  String get settingsServiceHoursValue => 'Monday – Friday: 8:00 AM – 5:00 PM';
+
+  @override
+  String get settingsCallOffice => 'Call Office';
+
+  @override
+  String get settingsSendEmail => 'Send Email';
+
+  @override
+  String get settingsHelpDeskNote =>
+      'For immediate life-threatening emergencies (Fire, Police, Medical), please use the Emergency Hotlines or submit an incident report.';
+
+  @override
+  String get settingsFeedbackTitle => 'Submit App Feedback';
+
+  @override
+  String get settingsFeedbackIntro =>
+      'Help us improve ResQ for Barangay Moonwalk. Your feedback is sent directly to the development team.';
+
+  @override
+  String get settingsFeedbackCategory => 'FEEDBACK CATEGORY';
+
+  @override
+  String get feedbackGeneral => 'General Feedback';
+
+  @override
+  String get feedbackBug => 'Bug Report';
+
+  @override
+  String get feedbackFeature => 'Feature Suggestion';
+
+  @override
+  String get settingsFeedbackHint =>
+      'Describe your feedback, suggestion, or bug encounter...';
+
+  @override
+  String get settingsFeedbackEmpty =>
+      'Please write a short description before submitting.';
+
+  @override
+  String get settingsFeedbackThanks =>
+      'Thank you! Your feedback has been submitted to the technical team.';
+
+  @override
+  String settingsFeedbackFailed(String error) {
+    return 'Failed to submit feedback: $error';
+  }
+
+  @override
+  String get profileTitle => 'Edit Profile';
+
+  @override
+  String get profilePhotoTitle => 'Profile Photo';
+
+  @override
+  String get profileTakePhoto => 'Take Photo with Camera';
+
+  @override
+  String get profileChooseGallery => 'Choose from Gallery';
+
+  @override
+  String get profileUpdated => 'Profile details updated successfully!';
+
+  @override
+  String profileUpdateFailed(String error) {
+    return 'Failed to update profile: $error';
+  }
+
+  @override
+  String get profileCredentials => 'Personal Credentials';
+
+  @override
+  String get profileNameRequired => 'Please enter your full name';
+
+  @override
+  String get profileEmailLabel => 'Email Address (Account ID)';
+
+  @override
+  String get profileEmailHelper => 'Primary login credential cannot be changed';
+
+  @override
+  String get profilePhoneLabel => 'Mobile Phone Number';
+
+  @override
+  String get profilePhoneInvalid => 'Please enter a valid mobile number';
+
+  @override
+  String get profileJurisdiction => 'Barangay Jurisdiction & Address';
+
+  @override
+  String get profileAreaLabel => 'Barangay Area / Sector';
+
+  @override
+  String get profileAddressLabel => 'Residential Address / House Details';
+
+  @override
+  String get profileAddressRequired => 'Please enter your residential address';
+
+  @override
+  String get profileEmergencyContact => 'Emergency Contact Fallback';
+
+  @override
+  String get profileContactName => 'Emergency Contact Person';
+
+  @override
+  String get profileContactNameRequired =>
+      'Please provide an emergency contact person';
+
+  @override
+  String get profileContactNumber => 'Emergency Contact Number';
+
+  @override
+  String get profileContactNumberInvalid =>
+      'Please provide an emergency contact phone number';
+
+  @override
+  String get profileSave => 'SAVE PROFILE CHANGES';
+
+  @override
+  String get privacyTitle => 'Privacy & Security';
+
+  @override
+  String get privacyCredentials => 'Credentials & Access';
+
+  @override
+  String get privacyChangePassword => 'Change Account Password';
+
+  @override
+  String get privacyChangePasswordSubtitle =>
+      'Update password for resident account credentials';
+
+  @override
+  String get privacyPolicyTitle => 'Civic Security & Anti-Spam Policy';
+
+  @override
+  String get privacyBiometric => 'Biometric Verification';
+
+  @override
+  String get privacyEnforced => 'ENFORCED';
+
+  @override
+  String get privacyBiometricOn =>
+      'Biometric confirmation (fingerprint or face authentication) is enforced by Barangay Moonwalk municipal policy when submitting emergency reports to deter false alarms and prank filings.';
+
+  @override
+  String get privacyBiometricOff =>
+      'Hardware biometrics not detected on this device. Device PIN or secure credential confirmation will serve as anti-spam verification.';
+
+  @override
+  String get passwordDialogTitle => 'Change Password';
+
+  @override
+  String get passwordDialogIntro =>
+      'Please enter your current password followed by your new password.';
+
+  @override
+  String get passwordCurrentRequired => 'Please enter your current password';
+
+  @override
+  String get passwordCurrentLabel => 'Current Password';
+
+  @override
+  String get passwordMinLength => 'Password must be at least 6 characters';
+
+  @override
+  String get passwordNewLabel => 'New Password';
+
+  @override
+  String get passwordMismatchShort => 'Passwords do not match';
+
+  @override
+  String get passwordConfirmLabel => 'Confirm New Password';
+
+  @override
+  String get passwordNoEmail => 'No registered email found for this account.';
+
+  @override
+  String passwordResetSent(String email) {
+    return 'Password reset link sent to $email. Please check your email inbox to reset your password.';
+  }
+
+  @override
+  String passwordResetFailed(String error) {
+    return 'Failed to send reset email: $error';
+  }
+
+  @override
+  String get passwordForgot =>
+      'Forgot current password? Send reset link to email';
+
+  @override
+  String passwordChangeFailed(String error) {
+    return 'Password change failed: $error';
+  }
+
+  @override
+  String get passwordUpdated => 'Password updated successfully!';
+
+  @override
+  String get passwordUpdateButton => 'UPDATE PASSWORD';
+
+  @override
+  String get viewerVideoTitle => 'Evidence Video Stream';
+
+  @override
+  String get viewerOpenExternalTab => 'Open in External Tab';
+
+  @override
+  String get viewerVideoError => 'Unable to stream video in-app';
+
+  @override
+  String get viewerOpenExternalPlayer => 'Open in External Player';
+
+  @override
+  String get viewerBuffering => 'Buffering live evidence stream...';
+
+  @override
+  String get viewerReplay => 'Replay Video';
+
+  @override
+  String get viewerPhotoTitle => 'Photo Evidence Viewer';
+
+  @override
+  String get viewerResetZoom => 'Reset Zoom';
+
+  @override
+  String get viewerOpenFullImage => 'Open Full Image in New Tab';
+
+  @override
+  String get viewerImageError => 'Unable to display image in-app';
+
+  @override
+  String get viewerZoomHint =>
+      'Pinch, scroll, or drag to pan and zoom photo evidence';
+
+  @override
+  String get aiTriggerActivated =>
+      'Intelligent Triage Engine Activated: Handshake Sequence Engaged.';
+
+  @override
+  String get chatResetTitle => 'Reset Conversation?';
+
+  @override
+  String get chatResetMessage =>
+      'Are you sure you want to clear your chat history with ResQ Civil Defense Assistant? This will start a fresh session.';
+
+  @override
+  String get chatReset => 'Reset';
+
+  @override
+  String get chatTitle => 'Civil Defense Assistant';
+
+  @override
+  String get chatStatus => 'Barangay Moonwalk • Active';
+
+  @override
+  String get chatQuickGuides => 'Quick Civil Defense Guides';
+
+  @override
+  String get chatSenderAi => 'RESQ GEMINI AI';
+
+  @override
+  String get chatSenderOfficer => 'CIVIL DEFENSE OFFICER';
+
+  @override
+  String get chatHotlineDialers => 'Immediate Hotline Dialers:';
+
+  @override
+  String get chatAllHotlines => 'All Hotlines';
+
+  @override
+  String get chatHint => 'Ask safety or first-aid guide...';
 }

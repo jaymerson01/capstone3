@@ -17,6 +17,7 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 
 class SettingsPage extends StatefulWidget {
@@ -95,8 +96,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   shaderCallback: (bounds) =>
                       AppColors.cyanGradient.createShader(bounds),
                   blendMode: BlendMode.srcIn,
-                  child: const Text(
-                    "SETTINGS",
+                  child: Text(
+                    AppLocalizations.of(context).settingsTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -133,13 +134,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(height: 24),
 
                   /// 2. EMERGENCY SERVICES
-                  _buildSectionTitle("Emergency Services"),
+                  _buildSectionTitle(AppLocalizations.of(context).settingsEmergencyServices),
                   SizedBox(height: 12),
                   _buildSettingTile(
                     icon: Icons.phone_in_talk_rounded,
                     iconColor: AppColors.danger,
-                    title: "Barangay Emergency Hotlines",
-                    subtitle: "Police (911), Fire (112), Medical (143) & BDRRMC",
+                    title: AppLocalizations.of(context).settingsHotlinesTitle,
+                    subtitle: AppLocalizations.of(context).settingsHotlinesSubtitle,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -150,12 +151,12 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(height: 24),
 
                   /// 3. ACCOUNT SETTINGS
-                  _buildSectionTitle("Account Settings"),
+                  _buildSectionTitle(AppLocalizations.of(context).settingsAccount),
                   SizedBox(height: 12),
                   _buildSettingTile(
                     icon: Icons.person_outline_rounded,
-                    title: "Edit Personal Details",
-                    subtitle: "Full name, mobile number, sector & home address",
+                    title: AppLocalizations.of(context).settingsEditProfile,
+                    subtitle: AppLocalizations.of(context).settingsEditProfileSubtitle,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -165,8 +166,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildSettingTile(
                     icon: Icons.shield_outlined,
-                    title: "Privacy & Account Security",
-                    subtitle: "Update account credentials & view anti-spam security policy",
+                    title: AppLocalizations.of(context).settingsPrivacy,
+                    subtitle: AppLocalizations.of(context).settingsPrivacySubtitle,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -177,15 +178,15 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(height: 24),
 
                   /// APP PREFERENCES
-                  _buildSectionTitle("App Preferences"),
+                  _buildSectionTitle(AppLocalizations.of(context).settingsPreferences),
                   SizedBox(height: 12),
                   ValueListenableBuilder<bool>(
                     valueListenable: AppColors.isDarkModeNotifier,
                     builder: (context, isDark, child) {
                       return _buildSettingTile(
                         icon: isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
-                        title: "App Theme",
-                        subtitle: isDark ? "Dark Mode" : "Light Mode",
+                        title: AppLocalizations.of(context).settingsTheme,
+                        subtitle: isDark ? AppLocalizations.of(context).settingsDarkMode : AppLocalizations.of(context).settingsLightMode,
                         trailing: Switch(
                           value: isDark,
                           onChanged: (value) {
@@ -213,28 +214,28 @@ class _SettingsPageState extends State<SettingsPage> {
 
 
                   /// 5. SUPPORT & CIVIC INFORMATION
-                  _buildSectionTitle("Support & Information"),
+                  _buildSectionTitle(AppLocalizations.of(context).settingsSupport),
                   SizedBox(height: 12),
                   _buildSettingTile(
                     icon: Icons.info_outline_rounded,
-                    title: "About ResQ Community Safety",
-                    subtitle: "Platform guidelines, emergency mandates & version",
+                    title: AppLocalizations.of(context).settingsAbout,
+                    subtitle: AppLocalizations.of(context).settingsAboutSubtitle,
                     onTap: () => _showModalInformation(
                       context,
-                      "About ResQ Community Safety",
-                      "ResQ Community Safety is a civic-tech emergency response platform connecting residents with the Barangay Command Operations Center for rapid incident dispatch, verification, and community resilience.",
+                      AppLocalizations.of(context).settingsAbout,
+                      AppLocalizations.of(context).settingsAboutBody,
                     ),
                   ),
                   _buildSettingTile(
                     icon: Icons.headset_mic_outlined,
-                    title: "Barangay Help Desk",
-                    subtitle: "Contact municipal administrative support team",
+                    title: AppLocalizations.of(context).settingsHelpDesk,
+                    subtitle: AppLocalizations.of(context).settingsHelpDeskSubtitle,
                     onTap: () => _showBarangayHelpDesk(context),
                   ),
                   _buildSettingTile(
                     icon: Icons.rate_review_outlined,
-                    title: "Submit App Feedback & Bug Report",
-                    subtitle: "Report issues or suggest platform improvements",
+                    title: AppLocalizations.of(context).settingsFeedback,
+                    subtitle: AppLocalizations.of(context).settingsFeedbackSubtitle,
                     onTap: () => _showFeedbackDialog(context),
                   ),
                   SizedBox(height: 28),
@@ -325,13 +326,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
         final String name = user?.displayName?.isNotEmpty == true
             ? user!.displayName!
-            : "Resident Citizen";
+            : AppLocalizations.of(context).settingsResidentCitizen;
         final String email = user?.email.isNotEmpty == true
             ? user!.email
             : "";
         final String sector = user?.barangayArea?.isNotEmpty == true
             ? user!.barangayArea!
-            : "Sector not set";
+            : AppLocalizations.of(context).settingsSectorNotSet;
         final bool isVerified = user?.isVerified ?? false;
         final String? photoUrl = user?.photoUrl;
 
@@ -491,7 +492,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          isVerified ? "Verified Resident" : "Resident Citizen",
+                          isVerified ? AppLocalizations.of(context).settingsVerifiedResident : AppLocalizations.of(context).settingsResidentCitizen,
                           style: TextStyle(
                             fontSize: 11,
                             color: isVerified ? AppColors.solved : AppColors.textLight,
@@ -530,8 +531,8 @@ class _SettingsPageState extends State<SettingsPage> {
       children: [
         GestureDetector(
           onTap: () => _triggerAccountActionDialog(
-            "Log Out",
-            "Are you sure you want to log out of your ResQ resident account?",
+            AppLocalizations.of(context).settingsLogOut,
+            AppLocalizations.of(context).settingsLogOutConfirm,
             false,
           ),
           child: Container(
@@ -548,7 +549,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Icon(Icons.logout_rounded, color: AppColors.textLight, size: 18),
                 SizedBox(width: 10),
                 Text(
-                  "Log Out",
+                  AppLocalizations.of(context).settingsLogOut,
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontWeight: FontWeight.w700,
@@ -562,12 +563,12 @@ class _SettingsPageState extends State<SettingsPage> {
         SizedBox(height: 12),
         TextButton(
           onPressed: () => _triggerAccountActionDialog(
-            "Delete Account",
-            "Warning: Deleting your resident account permanently clears all filed report logs and saved profile information. This action is irreversible.",
+            AppLocalizations.of(context).settingsDeleteAccount,
+            AppLocalizations.of(context).settingsDeleteWarning,
             true,
           ),
           child: Text(
-            "Permanently Delete Account",
+            AppLocalizations.of(context).settingsDeleteForever,
             style: TextStyle(
               color: AppColors.danger,
               fontSize: 12,
@@ -648,7 +649,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         child: Center(
                           child: Text(
-                            "Cancel",
+                            AppLocalizations.of(context).commonCancel,
                             style: TextStyle(
                               color: AppColors.textLight,
                               fontWeight: FontWeight.w700,
@@ -663,7 +664,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: GestureDetector(
                       onTap: () async {
                         Navigator.pop(ctx);
-                        if (contextTitle == "Log Out") {
+                        if (!isSevereDestructive) {
                           context.read<AuthBloc>().add(const LogoutRequested());
                           Navigator.pushAndRemoveUntil(
                             context,
@@ -677,8 +678,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           final user = FirebaseAuth.instance.currentUser;
                           if (user == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("No active resident session found."),
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context).settingsNoSession),
                                 backgroundColor: AppColors.danger,
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -708,9 +709,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             );
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  "Your account and personal data have been permanently erased (RA 10173).",
+                                  AppLocalizations.of(context).settingsAccountErased,
                                 ),
                                 backgroundColor: AppColors.solved,
                                 behavior: SnackBarBehavior.floating,
@@ -721,9 +722,9 @@ class _SettingsPageState extends State<SettingsPage> {
                             if (!mounted) return;
                             if (e.code == 'requires-recent-login') {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    "Security Alert: Account deletion requires recent authentication. Please log out, sign in again, and retry.",
+                                    AppLocalizations.of(context).settingsRecentLoginRequired,
                                   ),
                                   backgroundColor: AppColors.warning,
                                   behavior: SnackBarBehavior.floating,
@@ -734,7 +735,11 @@ class _SettingsPageState extends State<SettingsPage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                    "Account deletion failed: ${e.message}",
+                                    AppLocalizations.of(context).settingsDeleteFailed(LocalizedLabels.authError(
+                                      context,
+                                      code: e.code,
+                                      message: e.message ?? e.code,
+                                    )),
                                   ),
                                   backgroundColor: AppColors.danger,
                                   behavior: SnackBarBehavior.floating,
@@ -745,7 +750,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text("Error deleting account: $e"),
+                                content: Text(AppLocalizations.of(context).settingsDeleteError('$e')),
                                 backgroundColor: AppColors.danger,
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -764,7 +769,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                         child: Center(
                           child: Text(
-                            isSevereDestructive ? "Delete" : "Confirm",
+                            isSevereDestructive ? AppLocalizations.of(context).commonDelete : AppLocalizations.of(context).commonConfirm,
                             style: TextStyle(
                               color: actionColor,
                               fontWeight: FontWeight.w800,
@@ -857,7 +862,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 child: Center(
                   child: Text(
-                    "Close",
+                    AppLocalizations.of(context).commonClose,
                     style: TextStyle(
                       color: AppColors.textDark,
                       fontWeight: FontWeight.w800,
@@ -919,7 +924,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Barangay Administrative Help Desk",
+                          AppLocalizations.of(context).settingsHelpDeskTitle,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w900,
@@ -951,14 +956,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   children: [
                     _buildHelpDeskRow(
                       Icons.location_on_rounded,
-                      "Office Address",
+                      AppLocalizations.of(context).settingsOfficeAddress,
                       "Armstrong Ave., Moonwalk, Parañaque City",
                     ),
                     Divider(color: AppColors.border, height: 20),
                     _buildHelpDeskRow(
                       Icons.access_time_rounded,
-                      "Public Service Hours",
-                      "Monday – Friday: 8:00 AM – 5:00 PM",
+                      AppLocalizations.of(context).settingsServiceHours,
+                      AppLocalizations.of(context).settingsServiceHoursValue,
                     ),
                   ],
                 ),
@@ -984,7 +989,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                       icon: Icon(Icons.phone, size: 18),
                       label: Text(
-                        "Call Office",
+                        AppLocalizations.of(context).settingsCallOffice,
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
@@ -1012,7 +1017,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       },
                       icon: Icon(Icons.email_outlined, size: 18),
                       label: Text(
-                        "Send Email",
+                        AppLocalizations.of(context).settingsSendEmail,
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
                     ),
@@ -1027,7 +1032,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "For immediate life-threatening emergencies (Fire, Police, Medical), please use the Emergency Hotlines or submit an incident report.",
+                      AppLocalizations.of(context).settingsHelpDeskNote,
                       style: TextStyle(
                         fontSize: 11,
                         color: AppColors.textLight,
@@ -1078,6 +1083,21 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  /// The English category is what gets saved; this is only what residents see.
+  String _feedbackCategoryLabel(BuildContext context, String category) {
+    final l10n = AppLocalizations.of(context);
+    switch (category) {
+      case "General Feedback":
+        return l10n.feedbackGeneral;
+      case "Bug Report":
+        return l10n.feedbackBug;
+      case "Feature Suggestion":
+        return l10n.feedbackFeature;
+      default:
+        return category;
+    }
+  }
+
   void _showFeedbackDialog(BuildContext context) {
     final TextEditingController feedbackCtrl = TextEditingController();
     String selectedCategory = "General Feedback";
@@ -1108,7 +1128,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               SizedBox(width: 12),
               Text(
-                "Submit App Feedback",
+                AppLocalizations.of(context).settingsFeedbackTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   color: AppColors.textDark,
@@ -1123,12 +1143,12 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Help us improve ResQ for Barangay Moonwalk. Your feedback is sent directly to the development team.",
+                  AppLocalizations.of(context).settingsFeedbackIntro,
                   style: TextStyle(fontSize: 12.5, color: AppColors.textLight, height: 1.4),
                 ),
                 SizedBox(height: 14),
                 Text(
-                  "FEEDBACK CATEGORY",
+                  AppLocalizations.of(context).settingsFeedbackCategory,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -1148,7 +1168,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     final isSelected = selectedCategory == cat;
                     return ChoiceChip(
                       label: Text(
-                        cat,
+                        _feedbackCategoryLabel(context, cat),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -1175,7 +1195,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   maxLines: 4,
                   style: TextStyle(color: AppColors.textDark, fontSize: 13),
                   decoration: InputDecoration(
-                    hintText: "Describe your feedback, suggestion, or bug encounter...",
+                    hintText: AppLocalizations.of(context).settingsFeedbackHint,
                     hintStyle: TextStyle(fontSize: 12.5, color: AppColors.textLight),
                     filled: true,
                     fillColor: AppColors.background,
@@ -1199,7 +1219,7 @@ class _SettingsPageState extends State<SettingsPage> {
           actions: [
             TextButton(
               onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
-              child: Text("Cancel", style: TextStyle(color: AppColors.textLight)),
+              child: Text(AppLocalizations.of(context).commonCancel, style: TextStyle(color: AppColors.textLight)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -1215,8 +1235,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       final text = feedbackCtrl.text.trim();
                       if (text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Please write a short description before submitting."),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context).settingsFeedbackEmpty),
                             backgroundColor: AppColors.warning,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -1226,6 +1246,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                       setDialogState(() => isSubmitting = true);
                       final messenger = ScaffoldMessenger.of(context);
+                      final l10n = AppLocalizations.of(context);
 
                       try {
                         final currentUser = FirebaseAuth.instance.currentUser;
@@ -1243,8 +1264,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           Navigator.pop(ctx);
                         }
                         messenger.showSnackBar(
-                          const SnackBar(
-                            content: Text("Thank you! Your feedback has been submitted to the technical team."),
+                          SnackBar(
+                            content: Text(l10n.settingsFeedbackThanks),
                             backgroundColor: AppColors.solved,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -1253,7 +1274,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         setDialogState(() => isSubmitting = false);
                         messenger.showSnackBar(
                           SnackBar(
-                            content: Text("Failed to submit feedback: $e"),
+                            content: Text(l10n.settingsFeedbackFailed('$e')),
                             backgroundColor: AppColors.danger,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -1269,7 +1290,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         strokeWidth: 2,
                       ),
                     )
-                  : Text("Submit"),
+                  : Text(AppLocalizations.of(context).commonSubmit),
             ),
           ],
         ),
@@ -1488,7 +1509,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Profile Photo",
+              AppLocalizations.of(context).profilePhotoTitle,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -1500,7 +1521,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               leading: Icon(Icons.camera_alt_rounded,
                   color: AppColors.primary),
               title: Text(
-                "Take Photo with Camera",
+                AppLocalizations.of(context).profileTakePhoto,
                 style: TextStyle(color: AppColors.textDark, fontSize: 14),
               ),
               onTap: () async {
@@ -1516,7 +1537,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               leading:
                   Icon(Icons.photo_library_rounded, color: AppColors.primary),
               title: Text(
-                "Choose from Gallery",
+                AppLocalizations.of(context).profileChooseGallery,
                 style: TextStyle(color: AppColors.textDark, fontSize: 14),
               ),
               onTap: () async {
@@ -1570,8 +1591,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
       context.read<AuthBloc>().add(UpdateProfileRequested(updatedUser));
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Profile details updated successfully!"),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).profileUpdated),
           backgroundColor: AppColors.solved,
           behavior: SnackBarBehavior.floating,
         ),
@@ -1582,7 +1603,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Failed to update profile: $e"),
+          content: Text(AppLocalizations.of(context).profileUpdateFailed('$e')),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -1607,7 +1628,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Edit Profile',
+          AppLocalizations.of(context).profileTitle,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
       ),
@@ -1693,14 +1714,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               SizedBox(height: 28),
 
-              _buildSectionSubHeader("Personal Credentials"),
+              _buildSectionSubHeader(AppLocalizations.of(context).profileCredentials),
               SizedBox(height: 12),
               _buildValidatedField(
                 controller: _nameController,
-                label: "Full Name",
+                label: AppLocalizations.of(context).signUpNameLabel,
                 icon: Icons.person_outline_rounded,
                 validator: (val) => val == null || val.trim().isEmpty
-                    ? "Please enter your full name"
+                    ? AppLocalizations.of(context).profileNameRequired
                     : null,
               ),
               SizedBox(height: 14),
@@ -1711,13 +1732,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 readOnly: true,
                 style: TextStyle(color: AppColors.textLight),
                 decoration: InputDecoration(
-                  labelText: "Email Address (Account ID)",
+                  labelText: AppLocalizations.of(context).profileEmailLabel,
                   labelStyle: TextStyle(color: AppColors.textLight),
                   prefixIcon:
                       Icon(Icons.email_outlined, color: AppColors.textLight),
                   suffixIcon:
                       Icon(Icons.lock_outline, color: AppColors.textLight, size: 16),
-                  helperText: "Primary login credential cannot be changed",
+                  helperText: AppLocalizations.of(context).profileEmailHelper,
                   helperStyle:
                       TextStyle(color: AppColors.textLight, fontSize: 11),
                   border: OutlineInputBorder(
@@ -1738,16 +1759,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               _buildValidatedField(
                 controller: _phoneController,
-                label: "Mobile Phone Number",
+                label: AppLocalizations.of(context).profilePhoneLabel,
                 icon: Icons.phone_android_rounded,
                 keyboardType: TextInputType.phone,
                 validator: (val) => val == null || val.trim().length < 7
-                    ? "Please enter a valid mobile number"
+                    ? AppLocalizations.of(context).profilePhoneInvalid
                     : null,
               ),
 
               SizedBox(height: 24),
-              _buildSectionSubHeader("Barangay Jurisdiction & Address"),
+              _buildSectionSubHeader(AppLocalizations.of(context).profileJurisdiction),
               SizedBox(height: 12),
 
               /// BARANGAY SECTOR DROPDOWN
@@ -1760,7 +1781,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
-                  labelText: "Barangay Area / Sector",
+                  labelText: AppLocalizations.of(context).profileAreaLabel,
                   labelStyle: TextStyle(color: AppColors.textLight),
                   prefixIcon: Icon(
                     Icons.holiday_village_outlined,
@@ -1801,34 +1822,34 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               _buildValidatedField(
                 controller: _savedAddressController,
-                label: "Residential Address / House Details",
+                label: AppLocalizations.of(context).profileAddressLabel,
                 icon: Icons.home_work_outlined,
                 validator: (val) => val == null || val.trim().isEmpty
-                    ? "Please enter your residential address"
+                    ? AppLocalizations.of(context).profileAddressRequired
                     : null,
               ),
 
               SizedBox(height: 24),
-              _buildSectionSubHeader("Emergency Contact Fallback"),
+              _buildSectionSubHeader(AppLocalizations.of(context).profileEmergencyContact),
               SizedBox(height: 12),
 
               _buildValidatedField(
                 controller: _emergencyContactNameController,
-                label: "Emergency Contact Person",
+                label: AppLocalizations.of(context).profileContactName,
                 icon: Icons.contact_emergency_outlined,
                 validator: (val) => val == null || val.trim().isEmpty
-                    ? "Please provide an emergency contact person"
+                    ? AppLocalizations.of(context).profileContactNameRequired
                     : null,
               ),
               SizedBox(height: 14),
 
               _buildValidatedField(
                 controller: _emergencyContactNumberController,
-                label: "Emergency Contact Number",
+                label: AppLocalizations.of(context).profileContactNumber,
                 icon: Icons.phone_in_talk_outlined,
                 keyboardType: TextInputType.phone,
                 validator: (val) => val == null || val.trim().length < 7
-                    ? "Please provide an emergency contact phone number"
+                    ? AppLocalizations.of(context).profileContactNumberInvalid
                     : null,
               ),
 
@@ -1863,7 +1884,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             ),
                           )
                         : Text(
-                            'SAVE PROFILE CHANGES',
+                            AppLocalizations.of(context).profileSave,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -1976,7 +1997,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Privacy & Security',
+          AppLocalizations.of(context).privacyTitle,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
         ),
       ),
@@ -1985,7 +2006,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
         padding: const EdgeInsets.all(20.0),
         children: [
           Text(
-            'Credentials & Access',
+            AppLocalizations.of(context).privacyCredentials,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -2014,7 +2035,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                 ),
               ),
               title: Text(
-                'Change Account Password',
+                AppLocalizations.of(context).privacyChangePassword,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.textDark,
@@ -2022,7 +2043,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                 ),
               ),
               subtitle: Text(
-                'Update password for resident account credentials',
+                AppLocalizations.of(context).privacyChangePasswordSubtitle,
                 style: TextStyle(fontSize: 12, color: AppColors.textLight),
               ),
               trailing: Icon(
@@ -2036,7 +2057,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
 
           SizedBox(height: 28),
           Text(
-            'Civic Security & Anti-Spam Policy',
+            AppLocalizations.of(context).privacyPolicyTitle,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -2075,7 +2096,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                       Row(
                         children: [
                           Text(
-                            'Biometric Verification',
+                            AppLocalizations.of(context).privacyBiometric,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
@@ -2090,7 +2111,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'ENFORCED',
+                              AppLocalizations.of(context).privacyEnforced,
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,
@@ -2104,8 +2125,8 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                       SizedBox(height: 6),
                       Text(
                         _isHardwareSupported
-                            ? 'Biometric confirmation (fingerprint or face authentication) is enforced by Barangay Moonwalk municipal policy when submitting emergency reports to deter false alarms and prank filings.'
-                            : 'Hardware biometrics not detected on this device. Device PIN or secure credential confirmation will serve as anti-spam verification.',
+                            ? AppLocalizations.of(context).privacyBiometricOn
+                            : AppLocalizations.of(context).privacyBiometricOff,
                         style: TextStyle(
                           fontSize: 12,
                           color: AppColors.textLight,
@@ -2157,7 +2178,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Change Password',
+                  AppLocalizations.of(context).passwordDialogTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -2166,7 +2187,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Please enter your current password followed by your new password.',
+                  AppLocalizations.of(context).passwordDialogIntro,
                   style: TextStyle(fontSize: 12, color: AppColors.textLight),
                 ),
                 SizedBox(height: 20),
@@ -2176,10 +2197,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   obscureText: obscureCurrent,
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   validator: (val) => val == null || val.isEmpty
-                      ? "Please enter your current password"
+                      ? AppLocalizations.of(context).passwordCurrentRequired
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'Current Password',
+                    labelText: AppLocalizations.of(context).passwordCurrentLabel,
                     labelStyle: TextStyle(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2214,10 +2235,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   obscureText: obscureNew,
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   validator: (val) => val == null || val.length < 6
-                      ? "Password must be at least 6 characters"
+                      ? AppLocalizations.of(context).passwordMinLength
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'New Password',
+                    labelText: AppLocalizations.of(context).passwordNewLabel,
                     labelStyle: TextStyle(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2249,10 +2270,10 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   obscureText: obscureConfirm,
                   style: TextStyle(color: AppColors.textDark, fontSize: 14),
                   validator: (val) => val != newPassCtrl.text
-                      ? "Passwords do not match"
+                      ? AppLocalizations.of(context).passwordMismatchShort
                       : null,
                   decoration: InputDecoration(
-                    labelText: 'Confirm New Password',
+                    labelText: AppLocalizations.of(context).passwordConfirmLabel,
                     labelStyle: TextStyle(color: AppColors.textLight),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -2293,8 +2314,8 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                       final email = widget.user?.email ?? FirebaseAuth.instance.currentUser?.email;
                       if (email == null || email.isEmpty) {
                         ScaffoldMessenger.of(ctx).showSnackBar(
-                          const SnackBar(
-                            content: Text("No registered email found for this account."),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context).passwordNoEmail),
                             backgroundColor: AppColors.danger,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -2309,7 +2330,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              "Password reset link sent to $email. Please check your email inbox to reset your password.",
+                              AppLocalizations.of(context).passwordResetSent(email),
                             ),
                             backgroundColor: AppColors.solved,
                             behavior: SnackBarBehavior.floating,
@@ -2319,7 +2340,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                       } catch (e) {
                         ScaffoldMessenger.of(ctx).showSnackBar(
                           SnackBar(
-                            content: Text("Failed to send reset email: $e"),
+                            content: Text(AppLocalizations.of(context).passwordResetFailed('$e')),
                             backgroundColor: AppColors.danger,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -2328,7 +2349,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                     },
                     icon: Icon(Icons.mail_outline_rounded, size: 14, color: AppColors.primary),
                     label: Text(
-                      "Forgot current password? Send reset link to email",
+                      AppLocalizations.of(context).passwordForgot,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 11.5,
@@ -2377,7 +2398,11 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                                   ScaffoldMessenger.of(ctx).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                          "Password change failed: ${failure.message}"),
+                                          AppLocalizations.of(context).passwordChangeFailed(LocalizedLabels.authError(
+                                            context,
+                                            code: failure.code,
+                                            message: failure.message,
+                                          ))),
                                       backgroundColor: AppColors.danger,
                                       behavior: SnackBarBehavior.floating,
                                     ),
@@ -2386,9 +2411,9 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                                 (_) {
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(ctx).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                          "Password updated successfully!"),
+                                          AppLocalizations.of(context).passwordUpdated),
                                       backgroundColor: AppColors.solved,
                                       behavior: SnackBarBehavior.floating,
                                     ),
@@ -2406,7 +2431,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                               ),
                             )
                           : Text(
-                              'UPDATE PASSWORD',
+                              AppLocalizations.of(context).passwordUpdateButton,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,

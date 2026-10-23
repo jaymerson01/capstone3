@@ -115,6 +115,21 @@ class LocalizedLabels {
     }
   }
 
+  /// Text for a [LocationServiceException] code.
+  static String locationError(BuildContext context, String code) {
+    final l10n = AppLocalizations.of(context);
+    switch (code) {
+      case 'gps-off':
+        return l10n.locationErrorGpsOff;
+      case 'permission-denied':
+        return l10n.locationErrorDenied;
+      case 'permission-denied-forever':
+        return l10n.locationErrorDeniedForever;
+      default:
+        return l10n.locationErrorNoFix;
+    }
+  }
+
   /// "just now", "5 mins ago", "2 hrs ago", "3 days ago" in the current language.
   static String relativeTime(
     BuildContext context,

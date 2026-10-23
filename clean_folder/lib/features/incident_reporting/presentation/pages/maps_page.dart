@@ -11,6 +11,8 @@ import 'package:community_safety_app/features/incident/domain/entities/incident_
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 class MapsPage extends StatefulWidget {
   final IncidentEntity? focusedIncident;
@@ -82,6 +84,30 @@ class _MapsPageState extends State<MapsPage> {
     "Violence",
   ];
 
+  /// Chip text for a filter key. The keys stay English because they are
+  /// matched against the stored category names.
+  String _filterLabel(BuildContext context, String key) {
+    final l10n = AppLocalizations.of(context);
+    switch (key) {
+      case "All":
+        return l10n.mapsFilterAll;
+      case "Fire":
+        return l10n.mapsFilterFire;
+      case "Medical":
+        return l10n.mapsFilterMedical;
+      case "Flood":
+        return l10n.mapsFilterFlood;
+      case "Theft":
+        return l10n.mapsFilterTheft;
+      case "Accident":
+        return l10n.mapsFilterAccident;
+      case "Violence":
+        return l10n.mapsFilterViolence;
+      default:
+        return key;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -146,11 +172,12 @@ class _MapsPageState extends State<MapsPage> {
   }
 
   String _formatRelativeTime(DateTime timestamp) {
+    final l10n = AppLocalizations.of(context);
     final diff = DateTime.now().difference(timestamp);
-    if (diff.inMinutes < 1) return "Just now";
-    if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
-    if (diff.inHours < 24) return "${diff.inHours}h ago";
-    return "${diff.inDays}d ago";
+    if (diff.inMinutes < 1) return l10n.timeShortJustNow;
+    if (diff.inMinutes < 60) return l10n.timeShortMinutes(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeShortHours(diff.inHours);
+    return l10n.timeShortDays(diff.inDays);
   }
 
   Set<Marker> _buildMarkers(List<IncidentEntity> incidents) {
@@ -174,7 +201,7 @@ class _MapsPageState extends State<MapsPage> {
         position: LatLng(incident.latitude, incident.longitude),
         icon: BitmapDescriptor.defaultMarkerWithHue(_getMarkerHue(incident.category)),
         infoWindow: InfoWindow(
-          title: incident.category,
+          title: LocalizedLabels.category(context, incident.category),
           snippet: "${incident.areaSector ?? 'Moonwalk'} • ${_formatRelativeTime(incident.timestamp)}",
           onTap: () => _showIncidentDetails(incident),
         ),
@@ -327,7 +354,9 @@ class _MapsPageState extends State<MapsPage> {
                       ),
                     ),
                     child: Text(
-                      incident.urgencyStatus ?? "PENDING",
+                      incident.urgencyStatus != null
+                          ? LocalizedLabels.urgency(context, incident.urgencyStatus).toUpperCase()
+                          : AppLocalizations.of(context).statusPending.toUpperCase(),
                       style: TextStyle(color: AppColors.danger,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
@@ -380,8 +409,8 @@ class _MapsPageState extends State<MapsPage> {
                     Expanded(
                       child: Text(
                         totalAffected == 1
-                            ? "1 citizen affected (original reporter). Awaiting neighborhood confirmation."
-                            : "$totalAffected citizens affected (original reporter + ${incident.upvoteCount} neighbor${incident.upvoteCount == 1 ? '' : 's'})",
+                            ? AppLocalizations.of(context).mapsAffectedOriginal
+                            : AppLocalizations.of(context).mapsAffectedWithNeighbors(totalAffected, incident.upvoteCount),
                         style: TextStyle(
                           color: AppColors.textDark,
                           fontSize: 12,
@@ -404,9 +433,9 @@ class _MapsPageState extends State<MapsPage> {
                       onTap: isMyReport
                           ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    "You are the author of this report. Tap 'View Details' to track progress.",
+                                    AppLocalizations.of(context).mapsYouAreAuthor,
                                   ),
                                   backgroundColor: AppColors.primary,
                                   behavior: SnackBarBehavior.floating,
@@ -424,9 +453,9 @@ class _MapsPageState extends State<MapsPage> {
                                       );
                                   Navigator.pop(bottomSheetContext);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
+                                    SnackBar(
                                       content: Text(
-                                        "Your confirmation has been recorded! Dispatch alerted.",
+                                        AppLocalizations.of(context).mapsConfirmationRecorded,
                                       ),
                                       backgroundColor: AppColors.solved,
                                       behavior: SnackBarBehavior.floating,
@@ -473,8 +502,8 @@ class _MapsPageState extends State<MapsPage> {
                             SizedBox(width: 8),
                             Text(
                               isMyReport
-                                  ? "Your Report"
-                                  : (hasVoted ? "Confirmed" : "I witnessed this"),
+                                  ? AppLocalizations.of(context).reportYourReport
+                                  : (hasVoted ? AppLocalizations.of(context).mapsConfirmed : AppLocalizations.of(context).mapsIWitnessed),
                               style: TextStyle(
                                 color: isMyReport
                                     ? AppColors.primary
@@ -514,7 +543,7 @@ class _MapsPageState extends State<MapsPage> {
                         ),
                         child: Center(
                           child: Text(
-                            "View Details",
+                            AppLocalizations.of(context).mapsViewDetails,
                             style: TextStyle(
                               color: AppColors.textDark,
                               fontWeight: FontWeight.w700,
@@ -613,8 +642,8 @@ class _MapsPageState extends State<MapsPage> {
                   shaderCallback: (bounds) =>
                       AppColors.cyanGradient.createShader(bounds),
                   blendMode: BlendMode.srcIn,
-                  child: const Text(
-                    "COMMUNITY MAP",
+                  child: Text(
+                    AppLocalizations.of(context).mapsTitle,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -665,7 +694,7 @@ class _MapsPageState extends State<MapsPage> {
                     ),
                     child: Center(
                       child: Text(
-                        category,
+                        _filterLabel(context, category),
                         style: TextStyle(
                           color: isSelected ? Colors.white : AppColors.textLight,
                           fontWeight:
@@ -756,7 +785,7 @@ class _MapsPageState extends State<MapsPage> {
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  "You are currently offline. Live incidents cannot be loaded.",
+                                  AppLocalizations.of(context).mapsOffline,
                                   style: TextStyle(
                                     color: Colors.black87,
                                     fontSize: 13,
@@ -814,17 +843,17 @@ class _MapsPageState extends State<MapsPage> {
                         ),
                         child: Row(
                           children: [
-                            const _MapLegendDot(
-                                color: AppColors.danger, label: "Fire"),
+                            _MapLegendDot(
+                                color: AppColors.danger, label: AppLocalizations.of(context).mapsFilterFire),
                             SizedBox(width: 12),
-                            const _MapLegendDot(
-                                color: AppColors.pending, label: "Theft"),
+                            _MapLegendDot(
+                                color: AppColors.pending, label: AppLocalizations.of(context).mapsFilterTheft),
                             SizedBox(width: 12),
-                            const _MapLegendDot(
-                                color: Color(0xFF0A84FF), label: "Medical"),
+                            _MapLegendDot(
+                                color: Color(0xFF0A84FF), label: AppLocalizations.of(context).mapsFilterMedical),
                             SizedBox(width: 12),
-                            const _MapLegendDot(
-                                color: Color(0xFF00D4FF), label: "Flood"),
+                            _MapLegendDot(
+                                color: Color(0xFF00D4FF), label: AppLocalizations.of(context).mapsFilterFlood),
                             const Spacer(),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -834,7 +863,7 @@ class _MapsPageState extends State<MapsPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                "${activeIncidents.length} Active Incidents",
+                                AppLocalizations.of(context).mapsActiveIncidents(activeIncidents.length),
                                 style: TextStyle(color: AppColors.primary,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -919,7 +948,7 @@ class _LiveBadgeState extends State<_LiveBadge>
               ),
               SizedBox(width: 6),
               Text(
-                "LIVE MAP",
+                AppLocalizations.of(context).mapsLive,
                 style: TextStyle(
                   color: AppColors.danger,
                   fontSize: 10,

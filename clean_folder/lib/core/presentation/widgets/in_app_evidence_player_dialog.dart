@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class InAppEvidencePlayerDialog extends StatefulWidget {
   final String videoUrl;
@@ -172,7 +173,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        widget.title ?? "Evidence Video Stream",
+                        widget.title ?? AppLocalizations.of(context).viewerVideoTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -185,7 +186,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                     IconButton(
                       icon: Icon(Icons.open_in_new_rounded,
                           color: AppColors.textLight, size: 18),
-                      tooltip: "Open in External Tab",
+                      tooltip: AppLocalizations.of(context).viewerOpenExternalTab,
                       onPressed: () {
                         launchUrl(
                           Uri.parse(_playableUrl),
@@ -199,7 +200,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                     IconButton(
                       icon: Icon(Icons.close_rounded,
                           color: AppColors.textLight, size: 20),
-                      tooltip: "Close",
+                      tooltip: AppLocalizations.of(context).commonClose,
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -233,7 +234,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                               ),
                               SizedBox(height: 12),
                               Text(
-                                "Unable to stream video in-app",
+                                AppLocalizations.of(context).viewerVideoError,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -266,7 +267,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                                   );
                                 },
                                 icon: Icon(Icons.open_in_browser, size: 16),
-                                label: Text("Open in External Player", style: TextStyle(fontSize: 12)),
+                                label: Text(AppLocalizations.of(context).viewerOpenExternalPlayer, style: TextStyle(fontSize: 12)),
                               ),
                             ],
                           ),
@@ -283,7 +284,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                               ),
                               SizedBox(height: 16),
                               Text(
-                                "Buffering live evidence stream...",
+                                AppLocalizations.of(context).viewerBuffering,
                                 style: TextStyle(
                                   color: AppColors.textLight,
                                   fontSize: 12,
@@ -423,7 +424,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                               color: AppColors.textLight,
                               size: 20,
                             ),
-                            tooltip: "Replay Video",
+                            tooltip: AppLocalizations.of(context).viewerReplay,
                             onPressed: () {
                               _controller.seekTo(Duration.zero);
                               _controller.play();

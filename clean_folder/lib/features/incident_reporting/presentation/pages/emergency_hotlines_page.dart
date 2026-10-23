@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class EmergencyHotlinesPage extends StatelessWidget {
   final void Function(String title, String number)? onCallPressed;
@@ -63,7 +64,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Call Dispatch Line?',
+                  AppLocalizations.of(context).hotlinesConfirmTitle,
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontSize: 18,
@@ -72,7 +73,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  'Are you sure you want to dial the official hotline for $title ($number) now?',
+                  AppLocalizations.of(context).hotlinesConfirmMessage(title, number),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppColors.textLight,
@@ -87,7 +88,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                       child: TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(
-                          'Cancel',
+                          AppLocalizations.of(context).commonCancel,
                           style: TextStyle(color: AppColors.textLight),
                         ),
                       ),
@@ -111,7 +112,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                             },
                             child: Center(
                               child: Text(
-                                'Call Now',
+                                AppLocalizations.of(context).commonCallNow,
                                 style: TextStyle(
                                   color: AppColors.textDark,
                                   fontWeight: FontWeight.w800,
@@ -323,7 +324,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                           ),
                           SizedBox(width: 12),
                           Text(
-                            'Emergency Hotlines',
+                            AppLocalizations.of(context).welcomeHotlines,
                             style: TextStyle(
                               color: AppColors.textDark,
                               fontSize: 18,
@@ -353,7 +354,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                               ),
                               SizedBox(width: 10),
                               Text(
-                                'EMERGENCY CALL PORTAL',
+                                AppLocalizations.of(context).hotlinesPortal,
                                 style: TextStyle(
                                   color: AppColors.textDark,
                                   fontSize: 20,
@@ -365,7 +366,7 @@ class EmergencyHotlinesPage extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'Unauthenticated guest access enabled. Dial emergency responders directly below.',
+                            AppLocalizations.of(context).hotlinesGuestNote,
                             style: TextStyle(
                               color: AppColors.textLight,
                               fontSize: 12,
@@ -395,37 +396,37 @@ class EmergencyHotlinesPage extends StatelessWidget {
                         _buildHotlineCard(
                           context,
                           index: 0,
-                          title: 'Police Department Dispatch',
+                          title: AppLocalizations.of(context).hotlinesPolice,
                           number: '911',
                           description:
-                              'Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.',
+                              AppLocalizations.of(context).hotlinesPoliceDesc,
                           icon: Icons.local_police_outlined,
                         ),
                         _buildHotlineCard(
                           context,
                           index: 1,
-                          title: 'Fire Command Station',
+                          title: AppLocalizations.of(context).hotlinesFire,
                           number: '112',
                           description:
-                              'Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.',
+                              AppLocalizations.of(context).hotlinesFireDesc,
                           icon: Icons.local_fire_department_outlined,
                         ),
                         _buildHotlineCard(
                           context,
                           index: 2,
-                          title: 'Ambulance Medical Team',
+                          title: AppLocalizations.of(context).hotlinesAmbulance,
                           number: '143',
                           description:
-                              'Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.',
+                              AppLocalizations.of(context).hotlinesAmbulanceDesc,
                           icon: Icons.medical_services_outlined,
                         ),
                         _buildHotlineCard(
                           context,
                           index: 3,
-                          title: 'Barangay Desk Center',
+                          title: AppLocalizations.of(context).hotlinesBarangay,
                           number: '888-9999',
                           description:
-                              'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.',
+                              AppLocalizations.of(context).hotlinesBarangayDesc,
                           icon: Icons.phone_in_talk_outlined,
                         ),
                         SizedBox(height: 40),
@@ -480,7 +481,7 @@ class _CallButtonState extends State<_CallButton>
       animation: _pulseCtrl,
       builder: (context, child) {
         return Tooltip(
-          message: 'Tap to call directly • Long-press for confirmation',
+          message: AppLocalizations.of(context).hotlinesTooltip,
           child: GestureDetector(
             onTap: widget.onTap,
             onLongPress: widget.onLongPress,
@@ -504,7 +505,7 @@ class _CallButtonState extends State<_CallButton>
                   Icon(Icons.call, color: AppColors.textDark, size: 14),
                   SizedBox(width: 6),
                   Text(
-                    'CALL',
+                    AppLocalizations.of(context).hotlinesCall,
                     style: TextStyle(
                       color: AppColors.textDark,
                       fontWeight: FontWeight.w800,

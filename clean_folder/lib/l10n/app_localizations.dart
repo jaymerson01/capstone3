@@ -2347,6 +2347,1086 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'**Wait for official instructions** from Barangay Moonwalk security personnel or officials.'**
   String get kitGeneral3;
+
+  /// Generic close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// Generic confirm button.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get commonConfirm;
+
+  /// Generic delete button.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// Generic submit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit'**
+  String get commonSubmit;
+
+  /// Starts a phone call.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Now'**
+  String get commonCallNow;
+
+  /// Compact time: under a minute ago.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get timeShortJustNow;
+
+  /// Compact time in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}m ago'**
+  String timeShortMinutes(int count);
+
+  /// Compact time in hours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}h ago'**
+  String timeShortHours(int count);
+
+  /// Compact time in days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}d ago'**
+  String timeShortDays(int count);
+
+  /// Location service is off.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS is turned off. Please swipe down from the top of your screen and turn on Location.'**
+  String get locationErrorGpsOff;
+
+  /// Location permission denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission was denied. Please allow location access.'**
+  String get locationErrorDenied;
+
+  /// Location permission permanently denied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is permanently denied. Please enable it in your phone App Settings.'**
+  String get locationErrorDeniedForever;
+
+  /// No GPS position.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not acquire GPS fix. Please ensure you have GPS turned on and a clear signal.'**
+  String get locationErrorNoFix;
+
+  /// Screen title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'COMMUNITY MAP'**
+  String get mapsTitle;
+
+  /// Badge (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE MAP'**
+  String get mapsLive;
+
+  /// Map filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get mapsFilterAll;
+
+  /// Map filter chip and legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get mapsFilterFire;
+
+  /// Map filter chip and legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get mapsFilterMedical;
+
+  /// Map filter chip and legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood'**
+  String get mapsFilterFlood;
+
+  /// Map filter chip and legend.
+  ///
+  /// In en, this message translates to:
+  /// **'Theft'**
+  String get mapsFilterTheft;
+
+  /// Map filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Accident'**
+  String get mapsFilterAccident;
+
+  /// Map filter chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Violence'**
+  String get mapsFilterViolence;
+
+  /// Only the reporter so far.
+  ///
+  /// In en, this message translates to:
+  /// **'1 citizen affected (original reporter). Awaiting neighborhood confirmation.'**
+  String get mapsAffectedOriginal;
+
+  /// Reporter plus confirming neighbors.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} citizens affected (original reporter + {neighbors, plural, =1{1 neighbor} other{{neighbors} neighbors}})'**
+  String mapsAffectedWithNeighbors(int total, int neighbors);
+
+  /// Tapping 'I witnessed this' on your own report.
+  ///
+  /// In en, this message translates to:
+  /// **'You are the author of this report. Tap \'View Details\' to track progress.'**
+  String get mapsYouAreAuthor;
+
+  /// After confirming a report.
+  ///
+  /// In en, this message translates to:
+  /// **'Your confirmation has been recorded! Dispatch alerted.'**
+  String get mapsConfirmationRecorded;
+
+  /// Already confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get mapsConfirmed;
+
+  /// Button to confirm a report.
+  ///
+  /// In en, this message translates to:
+  /// **'I witnessed this'**
+  String get mapsIWitnessed;
+
+  /// Opens the incident.
+  ///
+  /// In en, this message translates to:
+  /// **'View Details'**
+  String get mapsViewDetails;
+
+  /// Offline banner.
+  ///
+  /// In en, this message translates to:
+  /// **'You are currently offline. Live incidents cannot be loaded.'**
+  String get mapsOffline;
+
+  /// Counter on the map.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} Active Incidents'**
+  String mapsActiveIncidents(int count);
+
+  /// Call confirmation title.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Dispatch Line?'**
+  String get hotlinesConfirmTitle;
+
+  /// Call confirmation text.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to dial the official hotline for {title} ({number}) now?'**
+  String hotlinesConfirmMessage(String title, String number);
+
+  /// Card heading (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'EMERGENCY CALL PORTAL'**
+  String get hotlinesPortal;
+
+  /// Note for guests.
+  ///
+  /// In en, this message translates to:
+  /// **'Unauthenticated guest access enabled. Dial emergency responders directly below.'**
+  String get hotlinesGuestNote;
+
+  /// Hotline name.
+  ///
+  /// In en, this message translates to:
+  /// **'Police Department Dispatch'**
+  String get hotlinesPolice;
+
+  /// Hotline description.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.'**
+  String get hotlinesPoliceDesc;
+
+  /// Hotline name.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire Command Station'**
+  String get hotlinesFire;
+
+  /// Hotline description.
+  ///
+  /// In en, this message translates to:
+  /// **'Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.'**
+  String get hotlinesFireDesc;
+
+  /// Hotline name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ambulance Medical Team'**
+  String get hotlinesAmbulance;
+
+  /// Hotline description.
+  ///
+  /// In en, this message translates to:
+  /// **'Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.'**
+  String get hotlinesAmbulanceDesc;
+
+  /// Hotline name.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Desk Center'**
+  String get hotlinesBarangay;
+
+  /// Hotline description.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.'**
+  String get hotlinesBarangayDesc;
+
+  /// Tooltip on the call button.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to call directly • Long-press for confirmation'**
+  String get hotlinesTooltip;
+
+  /// Call button (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'CALL'**
+  String get hotlinesCall;
+
+  /// Sheet title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'NOTIFICATIONS'**
+  String get notificationsTitle;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// Empty state title.
+  ///
+  /// In en, this message translates to:
+  /// **'No Notifications Yet'**
+  String get notificationsEmptyTitle;
+
+  /// Empty state text.
+  ///
+  /// In en, this message translates to:
+  /// **'You will be alerted when dispatch updates your reports, neighbors corroborate incidents, or community sirens sound.'**
+  String get notificationsEmptyMessage;
+
+  /// Link on a notification.
+  ///
+  /// In en, this message translates to:
+  /// **'View report →'**
+  String get notificationsViewReport;
+
+  /// Tooltip of the remove button.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get notificationsRemove;
+
+  /// Title when the admin gave none (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'MUNICIPAL EMERGENCY ADVISORY'**
+  String get broadcastDefaultTitle;
+
+  /// Alert type when the admin gave none.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Siren'**
+  String get broadcastDefaultType;
+
+  /// Message when the admin gave none.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediate safety precautions are advised by Barangay authorities.'**
+  String get broadcastDefaultMessage;
+
+  /// Source when the admin gave none.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Command Center'**
+  String get broadcastDefaultSource;
+
+  /// Accessibility label of the alert overlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Siren Alert'**
+  String get broadcastBarrierLabel;
+
+  /// Alert header (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'MUNICIPAL EMERGENCY SIREN'**
+  String get broadcastHeader;
+
+  /// Who the alert is for (area name not translated).
+  ///
+  /// In en, this message translates to:
+  /// **'Target Sector: {sector}'**
+  String broadcastTargetSector(String sector);
+
+  /// Who sent the alert.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin: {source}'**
+  String broadcastOrigin(String source);
+
+  /// Button that closes the alert (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'ACKNOWLEDGE ALERT'**
+  String get broadcastAcknowledge;
+
+  /// Screen title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'SETTINGS'**
+  String get settingsTitle;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Services'**
+  String get settingsEmergencyServices;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Emergency Hotlines'**
+  String get settingsHotlinesTitle;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Police (911), Fire (112), Medical (143) & BDRRMC'**
+  String get settingsHotlinesSubtitle;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Settings'**
+  String get settingsAccount;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Personal Details'**
+  String get settingsEditProfile;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name, mobile number, sector & home address'**
+  String get settingsEditProfileSubtitle;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Account Security'**
+  String get settingsPrivacy;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update account credentials & view anti-spam security policy'**
+  String get settingsPrivacySubtitle;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'App Preferences'**
+  String get settingsPreferences;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'App Theme'**
+  String get settingsTheme;
+
+  /// Theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get settingsDarkMode;
+
+  /// Theme option.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Mode'**
+  String get settingsLightMode;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Support & Information'**
+  String get settingsSupport;
+
+  /// Row title and dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'About ResQ Community Safety'**
+  String get settingsAbout;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform guidelines, emergency mandates & version'**
+  String get settingsAboutSubtitle;
+
+  /// About dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'ResQ Community Safety is a civic-tech emergency response platform connecting residents with the Barangay Command Operations Center for rapid incident dispatch, verification, and community resilience.'**
+  String get settingsAboutBody;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Help Desk'**
+  String get settingsHelpDesk;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact municipal administrative support team'**
+  String get settingsHelpDeskSubtitle;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit App Feedback & Bug Report'**
+  String get settingsFeedback;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report issues or suggest platform improvements'**
+  String get settingsFeedbackSubtitle;
+
+  /// Profile name fallback and unverified badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Resident Citizen'**
+  String get settingsResidentCitizen;
+
+  /// Profile area missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Sector not set'**
+  String get settingsSectorNotSet;
+
+  /// Verified badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Resident'**
+  String get settingsVerifiedResident;
+
+  /// Log out button and dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get settingsLogOut;
+
+  /// Log out confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out of your ResQ resident account?'**
+  String get settingsLogOutConfirm;
+
+  /// Delete dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get settingsDeleteAccount;
+
+  /// Delete confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning: Deleting your resident account permanently clears all filed report logs and saved profile information. This action is irreversible.'**
+  String get settingsDeleteWarning;
+
+  /// Delete link.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently Delete Account'**
+  String get settingsDeleteForever;
+
+  /// Delete without a session.
+  ///
+  /// In en, this message translates to:
+  /// **'No active resident session found.'**
+  String get settingsNoSession;
+
+  /// Account deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and personal data have been permanently erased (RA 10173).'**
+  String get settingsAccountErased;
+
+  /// Delete needs a fresh login.
+  ///
+  /// In en, this message translates to:
+  /// **'Security Alert: Account deletion requires recent authentication. Please log out, sign in again, and retry.'**
+  String get settingsRecentLoginRequired;
+
+  /// Delete failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion failed: {error}'**
+  String settingsDeleteFailed(String error);
+
+  /// Delete error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting account: {error}'**
+  String settingsDeleteError(String error);
+
+  /// Help desk sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Administrative Help Desk'**
+  String get settingsHelpDeskTitle;
+
+  /// Help desk row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Office Address'**
+  String get settingsOfficeAddress;
+
+  /// Help desk row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Public Service Hours'**
+  String get settingsServiceHours;
+
+  /// Office hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday – Friday: 8:00 AM – 5:00 PM'**
+  String get settingsServiceHoursValue;
+
+  /// Help desk button.
+  ///
+  /// In en, this message translates to:
+  /// **'Call Office'**
+  String get settingsCallOffice;
+
+  /// Help desk button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Email'**
+  String get settingsSendEmail;
+
+  /// Help desk note.
+  ///
+  /// In en, this message translates to:
+  /// **'For immediate life-threatening emergencies (Fire, Police, Medical), please use the Emergency Hotlines or submit an incident report.'**
+  String get settingsHelpDeskNote;
+
+  /// Feedback dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit App Feedback'**
+  String get settingsFeedbackTitle;
+
+  /// Feedback dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve ResQ for Barangay Moonwalk. Your feedback is sent directly to the development team.'**
+  String get settingsFeedbackIntro;
+
+  /// Label (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'FEEDBACK CATEGORY'**
+  String get settingsFeedbackCategory;
+
+  /// Feedback type (the English value is what gets saved).
+  ///
+  /// In en, this message translates to:
+  /// **'General Feedback'**
+  String get feedbackGeneral;
+
+  /// Feedback type (the English value is what gets saved).
+  ///
+  /// In en, this message translates to:
+  /// **'Bug Report'**
+  String get feedbackBug;
+
+  /// Feedback type (the English value is what gets saved).
+  ///
+  /// In en, this message translates to:
+  /// **'Feature Suggestion'**
+  String get feedbackFeature;
+
+  /// Feedback field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your feedback, suggestion, or bug encounter...'**
+  String get settingsFeedbackHint;
+
+  /// Feedback validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please write a short description before submitting.'**
+  String get settingsFeedbackEmpty;
+
+  /// Feedback sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Your feedback has been submitted to the technical team.'**
+  String get settingsFeedbackThanks;
+
+  /// Feedback failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit feedback: {error}'**
+  String settingsFeedbackFailed(String error);
+
+  /// Screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get profileTitle;
+
+  /// Photo sheet title.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Photo'**
+  String get profilePhotoTitle;
+
+  /// Photo option.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo with Camera'**
+  String get profileTakePhoto;
+
+  /// Photo option.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get profileChooseGallery;
+
+  /// Profile saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile details updated successfully!'**
+  String get profileUpdated;
+
+  /// Profile save failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update profile: {error}'**
+  String profileUpdateFailed(String error);
+
+  /// Section label.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Credentials'**
+  String get profileCredentials;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your full name'**
+  String get profileNameRequired;
+
+  /// Read-only field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address (Account ID)'**
+  String get profileEmailLabel;
+
+  /// Field helper.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary login credential cannot be changed'**
+  String get profileEmailHelper;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Phone Number'**
+  String get profilePhoneLabel;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid mobile number'**
+  String get profilePhoneInvalid;
+
+  /// Section label.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Jurisdiction & Address'**
+  String get profileJurisdiction;
+
+  /// Area dropdown label (area names are not translated).
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Area / Sector'**
+  String get profileAreaLabel;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Residential Address / House Details'**
+  String get profileAddressLabel;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your residential address'**
+  String get profileAddressRequired;
+
+  /// Section label.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Contact Fallback'**
+  String get profileEmergencyContact;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Contact Person'**
+  String get profileContactName;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide an emergency contact person'**
+  String get profileContactNameRequired;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Contact Number'**
+  String get profileContactNumber;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please provide an emergency contact phone number'**
+  String get profileContactNumberInvalid;
+
+  /// Save button (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE PROFILE CHANGES'**
+  String get profileSave;
+
+  /// Screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Security'**
+  String get privacyTitle;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Credentials & Access'**
+  String get privacyCredentials;
+
+  /// Row title.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Account Password'**
+  String get privacyChangePassword;
+
+  /// Row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password for resident account credentials'**
+  String get privacyChangePasswordSubtitle;
+
+  /// Section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Civic Security & Anti-Spam Policy'**
+  String get privacyPolicyTitle;
+
+  /// Card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric Verification'**
+  String get privacyBiometric;
+
+  /// Badge (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'ENFORCED'**
+  String get privacyEnforced;
+
+  /// Policy text when the phone supports biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometric confirmation (fingerprint or face authentication) is enforced by Barangay Moonwalk municipal policy when submitting emergency reports to deter false alarms and prank filings.'**
+  String get privacyBiometricOn;
+
+  /// Policy text without biometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Hardware biometrics not detected on this device. Device PIN or secure credential confirmation will serve as anti-spam verification.'**
+  String get privacyBiometricOff;
+
+  /// Dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get passwordDialogTitle;
+
+  /// Dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your current password followed by your new password.'**
+  String get passwordDialogIntro;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your current password'**
+  String get passwordCurrentRequired;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get passwordCurrentLabel;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get passwordMinLength;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get passwordNewLabel;
+
+  /// Validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get passwordMismatchShort;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get passwordConfirmLabel;
+
+  /// Reset without email.
+  ///
+  /// In en, this message translates to:
+  /// **'No registered email found for this account.'**
+  String get passwordNoEmail;
+
+  /// Reset link sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset link sent to {email}. Please check your email inbox to reset your password.'**
+  String passwordResetSent(String email);
+
+  /// Reset failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send reset email: {error}'**
+  String passwordResetFailed(String error);
+
+  /// Link.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot current password? Send reset link to email'**
+  String get passwordForgot;
+
+  /// Change failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Password change failed: {error}'**
+  String passwordChangeFailed(String error);
+
+  /// Change succeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Password updated successfully!'**
+  String get passwordUpdated;
+
+  /// Button (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'UPDATE PASSWORD'**
+  String get passwordUpdateButton;
+
+  /// Video viewer title fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence Video Stream'**
+  String get viewerVideoTitle;
+
+  /// Viewer action.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in External Tab'**
+  String get viewerOpenExternalTab;
+
+  /// Video error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to stream video in-app'**
+  String get viewerVideoError;
+
+  /// Viewer action.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in External Player'**
+  String get viewerOpenExternalPlayer;
+
+  /// Video loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Buffering live evidence stream...'**
+  String get viewerBuffering;
+
+  /// Tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Replay Video'**
+  String get viewerReplay;
+
+  /// Photo viewer title fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Evidence Viewer'**
+  String get viewerPhotoTitle;
+
+  /// Tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Zoom'**
+  String get viewerResetZoom;
+
+  /// Tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Full Image in New Tab'**
+  String get viewerOpenFullImage;
+
+  /// Image error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to display image in-app'**
+  String get viewerImageError;
+
+  /// Hint under the photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinch, scroll, or drag to pan and zoom photo evidence'**
+  String get viewerZoomHint;
+
+  /// Hidden AI feature switched on.
+  ///
+  /// In en, this message translates to:
+  /// **'Intelligent Triage Engine Activated: Handshake Sequence Engaged.'**
+  String get aiTriggerActivated;
+
+  /// Chat reset dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Conversation?'**
+  String get chatResetTitle;
+
+  /// Chat reset dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to clear your chat history with ResQ Civil Defense Assistant? This will start a fresh session.'**
+  String get chatResetMessage;
+
+  /// Chat reset button.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get chatReset;
+
+  /// Chat window title.
+  ///
+  /// In en, this message translates to:
+  /// **'Civil Defense Assistant'**
+  String get chatTitle;
+
+  /// Chat status line.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Moonwalk • Active'**
+  String get chatStatus;
+
+  /// Heading above quick questions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Civil Defense Guides'**
+  String get chatQuickGuides;
+
+  /// Label on AI messages (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'RESQ GEMINI AI'**
+  String get chatSenderAi;
+
+  /// Label on offline answers (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'CIVIL DEFENSE OFFICER'**
+  String get chatSenderOfficer;
+
+  /// Heading above hotline buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediate Hotline Dialers:'**
+  String get chatHotlineDialers;
+
+  /// Button to all hotlines.
+  ///
+  /// In en, this message translates to:
+  /// **'All Hotlines'**
+  String get chatAllHotlines;
+
+  /// Chat input hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask safety or first-aid guide...'**
+  String get chatHint;
 }
 
 class _AppLocalizationsDelegate

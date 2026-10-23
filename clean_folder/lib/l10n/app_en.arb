@@ -1712,5 +1712,806 @@
   "kitGeneral3": "**Wait for official instructions** from Barangay Moonwalk security personnel or officials.",
   "@kitGeneral3": {
     "description": "General safety step."
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Generic close button."
+  },
+  "commonConfirm": "Confirm",
+  "@commonConfirm": {
+    "description": "Generic confirm button."
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Generic delete button."
+  },
+  "commonSubmit": "Submit",
+  "@commonSubmit": {
+    "description": "Generic submit button."
+  },
+  "commonCallNow": "Call Now",
+  "@commonCallNow": {
+    "description": "Starts a phone call."
+  },
+  "timeShortJustNow": "Just now",
+  "@timeShortJustNow": {
+    "description": "Compact time: under a minute ago."
+  },
+  "timeShortMinutes": "{count}m ago",
+  "@timeShortMinutes": {
+    "description": "Compact time in minutes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeShortHours": "{count}h ago",
+  "@timeShortHours": {
+    "description": "Compact time in hours.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeShortDays": "{count}d ago",
+  "@timeShortDays": {
+    "description": "Compact time in days.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "locationErrorGpsOff": "GPS is turned off. Please swipe down from the top of your screen and turn on Location.",
+  "@locationErrorGpsOff": {
+    "description": "Location service is off."
+  },
+  "locationErrorDenied": "Location permission was denied. Please allow location access.",
+  "@locationErrorDenied": {
+    "description": "Location permission denied."
+  },
+  "locationErrorDeniedForever": "Location permission is permanently denied. Please enable it in your phone App Settings.",
+  "@locationErrorDeniedForever": {
+    "description": "Location permission permanently denied."
+  },
+  "locationErrorNoFix": "Could not acquire GPS fix. Please ensure you have GPS turned on and a clear signal.",
+  "@locationErrorNoFix": {
+    "description": "No GPS position."
+  },
+  "mapsTitle": "COMMUNITY MAP",
+  "@mapsTitle": {
+    "description": "Screen title (uppercase)."
+  },
+  "mapsLive": "LIVE MAP",
+  "@mapsLive": {
+    "description": "Badge (uppercase)."
+  },
+  "mapsFilterAll": "All",
+  "@mapsFilterAll": {
+    "description": "Map filter chip."
+  },
+  "mapsFilterFire": "Fire",
+  "@mapsFilterFire": {
+    "description": "Map filter chip and legend."
+  },
+  "mapsFilterMedical": "Medical",
+  "@mapsFilterMedical": {
+    "description": "Map filter chip and legend."
+  },
+  "mapsFilterFlood": "Flood",
+  "@mapsFilterFlood": {
+    "description": "Map filter chip and legend."
+  },
+  "mapsFilterTheft": "Theft",
+  "@mapsFilterTheft": {
+    "description": "Map filter chip and legend."
+  },
+  "mapsFilterAccident": "Accident",
+  "@mapsFilterAccident": {
+    "description": "Map filter chip."
+  },
+  "mapsFilterViolence": "Violence",
+  "@mapsFilterViolence": {
+    "description": "Map filter chip."
+  },
+  "mapsAffectedOriginal": "1 citizen affected (original reporter). Awaiting neighborhood confirmation.",
+  "@mapsAffectedOriginal": {
+    "description": "Only the reporter so far."
+  },
+  "mapsAffectedWithNeighbors": "{total} citizens affected (original reporter + {neighbors, plural, =1{1 neighbor} other{{neighbors} neighbors}})",
+  "@mapsAffectedWithNeighbors": {
+    "description": "Reporter plus confirming neighbors.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "neighbors": {
+        "type": "int"
+      }
+    }
+  },
+  "mapsYouAreAuthor": "You are the author of this report. Tap 'View Details' to track progress.",
+  "@mapsYouAreAuthor": {
+    "description": "Tapping 'I witnessed this' on your own report."
+  },
+  "mapsConfirmationRecorded": "Your confirmation has been recorded! Dispatch alerted.",
+  "@mapsConfirmationRecorded": {
+    "description": "After confirming a report."
+  },
+  "mapsConfirmed": "Confirmed",
+  "@mapsConfirmed": {
+    "description": "Already confirmed."
+  },
+  "mapsIWitnessed": "I witnessed this",
+  "@mapsIWitnessed": {
+    "description": "Button to confirm a report."
+  },
+  "mapsViewDetails": "View Details",
+  "@mapsViewDetails": {
+    "description": "Opens the incident."
+  },
+  "mapsOffline": "You are currently offline. Live incidents cannot be loaded.",
+  "@mapsOffline": {
+    "description": "Offline banner."
+  },
+  "mapsActiveIncidents": "{count} Active Incidents",
+  "@mapsActiveIncidents": {
+    "description": "Counter on the map.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "hotlinesConfirmTitle": "Call Dispatch Line?",
+  "@hotlinesConfirmTitle": {
+    "description": "Call confirmation title."
+  },
+  "hotlinesConfirmMessage": "Are you sure you want to dial the official hotline for {title} ({number}) now?",
+  "@hotlinesConfirmMessage": {
+    "description": "Call confirmation text.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "hotlinesPortal": "EMERGENCY CALL PORTAL",
+  "@hotlinesPortal": {
+    "description": "Card heading (uppercase)."
+  },
+  "hotlinesGuestNote": "Unauthenticated guest access enabled. Dial emergency responders directly below.",
+  "@hotlinesGuestNote": {
+    "description": "Note for guests."
+  },
+  "hotlinesPolice": "Police Department Dispatch",
+  "@hotlinesPolice": {
+    "description": "Hotline name."
+  },
+  "hotlinesPoliceDesc": "Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.",
+  "@hotlinesPoliceDesc": {
+    "description": "Hotline description."
+  },
+  "hotlinesFire": "Fire Command Station",
+  "@hotlinesFire": {
+    "description": "Hotline name."
+  },
+  "hotlinesFireDesc": "Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.",
+  "@hotlinesFireDesc": {
+    "description": "Hotline description."
+  },
+  "hotlinesAmbulance": "Ambulance Medical Team",
+  "@hotlinesAmbulance": {
+    "description": "Hotline name."
+  },
+  "hotlinesAmbulanceDesc": "Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.",
+  "@hotlinesAmbulanceDesc": {
+    "description": "Hotline description."
+  },
+  "hotlinesBarangay": "Barangay Desk Center",
+  "@hotlinesBarangay": {
+    "description": "Hotline name."
+  },
+  "hotlinesBarangayDesc": "Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.",
+  "@hotlinesBarangayDesc": {
+    "description": "Hotline description."
+  },
+  "hotlinesTooltip": "Tap to call directly • Long-press for confirmation",
+  "@hotlinesTooltip": {
+    "description": "Tooltip on the call button."
+  },
+  "hotlinesCall": "CALL",
+  "@hotlinesCall": {
+    "description": "Call button (uppercase)."
+  },
+  "notificationsTitle": "NOTIFICATIONS",
+  "@notificationsTitle": {
+    "description": "Sheet title (uppercase)."
+  },
+  "notificationsMarkAllRead": "Mark all read",
+  "@notificationsMarkAllRead": {
+    "description": "Button."
+  },
+  "notificationsEmptyTitle": "No Notifications Yet",
+  "@notificationsEmptyTitle": {
+    "description": "Empty state title."
+  },
+  "notificationsEmptyMessage": "You will be alerted when dispatch updates your reports, neighbors corroborate incidents, or community sirens sound.",
+  "@notificationsEmptyMessage": {
+    "description": "Empty state text."
+  },
+  "notificationsViewReport": "View report →",
+  "@notificationsViewReport": {
+    "description": "Link on a notification."
+  },
+  "notificationsRemove": "Remove",
+  "@notificationsRemove": {
+    "description": "Tooltip of the remove button."
+  },
+  "broadcastDefaultTitle": "MUNICIPAL EMERGENCY ADVISORY",
+  "@broadcastDefaultTitle": {
+    "description": "Title when the admin gave none (uppercase)."
+  },
+  "broadcastDefaultType": "Emergency Siren",
+  "@broadcastDefaultType": {
+    "description": "Alert type when the admin gave none."
+  },
+  "broadcastDefaultMessage": "Immediate safety precautions are advised by Barangay authorities.",
+  "@broadcastDefaultMessage": {
+    "description": "Message when the admin gave none."
+  },
+  "broadcastDefaultSource": "Barangay Command Center",
+  "@broadcastDefaultSource": {
+    "description": "Source when the admin gave none."
+  },
+  "broadcastBarrierLabel": "Emergency Siren Alert",
+  "@broadcastBarrierLabel": {
+    "description": "Accessibility label of the alert overlay."
+  },
+  "broadcastHeader": "MUNICIPAL EMERGENCY SIREN",
+  "@broadcastHeader": {
+    "description": "Alert header (uppercase)."
+  },
+  "broadcastTargetSector": "Target Sector: {sector}",
+  "@broadcastTargetSector": {
+    "description": "Who the alert is for (area name not translated).",
+    "placeholders": {
+      "sector": {
+        "type": "String"
+      }
+    }
+  },
+  "broadcastOrigin": "Origin: {source}",
+  "@broadcastOrigin": {
+    "description": "Who sent the alert.",
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "broadcastAcknowledge": "ACKNOWLEDGE ALERT",
+  "@broadcastAcknowledge": {
+    "description": "Button that closes the alert (uppercase)."
+  },
+  "settingsTitle": "SETTINGS",
+  "@settingsTitle": {
+    "description": "Screen title (uppercase)."
+  },
+  "settingsEmergencyServices": "Emergency Services",
+  "@settingsEmergencyServices": {
+    "description": "Section title."
+  },
+  "settingsHotlinesTitle": "Barangay Emergency Hotlines",
+  "@settingsHotlinesTitle": {
+    "description": "Row title."
+  },
+  "settingsHotlinesSubtitle": "Police (911), Fire (112), Medical (143) & BDRRMC",
+  "@settingsHotlinesSubtitle": {
+    "description": "Row subtitle."
+  },
+  "settingsAccount": "Account Settings",
+  "@settingsAccount": {
+    "description": "Section title."
+  },
+  "settingsEditProfile": "Edit Personal Details",
+  "@settingsEditProfile": {
+    "description": "Row title."
+  },
+  "settingsEditProfileSubtitle": "Full name, mobile number, sector & home address",
+  "@settingsEditProfileSubtitle": {
+    "description": "Row subtitle."
+  },
+  "settingsPrivacy": "Privacy & Account Security",
+  "@settingsPrivacy": {
+    "description": "Row title."
+  },
+  "settingsPrivacySubtitle": "Update account credentials & view anti-spam security policy",
+  "@settingsPrivacySubtitle": {
+    "description": "Row subtitle."
+  },
+  "settingsPreferences": "App Preferences",
+  "@settingsPreferences": {
+    "description": "Section title."
+  },
+  "settingsTheme": "App Theme",
+  "@settingsTheme": {
+    "description": "Row title."
+  },
+  "settingsDarkMode": "Dark Mode",
+  "@settingsDarkMode": {
+    "description": "Theme option."
+  },
+  "settingsLightMode": "Light Mode",
+  "@settingsLightMode": {
+    "description": "Theme option."
+  },
+  "settingsSupport": "Support & Information",
+  "@settingsSupport": {
+    "description": "Section title."
+  },
+  "settingsAbout": "About ResQ Community Safety",
+  "@settingsAbout": {
+    "description": "Row title and dialog title."
+  },
+  "settingsAboutSubtitle": "Platform guidelines, emergency mandates & version",
+  "@settingsAboutSubtitle": {
+    "description": "Row subtitle."
+  },
+  "settingsAboutBody": "ResQ Community Safety is a civic-tech emergency response platform connecting residents with the Barangay Command Operations Center for rapid incident dispatch, verification, and community resilience.",
+  "@settingsAboutBody": {
+    "description": "About dialog text."
+  },
+  "settingsHelpDesk": "Barangay Help Desk",
+  "@settingsHelpDesk": {
+    "description": "Row title."
+  },
+  "settingsHelpDeskSubtitle": "Contact municipal administrative support team",
+  "@settingsHelpDeskSubtitle": {
+    "description": "Row subtitle."
+  },
+  "settingsFeedback": "Submit App Feedback & Bug Report",
+  "@settingsFeedback": {
+    "description": "Row title."
+  },
+  "settingsFeedbackSubtitle": "Report issues or suggest platform improvements",
+  "@settingsFeedbackSubtitle": {
+    "description": "Row subtitle."
+  },
+  "settingsResidentCitizen": "Resident Citizen",
+  "@settingsResidentCitizen": {
+    "description": "Profile name fallback and unverified badge."
+  },
+  "settingsSectorNotSet": "Sector not set",
+  "@settingsSectorNotSet": {
+    "description": "Profile area missing."
+  },
+  "settingsVerifiedResident": "Verified Resident",
+  "@settingsVerifiedResident": {
+    "description": "Verified badge."
+  },
+  "settingsLogOut": "Log Out",
+  "@settingsLogOut": {
+    "description": "Log out button and dialog title."
+  },
+  "settingsLogOutConfirm": "Are you sure you want to log out of your ResQ resident account?",
+  "@settingsLogOutConfirm": {
+    "description": "Log out confirmation."
+  },
+  "settingsDeleteAccount": "Delete Account",
+  "@settingsDeleteAccount": {
+    "description": "Delete dialog title."
+  },
+  "settingsDeleteWarning": "Warning: Deleting your resident account permanently clears all filed report logs and saved profile information. This action is irreversible.",
+  "@settingsDeleteWarning": {
+    "description": "Delete confirmation."
+  },
+  "settingsDeleteForever": "Permanently Delete Account",
+  "@settingsDeleteForever": {
+    "description": "Delete link."
+  },
+  "settingsNoSession": "No active resident session found.",
+  "@settingsNoSession": {
+    "description": "Delete without a session."
+  },
+  "settingsAccountErased": "Your account and personal data have been permanently erased (RA 10173).",
+  "@settingsAccountErased": {
+    "description": "Account deleted."
+  },
+  "settingsRecentLoginRequired": "Security Alert: Account deletion requires recent authentication. Please log out, sign in again, and retry.",
+  "@settingsRecentLoginRequired": {
+    "description": "Delete needs a fresh login."
+  },
+  "settingsDeleteFailed": "Account deletion failed: {error}",
+  "@settingsDeleteFailed": {
+    "description": "Delete failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeleteError": "Error deleting account: {error}",
+  "@settingsDeleteError": {
+    "description": "Delete error.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsHelpDeskTitle": "Barangay Administrative Help Desk",
+  "@settingsHelpDeskTitle": {
+    "description": "Help desk sheet title."
+  },
+  "settingsOfficeAddress": "Office Address",
+  "@settingsOfficeAddress": {
+    "description": "Help desk row label."
+  },
+  "settingsServiceHours": "Public Service Hours",
+  "@settingsServiceHours": {
+    "description": "Help desk row label."
+  },
+  "settingsServiceHoursValue": "Monday – Friday: 8:00 AM – 5:00 PM",
+  "@settingsServiceHoursValue": {
+    "description": "Office hours."
+  },
+  "settingsCallOffice": "Call Office",
+  "@settingsCallOffice": {
+    "description": "Help desk button."
+  },
+  "settingsSendEmail": "Send Email",
+  "@settingsSendEmail": {
+    "description": "Help desk button."
+  },
+  "settingsHelpDeskNote": "For immediate life-threatening emergencies (Fire, Police, Medical), please use the Emergency Hotlines or submit an incident report.",
+  "@settingsHelpDeskNote": {
+    "description": "Help desk note."
+  },
+  "settingsFeedbackTitle": "Submit App Feedback",
+  "@settingsFeedbackTitle": {
+    "description": "Feedback dialog title."
+  },
+  "settingsFeedbackIntro": "Help us improve ResQ for Barangay Moonwalk. Your feedback is sent directly to the development team.",
+  "@settingsFeedbackIntro": {
+    "description": "Feedback dialog text."
+  },
+  "settingsFeedbackCategory": "FEEDBACK CATEGORY",
+  "@settingsFeedbackCategory": {
+    "description": "Label (uppercase)."
+  },
+  "feedbackGeneral": "General Feedback",
+  "@feedbackGeneral": {
+    "description": "Feedback type (the English value is what gets saved)."
+  },
+  "feedbackBug": "Bug Report",
+  "@feedbackBug": {
+    "description": "Feedback type (the English value is what gets saved)."
+  },
+  "feedbackFeature": "Feature Suggestion",
+  "@feedbackFeature": {
+    "description": "Feedback type (the English value is what gets saved)."
+  },
+  "settingsFeedbackHint": "Describe your feedback, suggestion, or bug encounter...",
+  "@settingsFeedbackHint": {
+    "description": "Feedback field hint."
+  },
+  "settingsFeedbackEmpty": "Please write a short description before submitting.",
+  "@settingsFeedbackEmpty": {
+    "description": "Feedback validation."
+  },
+  "settingsFeedbackThanks": "Thank you! Your feedback has been submitted to the technical team.",
+  "@settingsFeedbackThanks": {
+    "description": "Feedback sent."
+  },
+  "settingsFeedbackFailed": "Failed to submit feedback: {error}",
+  "@settingsFeedbackFailed": {
+    "description": "Feedback failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileTitle": "Edit Profile",
+  "@profileTitle": {
+    "description": "Screen title."
+  },
+  "profilePhotoTitle": "Profile Photo",
+  "@profilePhotoTitle": {
+    "description": "Photo sheet title."
+  },
+  "profileTakePhoto": "Take Photo with Camera",
+  "@profileTakePhoto": {
+    "description": "Photo option."
+  },
+  "profileChooseGallery": "Choose from Gallery",
+  "@profileChooseGallery": {
+    "description": "Photo option."
+  },
+  "profileUpdated": "Profile details updated successfully!",
+  "@profileUpdated": {
+    "description": "Profile saved."
+  },
+  "profileUpdateFailed": "Failed to update profile: {error}",
+  "@profileUpdateFailed": {
+    "description": "Profile save failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileCredentials": "Personal Credentials",
+  "@profileCredentials": {
+    "description": "Section label."
+  },
+  "profileNameRequired": "Please enter your full name",
+  "@profileNameRequired": {
+    "description": "Validation."
+  },
+  "profileEmailLabel": "Email Address (Account ID)",
+  "@profileEmailLabel": {
+    "description": "Read-only field label."
+  },
+  "profileEmailHelper": "Primary login credential cannot be changed",
+  "@profileEmailHelper": {
+    "description": "Field helper."
+  },
+  "profilePhoneLabel": "Mobile Phone Number",
+  "@profilePhoneLabel": {
+    "description": "Field label."
+  },
+  "profilePhoneInvalid": "Please enter a valid mobile number",
+  "@profilePhoneInvalid": {
+    "description": "Validation."
+  },
+  "profileJurisdiction": "Barangay Jurisdiction & Address",
+  "@profileJurisdiction": {
+    "description": "Section label."
+  },
+  "profileAreaLabel": "Barangay Area / Sector",
+  "@profileAreaLabel": {
+    "description": "Area dropdown label (area names are not translated)."
+  },
+  "profileAddressLabel": "Residential Address / House Details",
+  "@profileAddressLabel": {
+    "description": "Field label."
+  },
+  "profileAddressRequired": "Please enter your residential address",
+  "@profileAddressRequired": {
+    "description": "Validation."
+  },
+  "profileEmergencyContact": "Emergency Contact Fallback",
+  "@profileEmergencyContact": {
+    "description": "Section label."
+  },
+  "profileContactName": "Emergency Contact Person",
+  "@profileContactName": {
+    "description": "Field label."
+  },
+  "profileContactNameRequired": "Please provide an emergency contact person",
+  "@profileContactNameRequired": {
+    "description": "Validation."
+  },
+  "profileContactNumber": "Emergency Contact Number",
+  "@profileContactNumber": {
+    "description": "Field label."
+  },
+  "profileContactNumberInvalid": "Please provide an emergency contact phone number",
+  "@profileContactNumberInvalid": {
+    "description": "Validation."
+  },
+  "profileSave": "SAVE PROFILE CHANGES",
+  "@profileSave": {
+    "description": "Save button (uppercase)."
+  },
+  "privacyTitle": "Privacy & Security",
+  "@privacyTitle": {
+    "description": "Screen title."
+  },
+  "privacyCredentials": "Credentials & Access",
+  "@privacyCredentials": {
+    "description": "Section title."
+  },
+  "privacyChangePassword": "Change Account Password",
+  "@privacyChangePassword": {
+    "description": "Row title."
+  },
+  "privacyChangePasswordSubtitle": "Update password for resident account credentials",
+  "@privacyChangePasswordSubtitle": {
+    "description": "Row subtitle."
+  },
+  "privacyPolicyTitle": "Civic Security & Anti-Spam Policy",
+  "@privacyPolicyTitle": {
+    "description": "Section title."
+  },
+  "privacyBiometric": "Biometric Verification",
+  "@privacyBiometric": {
+    "description": "Card title."
+  },
+  "privacyEnforced": "ENFORCED",
+  "@privacyEnforced": {
+    "description": "Badge (uppercase)."
+  },
+  "privacyBiometricOn": "Biometric confirmation (fingerprint or face authentication) is enforced by Barangay Moonwalk municipal policy when submitting emergency reports to deter false alarms and prank filings.",
+  "@privacyBiometricOn": {
+    "description": "Policy text when the phone supports biometrics."
+  },
+  "privacyBiometricOff": "Hardware biometrics not detected on this device. Device PIN or secure credential confirmation will serve as anti-spam verification.",
+  "@privacyBiometricOff": {
+    "description": "Policy text without biometrics."
+  },
+  "passwordDialogTitle": "Change Password",
+  "@passwordDialogTitle": {
+    "description": "Dialog title."
+  },
+  "passwordDialogIntro": "Please enter your current password followed by your new password.",
+  "@passwordDialogIntro": {
+    "description": "Dialog text."
+  },
+  "passwordCurrentRequired": "Please enter your current password",
+  "@passwordCurrentRequired": {
+    "description": "Validation."
+  },
+  "passwordCurrentLabel": "Current Password",
+  "@passwordCurrentLabel": {
+    "description": "Field label."
+  },
+  "passwordMinLength": "Password must be at least 6 characters",
+  "@passwordMinLength": {
+    "description": "Validation."
+  },
+  "passwordNewLabel": "New Password",
+  "@passwordNewLabel": {
+    "description": "Field label."
+  },
+  "passwordMismatchShort": "Passwords do not match",
+  "@passwordMismatchShort": {
+    "description": "Validation."
+  },
+  "passwordConfirmLabel": "Confirm New Password",
+  "@passwordConfirmLabel": {
+    "description": "Field label."
+  },
+  "passwordNoEmail": "No registered email found for this account.",
+  "@passwordNoEmail": {
+    "description": "Reset without email."
+  },
+  "passwordResetSent": "Password reset link sent to {email}. Please check your email inbox to reset your password.",
+  "@passwordResetSent": {
+    "description": "Reset link sent.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordResetFailed": "Failed to send reset email: {error}",
+  "@passwordResetFailed": {
+    "description": "Reset failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordForgot": "Forgot current password? Send reset link to email",
+  "@passwordForgot": {
+    "description": "Link."
+  },
+  "passwordChangeFailed": "Password change failed: {error}",
+  "@passwordChangeFailed": {
+    "description": "Change failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordUpdated": "Password updated successfully!",
+  "@passwordUpdated": {
+    "description": "Change succeeded."
+  },
+  "passwordUpdateButton": "UPDATE PASSWORD",
+  "@passwordUpdateButton": {
+    "description": "Button (uppercase)."
+  },
+  "viewerVideoTitle": "Evidence Video Stream",
+  "@viewerVideoTitle": {
+    "description": "Video viewer title fallback."
+  },
+  "viewerOpenExternalTab": "Open in External Tab",
+  "@viewerOpenExternalTab": {
+    "description": "Viewer action."
+  },
+  "viewerVideoError": "Unable to stream video in-app",
+  "@viewerVideoError": {
+    "description": "Video error."
+  },
+  "viewerOpenExternalPlayer": "Open in External Player",
+  "@viewerOpenExternalPlayer": {
+    "description": "Viewer action."
+  },
+  "viewerBuffering": "Buffering live evidence stream...",
+  "@viewerBuffering": {
+    "description": "Video loading."
+  },
+  "viewerReplay": "Replay Video",
+  "@viewerReplay": {
+    "description": "Tooltip."
+  },
+  "viewerPhotoTitle": "Photo Evidence Viewer",
+  "@viewerPhotoTitle": {
+    "description": "Photo viewer title fallback."
+  },
+  "viewerResetZoom": "Reset Zoom",
+  "@viewerResetZoom": {
+    "description": "Tooltip."
+  },
+  "viewerOpenFullImage": "Open Full Image in New Tab",
+  "@viewerOpenFullImage": {
+    "description": "Tooltip."
+  },
+  "viewerImageError": "Unable to display image in-app",
+  "@viewerImageError": {
+    "description": "Image error."
+  },
+  "viewerZoomHint": "Pinch, scroll, or drag to pan and zoom photo evidence",
+  "@viewerZoomHint": {
+    "description": "Hint under the photo."
+  },
+  "aiTriggerActivated": "Intelligent Triage Engine Activated: Handshake Sequence Engaged.",
+  "@aiTriggerActivated": {
+    "description": "Hidden AI feature switched on."
+  },
+  "chatResetTitle": "Reset Conversation?",
+  "@chatResetTitle": {
+    "description": "Chat reset dialog title."
+  },
+  "chatResetMessage": "Are you sure you want to clear your chat history with ResQ Civil Defense Assistant? This will start a fresh session.",
+  "@chatResetMessage": {
+    "description": "Chat reset dialog text."
+  },
+  "chatReset": "Reset",
+  "@chatReset": {
+    "description": "Chat reset button."
+  },
+  "chatTitle": "Civil Defense Assistant",
+  "@chatTitle": {
+    "description": "Chat window title."
+  },
+  "chatStatus": "Barangay Moonwalk • Active",
+  "@chatStatus": {
+    "description": "Chat status line."
+  },
+  "chatQuickGuides": "Quick Civil Defense Guides",
+  "@chatQuickGuides": {
+    "description": "Heading above quick questions."
+  },
+  "chatSenderAi": "RESQ GEMINI AI",
+  "@chatSenderAi": {
+    "description": "Label on AI messages (uppercase)."
+  },
+  "chatSenderOfficer": "CIVIL DEFENSE OFFICER",
+  "@chatSenderOfficer": {
+    "description": "Label on offline answers (uppercase)."
+  },
+  "chatHotlineDialers": "Immediate Hotline Dialers:",
+  "@chatHotlineDialers": {
+    "description": "Heading above hotline buttons."
+  },
+  "chatAllHotlines": "All Hotlines",
+  "@chatAllHotlines": {
+    "description": "Button to all hotlines."
+  },
+  "chatHint": "Ask safety or first-aid guide...",
+  "@chatHint": {
+    "description": "Chat input hint."
   }
 }

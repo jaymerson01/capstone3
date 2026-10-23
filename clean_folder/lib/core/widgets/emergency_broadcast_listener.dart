@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 class EmergencyBroadcastListener extends StatefulWidget {
   final Widget child;
   final GlobalKey<NavigatorState>? navigatorKey;
@@ -153,13 +154,13 @@ class _EmergencyBroadcastListenerState
     _activeDialogBroadcastId = broadcastId;
     _triggerSirenHaptics();
 
-    final title = data['title'] as String? ?? "MUNICIPAL EMERGENCY ADVISORY";
-    final alertType = data['alertType'] as String? ?? "Emergency Siren";
-    final sector = data['sector'] as String? ?? "All Sectors";
+    final title = data['title'] as String? ?? AppLocalizations.of(context).broadcastDefaultTitle;
+    final alertType = data['alertType'] as String? ?? AppLocalizations.of(context).broadcastDefaultType;
+    final sector = data['sector'] as String? ?? AppLocalizations.of(context).dashboardAllSectors;
     final message = data['message'] as String? ??
-        "Immediate safety precautions are advised by Barangay authorities.";
+        AppLocalizations.of(context).broadcastDefaultMessage;
     final source =
-        data['source'] as String? ?? "Barangay Command Center";
+        data['source'] as String? ?? AppLocalizations.of(context).broadcastDefaultSource;
 
     final now = DateTime.now();
     final timeStr =
@@ -182,7 +183,7 @@ class _EmergencyBroadcastListenerState
           await navState.push(
             RawDialogRoute(
               barrierDismissible: false,
-              barrierLabel: "Emergency Siren Alert",
+              barrierLabel: AppLocalizations.of(context).broadcastBarrierLabel,
               barrierColor: Colors.black.withValues(alpha: 0.85),
               transitionDuration: const Duration(milliseconds: 350),
               pageBuilder: (dialogContext, anim1, anim2) {
@@ -256,8 +257,8 @@ class _EmergencyBroadcastListenerState
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        const Text(
-                                          "MUNICIPAL EMERGENCY SIREN",
+                                        Text(
+                                          AppLocalizations.of(context).broadcastHeader,
                                           style: TextStyle(
                                             color: Color(0xFFFF3B30),
                                             fontWeight: FontWeight.w900,
@@ -329,7 +330,7 @@ class _EmergencyBroadcastListenerState
                                                 size: 15, color: Color(0xFF0A84FF)),
                                             const SizedBox(width: 6),
                                             Text(
-                                              "Target Sector: $sector",
+                                              AppLocalizations.of(context).broadcastTargetSector(sector),
                                               style: const TextStyle(
                                                 color: Color(0xFF0A84FF),
                                                 fontWeight: FontWeight.w700,
@@ -350,7 +351,7 @@ class _EmergencyBroadcastListenerState
                                         ),
                                         const SizedBox(height: 10),
                                         Text(
-                                          "Origin: $source",
+                                          AppLocalizations.of(context).broadcastOrigin(source),
                                           style: TextStyle(
                                             color: AppColors.textLight,
                                             fontSize: 10.5,
@@ -376,8 +377,8 @@ class _EmergencyBroadcastListenerState
                                           ),
                                           icon: const Icon(Icons.check_circle_outline,
                                               size: 18),
-                                          label: const Text(
-                                            "ACKNOWLEDGE ALERT",
+                                          label: Text(
+                                            AppLocalizations.of(context).broadcastAcknowledge,
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               letterSpacing: 0.5,

@@ -278,7 +278,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(e is LocationServiceException
+              ? LocalizedLabels.locationError(context, e.code)
+              : errorMessage),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
           duration: const Duration(seconds: 5),

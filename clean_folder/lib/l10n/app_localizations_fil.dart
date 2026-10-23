@@ -1328,4 +1328,617 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get kitGeneral3 =>
       '**Hintayin ang opisyal na abiso** mula sa security personnel o mga opisyal ng Barangay Moonwalk.';
+
+  @override
+  String get commonClose => 'Isara';
+
+  @override
+  String get commonConfirm => 'Kumpirmahin';
+
+  @override
+  String get commonDelete => 'Burahin';
+
+  @override
+  String get commonSubmit => 'Ipasa';
+
+  @override
+  String get commonCallNow => 'Tumawag Ngayon';
+
+  @override
+  String get timeShortJustNow => 'Ngayon lang';
+
+  @override
+  String timeShortMinutes(int count) {
+    return '${count}m ang nakalipas';
+  }
+
+  @override
+  String timeShortHours(int count) {
+    return '${count}h ang nakalipas';
+  }
+
+  @override
+  String timeShortDays(int count) {
+    return '${count}d ang nakalipas';
+  }
+
+  @override
+  String get locationErrorGpsOff =>
+      'Naka-off ang GPS. Mag-swipe pababa mula sa itaas ng screen at i-on ang Location.';
+
+  @override
+  String get locationErrorDenied =>
+      'Hindi pinayagan ang access sa lokasyon. Payagan ang location access.';
+
+  @override
+  String get locationErrorDeniedForever =>
+      'Permanenteng hindi pinayagan ang location. I-enable ito sa App Settings ng phone mo.';
+
+  @override
+  String get locationErrorNoFix =>
+      'Hindi makuha ang GPS. Siguraduhing naka-on ang GPS at malinaw ang signal.';
+
+  @override
+  String get mapsTitle => 'MAPA NG KOMUNIDAD';
+
+  @override
+  String get mapsLive => 'LIVE NA MAPA';
+
+  @override
+  String get mapsFilterAll => 'Lahat';
+
+  @override
+  String get mapsFilterFire => 'Sunog';
+
+  @override
+  String get mapsFilterMedical => 'Medikal';
+
+  @override
+  String get mapsFilterFlood => 'Baha';
+
+  @override
+  String get mapsFilterTheft => 'Pagnanakaw';
+
+  @override
+  String get mapsFilterAccident => 'Aksidente';
+
+  @override
+  String get mapsFilterViolence => 'Karahasan';
+
+  @override
+  String get mapsAffectedOriginal =>
+      '1 mamamayan ang apektado (ang nag-ulat). Hinihintay ang kumpirmasyon ng mga kapitbahay.';
+
+  @override
+  String mapsAffectedWithNeighbors(int total, int neighbors) {
+    return '$total mamamayan ang apektado (nag-ulat + $neighbors kapitbahay)';
+  }
+
+  @override
+  String get mapsYouAreAuthor =>
+      'Ikaw ang nag-ulat nito. I-tap ang \'Tingnan ang Detalye\' para masubaybayan.';
+
+  @override
+  String get mapsConfirmationRecorded =>
+      'Naitala ang iyong kumpirmasyon! Naabisuhan na ang dispatch.';
+
+  @override
+  String get mapsConfirmed => 'Nakumpirma';
+
+  @override
+  String get mapsIWitnessed => 'Nakita ko ito';
+
+  @override
+  String get mapsViewDetails => 'Tingnan ang Detalye';
+
+  @override
+  String get mapsOffline =>
+      'Offline ka ngayon. Hindi ma-load ang mga live na insidente.';
+
+  @override
+  String mapsActiveIncidents(int count) {
+    return '$count Aktibong Insidente';
+  }
+
+  @override
+  String get hotlinesConfirmTitle => 'Tawagan ang Dispatch?';
+
+  @override
+  String hotlinesConfirmMessage(String title, String number) {
+    return 'Sigurado ka bang tatawagan mo ngayon ang opisyal na hotline ng $title ($number)?';
+  }
+
+  @override
+  String get hotlinesPortal => 'PORTAL NG EMERGENCY CALL';
+
+  @override
+  String get hotlinesGuestNote =>
+      'Puwede kahit hindi naka-login. Tawagan nang direkta ang mga emergency responder sa ibaba.';
+
+  @override
+  String get hotlinesPolice => 'Dispatch ng Pulisya';
+
+  @override
+  String get hotlinesPoliceDesc =>
+      'Agarang pag-uulat ng krimen, pagpapatrolya sa komunidad, pagpigil sa banta, at pagpapanatili ng kaayusan.';
+
+  @override
+  String get hotlinesFire => 'Istasyon ng Bumbero';
+
+  @override
+  String get hotlinesFireDesc =>
+      'Mga sunog sa gusali, pagkontrol sa tagas ng mapanganib na kemikal, at agarang search and rescue.';
+
+  @override
+  String get hotlinesAmbulance => 'Medical Team ng Ambulansya';
+
+  @override
+  String get hotlinesAmbulanceDesc =>
+      'Tulong sa malubhang pinsala, paghatid sa kritikal na pasyente, at pagpapadala ng emergency responder.';
+
+  @override
+  String get hotlinesBarangay => 'Barangay Desk Center';
+
+  @override
+  String get hotlinesBarangayDesc =>
+      'Mga lokal na ulat sa kaligtasan sa Barangay Moonwalk, maliliit na alitan sa komunidad, koordinasyon sa security desk, at tulong.';
+
+  @override
+  String get hotlinesTooltip =>
+      'I-tap para direktang tumawag • Pindutin nang matagal para kumpirmahin';
+
+  @override
+  String get hotlinesCall => 'TUMAWAG';
+
+  @override
+  String get notificationsTitle => 'MGA NOTIPIKASYON';
+
+  @override
+  String get notificationsMarkAllRead => 'Markahang nabasa lahat';
+
+  @override
+  String get notificationsEmptyTitle => 'Wala Pang Notipikasyon';
+
+  @override
+  String get notificationsEmptyMessage =>
+      'Aabisuhan ka kapag may update ang dispatch sa iyong mga ulat, may kumpirma ang mga kapitbahay sa insidente, o may tunog ng siren sa komunidad.';
+
+  @override
+  String get notificationsViewReport => 'Tingnan ang ulat →';
+
+  @override
+  String get notificationsRemove => 'Alisin';
+
+  @override
+  String get broadcastDefaultTitle => 'MUNICIPAL EMERGENCY ADVISORY';
+
+  @override
+  String get broadcastDefaultType => 'Emergency Siren';
+
+  @override
+  String get broadcastDefaultMessage =>
+      'Pinapayuhan ng mga awtoridad ng Barangay ang agarang pag-iingat.';
+
+  @override
+  String get broadcastDefaultSource => 'Barangay Command Center';
+
+  @override
+  String get broadcastBarrierLabel => 'Alerto ng Emergency Siren';
+
+  @override
+  String get broadcastHeader => 'EMERGENCY SIREN NG MUNISIPYO';
+
+  @override
+  String broadcastTargetSector(String sector) {
+    return 'Sektor: $sector';
+  }
+
+  @override
+  String broadcastOrigin(String source) {
+    return 'Mula sa: $source';
+  }
+
+  @override
+  String get broadcastAcknowledge => 'KUMPIRMAHIN ANG ALERTO';
+
+  @override
+  String get settingsTitle => 'MGA SETTING';
+
+  @override
+  String get settingsEmergencyServices => 'Mga Serbisyong Pang-emergency';
+
+  @override
+  String get settingsHotlinesTitle => 'Mga Emergency Hotline ng Barangay';
+
+  @override
+  String get settingsHotlinesSubtitle =>
+      'Pulis (911), Bumbero (112), Medikal (143) at BDRRMC';
+
+  @override
+  String get settingsAccount => 'Mga Setting ng Account';
+
+  @override
+  String get settingsEditProfile => 'I-edit ang Personal na Detalye';
+
+  @override
+  String get settingsEditProfileSubtitle =>
+      'Buong pangalan, mobile number, sektor at address';
+
+  @override
+  String get settingsPrivacy => 'Privacy at Seguridad ng Account';
+
+  @override
+  String get settingsPrivacySubtitle =>
+      'I-update ang login credentials at tingnan ang anti-spam security policy';
+
+  @override
+  String get settingsPreferences => 'Mga Kagustuhan sa App';
+
+  @override
+  String get settingsTheme => 'Tema ng App';
+
+  @override
+  String get settingsDarkMode => 'Dark Mode';
+
+  @override
+  String get settingsLightMode => 'Light Mode';
+
+  @override
+  String get settingsSupport => 'Suporta at Impormasyon';
+
+  @override
+  String get settingsAbout => 'Tungkol sa ResQ Community Safety';
+
+  @override
+  String get settingsAboutSubtitle =>
+      'Mga gabay, mandato sa emergency at bersyon';
+
+  @override
+  String get settingsAboutBody =>
+      'Ang ResQ Community Safety ay isang civic-tech na platform para sa emergency response na nag-uugnay sa mga residente at sa Barangay Command Operations Center para sa mabilis na pagresponde, pag-verify, at katatagan ng komunidad.';
+
+  @override
+  String get settingsHelpDesk => 'Help Desk ng Barangay';
+
+  @override
+  String get settingsHelpDeskSubtitle =>
+      'Makipag-ugnayan sa administrative support team';
+
+  @override
+  String get settingsFeedback => 'Magpadala ng Feedback at Ulat ng Bug';
+
+  @override
+  String get settingsFeedbackSubtitle =>
+      'Mag-ulat ng problema o magmungkahi ng pagpapabuti';
+
+  @override
+  String get settingsResidentCitizen => 'Residenteng Mamamayan';
+
+  @override
+  String get settingsSectorNotSet => 'Wala pang sektor';
+
+  @override
+  String get settingsVerifiedResident => 'Beripikadong Residente';
+
+  @override
+  String get settingsLogOut => 'Mag-log Out';
+
+  @override
+  String get settingsLogOutConfirm =>
+      'Sigurado ka bang magla-log out ka sa iyong ResQ resident account?';
+
+  @override
+  String get settingsDeleteAccount => 'Burahin ang Account';
+
+  @override
+  String get settingsDeleteWarning =>
+      'Babala: Kapag binura mo ang iyong resident account, permanenteng mawawala ang lahat ng naisumiteng ulat at naka-save na profile. Hindi na ito maibabalik.';
+
+  @override
+  String get settingsDeleteForever => 'Permanenteng Burahin ang Account';
+
+  @override
+  String get settingsNoSession => 'Walang aktibong session ng residente.';
+
+  @override
+  String get settingsAccountErased =>
+      'Permanenteng nabura ang iyong account at personal na datos (RA 10173).';
+
+  @override
+  String get settingsRecentLoginRequired =>
+      'Paalala sa Seguridad: Kailangang bagong mag-sign in bago burahin ang account. Mag-log out, mag-sign in ulit, at subukan muli.';
+
+  @override
+  String settingsDeleteFailed(String error) {
+    return 'Hindi nabura ang account: $error';
+  }
+
+  @override
+  String settingsDeleteError(String error) {
+    return 'Error sa pagbura ng account: $error';
+  }
+
+  @override
+  String get settingsHelpDeskTitle => 'Administrative Help Desk ng Barangay';
+
+  @override
+  String get settingsOfficeAddress => 'Address ng Opisina';
+
+  @override
+  String get settingsServiceHours => 'Oras ng Serbisyo';
+
+  @override
+  String get settingsServiceHoursValue => 'Lunes – Biyernes: 8:00 AM – 5:00 PM';
+
+  @override
+  String get settingsCallOffice => 'Tawagan ang Opisina';
+
+  @override
+  String get settingsSendEmail => 'Mag-email';
+
+  @override
+  String get settingsHelpDeskNote =>
+      'Para sa agarang emergency na may panganib sa buhay (Sunog, Pulis, Medikal), gamitin ang Mga Emergency Hotline o magsumite ng ulat ng insidente.';
+
+  @override
+  String get settingsFeedbackTitle => 'Magpadala ng Feedback';
+
+  @override
+  String get settingsFeedbackIntro =>
+      'Tulungan kaming pagandahin ang ResQ para sa Barangay Moonwalk. Diretsong ipinapadala sa development team ang iyong feedback.';
+
+  @override
+  String get settingsFeedbackCategory => 'KATEGORYA NG FEEDBACK';
+
+  @override
+  String get feedbackGeneral => 'Pangkalahatang Feedback';
+
+  @override
+  String get feedbackBug => 'Ulat ng Bug';
+
+  @override
+  String get feedbackFeature => 'Mungkahing Feature';
+
+  @override
+  String get settingsFeedbackHint =>
+      'Ilarawan ang iyong feedback, mungkahi, o bug na naranasan...';
+
+  @override
+  String get settingsFeedbackEmpty =>
+      'Magsulat muna ng maikling paglalarawan bago magsumite.';
+
+  @override
+  String get settingsFeedbackThanks =>
+      'Salamat! Naipadala na sa technical team ang iyong feedback.';
+
+  @override
+  String settingsFeedbackFailed(String error) {
+    return 'Hindi naipadala ang feedback: $error';
+  }
+
+  @override
+  String get profileTitle => 'I-edit ang Profile';
+
+  @override
+  String get profilePhotoTitle => 'Larawan sa Profile';
+
+  @override
+  String get profileTakePhoto => 'Kumuha ng Larawan gamit ang Camera';
+
+  @override
+  String get profileChooseGallery => 'Pumili mula sa Gallery';
+
+  @override
+  String get profileUpdated => 'Na-update na ang mga detalye ng profile!';
+
+  @override
+  String profileUpdateFailed(String error) {
+    return 'Hindi na-update ang profile: $error';
+  }
+
+  @override
+  String get profileCredentials => 'Personal na Impormasyon';
+
+  @override
+  String get profileNameRequired => 'Ilagay ang iyong buong pangalan';
+
+  @override
+  String get profileEmailLabel => 'Email Address (Account ID)';
+
+  @override
+  String get profileEmailHelper =>
+      'Hindi na mapapalitan ang pangunahing login credential';
+
+  @override
+  String get profilePhoneLabel => 'Mobile Number';
+
+  @override
+  String get profilePhoneInvalid => 'Maglagay ng tamang mobile number';
+
+  @override
+  String get profileJurisdiction => 'Sakop na Barangay at Address';
+
+  @override
+  String get profileAreaLabel => 'Lugar / Sektor sa Barangay';
+
+  @override
+  String get profileAddressLabel => 'Address ng Tirahan / Detalye ng Bahay';
+
+  @override
+  String get profileAddressRequired => 'Ilagay ang address ng iyong tirahan';
+
+  @override
+  String get profileEmergencyContact => 'Emergency Contact';
+
+  @override
+  String get profileContactName => 'Taong Kokontakin sa Emergency';
+
+  @override
+  String get profileContactNameRequired =>
+      'Maglagay ng taong kokontakin sa emergency';
+
+  @override
+  String get profileContactNumber => 'Numero ng Emergency Contact';
+
+  @override
+  String get profileContactNumberInvalid =>
+      'Maglagay ng numero ng emergency contact';
+
+  @override
+  String get profileSave => 'I-SAVE ANG MGA PAGBABAGO';
+
+  @override
+  String get privacyTitle => 'Privacy at Seguridad';
+
+  @override
+  String get privacyCredentials => 'Credentials at Access';
+
+  @override
+  String get privacyChangePassword => 'Palitan ang Password ng Account';
+
+  @override
+  String get privacyChangePasswordSubtitle =>
+      'I-update ang password ng iyong resident account';
+
+  @override
+  String get privacyPolicyTitle => 'Patakaran sa Seguridad at Anti-Spam';
+
+  @override
+  String get privacyBiometric => 'Biometric na Pag-verify';
+
+  @override
+  String get privacyEnforced => 'IPINATUTUPAD';
+
+  @override
+  String get privacyBiometricOn =>
+      'Ipinatutupad ng patakaran ng Barangay Moonwalk ang biometric na kumpirmasyon (fingerprint o face authentication) sa pagsusumite ng emergency report para maiwasan ang mga pekeng alarma at prank na ulat.';
+
+  @override
+  String get privacyBiometricOff =>
+      'Walang biometric hardware sa device na ito. Ang PIN o secure credential ng device ang gagamitin bilang anti-spam na pag-verify.';
+
+  @override
+  String get passwordDialogTitle => 'Palitan ang Password';
+
+  @override
+  String get passwordDialogIntro =>
+      'Ilagay ang kasalukuyang password at ang bagong password.';
+
+  @override
+  String get passwordCurrentRequired => 'Ilagay ang kasalukuyang password';
+
+  @override
+  String get passwordCurrentLabel => 'Kasalukuyang Password';
+
+  @override
+  String get passwordMinLength =>
+      'Dapat hindi bababa sa 6 na karakter ang password';
+
+  @override
+  String get passwordNewLabel => 'Bagong Password';
+
+  @override
+  String get passwordMismatchShort => 'Hindi magkapareho ang mga password';
+
+  @override
+  String get passwordConfirmLabel => 'Kumpirmahin ang Bagong Password';
+
+  @override
+  String get passwordNoEmail => 'Walang rehistradong email ang account na ito.';
+
+  @override
+  String passwordResetSent(String email) {
+    return 'Naipadala na ang link para i-reset ang password sa $email. Tingnan ang iyong email inbox.';
+  }
+
+  @override
+  String passwordResetFailed(String error) {
+    return 'Hindi naipadala ang reset email: $error';
+  }
+
+  @override
+  String get passwordForgot =>
+      'Nakalimutan ang password? Ipadala ang reset link sa email';
+
+  @override
+  String passwordChangeFailed(String error) {
+    return 'Hindi napalitan ang password: $error';
+  }
+
+  @override
+  String get passwordUpdated => 'Napalitan na ang password!';
+
+  @override
+  String get passwordUpdateButton => 'I-UPDATE ANG PASSWORD';
+
+  @override
+  String get viewerVideoTitle => 'Video na Ebidensya';
+
+  @override
+  String get viewerOpenExternalTab => 'Buksan sa Ibang Tab';
+
+  @override
+  String get viewerVideoError => 'Hindi ma-play ang video sa app';
+
+  @override
+  String get viewerOpenExternalPlayer => 'Buksan sa Ibang Player';
+
+  @override
+  String get viewerBuffering => 'Nilo-load ang video na ebidensya...';
+
+  @override
+  String get viewerReplay => 'Ulitin ang Video';
+
+  @override
+  String get viewerPhotoTitle => 'Larawang Ebidensya';
+
+  @override
+  String get viewerResetZoom => 'I-reset ang Zoom';
+
+  @override
+  String get viewerOpenFullImage => 'Buksan ang Buong Larawan sa Bagong Tab';
+
+  @override
+  String get viewerImageError => 'Hindi maipakita ang larawan sa app';
+
+  @override
+  String get viewerZoomHint =>
+      'I-pinch, i-scroll, o i-drag para i-zoom at galawin ang larawan';
+
+  @override
+  String get aiTriggerActivated => 'Na-activate ang Intelligent Triage Engine.';
+
+  @override
+  String get chatResetTitle => 'I-reset ang Usapan?';
+
+  @override
+  String get chatResetMessage =>
+      'Sigurado ka bang buburahin ang chat history mo sa ResQ Civil Defense Assistant? Magsisimula ito ng bagong session.';
+
+  @override
+  String get chatReset => 'I-reset';
+
+  @override
+  String get chatTitle => 'Civil Defense Assistant';
+
+  @override
+  String get chatStatus => 'Barangay Moonwalk • Aktibo';
+
+  @override
+  String get chatQuickGuides => 'Mabilisang Gabay sa Civil Defense';
+
+  @override
+  String get chatSenderAi => 'RESQ GEMINI AI';
+
+  @override
+  String get chatSenderOfficer => 'CIVIL DEFENSE OFFICER';
+
+  @override
+  String get chatHotlineDialers => 'Mga Hotline na Puwedeng Tawagan:';
+
+  @override
+  String get chatAllHotlines => 'Lahat ng Hotline';
+
+  @override
+  String get chatHint => 'Magtanong tungkol sa kaligtasan o first aid...';
 }
