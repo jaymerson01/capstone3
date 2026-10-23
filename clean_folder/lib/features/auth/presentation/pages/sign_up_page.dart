@@ -11,6 +11,8 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/email_verification_page.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -69,7 +71,11 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
       listener: (context, state) async {
         if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.message),
+            content: Text(LocalizedLabels.authError(
+              context,
+              code: state.code,
+              message: state.message,
+            )),
             backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ));
@@ -197,9 +203,9 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                 shaderCallback: (b) =>
                                     AppColors.cyanGradient.createShader(b),
                                 blendMode: BlendMode.srcIn,
-                                child: const Text(
-                                  "CREATE ACCOUNT",
-                                  style: TextStyle(
+                                child: Text(
+                                  AppLocalizations.of(context).signUpTitle,
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w900,
                                     fontSize: 24,
@@ -209,7 +215,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                "Join the RESQ Barangay Safety Network",
+                                AppLocalizations.of(context).signUpSubtitle,
                                 style: TextStyle(
                                     color: AppColors.textLight, fontSize: 13),
                                 textAlign: TextAlign.center,
@@ -255,16 +261,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         label: 'name_input',
                                         child: Custom3dTextField(
                                           controller: _nameController,
-                                          labelText: "Full Name",
-                                        hintText: "Enter your full name",
+                                          labelText: AppLocalizations.of(context).signUpNameLabel,
+                                        hintText: AppLocalizations.of(context).signUpNameHint,
                                         prefixIcon: Icons.person_outline,
                                         validator: (v) {
                                           if (v == null || v.trim().isEmpty) {
-                                            return "Name is required.";
+                                            return AppLocalizations.of(context).signUpNameRequired;
                                           }
                                           if (!RegExp(r'^[a-zA-Z\s\-]{2,50}$')
                                               .hasMatch(v.trim())) {
-                                            return "Letters, spaces, hyphens only (2-50 chars).";
+                                            return AppLocalizations.of(context).signUpNameInvalid;
                                           }
                                           return null;
                                         },
@@ -274,18 +280,18 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         label: 'email_input',
                                         child: Custom3dTextField(
                                           controller: _emailController,
-                                          labelText: "Email Address",
-                                        hintText: "e.g. juan@gmail.com",
+                                          labelText: AppLocalizations.of(context).authEmailLabel,
+                                        hintText: AppLocalizations.of(context).authEmailHint,
                                         prefixIcon: Icons.email_outlined,
                                         keyboardType: TextInputType.emailAddress,
                                         validator: (v) {
                                           if (v == null || v.trim().isEmpty) {
-                                            return "Email is required.";
+                                            return AppLocalizations.of(context).authEmailRequired;
                                           }
                                           if (!RegExp(
                                                   r'^[\w-\.]+@gmail\.com$')
                                               .hasMatch(v.trim().toLowerCase())) {
-                                            return "Enter a valid Gmail address.";
+                                            return AppLocalizations.of(context).authEmailInvalid;
                                           }
                                           return null;
                                         },
@@ -295,8 +301,8 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         label: 'password_input',
                                         child: Custom3dTextField(
                                           controller: _passwordController,
-                                          labelText: "Password",
-                                        hintText: "e.g. Moonwalk#01",
+                                          labelText: AppLocalizations.of(context).authPasswordLabel,
+                                        hintText: AppLocalizations.of(context).authPasswordHint,
                                         prefixIcon: Icons.lock_outline,
                                         obscureText: _obscurePassword,
                                         suffixIcon: IconButton(
@@ -312,15 +318,15 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         ),
                                         validator: (v) {
                                           if (v == null || v.isEmpty) {
-                                            return "Password is required.";
+                                            return AppLocalizations.of(context).authPasswordRequired;
                                           }
                                           if (v.contains(' ')) {
-                                            return "No spaces allowed.";
+                                            return AppLocalizations.of(context).signUpPasswordNoSpaces;
                                           }
                                           if (!RegExp(
                                                   r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[_\-@#\$%&!?*.]).{8,20}$')
                                               .hasMatch(v)) {
-                                            return "8-20 chars, 1 upper, 1 lower, 1 num, 1 special.";
+                                            return AppLocalizations.of(context).signUpPasswordRules;
                                           }
                                           return null;
                                         },
@@ -330,16 +336,16 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         label: 'confirm_password_input',
                                         child: Custom3dTextField(
                                           controller: _confirmPasswordController,
-                                          labelText: "Confirm Password",
-                                        hintText: "Repeat your password",
+                                          labelText: AppLocalizations.of(context).signUpConfirmLabel,
+                                        hintText: AppLocalizations.of(context).signUpConfirmHint,
                                         prefixIcon: Icons.lock_outline,
                                         obscureText: _obscurePassword,
                                         validator: (v) {
                                           if (v == null || v.isEmpty) {
-                                            return "Please confirm password.";
+                                            return AppLocalizations.of(context).signUpConfirmRequired;
                                           }
                                           if (v != _passwordController.text) {
-                                            return "Passwords do not match.";
+                                            return AppLocalizations.of(context).signUpPasswordMismatch;
                                           }
                                           return null;
                                         },
@@ -411,7 +417,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                               SizedBox(width: 12),
                                               Expanded(
                                                 child: Text(
-                                                  "I accept the Terms and Conditions",
+                                                  AppLocalizations.of(context).signUpAcceptTerms,
                                                   style: TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w600,
@@ -431,8 +437,8 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         label: 'register_button',
                                         child: Custom3dButton(
                                           text: isLoading
-                                              ? "REGISTERING..."
-                                              : "CREATE ACCOUNT",
+                                              ? AppLocalizations.of(context).signUpRegistering
+                                              : AppLocalizations.of(context).signUpButton,
                                         icon: isLoading
                                             ? null
                                             : Icons.check_circle_outline,
@@ -478,7 +484,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                                         : AppColors.border)),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text("or continue with",
+                              child: Text(AppLocalizations.of(context).authOrContinueWith,
                                   style: TextStyle(
                                       color: AppColors.textLight, fontSize: 12)),
                             ),
@@ -499,7 +505,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(
-                              "Already have an account? Sign In",
+                              AppLocalizations.of(context).signUpHaveAccount,
                               style: TextStyle(
                                 color: AppColors.primary,
                                 fontWeight: FontWeight.w700,
@@ -562,7 +568,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  "Account Created!",
+                  AppLocalizations.of(context).signUpCreatedTitle,
                   style: TextStyle(
                       color: AppColors.textDark,
                       fontSize: 20,
@@ -571,8 +577,8 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                 const SizedBox(height: 8),
                 Text(
                   email != null && email.isNotEmpty
-                      ? "A verification link was sent to $email. Please verify your email to activate your account."
-                      : "A verification link was sent to your email. Please verify your email to activate your account.",
+                      ? AppLocalizations.of(context).signUpVerificationSentTo(email)
+                      : AppLocalizations.of(context).signUpVerificationSent,
                   style: TextStyle(
                       color: AppColors.textLight, fontSize: 13, height: 1.5),
                   textAlign: TextAlign.center,
@@ -592,10 +598,10 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
                         onTap: () => Navigator.pop(ctx),
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            "Proceed to Verification",
-                            style: TextStyle(
+                            AppLocalizations.of(context).signUpProceedToVerification,
+                            style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 15),
@@ -648,7 +654,7 @@ class _SignUpPageState extends State<SignUpPage> with TickerProviderStateMixin {
               Icon(Icons.g_mobiledata, size: 28, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
-                "Continue with Google",
+                AppLocalizations.of(context).authContinueWithGoogle,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14.5,

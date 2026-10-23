@@ -813,5 +813,420 @@
   "reportUnderstoodDone": "I Understand & Done",
   "@reportUnderstoodDone": {
     "description": "Button that closes the after-submit dialog."
+  },
+  "commonContinue": "Continue",
+  "@commonContinue": {
+    "description": "Generic continue button."
+  },
+  "commonUnderstood": "Understood",
+  "@commonUnderstood": {
+    "description": "Button that closes an information dialog."
+  },
+  "welcomeLoginRequiredTitle": "Login Required",
+  "@welcomeLoginRequiredTitle": {
+    "description": "Dialog title when a guest tries to report."
+  },
+  "welcomeLoginRequiredMessage": "Please login or create an account first before reporting an incident.",
+  "@welcomeLoginRequiredMessage": {
+    "description": "Dialog text when a guest tries to report."
+  },
+  "authLogin": "Login",
+  "@authLogin": {
+    "description": "Login button."
+  },
+  "authSignUp": "Sign Up",
+  "@authSignUp": {
+    "description": "Sign-up button or link."
+  },
+  "welcomeTagline": "Smart Barangay Command System",
+  "@welcomeTagline": {
+    "description": "Subtitle under the RESQ logo."
+  },
+  "welcomeSubtitle": "Your safety and community trust are our priority",
+  "@welcomeSubtitle": {
+    "description": "Welcome screen tagline."
+  },
+  "welcomeReportIncident": "Report an Incident",
+  "@welcomeReportIncident": {
+    "description": "Welcome screen button."
+  },
+  "welcomeHotlines": "Emergency Hotlines",
+  "@welcomeHotlines": {
+    "description": "Welcome screen button."
+  },
+  "welcomeFooter": "🛡️ Republic of the Philippines • Barangay Moonwalk, Parañaque City",
+  "@welcomeFooter": {
+    "description": "Official footer of the welcome screen."
+  },
+  "authEmailLabel": "Email Address",
+  "@authEmailLabel": {
+    "description": "Email field label."
+  },
+  "authEmailHint": "e.g. juan@gmail.com",
+  "@authEmailHint": {
+    "description": "Email field hint."
+  },
+  "authEmailRequired": "Email is required.",
+  "@authEmailRequired": {
+    "description": "Validation: email empty."
+  },
+  "authEmailInvalid": "Enter a valid Gmail address.",
+  "@authEmailInvalid": {
+    "description": "Validation: not a Gmail address."
+  },
+  "authPasswordLabel": "Password",
+  "@authPasswordLabel": {
+    "description": "Password field label."
+  },
+  "authPasswordHint": "e.g. Moonwalk#01",
+  "@authPasswordHint": {
+    "description": "Password field hint."
+  },
+  "authPasswordRequired": "Password is required.",
+  "@authPasswordRequired": {
+    "description": "Validation: password empty."
+  },
+  "authOrContinueWith": "or continue with",
+  "@authOrContinueWith": {
+    "description": "Divider above the Google button."
+  },
+  "authContinueWithGoogle": "Continue with Google",
+  "@authContinueWithGoogle": {
+    "description": "Google sign-in button."
+  },
+  "loginTitle": "SIGN IN",
+  "@loginTitle": {
+    "description": "Login screen title (uppercase)."
+  },
+  "loginSubtitle": "Barangay Incident & Public Safety Portal",
+  "@loginSubtitle": {
+    "description": "Login screen subtitle."
+  },
+  "loginForgotPassword": "Forgot Password?",
+  "@loginForgotPassword": {
+    "description": "Link that opens password reset."
+  },
+  "loginSigningIn": "SIGNING IN...",
+  "@loginSigningIn": {
+    "description": "Login button while signing in (uppercase)."
+  },
+  "loginContinue": "CONTINUE",
+  "@loginContinue": {
+    "description": "Login button (uppercase)."
+  },
+  "loginNoAccount": "Don't have an account? ",
+  "@loginNoAccount": {
+    "description": "Text before the Sign Up link (keep the trailing space)."
+  },
+  "loginWelcomeBack": "Welcome Back!",
+  "@loginWelcomeBack": {
+    "description": "Dialog title after signing in."
+  },
+  "loginSuccess": "You have successfully signed in.",
+  "@loginSuccess": {
+    "description": "Dialog text after signing in."
+  },
+  "resetTitle": "Reset Password",
+  "@resetTitle": {
+    "description": "Password reset dialog title."
+  },
+  "resetMessage": "Enter your registered email and we'll send you an official link to reset your password.",
+  "@resetMessage": {
+    "description": "Password reset dialog text."
+  },
+  "resetEmailLabel": "Registered Email",
+  "@resetEmailLabel": {
+    "description": "Password reset email field."
+  },
+  "resetEmailInvalid": "Please enter a valid registered email address.",
+  "@resetEmailInvalid": {
+    "description": "Password reset validation."
+  },
+  "resetSent": "Password reset email sent to {email}! Please check your inbox.",
+  "@resetSent": {
+    "description": "Password reset email sent.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "resetFailed": "Failed to send reset link: {error}",
+  "@resetFailed": {
+    "description": "Password reset failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "resetSendLink": "Send Link",
+  "@resetSendLink": {
+    "description": "Password reset button."
+  },
+  "signUpTitle": "CREATE ACCOUNT",
+  "@signUpTitle": {
+    "description": "Sign-up screen title (uppercase)."
+  },
+  "signUpSubtitle": "Join the RESQ Barangay Safety Network",
+  "@signUpSubtitle": {
+    "description": "Sign-up screen subtitle."
+  },
+  "signUpNameLabel": "Full Name",
+  "@signUpNameLabel": {
+    "description": "Name field label."
+  },
+  "signUpNameHint": "Enter your full name",
+  "@signUpNameHint": {
+    "description": "Name field hint."
+  },
+  "signUpNameRequired": "Name is required.",
+  "@signUpNameRequired": {
+    "description": "Validation: name empty."
+  },
+  "signUpNameInvalid": "Letters, spaces, hyphens only (2-50 chars).",
+  "@signUpNameInvalid": {
+    "description": "Validation: name has invalid characters."
+  },
+  "signUpPasswordNoSpaces": "No spaces allowed.",
+  "@signUpPasswordNoSpaces": {
+    "description": "Validation: password has spaces."
+  },
+  "signUpPasswordRules": "8-20 chars, 1 upper, 1 lower, 1 num, 1 special.",
+  "@signUpPasswordRules": {
+    "description": "Validation: password too weak."
+  },
+  "signUpConfirmLabel": "Confirm Password",
+  "@signUpConfirmLabel": {
+    "description": "Confirm password field label."
+  },
+  "signUpConfirmHint": "Repeat your password",
+  "@signUpConfirmHint": {
+    "description": "Confirm password field hint."
+  },
+  "signUpConfirmRequired": "Please confirm password.",
+  "@signUpConfirmRequired": {
+    "description": "Validation: confirm password empty."
+  },
+  "signUpPasswordMismatch": "Passwords do not match.",
+  "@signUpPasswordMismatch": {
+    "description": "Validation: passwords differ."
+  },
+  "signUpAcceptTerms": "I accept the Terms and Conditions",
+  "@signUpAcceptTerms": {
+    "description": "Terms checkbox."
+  },
+  "signUpRegistering": "REGISTERING...",
+  "@signUpRegistering": {
+    "description": "Sign-up button while registering (uppercase)."
+  },
+  "signUpButton": "CREATE ACCOUNT",
+  "@signUpButton": {
+    "description": "Sign-up button (uppercase)."
+  },
+  "signUpHaveAccount": "Already have an account? Sign In",
+  "@signUpHaveAccount": {
+    "description": "Link back to login."
+  },
+  "signUpCreatedTitle": "Account Created!",
+  "@signUpCreatedTitle": {
+    "description": "Dialog title after sign-up."
+  },
+  "signUpVerificationSentTo": "A verification link was sent to {email}. Please verify your email to activate your account.",
+  "@signUpVerificationSentTo": {
+    "description": "Dialog text after sign-up.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "signUpVerificationSent": "A verification link was sent to your email. Please verify your email to activate your account.",
+  "@signUpVerificationSent": {
+    "description": "Dialog text after sign-up (email unknown)."
+  },
+  "signUpProceedToVerification": "Proceed to Verification",
+  "@signUpProceedToVerification": {
+    "description": "Button after sign-up."
+  },
+  "verifyYourEmailFallback": "your email address",
+  "@verifyYourEmailFallback": {
+    "description": "Used when the email address is unknown."
+  },
+  "verifyNoSession": "No authenticated session. Please sign in again.",
+  "@verifyNoSession": {
+    "description": "No signed-in user."
+  },
+  "verifySuccess": "Email verified successfully! Welcome to ResQ.",
+  "@verifySuccess": {
+    "description": "Email verified."
+  },
+  "verifyNotYet": "Your email is not verified yet. Please open the link sent to your inbox, then tap here again.",
+  "@verifyNotYet": {
+    "description": "Email not verified yet."
+  },
+  "verifyResendShort": "Resend Link",
+  "@verifyResendShort": {
+    "description": "Short action to resend the email."
+  },
+  "verifyCheckFailed": "Verification check failed: {error}",
+  "@verifyCheckFailed": {
+    "description": "Check failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyLinkResent": "A new verification link was sent to {email}!",
+  "@verifyLinkResent": {
+    "description": "Verification email resent.",
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "verifySessionExpired": "Session expired. Please log in again.",
+  "@verifySessionExpired": {
+    "description": "Session expired."
+  },
+  "verifyResendFailed": "Could not resend email: {error}",
+  "@verifyResendFailed": {
+    "description": "Resend failed.",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "verifyDemoTitle": "Defense Demo Bypass",
+  "@verifyDemoTitle": {
+    "description": "Hidden capstone demo dialog title."
+  },
+  "verifyDemoMessage": "Activate instant verification bypass for Capstone presentation and testing purposes?",
+  "@verifyDemoMessage": {
+    "description": "Hidden capstone demo dialog text."
+  },
+  "verifyDemoConfirm": "Bypass for Demo",
+  "@verifyDemoConfirm": {
+    "description": "Hidden capstone demo button."
+  },
+  "verifyBadge": "Republic of the Philippines • Brgy. Moonwalk",
+  "@verifyBadge": {
+    "description": "Official badge text."
+  },
+  "verifyTitle": "Verify Your Email",
+  "@verifyTitle": {
+    "description": "Verification screen title."
+  },
+  "verifyInstruction": "We have sent an official verification link to your registered email address:",
+  "@verifyInstruction": {
+    "description": "Text above the email address."
+  },
+  "verifyPending": "Verification Pending",
+  "@verifyPending": {
+    "description": "Status chip."
+  },
+  "verifyChecking": "Checking...",
+  "@verifyChecking": {
+    "description": "Button while checking."
+  },
+  "verifyDone": "I've Verified My Email",
+  "@verifyDone": {
+    "description": "Button to check verification."
+  },
+  "verifyResend": "Resend Verification Link",
+  "@verifyResend": {
+    "description": "Button to resend the email."
+  },
+  "verifyResendIn": "Resend Link in {seconds}s",
+  "@verifyResendIn": {
+    "description": "Resend countdown.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "verifyWrongEmail": "Wrong email address? Sign Out",
+  "@verifyWrongEmail": {
+    "description": "Sign out link."
+  },
+  "verifyTip": "💡 Tip: If you don't see the email, please check your Spam or Junk folder.\n(Defense note: Long-press the civic badge above to activate demo bypass)",
+  "@verifyTip": {
+    "description": "Help text at the bottom of the verification screen."
+  },
+  "authInvalidTitle": "Invalid Credentials",
+  "@authInvalidTitle": {
+    "description": "Dialog title."
+  },
+  "authInvalidMessage": "The username or password you entered is incorrect. Please try again.",
+  "@authInvalidMessage": {
+    "description": "Dialog text."
+  },
+  "authTryAgain": "Try Again",
+  "@authTryAgain": {
+    "description": "Dialog button."
+  },
+  "authAdminTitle": "Admin Account Detected",
+  "@authAdminTitle": {
+    "description": "Dialog title when an admin uses the resident app."
+  },
+  "authAdminMessage": "This account is registered with Barangay Official & Dispatcher privileges.\n\nPlease log in via the ResQ Admin Command Center web portal.",
+  "@authAdminMessage": {
+    "description": "Dialog text when an admin uses the resident app."
+  },
+  "authLockedTitle": "Account Temporarily Locked",
+  "@authLockedTitle": {
+    "description": "Lockout dialog title."
+  },
+  "authLockedMessage": "Too many failed login attempts detected. Your account is locked for security.",
+  "@authLockedMessage": {
+    "description": "Lockout dialog text."
+  },
+  "authLockedRemaining": "remaining",
+  "@authLockedRemaining": {
+    "description": "Under the lockout countdown."
+  },
+  "authErrorInvalidCredentials": "Incorrect email or password. Please try again.",
+  "@authErrorInvalidCredentials": {
+    "description": "Login error."
+  },
+  "authErrorInvalidEmail": "That email address is not valid.",
+  "@authErrorInvalidEmail": {
+    "description": "Login/sign-up error."
+  },
+  "authErrorAccountSuspended": "This account has been suspended by the Barangay Moonwalk admin. Please contact the barangay help desk.",
+  "@authErrorAccountSuspended": {
+    "description": "Login error."
+  },
+  "authErrorEmailInUse": "An account already exists for this email.",
+  "@authErrorEmailInUse": {
+    "description": "Sign-up error."
+  },
+  "authErrorWeakPassword": "That password is too weak.",
+  "@authErrorWeakPassword": {
+    "description": "Sign-up error."
+  },
+  "authErrorTooManyRequests": "Too many attempts. Please wait a few minutes and try again.",
+  "@authErrorTooManyRequests": {
+    "description": "Login error."
+  },
+  "authErrorNetwork": "No internet connection. Please check your connection and try again.",
+  "@authErrorNetwork": {
+    "description": "Login/sign-up error."
+  },
+  "authErrorTimeout": "Login request timed out. Please check your internet connection.",
+  "@authErrorTimeout": {
+    "description": "Login error."
+  },
+  "authErrorGoogleCancelled": "Google Sign-In was cancelled.",
+  "@authErrorGoogleCancelled": {
+    "description": "Google sign-in error."
+  },
+  "authErrorEmptyCredentials": "Email and password cannot be empty.",
+  "@authErrorEmptyCredentials": {
+    "description": "Login error."
   }
 }

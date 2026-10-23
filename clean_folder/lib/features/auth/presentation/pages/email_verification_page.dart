@@ -10,6 +10,7 @@ import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.
 import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   final UserEntity? user;
@@ -85,7 +86,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
     if (widget.user != null && widget.user!.email.isNotEmpty) {
       return widget.user!.email;
     }
-    return FirebaseAuth.instance.currentUser?.email ?? 'your email address';
+    return FirebaseAuth.instance.currentUser?.email ?? AppLocalizations.of(context).verifyYourEmailFallback;
   }
 
   Future<void> _checkVerificationStatus() async {
@@ -98,8 +99,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text("No authenticated session. Please sign in again."),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).verifyNoSession),
             backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
@@ -124,14 +125,14 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
         if (!mounted) return;
 
         messenger.showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Row(
               children: [
                 Icon(Icons.check_circle_rounded, color: Colors.white),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "Email verified successfully! Welcome to ResQ.",
+                    AppLocalizations.of(context).verifySuccess,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -149,14 +150,14 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
         if (!mounted) return;
         messenger.showSnackBar(
           SnackBar(
-            content: const Text(
-              "Your email is not verified yet. Please open the link sent to your inbox, then tap here again.",
+            content: Text(
+              AppLocalizations.of(context).verifyNotYet,
             ),
             backgroundColor: AppColors.warning,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 4),
             action: SnackBarAction(
-              label: "Resend Link",
+              label: AppLocalizations.of(context).verifyResendShort,
               textColor: Colors.white,
               onPressed: _canResend ? _resendVerificationEmail : () {},
             ),
@@ -167,7 +168,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text("Verification check failed: $e"),
+          content: Text(AppLocalizations.of(context).verifyCheckFailed('$e')),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -199,7 +200,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    "A new verification link was sent to $_displayEmail!",
+                    AppLocalizations.of(context).verifyLinkResent(_displayEmail),
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -211,8 +212,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
         );
       } else {
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text("Session expired. Please log in again."),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).verifySessionExpired),
             backgroundColor: AppColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
@@ -222,7 +223,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
       if (!mounted) return;
       messenger.showSnackBar(
         SnackBar(
-          content: Text("Could not resend email: $e"),
+          content: Text(AppLocalizations.of(context).verifyResendFailed('$e')),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -243,24 +244,24 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
           borderRadius: BorderRadius.circular(20),
           side: const BorderSide(color: AppColors.warning),
         ),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.shield_rounded, color: AppColors.warning),
             SizedBox(width: 10),
             Text(
-              "Defense Demo Bypass",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              AppLocalizations.of(context).verifyDemoTitle,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
             ),
           ],
         ),
-        content: const Text(
-          "Activate instant verification bypass for Capstone presentation and testing purposes?",
-          style: TextStyle(fontSize: 13.5, height: 1.4),
+        content: Text(
+          AppLocalizations.of(context).verifyDemoMessage,
+          style: const TextStyle(fontSize: 13.5, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Cancel"),
+            child: Text(AppLocalizations.of(context).commonCancel),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -271,9 +272,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
               ),
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Bypass for Demo",
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              AppLocalizations.of(context).verifyDemoConfirm,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -403,7 +404,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Republic of the Philippines • Brgy. Moonwalk",
+                                    AppLocalizations.of(context).verifyBadge,
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w700,
@@ -486,7 +487,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
 
                                     // Title
                                     Text(
-                                      "Verify Your Email",
+                                      AppLocalizations.of(context).verifyTitle,
                                       style: TextStyle(
                                         fontSize: 24,
                                         fontWeight: FontWeight.w900,
@@ -499,7 +500,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
 
                                     // Instruction text
                                     Text(
-                                      "We have sent an official verification link to your registered email address:",
+                                      AppLocalizations.of(context).verifyInstruction,
                                       style: TextStyle(
                                         fontSize: 13.5,
                                         color: AppColors.textLight,
@@ -560,9 +561,9 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        const Text(
-                                          "Verification Pending",
-                                          style: TextStyle(
+                                        Text(
+                                          AppLocalizations.of(context).verifyPending,
+                                          style: const TextStyle(
                                             color: AppColors.warning,
                                             fontSize: 12,
                                             fontWeight: FontWeight.w700,
@@ -575,7 +576,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
 
                                     // ── Button 1: "I've Verified My Email" ───
                                     Custom3dButton(
-                                      text: _isChecking ? "Checking..." : "I've Verified My Email",
+                                      text: _isChecking ? AppLocalizations.of(context).verifyChecking : AppLocalizations.of(context).verifyDone,
                                       icon: _isChecking ? null : Icons.check_circle_outline_rounded,
                                       height: 52,
                                       gradient: AppColors.primaryGradient,
@@ -609,8 +610,8 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
                                               ),
                                         label: Text(
                                           _canResend
-                                              ? "Resend Verification Link"
-                                              : "Resend Link in ${_secondsRemaining}s",
+                                              ? AppLocalizations.of(context).verifyResend
+                                              : AppLocalizations.of(context).verifyResendIn(_secondsRemaining),
                                           style: TextStyle(
                                             fontSize: 13.5,
                                             fontWeight: FontWeight.w700,
@@ -650,7 +651,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
                                         color: AppColors.textLight,
                                       ),
                                       label: Text(
-                                        "Wrong email address? Sign Out",
+                                        AppLocalizations.of(context).verifyWrongEmail,
                                         style: TextStyle(
                                           fontSize: 13,
                                           color: AppColors.textLight,
@@ -667,7 +668,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
 
                           // Discreet defense note / bypass helper
                           Text(
-                            "💡 Tip: If you don't see the email, please check your Spam or Junk folder.\n(Defense note: Long-press the civic badge above to activate demo bypass)",
+                            AppLocalizations.of(context).verifyTip,
                             style: TextStyle(
                               fontSize: 11,
                               color: isDark

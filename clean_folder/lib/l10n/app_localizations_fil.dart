@@ -627,4 +627,328 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get reportUnderstoodDone => 'Naiintindihan Ko, Tapos Na';
+
+  @override
+  String get commonContinue => 'Magpatuloy';
+
+  @override
+  String get commonUnderstood => 'Naiintindihan ko';
+
+  @override
+  String get welcomeLoginRequiredTitle => 'Kailangang Mag-login';
+
+  @override
+  String get welcomeLoginRequiredMessage =>
+      'Mag-login o gumawa muna ng account bago mag-ulat ng insidente.';
+
+  @override
+  String get authLogin => 'Mag-login';
+
+  @override
+  String get authSignUp => 'Mag-sign Up';
+
+  @override
+  String get welcomeTagline => 'Matalinong Command System ng Barangay';
+
+  @override
+  String get welcomeSubtitle =>
+      'Ang inyong kaligtasan at tiwala ng komunidad ang aming prayoridad';
+
+  @override
+  String get welcomeReportIncident => 'Mag-ulat ng Insidente';
+
+  @override
+  String get welcomeHotlines => 'Mga Emergency Hotline';
+
+  @override
+  String get welcomeFooter =>
+      '🛡️ Republika ng Pilipinas • Barangay Moonwalk, Lungsod ng Parañaque';
+
+  @override
+  String get authEmailLabel => 'Email Address';
+
+  @override
+  String get authEmailHint => 'hal. juan@gmail.com';
+
+  @override
+  String get authEmailRequired => 'Kailangan ang email.';
+
+  @override
+  String get authEmailInvalid => 'Maglagay ng tamang Gmail address.';
+
+  @override
+  String get authPasswordLabel => 'Password';
+
+  @override
+  String get authPasswordHint => 'hal. Moonwalk#01';
+
+  @override
+  String get authPasswordRequired => 'Kailangan ang password.';
+
+  @override
+  String get authOrContinueWith => 'o magpatuloy gamit ang';
+
+  @override
+  String get authContinueWithGoogle => 'Magpatuloy gamit ang Google';
+
+  @override
+  String get loginTitle => 'MAG-SIGN IN';
+
+  @override
+  String get loginSubtitle =>
+      'Portal ng Barangay para sa Insidente at Kaligtasan';
+
+  @override
+  String get loginForgotPassword => 'Nakalimutan ang Password?';
+
+  @override
+  String get loginSigningIn => 'NAGSA-SIGN IN...';
+
+  @override
+  String get loginContinue => 'MAGPATULOY';
+
+  @override
+  String get loginNoAccount => 'Wala ka pang account? ';
+
+  @override
+  String get loginWelcomeBack => 'Maligayang Pagbabalik!';
+
+  @override
+  String get loginSuccess => 'Matagumpay kang naka-sign in.';
+
+  @override
+  String get resetTitle => 'I-reset ang Password';
+
+  @override
+  String get resetMessage =>
+      'Ilagay ang iyong rehistradong email at magpapadala kami ng opisyal na link para i-reset ang iyong password.';
+
+  @override
+  String get resetEmailLabel => 'Rehistradong Email';
+
+  @override
+  String get resetEmailInvalid =>
+      'Maglagay ng tamang rehistradong email address.';
+
+  @override
+  String resetSent(String email) {
+    return 'Naipadala na ang email para i-reset ang password sa $email! Tingnan ang iyong inbox.';
+  }
+
+  @override
+  String resetFailed(String error) {
+    return 'Hindi naipadala ang reset link: $error';
+  }
+
+  @override
+  String get resetSendLink => 'Ipadala ang Link';
+
+  @override
+  String get signUpTitle => 'GUMAWA NG ACCOUNT';
+
+  @override
+  String get signUpSubtitle => 'Sumali sa RESQ Barangay Safety Network';
+
+  @override
+  String get signUpNameLabel => 'Buong Pangalan';
+
+  @override
+  String get signUpNameHint => 'Ilagay ang iyong buong pangalan';
+
+  @override
+  String get signUpNameRequired => 'Kailangan ang pangalan.';
+
+  @override
+  String get signUpNameInvalid =>
+      'Letra, espasyo, at gitling lang (2-50 karakter).';
+
+  @override
+  String get signUpPasswordNoSpaces => 'Bawal ang espasyo.';
+
+  @override
+  String get signUpPasswordRules =>
+      '8-20 karakter: 1 malaking titik, 1 maliit, 1 numero, 1 simbolo.';
+
+  @override
+  String get signUpConfirmLabel => 'Kumpirmahin ang Password';
+
+  @override
+  String get signUpConfirmHint => 'Ulitin ang iyong password';
+
+  @override
+  String get signUpConfirmRequired => 'Pakikumpirma ang password.';
+
+  @override
+  String get signUpPasswordMismatch => 'Hindi magkapareho ang mga password.';
+
+  @override
+  String get signUpAcceptTerms =>
+      'Tinatanggap ko ang Mga Tuntunin at Kundisyon';
+
+  @override
+  String get signUpRegistering => 'NAGPAPAREHISTRO...';
+
+  @override
+  String get signUpButton => 'GUMAWA NG ACCOUNT';
+
+  @override
+  String get signUpHaveAccount => 'May account ka na? Mag-sign In';
+
+  @override
+  String get signUpCreatedTitle => 'Nagawa na ang Account!';
+
+  @override
+  String signUpVerificationSentTo(String email) {
+    return 'May verification link na ipinadala sa $email. I-verify ang iyong email para ma-activate ang account.';
+  }
+
+  @override
+  String get signUpVerificationSent =>
+      'May verification link na ipinadala sa iyong email. I-verify ang iyong email para ma-activate ang account.';
+
+  @override
+  String get signUpProceedToVerification => 'Magpatuloy sa Pag-verify';
+
+  @override
+  String get verifyYourEmailFallback => 'iyong email address';
+
+  @override
+  String get verifyNoSession => 'Walang naka-sign in. Mag-sign in ulit.';
+
+  @override
+  String get verifySuccess =>
+      'Na-verify na ang email! Maligayang pagdating sa ResQ.';
+
+  @override
+  String get verifyNotYet =>
+      'Hindi pa na-verify ang email mo. Buksan ang link na ipinadala sa inbox mo, saka i-tap ulit dito.';
+
+  @override
+  String get verifyResendShort => 'Ipadala Ulit';
+
+  @override
+  String verifyCheckFailed(String error) {
+    return 'Hindi natapos ang pag-check: $error';
+  }
+
+  @override
+  String verifyLinkResent(String email) {
+    return 'May bagong verification link na ipinadala sa $email!';
+  }
+
+  @override
+  String get verifySessionExpired => 'Nag-expire ang session. Mag-login ulit.';
+
+  @override
+  String verifyResendFailed(String error) {
+    return 'Hindi maipadala ulit ang email: $error';
+  }
+
+  @override
+  String get verifyDemoTitle => 'Demo Bypass para sa Defense';
+
+  @override
+  String get verifyDemoMessage =>
+      'I-activate ang instant na verification bypass para sa presentasyon at testing ng Capstone?';
+
+  @override
+  String get verifyDemoConfirm => 'I-bypass para sa Demo';
+
+  @override
+  String get verifyBadge => 'Republika ng Pilipinas • Brgy. Moonwalk';
+
+  @override
+  String get verifyTitle => 'I-verify ang Iyong Email';
+
+  @override
+  String get verifyInstruction =>
+      'Nagpadala kami ng opisyal na verification link sa iyong rehistradong email address:';
+
+  @override
+  String get verifyPending => 'Hinihintay ang Pag-verify';
+
+  @override
+  String get verifyChecking => 'Tinitingnan...';
+
+  @override
+  String get verifyDone => 'Na-verify Ko na ang Email';
+
+  @override
+  String get verifyResend => 'Ipadala Ulit ang Verification Link';
+
+  @override
+  String verifyResendIn(int seconds) {
+    return 'Maipapadala ulit sa loob ng ${seconds}s';
+  }
+
+  @override
+  String get verifyWrongEmail => 'Maling email address? Mag-sign Out';
+
+  @override
+  String get verifyTip =>
+      '💡 Tip: Kung hindi mo makita ang email, tingnan ang Spam o Junk folder.\n(Defense note: Pindutin nang matagal ang civic badge sa itaas para i-activate ang demo bypass)';
+
+  @override
+  String get authInvalidTitle => 'Maling Detalye sa Pag-login';
+
+  @override
+  String get authInvalidMessage =>
+      'Mali ang username o password na inilagay mo. Subukan ulit.';
+
+  @override
+  String get authTryAgain => 'Subukan Ulit';
+
+  @override
+  String get authAdminTitle => 'Admin Account ang Ginamit';
+
+  @override
+  String get authAdminMessage =>
+      'Ang account na ito ay may pribilehiyo ng Opisyal ng Barangay at Dispatcher.\n\nMag-login sa ResQ Admin Command Center web portal.';
+
+  @override
+  String get authLockedTitle => 'Pansamantalang Naka-lock ang Account';
+
+  @override
+  String get authLockedMessage =>
+      'Masyadong maraming maling pagtatangkang mag-login. Naka-lock ang account mo para sa seguridad.';
+
+  @override
+  String get authLockedRemaining => 'natitira';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      'Mali ang email o password. Subukan ulit.';
+
+  @override
+  String get authErrorInvalidEmail => 'Hindi wasto ang email address na iyan.';
+
+  @override
+  String get authErrorAccountSuspended =>
+      'Sinuspinde ng admin ng Barangay Moonwalk ang account na ito. Makipag-ugnayan sa help desk ng barangay.';
+
+  @override
+  String get authErrorEmailInUse => 'May account na para sa email na ito.';
+
+  @override
+  String get authErrorWeakPassword => 'Masyadong mahina ang password na iyan.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Masyadong maraming pagtatangka. Maghintay ng ilang minuto at subukan ulit.';
+
+  @override
+  String get authErrorNetwork =>
+      'Walang internet. Tingnan ang koneksyon at subukan ulit.';
+
+  @override
+  String get authErrorTimeout =>
+      'Natagalan ang pag-login. Tingnan ang iyong internet connection.';
+
+  @override
+  String get authErrorGoogleCancelled =>
+      'Kinansela ang pag-sign in gamit ang Google.';
+
+  @override
+  String get authErrorEmptyCredentials =>
+      'Hindi puwedeng walang laman ang email at password.';
 }

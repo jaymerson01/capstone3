@@ -4,6 +4,7 @@ import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -120,17 +121,17 @@ class _WelcomePageState extends State<WelcomePage>
       builder: (context) => _PremiumDialog(
         icon: Icons.lock_outline,
         iconColor: AppColors.primary,
-        title: 'Login Required',
-        content:
-            'Please login or create an account first before reporting an incident.',
+        title: AppLocalizations.of(context).welcomeLoginRequiredTitle,
+        content: AppLocalizations.of(context).welcomeLoginRequiredMessage,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel',
+            child: Text(AppLocalizations.of(context).commonCancel,
                 style: TextStyle(color: AppColors.textLight)),
           ),
           _DialogButton(
-            label: 'Login',
+            id: 'Login',
+            label: AppLocalizations.of(context).authLogin,
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context,
@@ -225,7 +226,7 @@ class _WelcomePageState extends State<WelcomePage>
                             label: 'nav_login_button',
                             button: true,
                             child: _GlassTopButton(
-                              text: 'Login',
+                              text: AppLocalizations.of(context).authLogin,
                               onPressed: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -235,7 +236,7 @@ class _WelcomePageState extends State<WelcomePage>
                           ),
                           SizedBox(width: 8),
                           _GlassTopButton(
-                            text: 'Sign Up',
+                            text: AppLocalizations.of(context).authSignUp,
                             filled: true,
                             onPressed: () => Navigator.push(
                               context,
@@ -366,7 +367,7 @@ class _WelcomePageState extends State<WelcomePage>
                                         : AppColors.primary.withValues(alpha: 0.25)),
                               ),
                               child: Text(
-                                'Smart Barangay Command System',
+                                AppLocalizations.of(context).welcomeTagline,
                                 style: TextStyle(
                                   color: isDark ? AppColors.secondary : AppColors.primary,
                                   fontSize: 13,
@@ -379,7 +380,7 @@ class _WelcomePageState extends State<WelcomePage>
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 48),
                               child: Text(
-                                'Your safety and community trust are our priority',
+                                AppLocalizations.of(context).welcomeSubtitle,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: AppColors.textLight,
@@ -404,7 +405,7 @@ class _WelcomePageState extends State<WelcomePage>
                             opacity: _btn1Fade,
                             child: Custom3dButton(
                               icon: Icons.warning_amber_rounded,
-                              text: 'Report an Incident',
+                              text: AppLocalizations.of(context).welcomeReportIncident,
                               gradient: AppColors.emergencyGradient,
                               onPressed: () => _showLoginRequired(context),
                             ),
@@ -414,7 +415,7 @@ class _WelcomePageState extends State<WelcomePage>
                             opacity: _btn2Fade,
                             child: Custom3dButton(
                               icon: Icons.call,
-                              text: 'Emergency Hotlines',
+                              text: AppLocalizations.of(context).welcomeHotlines,
                               gradient: AppColors.cyanGradient,
                               onPressed: () => Navigator.push(
                                 context,
@@ -457,7 +458,7 @@ class _WelcomePageState extends State<WelcomePage>
                                 ],
                         ),
                         child: Text(
-                          '🛡️ Republic of the Philippines • Barangay Moonwalk, Parañaque City',
+                          AppLocalizations.of(context).welcomeFooter,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textLight,
@@ -689,13 +690,16 @@ class _DialogButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _DialogButton({required this.label, required this.onTap});
+  /// Fixed id for UI automation, so it doesn't change with the language.
+  final String? id;
+
+  const _DialogButton({required this.label, required this.onTap, this.id});
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'dialog_button_$label',
+      label: 'dialog_button_${id ?? label}',
       child: Custom3dButton(
         text: label,
         height: 44,

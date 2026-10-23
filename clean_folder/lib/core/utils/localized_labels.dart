@@ -80,6 +80,41 @@ class LocalizedLabels {
     }
   }
 
+  /// Login / sign-up error text. Known Firebase codes get a translated message;
+  /// anything else falls back to [message] (Firebase's own English text).
+  static String authError(
+    BuildContext context, {
+    String? code,
+    required String message,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    switch (code) {
+      case 'invalid-credential':
+      case 'wrong-password':
+        return l10n.authErrorInvalidCredentials;
+      case 'invalid-email':
+        return l10n.authErrorInvalidEmail;
+      case 'user-disabled':
+        return l10n.authErrorAccountSuspended;
+      case 'email-already-in-use':
+        return l10n.authErrorEmailInUse;
+      case 'weak-password':
+        return l10n.authErrorWeakPassword;
+      case 'too-many-requests':
+        return l10n.authErrorTooManyRequests;
+      case 'network-request-failed':
+        return l10n.authErrorNetwork;
+      case 'timeout':
+        return l10n.authErrorTimeout;
+      case 'sign-in-canceled':
+        return l10n.authErrorGoogleCancelled;
+      case 'empty-credentials':
+        return l10n.authErrorEmptyCredentials;
+      default:
+        return message;
+    }
+  }
+
   /// "just now", "5 mins ago", "2 hrs ago", "3 days ago" in the current language.
   static String relativeTime(
     BuildContext context,

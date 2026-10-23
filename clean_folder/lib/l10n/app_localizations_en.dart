@@ -648,4 +648,323 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportUnderstoodDone => 'I Understand & Done';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get commonUnderstood => 'Understood';
+
+  @override
+  String get welcomeLoginRequiredTitle => 'Login Required';
+
+  @override
+  String get welcomeLoginRequiredMessage =>
+      'Please login or create an account first before reporting an incident.';
+
+  @override
+  String get authLogin => 'Login';
+
+  @override
+  String get authSignUp => 'Sign Up';
+
+  @override
+  String get welcomeTagline => 'Smart Barangay Command System';
+
+  @override
+  String get welcomeSubtitle =>
+      'Your safety and community trust are our priority';
+
+  @override
+  String get welcomeReportIncident => 'Report an Incident';
+
+  @override
+  String get welcomeHotlines => 'Emergency Hotlines';
+
+  @override
+  String get welcomeFooter =>
+      '🛡️ Republic of the Philippines • Barangay Moonwalk, Parañaque City';
+
+  @override
+  String get authEmailLabel => 'Email Address';
+
+  @override
+  String get authEmailHint => 'e.g. juan@gmail.com';
+
+  @override
+  String get authEmailRequired => 'Email is required.';
+
+  @override
+  String get authEmailInvalid => 'Enter a valid Gmail address.';
+
+  @override
+  String get authPasswordLabel => 'Password';
+
+  @override
+  String get authPasswordHint => 'e.g. Moonwalk#01';
+
+  @override
+  String get authPasswordRequired => 'Password is required.';
+
+  @override
+  String get authOrContinueWith => 'or continue with';
+
+  @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get loginTitle => 'SIGN IN';
+
+  @override
+  String get loginSubtitle => 'Barangay Incident & Public Safety Portal';
+
+  @override
+  String get loginForgotPassword => 'Forgot Password?';
+
+  @override
+  String get loginSigningIn => 'SIGNING IN...';
+
+  @override
+  String get loginContinue => 'CONTINUE';
+
+  @override
+  String get loginNoAccount => 'Don\'t have an account? ';
+
+  @override
+  String get loginWelcomeBack => 'Welcome Back!';
+
+  @override
+  String get loginSuccess => 'You have successfully signed in.';
+
+  @override
+  String get resetTitle => 'Reset Password';
+
+  @override
+  String get resetMessage =>
+      'Enter your registered email and we\'ll send you an official link to reset your password.';
+
+  @override
+  String get resetEmailLabel => 'Registered Email';
+
+  @override
+  String get resetEmailInvalid =>
+      'Please enter a valid registered email address.';
+
+  @override
+  String resetSent(String email) {
+    return 'Password reset email sent to $email! Please check your inbox.';
+  }
+
+  @override
+  String resetFailed(String error) {
+    return 'Failed to send reset link: $error';
+  }
+
+  @override
+  String get resetSendLink => 'Send Link';
+
+  @override
+  String get signUpTitle => 'CREATE ACCOUNT';
+
+  @override
+  String get signUpSubtitle => 'Join the RESQ Barangay Safety Network';
+
+  @override
+  String get signUpNameLabel => 'Full Name';
+
+  @override
+  String get signUpNameHint => 'Enter your full name';
+
+  @override
+  String get signUpNameRequired => 'Name is required.';
+
+  @override
+  String get signUpNameInvalid => 'Letters, spaces, hyphens only (2-50 chars).';
+
+  @override
+  String get signUpPasswordNoSpaces => 'No spaces allowed.';
+
+  @override
+  String get signUpPasswordRules =>
+      '8-20 chars, 1 upper, 1 lower, 1 num, 1 special.';
+
+  @override
+  String get signUpConfirmLabel => 'Confirm Password';
+
+  @override
+  String get signUpConfirmHint => 'Repeat your password';
+
+  @override
+  String get signUpConfirmRequired => 'Please confirm password.';
+
+  @override
+  String get signUpPasswordMismatch => 'Passwords do not match.';
+
+  @override
+  String get signUpAcceptTerms => 'I accept the Terms and Conditions';
+
+  @override
+  String get signUpRegistering => 'REGISTERING...';
+
+  @override
+  String get signUpButton => 'CREATE ACCOUNT';
+
+  @override
+  String get signUpHaveAccount => 'Already have an account? Sign In';
+
+  @override
+  String get signUpCreatedTitle => 'Account Created!';
+
+  @override
+  String signUpVerificationSentTo(String email) {
+    return 'A verification link was sent to $email. Please verify your email to activate your account.';
+  }
+
+  @override
+  String get signUpVerificationSent =>
+      'A verification link was sent to your email. Please verify your email to activate your account.';
+
+  @override
+  String get signUpProceedToVerification => 'Proceed to Verification';
+
+  @override
+  String get verifyYourEmailFallback => 'your email address';
+
+  @override
+  String get verifyNoSession =>
+      'No authenticated session. Please sign in again.';
+
+  @override
+  String get verifySuccess => 'Email verified successfully! Welcome to ResQ.';
+
+  @override
+  String get verifyNotYet =>
+      'Your email is not verified yet. Please open the link sent to your inbox, then tap here again.';
+
+  @override
+  String get verifyResendShort => 'Resend Link';
+
+  @override
+  String verifyCheckFailed(String error) {
+    return 'Verification check failed: $error';
+  }
+
+  @override
+  String verifyLinkResent(String email) {
+    return 'A new verification link was sent to $email!';
+  }
+
+  @override
+  String get verifySessionExpired => 'Session expired. Please log in again.';
+
+  @override
+  String verifyResendFailed(String error) {
+    return 'Could not resend email: $error';
+  }
+
+  @override
+  String get verifyDemoTitle => 'Defense Demo Bypass';
+
+  @override
+  String get verifyDemoMessage =>
+      'Activate instant verification bypass for Capstone presentation and testing purposes?';
+
+  @override
+  String get verifyDemoConfirm => 'Bypass for Demo';
+
+  @override
+  String get verifyBadge => 'Republic of the Philippines • Brgy. Moonwalk';
+
+  @override
+  String get verifyTitle => 'Verify Your Email';
+
+  @override
+  String get verifyInstruction =>
+      'We have sent an official verification link to your registered email address:';
+
+  @override
+  String get verifyPending => 'Verification Pending';
+
+  @override
+  String get verifyChecking => 'Checking...';
+
+  @override
+  String get verifyDone => 'I\'ve Verified My Email';
+
+  @override
+  String get verifyResend => 'Resend Verification Link';
+
+  @override
+  String verifyResendIn(int seconds) {
+    return 'Resend Link in ${seconds}s';
+  }
+
+  @override
+  String get verifyWrongEmail => 'Wrong email address? Sign Out';
+
+  @override
+  String get verifyTip =>
+      '💡 Tip: If you don\'t see the email, please check your Spam or Junk folder.\n(Defense note: Long-press the civic badge above to activate demo bypass)';
+
+  @override
+  String get authInvalidTitle => 'Invalid Credentials';
+
+  @override
+  String get authInvalidMessage =>
+      'The username or password you entered is incorrect. Please try again.';
+
+  @override
+  String get authTryAgain => 'Try Again';
+
+  @override
+  String get authAdminTitle => 'Admin Account Detected';
+
+  @override
+  String get authAdminMessage =>
+      'This account is registered with Barangay Official & Dispatcher privileges.\n\nPlease log in via the ResQ Admin Command Center web portal.';
+
+  @override
+  String get authLockedTitle => 'Account Temporarily Locked';
+
+  @override
+  String get authLockedMessage =>
+      'Too many failed login attempts detected. Your account is locked for security.';
+
+  @override
+  String get authLockedRemaining => 'remaining';
+
+  @override
+  String get authErrorInvalidCredentials =>
+      'Incorrect email or password. Please try again.';
+
+  @override
+  String get authErrorInvalidEmail => 'That email address is not valid.';
+
+  @override
+  String get authErrorAccountSuspended =>
+      'This account has been suspended by the Barangay Moonwalk admin. Please contact the barangay help desk.';
+
+  @override
+  String get authErrorEmailInUse => 'An account already exists for this email.';
+
+  @override
+  String get authErrorWeakPassword => 'That password is too weak.';
+
+  @override
+  String get authErrorTooManyRequests =>
+      'Too many attempts. Please wait a few minutes and try again.';
+
+  @override
+  String get authErrorNetwork =>
+      'No internet connection. Please check your connection and try again.';
+
+  @override
+  String get authErrorTimeout =>
+      'Login request timed out. Please check your internet connection.';
+
+  @override
+  String get authErrorGoogleCancelled => 'Google Sign-In was cancelled.';
+
+  @override
+  String get authErrorEmptyCredentials => 'Email and password cannot be empty.';
 }

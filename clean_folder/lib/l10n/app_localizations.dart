@@ -1141,6 +1141,576 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I Understand & Done'**
   String get reportUnderstoodDone;
+
+  /// Generic continue button.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get commonContinue;
+
+  /// Button that closes an information dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Understood'**
+  String get commonUnderstood;
+
+  /// Dialog title when a guest tries to report.
+  ///
+  /// In en, this message translates to:
+  /// **'Login Required'**
+  String get welcomeLoginRequiredTitle;
+
+  /// Dialog text when a guest tries to report.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login or create an account first before reporting an incident.'**
+  String get welcomeLoginRequiredMessage;
+
+  /// Login button.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get authLogin;
+
+  /// Sign-up button or link.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get authSignUp;
+
+  /// Subtitle under the RESQ logo.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Barangay Command System'**
+  String get welcomeTagline;
+
+  /// Welcome screen tagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Your safety and community trust are our priority'**
+  String get welcomeSubtitle;
+
+  /// Welcome screen button.
+  ///
+  /// In en, this message translates to:
+  /// **'Report an Incident'**
+  String get welcomeReportIncident;
+
+  /// Welcome screen button.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Hotlines'**
+  String get welcomeHotlines;
+
+  /// Official footer of the welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'🛡️ Republic of the Philippines • Barangay Moonwalk, Parañaque City'**
+  String get welcomeFooter;
+
+  /// Email field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Address'**
+  String get authEmailLabel;
+
+  /// Email field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. juan@gmail.com'**
+  String get authEmailHint;
+
+  /// Validation: email empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required.'**
+  String get authEmailRequired;
+
+  /// Validation: not a Gmail address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid Gmail address.'**
+  String get authEmailInvalid;
+
+  /// Password field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get authPasswordLabel;
+
+  /// Password field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Moonwalk#01'**
+  String get authPasswordHint;
+
+  /// Validation: password empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required.'**
+  String get authPasswordRequired;
+
+  /// Divider above the Google button.
+  ///
+  /// In en, this message translates to:
+  /// **'or continue with'**
+  String get authOrContinueWith;
+
+  /// Google sign-in button.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// Login screen title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'SIGN IN'**
+  String get loginTitle;
+
+  /// Login screen subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay Incident & Public Safety Portal'**
+  String get loginSubtitle;
+
+  /// Link that opens password reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get loginForgotPassword;
+
+  /// Login button while signing in (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'SIGNING IN...'**
+  String get loginSigningIn;
+
+  /// Login button (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE'**
+  String get loginContinue;
+
+  /// Text before the Sign Up link (keep the trailing space).
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? '**
+  String get loginNoAccount;
+
+  /// Dialog title after signing in.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome Back!'**
+  String get loginWelcomeBack;
+
+  /// Dialog text after signing in.
+  ///
+  /// In en, this message translates to:
+  /// **'You have successfully signed in.'**
+  String get loginSuccess;
+
+  /// Password reset dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetTitle;
+
+  /// Password reset dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your registered email and we\'ll send you an official link to reset your password.'**
+  String get resetMessage;
+
+  /// Password reset email field.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered Email'**
+  String get resetEmailLabel;
+
+  /// Password reset validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid registered email address.'**
+  String get resetEmailInvalid;
+
+  /// Password reset email sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email sent to {email}! Please check your inbox.'**
+  String resetSent(String email);
+
+  /// Password reset failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send reset link: {error}'**
+  String resetFailed(String error);
+
+  /// Password reset button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Link'**
+  String get resetSendLink;
+
+  /// Sign-up screen title (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'CREATE ACCOUNT'**
+  String get signUpTitle;
+
+  /// Sign-up screen subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the RESQ Barangay Safety Network'**
+  String get signUpSubtitle;
+
+  /// Name field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get signUpNameLabel;
+
+  /// Name field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get signUpNameHint;
+
+  /// Validation: name empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required.'**
+  String get signUpNameRequired;
+
+  /// Validation: name has invalid characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Letters, spaces, hyphens only (2-50 chars).'**
+  String get signUpNameInvalid;
+
+  /// Validation: password has spaces.
+  ///
+  /// In en, this message translates to:
+  /// **'No spaces allowed.'**
+  String get signUpPasswordNoSpaces;
+
+  /// Validation: password too weak.
+  ///
+  /// In en, this message translates to:
+  /// **'8-20 chars, 1 upper, 1 lower, 1 num, 1 special.'**
+  String get signUpPasswordRules;
+
+  /// Confirm password field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get signUpConfirmLabel;
+
+  /// Confirm password field hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat your password'**
+  String get signUpConfirmHint;
+
+  /// Validation: confirm password empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm password.'**
+  String get signUpConfirmRequired;
+
+  /// Validation: passwords differ.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get signUpPasswordMismatch;
+
+  /// Terms checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the Terms and Conditions'**
+  String get signUpAcceptTerms;
+
+  /// Sign-up button while registering (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'REGISTERING...'**
+  String get signUpRegistering;
+
+  /// Sign-up button (uppercase).
+  ///
+  /// In en, this message translates to:
+  /// **'CREATE ACCOUNT'**
+  String get signUpButton;
+
+  /// Link back to login.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign In'**
+  String get signUpHaveAccount;
+
+  /// Dialog title after sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Created!'**
+  String get signUpCreatedTitle;
+
+  /// Dialog text after sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'A verification link was sent to {email}. Please verify your email to activate your account.'**
+  String signUpVerificationSentTo(String email);
+
+  /// Dialog text after sign-up (email unknown).
+  ///
+  /// In en, this message translates to:
+  /// **'A verification link was sent to your email. Please verify your email to activate your account.'**
+  String get signUpVerificationSent;
+
+  /// Button after sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed to Verification'**
+  String get signUpProceedToVerification;
+
+  /// Used when the email address is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'your email address'**
+  String get verifyYourEmailFallback;
+
+  /// No signed-in user.
+  ///
+  /// In en, this message translates to:
+  /// **'No authenticated session. Please sign in again.'**
+  String get verifyNoSession;
+
+  /// Email verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified successfully! Welcome to ResQ.'**
+  String get verifySuccess;
+
+  /// Email not verified yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email is not verified yet. Please open the link sent to your inbox, then tap here again.'**
+  String get verifyNotYet;
+
+  /// Short action to resend the email.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Link'**
+  String get verifyResendShort;
+
+  /// Check failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification check failed: {error}'**
+  String verifyCheckFailed(String error);
+
+  /// Verification email resent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new verification link was sent to {email}!'**
+  String verifyLinkResent(String email);
+
+  /// Session expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Session expired. Please log in again.'**
+  String get verifySessionExpired;
+
+  /// Resend failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not resend email: {error}'**
+  String verifyResendFailed(String error);
+
+  /// Hidden capstone demo dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Defense Demo Bypass'**
+  String get verifyDemoTitle;
+
+  /// Hidden capstone demo dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate instant verification bypass for Capstone presentation and testing purposes?'**
+  String get verifyDemoMessage;
+
+  /// Hidden capstone demo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Bypass for Demo'**
+  String get verifyDemoConfirm;
+
+  /// Official badge text.
+  ///
+  /// In en, this message translates to:
+  /// **'Republic of the Philippines • Brgy. Moonwalk'**
+  String get verifyBadge;
+
+  /// Verification screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify Your Email'**
+  String get verifyTitle;
+
+  /// Text above the email address.
+  ///
+  /// In en, this message translates to:
+  /// **'We have sent an official verification link to your registered email address:'**
+  String get verifyInstruction;
+
+  /// Status chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification Pending'**
+  String get verifyPending;
+
+  /// Button while checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking...'**
+  String get verifyChecking;
+
+  /// Button to check verification.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve Verified My Email'**
+  String get verifyDone;
+
+  /// Button to resend the email.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Verification Link'**
+  String get verifyResend;
+
+  /// Resend countdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend Link in {seconds}s'**
+  String verifyResendIn(int seconds);
+
+  /// Sign out link.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email address? Sign Out'**
+  String get verifyWrongEmail;
+
+  /// Help text at the bottom of the verification screen.
+  ///
+  /// In en, this message translates to:
+  /// **'💡 Tip: If you don\'t see the email, please check your Spam or Junk folder.\n(Defense note: Long-press the civic badge above to activate demo bypass)'**
+  String get verifyTip;
+
+  /// Dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Credentials'**
+  String get authInvalidTitle;
+
+  /// Dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'The username or password you entered is incorrect. Please try again.'**
+  String get authInvalidMessage;
+
+  /// Dialog button.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get authTryAgain;
+
+  /// Dialog title when an admin uses the resident app.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Account Detected'**
+  String get authAdminTitle;
+
+  /// Dialog text when an admin uses the resident app.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is registered with Barangay Official & Dispatcher privileges.\n\nPlease log in via the ResQ Admin Command Center web portal.'**
+  String get authAdminMessage;
+
+  /// Lockout dialog title.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Temporarily Locked'**
+  String get authLockedTitle;
+
+  /// Lockout dialog text.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many failed login attempts detected. Your account is locked for security.'**
+  String get authLockedMessage;
+
+  /// Under the lockout countdown.
+  ///
+  /// In en, this message translates to:
+  /// **'remaining'**
+  String get authLockedRemaining;
+
+  /// Login error.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect email or password. Please try again.'**
+  String get authErrorInvalidCredentials;
+
+  /// Login/sign-up error.
+  ///
+  /// In en, this message translates to:
+  /// **'That email address is not valid.'**
+  String get authErrorInvalidEmail;
+
+  /// Login error.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has been suspended by the Barangay Moonwalk admin. Please contact the barangay help desk.'**
+  String get authErrorAccountSuspended;
+
+  /// Sign-up error.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists for this email.'**
+  String get authErrorEmailInUse;
+
+  /// Sign-up error.
+  ///
+  /// In en, this message translates to:
+  /// **'That password is too weak.'**
+  String get authErrorWeakPassword;
+
+  /// Login error.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait a few minutes and try again.'**
+  String get authErrorTooManyRequests;
+
+  /// Login/sign-up error.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Please check your connection and try again.'**
+  String get authErrorNetwork;
+
+  /// Login error.
+  ///
+  /// In en, this message translates to:
+  /// **'Login request timed out. Please check your internet connection.'**
+  String get authErrorTimeout;
+
+  /// Google sign-in error.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Sign-In was cancelled.'**
+  String get authErrorGoogleCancelled;
+
+  /// Login error.
+  ///
+  /// In en, this message translates to:
+  /// **'Email and password cannot be empty.'**
+  String get authErrorEmptyCredentials;
 }
 
 class _AppLocalizationsDelegate
