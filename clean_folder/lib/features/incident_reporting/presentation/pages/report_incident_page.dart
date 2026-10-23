@@ -26,6 +26,8 @@ import 'package:community_safety_app/features/incident/data/datasources/incident
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -36,6 +38,8 @@ class ReportIncidentPage extends StatefulWidget {
 
 class _ReportIncidentPageState extends State<ReportIncidentPage> {
   int currentStep = 2;
+
+  AppLocalizations get _l10n => AppLocalizations.of(context);
 
   final TextEditingController _coordinatesController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -177,7 +181,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             SizedBox(width: 12),
             Expanded(
               child: Text(
-                "Discard Report?",
+                _l10n.reportDiscardTitle,
                 style: TextStyle(
                     color: AppColors.textDark,
                     fontSize: 17,
@@ -187,14 +191,14 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ],
         ),
         content: Text(
-          "You have unsaved report details. Are you sure you want to leave? Your emergency report draft will be discarded.",
+          _l10n.reportDiscardMessage,
           style: TextStyle(
               color: AppColors.textLight, fontSize: 13, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: Text("Keep Editing",
+            child: Text(_l10n.reportKeepEditing,
                 style: TextStyle(
                     color: AppColors.primary, fontWeight: FontWeight.bold)),
           ),
@@ -206,7 +210,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   borderRadius: BorderRadius.circular(10)),
             ),
             onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: Text("Discard",
+            child: Text(_l10n.reportDiscard,
                 style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
@@ -259,7 +263,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("GPS pinned: ${_resolvedAddress!}"),
+            content: Text(_l10n.reportGpsPinned(_resolvedAddress!)),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.solved,
             duration: const Duration(seconds: 4),
@@ -280,7 +284,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           duration: const Duration(seconds: 5),
           action: isGpsOff
               ? SnackBarAction(
-                  label: "Settings",
+                  label: _l10n.commonSettings,
                   textColor: Colors.amber,
                   onPressed: () => sl<LocationService>().openLocationSettings(),
                 )
@@ -383,8 +387,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Evidence photo synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Photo saved locally on device."),
+                ? _l10n.reportEvidencePhotoSynced
+                : _l10n.reportPhotoSavedLocally),
             behavior: SnackBarBehavior.floating,
             backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
             duration: const Duration(seconds: 2),
@@ -394,7 +398,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Image saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportImageSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.secondary,
           ),
@@ -404,7 +408,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to choose file: $e"),
+          content: Text(_l10n.reportChooseFileFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -436,8 +440,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Photo synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Photo saved locally on device."),
+                ? _l10n.reportPhotoSynced
+                : _l10n.reportPhotoSavedLocally),
             behavior: SnackBarBehavior.floating,
             backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
             duration: const Duration(seconds: 2),
@@ -447,7 +451,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Photo saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportPhotoSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.secondary,
           ),
@@ -457,7 +461,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to open camera: $e"),
+          content: Text(_l10n.reportOpenCameraFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -483,7 +487,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             Icon(Icons.warning_amber_rounded, color: AppColors.danger, size: 24),
             SizedBox(width: 8),
             Text(
-              "Video Limit Exceeded",
+              _l10n.reportVideoLimitTitle,
               style: TextStyle(
                 color: AppColors.textDark,
                 fontWeight: FontWeight.w800,
@@ -493,7 +497,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ],
         ),
         content: Text(
-          "Selected video is ${sizeMB.toStringAsFixed(1)} MB, which exceeds the emergency limit of 20 MB.\n\nTo prevent network delays during critical emergencies, please trim or record a shorter video clip (under 30 seconds).",
+          _l10n.reportVideoLimitMessage(sizeMB.toStringAsFixed(1)),
           style: TextStyle(
             color: AppColors.textLight,
             fontSize: 13,
@@ -507,7 +511,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             onPressed: () => Navigator.pop(ctx),
-            child: Text("Understood", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: Text(_l10n.reportUnderstood, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -542,8 +546,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Video evidence synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Video saved locally on device."),
+                ? _l10n.reportVideoSynced
+                : _l10n.reportVideoSavedLocally),
             behavior: SnackBarBehavior.floating,
             backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
             duration: const Duration(seconds: 2),
@@ -553,7 +557,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Video saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportVideoSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.secondary,
           ),
@@ -563,7 +567,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to choose video: $e"),
+          content: Text(_l10n.reportChooseVideoFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -605,8 +609,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Video evidence synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Video saved locally on device."),
+                ? _l10n.reportVideoSynced
+                : _l10n.reportVideoSavedLocally),
             behavior: SnackBarBehavior.floating,
             backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
             duration: const Duration(seconds: 2),
@@ -616,7 +620,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Video saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportVideoSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.secondary,
           ),
@@ -626,7 +630,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to record video: $e"),
+          content: Text(_l10n.reportRecordVideoFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -645,14 +649,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     if (isBiometricAvailable) {
       final verified = await biometricService.verifySubmission(
         reason:
-            "Verify your biometric identity to submit an official emergency report to Barangay Moonwalk responders.",
+            _l10n.reportBiometricReason,
       );
       if (!verified) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                "Submission cancelled: Identity verification is required."),
+          SnackBar(
+            content: Text(_l10n.reportBiometricCancelled),
             backgroundColor: AppColors.warning,
             behavior: SnackBarBehavior.floating,
           ),
@@ -761,8 +764,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                SizedBox(
+              children: [
+                const SizedBox(
                   height: 42,
                   width: 42,
                   child: CircularProgressIndicator(
@@ -770,10 +773,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     color: Color(0xFF00E5FF),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
-                  "Submitting Emergency Report",
-                  style: TextStyle(
+                  _l10n.reportSubmittingTitle,
+                  style: const TextStyle(
                     color: Color(0xFFE8F0FE),
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -781,9 +784,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 ),
                 SizedBox(height: 6),
                 Text(
-                  "Dispatching ticket to Barangay Moonwalk responders...",
+                  _l10n.reportSubmittingMessage,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFF7B8DB0),
                     fontSize: 12,
                   ),
@@ -801,9 +804,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   void _submitReport() {
     if (_isReportingOnBehalf && _victimNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text("Please enter the name of the person you are reporting for."),
+        SnackBar(
+          content: Text(_l10n.reportVictimNameRequired),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -813,9 +815,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
     if (_selectedIncidentCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text("Please select an incident category before submitting."),
+        SnackBar(
+          content: Text(_l10n.reportCategoryRequired),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -826,9 +827,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     if (_selectedIncidentCategory == 'Other Emergency' &&
         _otherCategoryController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              "Please specify the emergency type (e.g. Fallen Electric Wire, Gas Leak, Sinkhole)."),
+        SnackBar(
+          content: Text(_l10n.reportOtherTypeRequired),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -838,8 +838,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     final description = _descriptionController.text.trim();
     if (description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a description of the incident"),
+        SnackBar(
+          content: Text(_l10n.reportDescriptionRequired),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -849,8 +849,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
     if (_isUploadingImage || _isUploadingVideo) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please wait a moment, evidence media is uploading to cloud..."),
+        SnackBar(
+          content: Text(_l10n.reportMediaStillUploading),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.primary,
         ),
@@ -931,7 +931,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         authState is Authenticated ? authState.user.id : "resident_demo_01";
     final isMyOwnReport = duplicate.reporterId == currentUserId;
     final hasVoted = duplicate.validatedUserIds.contains(currentUserId);
-    final minutesAgo = DateTime.now().difference(duplicate.timestamp).inMinutes;
 
     showDialog(
       context: context,
@@ -980,8 +979,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       children: [
                         Text(
                           isMyOwnReport
-                              ? "You Already Reported This!"
-                              : "Similar Incident Nearby!",
+                              ? _l10n.reportDuplicateMineTitle
+                              : _l10n.reportDuplicateNearbyTitle,
                           style: TextStyle(
                             color: AppColors.textDark,
                             fontSize: 16,
@@ -991,8 +990,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         SizedBox(height: 2),
                         Text(
                           isMyOwnReport
-                              ? "Your ticket was filed ${minutesAgo == 0 ? 'just now' : '$minutesAgo mins ago'}"
-                              : "Potential duplicate detected within 250m",
+                              ? _l10n.reportDuplicateFiled(
+                                  LocalizedLabels.relativeTime(context, duplicate.timestamp))
+                              : _l10n.reportDuplicateWithin,
                           style: TextStyle(
                             color: isMyOwnReport ? AppColors.primary : AppColors.pending,
                             fontSize: 11.5,
@@ -1024,7 +1024,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             color: AppColors.primary, size: 16),
                         SizedBox(width: 6),
                         Text(
-                          "${distanceInMeters.round()} meters from your location",
+                          _l10n.reportDistanceFromYou(distanceInMeters.round()),
                           style: TextStyle(
                             color: AppColors.primary,
                             fontSize: 12,
@@ -1041,7 +1041,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              "Your Report",
+                              _l10n.reportYourReport,
                               style: TextStyle(
                                 color: AppColors.primary,
                                 fontSize: 10,
@@ -1054,7 +1054,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     ),
                     SizedBox(height: 6),
                     Text(
-                      duplicate.category,
+                      LocalizedLabels.category(context, duplicate.category),
                       style: TextStyle(
                         color: AppColors.textDark,
                         fontSize: 14,
@@ -1079,7 +1079,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                             color: AppColors.textLight, size: 14),
                         SizedBox(width: 6),
                         Text(
-                          "${duplicate.upvoteCount + 1} citizen${(duplicate.upvoteCount + 1) == 1 ? '' : 's'} affected",
+                          _l10n.reportCitizensAffected(duplicate.upvoteCount + 1),
                           style: TextStyle(
                             color: AppColors.textLight,
                             fontSize: 11,
@@ -1095,8 +1095,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
               Text(
                 isMyOwnReport
-                    ? "Your earlier report is active (Status: ${duplicate.status}). Emergency dispatch and Tanods have already been alerted."
-                    : "Corroborating ('Me Too') the existing report prevents overloading emergency dispatchers and elevates emergency urgency.",
+                    ? _l10n.reportDuplicateMineInfo(
+                        LocalizedLabels.status(context, duplicate.status))
+                    : _l10n.reportDuplicateCorroborateInfo,
                 style: TextStyle(
                   color: AppColors.textLight,
                   fontSize: 12,
@@ -1117,9 +1118,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           ),
                         );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
+                      SnackBar(
                         content: Text(
-                          "You corroborated this incident! Emergency priority escalated.",
+                          _l10n.reportCorroborated,
                         ),
                         backgroundColor: AppColors.solved,
                         behavior: SnackBarBehavior.floating,
@@ -1156,8 +1157,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       SizedBox(width: 8),
                       Text(
                         isMyOwnReport
-                            ? "View My Active Report & Notes"
-                            : "Me Too / Corroborate Incident",
+                            ? _l10n.reportViewMyReport
+                            : _l10n.reportMeToo,
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -1185,8 +1186,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   },
                   child: Text(
                     isMyOwnReport
-                        ? "Submit New Separate Report Anyway"
-                        : "Submit as Separate Incident",
+                        ? _l10n.reportSubmitAnyway
+                        : _l10n.reportSubmitSeparate,
                     style: TextStyle(
                       color: AppColors.textLight,
                       fontWeight: FontWeight.w600,
@@ -1204,10 +1205,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   String _getFileDisplayText() {
     if (_isUploadingImage) {
-      return "Uploading image...";
+      return _l10n.reportUploadingImage;
     }
     if (_selectedImageFile == null) {
-      return "No file chosen";
+      return _l10n.reportNoFileChosen;
     }
     return _selectedImageFile!.path.split('/').last.split('\\').last;
   }
@@ -1219,8 +1220,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           isAiTriageEnabled = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("AI Triage Enabled"),
+          SnackBar(
+            content: Text(_l10n.reportAiTriageEnabled),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.primary,
           ),
@@ -1274,7 +1275,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
               SizedBox(height: 16),
               Text(
-                'Call $agencyName?',
+                _l10n.reportCallAgencyTitle(agencyName),
                 style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 18,
@@ -1283,7 +1284,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
               SizedBox(height: 8),
               Text(
-                'Dial the official hotline for $agencyName ($phoneNumber) now?',
+                _l10n.reportCallAgencyMessage(agencyName, phoneNumber),
                 style: TextStyle(
                     color: AppColors.textLight, fontSize: 13, height: 1.5),
                 textAlign: TextAlign.center,
@@ -1302,7 +1303,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           border: Border.all(color: AppColors.border),
                         ),
                         child: Center(
-                          child: Text('Cancel',
+                          child: Text(_l10n.commonCancel,
                               style: TextStyle(
                                   color: AppColors.textLight,
                                   fontWeight: FontWeight.w700)),
@@ -1332,7 +1333,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  'Could not open dialer for $phoneNumber. Please dial manually.'),
+                                  _l10n.reportDialerFailed(phoneNumber)),
                               backgroundColor: AppColors.danger,
                               behavior: SnackBarBehavior.floating,
                             ),
@@ -1348,7 +1349,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         ),
                         child: Center(
                           child: Text(
-                            'Call Now',
+                            _l10n.reportCallNow,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
@@ -1389,7 +1390,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Failed to submit: ${state.message}"),
+              content: Text(_l10n.reportSubmitFailed(state.message)),
               backgroundColor: AppColors.danger,
               behavior: SnackBarBehavior.floating,
             ),
@@ -1407,7 +1408,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   children: [
                     const CircularProgressIndicator(color: AppColors.primary),
                     SizedBox(height: 16),
-                    Text("Gemini AI is analyzing incident threat levels...",
+                    Text(_l10n.reportAiAnalyzing,
                         style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -1417,8 +1418,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         } else if (state is IncidentTriageError) {
           Navigator.of(context).pop(); // dismiss loading
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("AI Evaluation failed. Defaulting to MEDIUM priority."),
+            SnackBar(
+              content: Text(_l10n.reportAiFailed),
               backgroundColor: AppColors.danger,
               behavior: SnackBarBehavior.floating,
             ),
@@ -1438,12 +1439,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("AI Urgency Assessment", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
+                    Text(_l10n.reportAiAssessmentTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
                     SizedBox(height: 12),
-                    Text("${state.triageResult.urgency} - ${state.triageResult.justification}", style: TextStyle(fontSize: 14, color: AppColors.textLight)),
+                    Text("${LocalizedLabels.urgency(context, state.triageResult.urgency)} - ${state.triageResult.justification}", style: TextStyle(fontSize: 14, color: AppColors.textLight)),
                     SizedBox(height: 20),
                     Custom3dButton(
-                      text: "Proceed to Submit",
+                      text: _l10n.reportProceedToSubmit,
                       onPressed: () {
                         Navigator.of(context).pop();
                         _executeStandardSubmit(urgencyStatus: state.triageResult.urgency);
@@ -1471,7 +1472,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             appBar: AppBar(
               leading: IconButton(
                 icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
-                tooltip: "Back",
+                tooltip: _l10n.commonBack,
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
               backgroundColor: AppColors.surface,
@@ -1490,7 +1491,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   _buildAppLogo(),
                   SizedBox(width: 12),
                   Text(
-                    "Report Incident",
+                    _l10n.reportTitle,
                     style: TextStyle(
                       color: AppColors.textDark,
                       fontSize: 17,
@@ -1515,12 +1516,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       padding: EdgeInsets.zero,
                       icon: Icon(Icons.help_outline,
                           color: AppColors.textLight, size: 20),
-                      tooltip: "Filing Guidelines",
+                      tooltip: _l10n.reportGuidelinesTooltip,
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                                "Ensure accurate data for priority responder handling."),
+                                _l10n.reportGuidelinesMessage),
                             backgroundColor: AppColors.surface,
                             behavior: SnackBarBehavior.floating,
                             shape: RoundedRectangleBorder(
@@ -1583,7 +1584,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  "Immediate Threat? Emergency Hotlines",
+                  _l10n.reportHotlinesTitle,
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontSize: 14,
@@ -1599,7 +1600,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               Expanded(
                 child: GestureDetector(
                   onTap: () => _showEmergencyCallConfirmation(
-                      "Emergency Hotline", "911"),
+                      _l10n.reportEmergencyHotline, "911"),
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
@@ -1614,7 +1615,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           Icon(Icons.phone, color: Colors.white, size: 16),
                           SizedBox(width: 6),
                           Text(
-                            "Call 911",
+                            _l10n.reportCall911,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
@@ -1631,7 +1632,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               Expanded(
                 child: GestureDetector(
                   onTap: () => _showEmergencyCallConfirmation(
-                      "Barangay Desk", "0917-000-0000"),
+                      _l10n.reportBarangayDesk, "0917-000-0000"),
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
@@ -1655,7 +1656,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                               color: AppColors.primary, size: 16),
                           SizedBox(width: 6),
                           Text(
-                            "Barangay Desk",
+                            _l10n.reportBarangayDesk,
                             style: TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w800,
@@ -1683,7 +1684,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Incident Details",
+            _l10n.reportDetailsTitle,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -1694,7 +1695,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
           // ── Reporting Mode Selector: Myself (At Scene) vs. On Behalf ───────
           Text(
-            "Reporting Mode",
+            _l10n.reportModeLabel,
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
           ),
           SizedBox(height: 8),
@@ -1740,7 +1741,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           SizedBox(width: 6),
                           Flexible(
                             child: Text(
-                              "Myself",
+                              _l10n.reportModeMyself,
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w800,
@@ -1796,7 +1797,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           SizedBox(width: 6),
                           Flexible(
                             child: Text(
-                              "For Someone",
+                              _l10n.reportModeForSomeone,
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w800,
@@ -1842,7 +1843,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          "Reporting for Someone Else (Off-Site)",
+                          _l10n.reportForSomeoneTitle,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
@@ -1854,21 +1855,21 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ),
                   SizedBox(height: 6),
                   Text(
-                    "Enter the affected person's details and adjust the map pin below to their exact location in Barangay Moonwalk so responders can locate and assist them.",
+                    _l10n.reportForSomeoneHelp,
                     style: TextStyle(fontSize: 11.5, color: AppColors.textLight, height: 1.4),
                   ),
                   SizedBox(height: 12),
                   Custom3dTextField(
                     controller: _victimNameController,
-                    labelText: "Affected Person's Full Name *",
-                    hintText: "E.g. Maria Santos / Lola Elena",
+                    labelText: _l10n.reportVictimNameLabel,
+                    hintText: _l10n.reportVictimNameHint,
                     prefixIcon: Icons.person_rounded,
                   ),
                   SizedBox(height: 10),
                   Custom3dTextField(
                     controller: _victimPhoneController,
-                    labelText: "Affected Person's Contact Number (Optional)",
-                    hintText: "E.g. 0917 123 4567 (for responder verification)",
+                    labelText: _l10n.reportVictimPhoneLabel,
+                    hintText: _l10n.reportVictimPhoneHint,
                     prefixIcon: Icons.phone_rounded,
                     keyboardType: TextInputType.phone,
                   ),
@@ -1879,7 +1880,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
           // Complainant Selection
           Text(
-            "Complainant Identity",
+            _l10n.reportComplainantLabel,
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
           ),
           SizedBox(height: 8),
@@ -1889,8 +1890,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   ? (authState.user.fullName ??
                       (authState.user.email.isNotEmpty
                           ? authState.user.email.split('@').first
-                          : 'Resident'))
-                  : 'Resident';
+                          : _l10n.commonResident))
+                  : _l10n.commonResident;
               return DropdownButtonFormField<String>(
                 initialValue: _selectedComplainant,
                 isExpanded: true,
@@ -1913,7 +1914,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   DropdownMenuItem(
                     value: "self",
                     child: Text(
-                      "Self: $userName",
+                      _l10n.reportComplainantSelf(userName),
                       style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1921,7 +1922,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   DropdownMenuItem(
                     value: "anonymous",
                     child: Text(
-                      "Anonymous (Identity Shielded)",
+                      _l10n.reportComplainantAnonymous,
                       style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1940,7 +1941,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             children: [
               Expanded(
                 child: Text(
-                  _isReportingOnBehalf ? "Victim / Incident Location" : "Incident Location",
+                  _isReportingOnBehalf ? _l10n.reportLocationVictimTitle : _l10n.reportLocationTitle,
                   style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1998,7 +1999,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         children: [
                           Expanded(
                             child: Text(
-                              _resolvedAddress ?? "Location not pinned yet",
+                              _resolvedAddress ?? _l10n.reportLocationNotPinned,
                               style: TextStyle(
                                 color: _resolvedAddress != null ? AppColors.textDark : AppColors.textLight,
                                 fontSize: 13,
@@ -2021,8 +2022,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       SizedBox(height: 4),
                       Text(
                         _latitude != null
-                            ? "Coordinates: ${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}${_resolvedSector != null ? ' • $_resolvedSector' : ''}"
-                            : "Drag pin or tap map below to pin exact house / compound",
+                            ? _l10n.reportCoordinates(
+                                "${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}${_resolvedSector != null ? ' • $_resolvedSector' : ''}")
+                            : _l10n.reportPinHint,
                         style: TextStyle(
                           color: AppColors.textLight,
                           fontSize: 11,
@@ -2085,8 +2087,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           _isReportingOnBehalf ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueRed,
                         ),
                         infoWindow: InfoWindow(
-                          title: _isReportingOnBehalf ? "Victim Location" : "Incident Location",
-                          snippet: _resolvedAddress ?? "Drag to refine location",
+                          title: _isReportingOnBehalf ? _l10n.reportVictimLocation : _l10n.reportLocationTitle,
+                          snippet: _resolvedAddress ?? _l10n.reportDragToRefine,
                         ),
                         onDragStart: (LatLng startPos) {
                           setState(() {
@@ -2142,10 +2144,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           Expanded(
                             child: Text(
                               _isDraggingPin
-                                  ? "Dragging pin: release to drop at exact location"
+                                  ? _l10n.reportDraggingPin
                                   : (_isReverseGeocoding
-                                      ? "Resolving Moonwalk street & sector..."
-                                      : "Touch & drag pin freely, or tap anywhere to place"),
+                                      ? _l10n.reportResolvingSector
+                                      : _l10n.reportMapHint),
                               style: TextStyle(
                                 fontSize: 10.5,
                                 color: _isDraggingPin
@@ -2228,8 +2230,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     ),
               label: Text(
                 _isLocating
-                    ? "Acquiring GPS & Address..."
-                    : (_latitude != null ? "Use My Phone GPS Fix" : "Pin Exact Location with GPS"),
+                    ? _l10n.reportAcquiringGps
+                    : (_latitude != null ? _l10n.reportUsePhoneGps : _l10n.reportPinWithGps),
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
               ),
             ),
@@ -2239,15 +2241,15 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           // Landmark Note Input
           Custom3dTextField(
             controller: _landmarkController,
-            labelText: "Nearby Landmark / Specific Details (Optional)",
-            hintText: "E.g. Near gate 2, corner store, 3rd floor unit",
+            labelText: _l10n.reportLandmarkLabel,
+            hintText: _l10n.reportLandmarkHint,
             prefixIcon: Icons.add_location_alt_outlined,
           ),
           SizedBox(height: 16),
 
           // Incident Category Selection
           Text(
-            "Incident Category",
+            _l10n.reportCategoryLabel,
             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
           ),
           SizedBox(height: 8),
@@ -2261,7 +2263,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               fontWeight: FontWeight.w600,
             ),
             icon: Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
-            hint: Text("Select Category", style: TextStyle(color: AppColors.textLight, fontSize: 13)),
+            hint: Text(_l10n.reportSelectCategory, style: TextStyle(color: AppColors.textLight, fontSize: 13)),
             decoration: InputDecoration(
               filled: true,
               fillColor: AppColors.accentBg,
@@ -2279,7 +2281,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        cat,
+                        LocalizedLabels.category(context, cat),
                         style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -2299,9 +2301,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             SizedBox(height: 12),
             Custom3dTextField(
               controller: _otherCategoryController,
-              labelText: "Specify Emergency Type",
-              hintText:
-                  "e.g., Fallen Electric Wire, Gas Leak, Sinkhole, Oil Spill",
+              labelText: _l10n.reportOtherTypeLabel,
+              hintText: _l10n.reportOtherTypeHint,
               prefixIcon: Icons.emergency_outlined,
             ),
           ],
@@ -2311,8 +2312,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           // Description 3D text field
           Custom3dTextField(
             controller: _descriptionController,
-            labelText: "Incident Description",
-            hintText: "Provide details of what happened, people involved, etc.",
+            labelText: _l10n.reportDescriptionLabel,
+            hintText: _l10n.reportDescriptionHint,
             prefixIcon: Icons.description_outlined,
             maxLines: 4,
           ),
@@ -2416,8 +2417,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                   icon: Icon(Icons.video_library_outlined),
                   label: Text(
                     _isUploadingVideo
-                        ? "Uploading video..."
-                        : (_selectedVideoFile == null ? "Add Video (≤ 20MB)" : "Change Video"),
+                        ? _l10n.reportUploadingVideo
+                        : (_selectedVideoFile == null ? _l10n.reportAddVideo : _l10n.reportChangeVideo),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                 ),
@@ -2473,7 +2474,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          "${_selectedVideoSizeMB.toStringAsFixed(1)} MB • Emergency low-latency verified",
+                          _l10n.reportVideoVerified(_selectedVideoSizeMB.toStringAsFixed(1)),
                           style: TextStyle(
                             color: AppColors.progress,
                             fontSize: 11,
@@ -2514,7 +2515,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           else
             Custom3dButton(
               icon: Icons.send_rounded,
-              text: "SUBMIT INCIDENT REPORT",
+              text: _l10n.reportSubmitButton,
               onPressed: _submitReport,
             ),
         ],
@@ -2551,38 +2552,38 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     switch (category) {
       case "Fire Incident":
         return [
-          "Leave the burning area immediately. Do not try to save belongings.",
-          "Warn nearby people and help children, elderly, or persons with disability if safe.",
-          "Stay low if there is smoke and cover your nose/mouth with cloth.",
-          "Do not use elevators. Use stairs or the safest exit route.",
-          "Call the fire station or emergency hotline immediately.",
-          "Move to an open and safe area away from the fire.",
+          _l10n.reportTipFire1,
+          _l10n.reportTipFire2,
+          _l10n.reportTipFire3,
+          _l10n.reportTipFire4,
+          _l10n.reportTipFire5,
+          _l10n.reportTipFire6,
         ];
       case "Theft / Robbery":
         return [
-          "Do not chase or confront the suspect.",
-          "Move to a safe and crowded area immediately.",
-          "Observe details only if safe: clothing, direction, vehicle plate, or appearance.",
-          "Call police or barangay responders right away.",
+          _l10n.reportTipTheft1,
+          _l10n.reportTipTheft2,
+          _l10n.reportTipTheft3,
+          _l10n.reportTipTheft4,
         ];
       case "Medical Emergency":
         return [
-          "Call an ambulance or emergency hotline immediately.",
-          "Keep the patient calm and do not move them unless the area is unsafe.",
-          "Check if the person is breathing and responsive.",
+          _l10n.reportTipMedical1,
+          _l10n.reportTipMedical2,
+          _l10n.reportTipMedical3,
         ];
       case "Road Accident":
         return [
-          "Move to a safe side of the road if you are not injured.",
-          "Do not move injured persons unless there is immediate danger.",
-          "Call emergency responders or ambulance immediately.",
+          _l10n.reportTipRoad1,
+          _l10n.reportTipRoad2,
+          _l10n.reportTipRoad3,
         ];
       default:
         return [
-          "Move to a safe location first.",
-          "Call the proper emergency hotline if there is immediate danger.",
-          "Avoid touching evidence or confronting involved persons.",
-          "Provide accurate details to responders.",
+          _l10n.reportTipGeneral1,
+          _l10n.reportTipGeneral2,
+          _l10n.reportTipGeneral3,
+          _l10n.reportTipGeneral4,
         ];
     }
   }
@@ -2646,6 +2647,8 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
   bool _isLoadingAi = true;
   List<String> _aiMeasures = [];
 
+  AppLocalizations get _l10n => AppLocalizations.of(context);
+
   @override
   void initState() {
     super.initState();
@@ -2681,30 +2684,30 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
         return (
           AppColors.danger,
           Icons.warning_amber_rounded,
-          "CRITICAL PRIORITY",
-          "Immediate responder dispatch triggered.",
+          _l10n.reportPriorityCritical,
+          _l10n.reportPriorityCriticalDetail,
         );
       case 'HIGH':
         return (
           const Color(0xFFFF9F0A),
           Icons.error_outline_rounded,
-          "HIGH PRIORITY",
-          "Active hazard • Priority response queue.",
+          _l10n.reportPriorityHigh,
+          _l10n.reportPriorityHighDetail,
         );
       case 'MEDIUM':
         return (
           AppColors.primary,
           Icons.info_outline_rounded,
-          "MEDIUM PRIORITY",
-          "Patrol unit notified for investigation.",
+          _l10n.reportPriorityMedium,
+          _l10n.reportPriorityMediumDetail,
         );
       case 'LOW':
       default:
         return (
           AppColors.solved,
           Icons.check_circle_outline_rounded,
-          "STANDARD PRIORITY",
-          "Logged for municipal desk review.",
+          _l10n.reportPriorityStandard,
+          _l10n.reportPriorityStandardDetail,
         );
     }
   }
@@ -2753,7 +2756,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Report Dispatched",
+                          _l10n.reportDispatchedTitle,
                           style: TextStyle(
                             color: AppColors.primary,
                             fontSize: 18,
@@ -2762,7 +2765,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          widget.category,
+                          LocalizedLabels.category(context, widget.category),
                           style: TextStyle(
                             color: AppColors.textDark,
                             fontSize: 14,
@@ -2822,7 +2825,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  "ASSESSED",
+                                  _l10n.reportAssessedBadge,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 9,
@@ -2873,7 +2876,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                         ),
                         SizedBox(width: 8),
                         Text(
-                          "AI Safety Advice",
+                          _l10n.reportAiSafetyAdvice,
                           style: TextStyle(
                             color: Color(0xFF00E5FF),
                             fontSize: 13,
@@ -2915,7 +2918,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                           SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              "Generating tailored safety advice for your situation...",
+                              _l10n.reportAiGenerating,
                               style: TextStyle(
                                 color: AppColors.textLight.withValues(alpha: 0.8),
                                 fontSize: 11.5,
@@ -3013,7 +3016,7 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                         ),
                         child: Center(
                           child: Text(
-                            "I Understand & Done",
+                            _l10n.reportUnderstoodDone,
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
