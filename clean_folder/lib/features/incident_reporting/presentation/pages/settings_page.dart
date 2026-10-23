@@ -8,6 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/camera_service.dart';
+import 'package:community_safety_app/core/services/locale_controller.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
 import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -194,6 +196,17 @@ class _SettingsPageState extends State<SettingsPage> {
                         onTap: () {
                           AppColors.isDarkMode = !isDark;
                         },
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder<Locale>(
+                    valueListenable: LocaleController.localeNotifier,
+                    builder: (context, locale, child) {
+                      return _buildSettingTile(
+                        icon: Icons.translate_rounded,
+                        title: AppLocalizations.of(context).languageSettingTitle,
+                        subtitle: LocaleController.displayName(locale),
+                        onTap: () => _showLanguagePicker(context),
                       );
                     },
                   ),
@@ -1264,6 +1277,53 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  void _showLanguagePicker(BuildContext context) {
+    final current = LocaleController.locale;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        side: BorderSide(color: AppColors.border),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(ctx).languageSettingTitle,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
+            ),
+            SizedBox(height: 16),
+            for (final locale in AppLocalizations.supportedLocales)
+              ListTile(
+                leading: Icon(
+                  locale == current
+                      ? Icons.radio_button_checked_rounded
+                      : Icons.radio_button_off_rounded,
+                  color: AppColors.primary,
+                ),
+                title: Text(
+                  LocaleController.displayName(locale),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  LocaleController.setLocale(locale);
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSettingTile({
     required IconData icon,
     Color? iconColor,
@@ -1359,7 +1419,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _savedAddressController;
 
   String _selectedBarangay = 'Area 1 - San Jose';
-  String _selectedLanguage = 'English (PH)';
   File? _selectedAvatarFile;
   bool _isSaving = false;
 
@@ -1370,11 +1429,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     'Area 4 - Moonwalk Core',
     'Area 5 - Phase 1 & 2',
     'Area 6 - Multinational Village',
-  ];
-
-  final List<String> _languages = [
-    'English (PH)',
-    'Filipino (Tagalog)',
   ];
 
   @override
@@ -1776,56 +1830,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 validator: (val) => val == null || val.trim().length < 7
                     ? "Please provide an emergency contact phone number"
                     : null,
-              ),
-
-              SizedBox(height: 24),
-              _buildSectionSubHeader("Language Preference"),
-              SizedBox(height: 12),
-
-              DropdownButtonFormField<String>(
-                initialValue: _selectedLanguage,
-                dropdownColor: AppColors.surface,
-                isExpanded: true,
-                style: TextStyle(color: AppColors.textDark,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-                decoration: InputDecoration(
-                  labelText: "App Interface Language",
-                  labelStyle: TextStyle(color: AppColors.textLight),
-                  prefixIcon: Icon(
-                    Icons.translate_rounded,
-                    color: AppColors.primary,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-                items: _languages
-                    .map((l) => DropdownMenuItem(
-                          value: l,
-                          child: Text(
-                            l,
-                            style: TextStyle(color: AppColors.textDark),
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedLanguage = val);
-                },
               ),
 
               SizedBox(height: 36),

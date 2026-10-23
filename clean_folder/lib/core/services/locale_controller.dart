@@ -48,6 +48,12 @@ class LocaleController {
     }
   }
 
+  /// Name shown in the language picker, written in that language itself so
+  /// residents can always find their own language.
+  static String displayName(Locale locale) {
+    return locale.languageCode == filipino.languageCode ? 'Filipino' : 'English';
+  }
+
   /// Only the phone's primary language counts; Tagalog (`tl`) is treated
   /// as Filipino because older Android versions report it that way.
   static Locale resolveDeviceLocale(List<Locale> deviceLocales) {
