@@ -4,6 +4,7 @@ import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
 import 'package:community_safety_app/features/incident/data/datasources/incident_ai_remote_data_source.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class FloatingChatBot extends StatefulWidget {
   const FloatingChatBot({super.key});
@@ -296,7 +297,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
             ),
             const SizedBox(width: 10),
             Text(
-              "Reset Conversation?",
+              AppLocalizations.of(context).chatResetTitle,
               style: TextStyle(
                 color: AppColors.textDark,
                 fontWeight: FontWeight.w800,
@@ -306,7 +307,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
           ],
         ),
         content: Text(
-          "Are you sure you want to clear your chat history with ResQ Civil Defense Assistant? This will start a fresh session.",
+          AppLocalizations.of(context).chatResetMessage,
           style: TextStyle(
             color: AppColors.textLight,
             fontSize: 13,
@@ -317,7 +318,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
-              "Cancel",
+              AppLocalizations.of(context).commonCancel,
               style: TextStyle(
                 color: AppColors.textLight,
                 fontWeight: FontWeight.w600,
@@ -333,8 +334,8 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
-              "Reset",
+            child: Text(
+              AppLocalizations.of(context).chatReset,
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
@@ -505,7 +506,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Civil Defense Assistant",
+                  AppLocalizations.of(context).chatTitle,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -525,7 +526,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                     ),
                     SizedBox(width: 5),
                     Text(
-                      "Barangay Moonwalk • Active",
+                      AppLocalizations.of(context).chatStatus,
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 10,
@@ -580,7 +581,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Quick Civil Defense Guides",
+            AppLocalizations.of(context).chatQuickGuides,
             style: TextStyle(
               color: AppColors.textLight,
               fontSize: 10.5,
@@ -700,7 +701,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                   ),
                   SizedBox(width: 4),
                   Text(
-                    isAi ? "RESQ GEMINI AI" : "CIVIL DEFENSE OFFICER",
+                    isAi ? AppLocalizations.of(context).chatSenderAi : AppLocalizations.of(context).chatSenderOfficer,
                     style: TextStyle(
                       color: isAi ? AppColors.primary : AppColors.textLight,
                       fontSize: 9.5,
@@ -721,7 +722,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               Divider(color: AppColors.border, height: 1),
               SizedBox(height: 8),
               Text(
-                "Immediate Hotline Dialers:",
+                AppLocalizations.of(context).chatHotlineDialers,
                 style: TextStyle(
                   color: AppColors.textLight,
                   fontSize: 10,
@@ -806,7 +807,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 size: 11, color: AppColors.textLight),
             SizedBox(width: 4),
             Text(
-              "All Hotlines",
+              AppLocalizations.of(context).chatAllHotlines,
               style: TextStyle(
                 color: AppColors.textDark,
                 fontSize: 10.5,
@@ -864,7 +865,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
                 controller: _messageController,
                 style: TextStyle(fontSize: 13, color: AppColors.textDark),
                 decoration: InputDecoration(
-                  hintText: 'Ask safety or first-aid guide...',
+                  hintText: AppLocalizations.of(context).chatHint,
                   hintStyle: TextStyle(
                     color: AppColors.textLight,
                     fontSize: 12,

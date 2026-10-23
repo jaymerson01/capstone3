@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class AuthModals {
   /// ── Invalid Credentials ──────────────────────────────────────────────────
@@ -22,10 +23,9 @@ class AuthModals {
             child: _PremiumDialog(
               icon: Icons.warning_amber_rounded,
               iconColor: AppColors.danger,
-              title: "Invalid Credentials",
-              message:
-                  "The username or password you entered is incorrect. Please try again.",
-              actionLabel: "Try Again",
+              title: AppLocalizations.of(context).authInvalidTitle,
+              message: AppLocalizations.of(context).authInvalidMessage,
+              actionLabel: AppLocalizations.of(context).authTryAgain,
               actionColor: AppColors.danger,
               onAction: () => Navigator.of(context).pop(),
             ),
@@ -74,10 +74,9 @@ class AuthModals {
             child: _PremiumDialog(
               icon: Icons.admin_panel_settings_rounded,
               iconColor: const Color(0xFFF59E0B),
-              title: "Admin Account Detected",
-              message:
-                  "This account is registered with Barangay Official & Dispatcher privileges.\n\nPlease log in via the ResQ Admin Command Center web portal.",
-              actionLabel: "Understood",
+              title: AppLocalizations.of(context).authAdminTitle,
+              message: AppLocalizations.of(context).authAdminMessage,
+              actionLabel: AppLocalizations.of(context).commonUnderstood,
               actionColor: const Color(0xFFF59E0B),
               onAction: () => Navigator.of(context).pop(),
             ),
@@ -342,7 +341,7 @@ class _AccountLockedDialogContentState
                 ),
                 SizedBox(height: 20),
                 Text(
-                  "Account Temporarily Locked",
+                  AppLocalizations.of(context).authLockedTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
@@ -352,7 +351,7 @@ class _AccountLockedDialogContentState
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "Too many failed login attempts detected. Your account is locked for security.",
+                  AppLocalizations.of(context).authLockedMessage,
                   style: TextStyle(
                     fontSize: 13,
                     color: AppColors.textLight,
@@ -404,7 +403,7 @@ class _AccountLockedDialogContentState
                               ),
                             ),
                             Text(
-                              "remaining",
+                              AppLocalizations.of(context).authLockedRemaining,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: AppColors.textLight,

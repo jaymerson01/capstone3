@@ -9,6 +9,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class ResidentNavShell extends StatefulWidget {
   final int initialIndex;
@@ -108,6 +109,7 @@ class _ResidentBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final bgColor = isDark ? const Color(0xFF091424) : Colors.white;
     final borderColor = isDark ? const Color(0xFF162A45) : const Color(0xFFE2E8F0);
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -134,7 +136,7 @@ class _ResidentBottomBar extends StatelessWidget {
                 child: _NavBarItem(
                   icon: Icons.home_rounded,
                   unselectedIcon: Icons.home_outlined,
-                  label: "Home",
+                  label: l10n.navHome,
                   isSelected: currentIndex == 0,
                   onTap: () => onTabSelected(0),
                 ),
@@ -145,7 +147,7 @@ class _ResidentBottomBar extends StatelessWidget {
                 child: _NavBarItem(
                   icon: Icons.assignment_rounded,
                   unselectedIcon: Icons.assignment_outlined,
-                  label: "Reports",
+                  label: l10n.navReports,
                   isSelected: currentIndex == 1,
                   onTap: () => onTabSelected(1),
                 ),
@@ -193,9 +195,9 @@ class _ResidentBottomBar extends StatelessWidget {
                       ),
                       Transform.translate(
                         offset: const Offset(0, -6),
-                        child: const Text(
-                          "REPORT",
-                          style: TextStyle(
+                        child: Text(
+                          l10n.navReport,
+                          style: const TextStyle(
                             fontSize: 9.5,
                             fontWeight: FontWeight.w900,
                             letterSpacing: 0.6,
@@ -213,7 +215,7 @@ class _ResidentBottomBar extends StatelessWidget {
                 child: _NavBarItem(
                   icon: Icons.map_rounded,
                   unselectedIcon: Icons.map_outlined,
-                  label: "Map",
+                  label: l10n.navMap,
                   isSelected: currentIndex == 2,
                   onTap: () => onTabSelected(2),
                 ),
@@ -224,7 +226,7 @@ class _ResidentBottomBar extends StatelessWidget {
                 child: _NavBarItem(
                   icon: Icons.settings_rounded,
                   unselectedIcon: Icons.settings_outlined,
-                  label: "More",
+                  label: l10n.navMore,
                   isSelected: currentIndex == 3,
                   onTap: () => onTabSelected(3),
                 ),

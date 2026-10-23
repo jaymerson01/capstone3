@@ -9,6 +9,8 @@ import 'package:community_safety_app/features/incident/domain/entities/incident_
 import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 class MyReportsPage extends StatefulWidget {
   final bool isRootTab;
@@ -102,7 +104,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Report Directory",
+                          AppLocalizations.of(context).myReportsDirectory,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
@@ -111,7 +113,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                         ),
                         SizedBox(height: 2),
                         Text(
-                          "Your submitted incident reports",
+                          AppLocalizations.of(context).myReportsSubtitle,
                           style: TextStyle(
                               fontSize: 12, color: AppColors.textLight),
                         ),
@@ -162,7 +164,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                             fontWeight: FontWeight.w600,
                           ),
                           decoration: InputDecoration(
-                            hintText: "Search title, location, category...",
+                            hintText: AppLocalizations.of(context).myReportsSearchHint,
                             hintStyle: TextStyle(
                               color: AppColors.textLight,
                               fontSize: 13,
@@ -203,13 +205,13 @@ class _MyReportsPageState extends State<MyReportsPage>
                 child: Row(
                   children: [
                     _FilterChip(
-                      text: "ALL",
+                      text: AppLocalizations.of(context).myReportsFilterAll,
                       selected: selectedFilter == "ALL",
                       onTap: () => setState(() => selectedFilter = "ALL"),
                     ),
                     SizedBox(width: 8),
                     _FilterChip(
-                      text: "Pending",
+                      text: AppLocalizations.of(context).statusPending,
                       selected: selectedFilter == "Pending",
                       color: AppColors.pending,
                       onTap: () =>
@@ -217,7 +219,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                     ),
                     SizedBox(width: 8),
                     _FilterChip(
-                      text: "In Progress",
+                      text: AppLocalizations.of(context).statusInProgress,
                       selected: selectedFilter == "In Progress",
                       color: AppColors.progress,
                       onTap: () =>
@@ -225,7 +227,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                     ),
                     SizedBox(width: 8),
                     _FilterChip(
-                      text: "Resolved",
+                      text: AppLocalizations.of(context).statusResolved,
                       selected: selectedFilter == "Resolved",
                       color: AppColors.solved,
                       onTap: () =>
@@ -265,7 +267,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                           return ListView(
                             physics: const AlwaysScrollableScrollPhysics(),
                             children: [
-                              _emptyBox("Error fetching reports: ${snapshot.error}"),
+                              _emptyBox(AppLocalizations.of(context).myReportsLoadError('${snapshot.error}')),
                             ],
                           );
                         }
@@ -301,6 +303,9 @@ class _MyReportsPageState extends State<MyReportsPage>
                             final sector = (incident.areaSector ?? "").toLowerCase();
                             final id = incident.id.toLowerCase();
                             return category.contains(_searchQuery) ||
+                                LocalizedLabels.category(context, incident.category)
+                                    .toLowerCase()
+                                    .contains(_searchQuery) ||
                                 description.contains(_searchQuery) ||
                                 address.contains(_searchQuery) ||
                                 sector.contains(_searchQuery) ||
@@ -314,8 +319,8 @@ class _MyReportsPageState extends State<MyReportsPage>
                             physics: const AlwaysScrollableScrollPhysics(),
                             children: [
                               _emptyBox(_searchQuery.isNotEmpty
-                                  ? "No reports matching '$_searchQuery' found."
-                                  : "No reports found under this status filter."),
+                                  ? AppLocalizations.of(context).myReportsNoMatch(_searchQuery)
+                                  : AppLocalizations.of(context).myReportsNoneForFilter),
                             ],
                           );
                         }
@@ -451,9 +456,9 @@ class _MyReportsAppBar extends StatelessWidget implements PreferredSizeWidget {
                   shaderCallback: (bounds) =>
                       AppColors.cyanGradient.createShader(bounds),
                   blendMode: BlendMode.srcIn,
-                  child: const Text(
-                    "MY REPORTS",
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context).myReportsTitle,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -517,7 +522,7 @@ class _SearchButton extends StatelessWidget {
             ),
             SizedBox(width: 6),
             Text(
-              isSearching ? "Close" : "Search",
+              isSearching ? AppLocalizations.of(context).myReportsCloseSearch : AppLocalizations.of(context).myReportsSearch,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -690,7 +695,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
                     children: [
                       // Category Title
                       Text(
-                        incident.category,
+                        LocalizedLabels.category(context, incident.category),
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -750,7 +755,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
                           ),
                           SizedBox(width: 3),
                           Text(
-                            incident.isSynced ? "Live" : "Local",
+                            incident.isSynced ? AppLocalizations.of(context).myReportsLive : AppLocalizations.of(context).myReportsLocal,
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -792,7 +797,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
                                     ),
                                     SizedBox(width: 4),
                                     Text(
-                                      "For: ${incident.victimName?.isNotEmpty == true ? incident.victimName! : 'Relative'}",
+                                      AppLocalizations.of(context).reportForPerson(incident.victimName?.isNotEmpty == true ? incident.victimName! : AppLocalizations.of(context).commonRelative),
                                       style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w700,
@@ -828,7 +833,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
                                     ),
                                     SizedBox(width: 4),
                                     Text(
-                                      "ETA: ${incident.estimatedResponseTime!}",
+                                      AppLocalizations.of(context).commonEta(incident.estimatedResponseTime!),
                                       style: const TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w800,
@@ -863,7 +868,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
                         ),
                       ),
                       child: Text(
-                        incident.status.toUpperCase(),
+                        LocalizedLabels.status(context, incident.status).toUpperCase(),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,

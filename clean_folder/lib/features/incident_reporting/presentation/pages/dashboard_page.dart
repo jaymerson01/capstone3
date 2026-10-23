@@ -19,6 +19,8 @@ import 'package:community_safety_app/features/notifications/presentation/widgets
 import 'package:community_safety_app/core/services/fcm_service.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -124,7 +126,7 @@ class _DashboardPageState extends State<DashboardPage>
             ),
             SizedBox(height: 18),
             Text(
-              "Enable Quick Biometric Access",
+              AppLocalizations.of(context).dashboardBiometricTitle,
               style: TextStyle(
                 color: Color(0xFFE8F0FE),
                 fontSize: 18,
@@ -134,7 +136,7 @@ class _DashboardPageState extends State<DashboardPage>
             ),
             SizedBox(height: 10),
             Text(
-              "Protect your ResQ account and instantly verify emergency incident reports using your Fingerprint or Face ID.",
+              AppLocalizations.of(context).dashboardBiometricMessage,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF7B8DB0),
@@ -155,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage>
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: Text(
-                      "Maybe Later",
+                      AppLocalizations.of(context).dashboardMaybeLater,
                       style: TextStyle(
                         color: Color(0xFF7B8DB0),
                         fontWeight: FontWeight.w700,
@@ -181,20 +183,19 @@ class _DashboardPageState extends State<DashboardPage>
                     ),
                     child: ElevatedButton(
                       onPressed: () async {
+                        final l10n = AppLocalizations.of(context);
                         Navigator.pop(ctx);
                         await biometricService.markFirstTimeEnrollmentPrompted();
                         final didAuth = await biometricService.verifySubmission(
-                          reason:
-                              "Scan fingerprint or face to enable Biometric Quick Access",
+                          reason: l10n.dashboardBiometricReason,
                         );
                         if (didAuth) {
                           await biometricService.setBiometricLockEnabled(true);
                           if (!mounted) return;
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                  "Biometric verification enabled for ResQ!"),
-                              backgroundColor: Color(0xFF34C759),
+                            SnackBar(
+                              content: Text(l10n.dashboardBiometricEnabled),
+                              backgroundColor: const Color(0xFF34C759),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -209,7 +210,7 @@ class _DashboardPageState extends State<DashboardPage>
                         ),
                       ),
                       child: Text(
-                        "Enable Now",
+                        AppLocalizations.of(context).dashboardEnableNow,
                         style: TextStyle(
                           color: AppColors.textDark,
                           fontWeight: FontWeight.w800,
@@ -279,7 +280,8 @@ class _DashboardPageState extends State<DashboardPage>
       longitude: incident.longitude,
     );
     final time =
-        "Reported ${incident.timestamp.month}/${incident.timestamp.day}/${incident.timestamp.year}";
+        AppLocalizations.of(context).dashboardReportedOn(
+            "${incident.timestamp.month}/${incident.timestamp.day}/${incident.timestamp.year}");
 
     return Custom3dCard(
       margin: const EdgeInsets.only(bottom: 14),
@@ -330,7 +332,7 @@ class _DashboardPageState extends State<DashboardPage>
                     SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        category,
+                        LocalizedLabels.category(context, category),
                         style: TextStyle(
                           color: AppColors.textDark,
                           fontSize: 15,
@@ -400,7 +402,7 @@ class _DashboardPageState extends State<DashboardPage>
   @override
   Widget build(BuildContext context) {
     final authState = context.watch<AuthBloc>().state;
-    String userName = "Resident";
+    String userName = AppLocalizations.of(context).commonResident;
 
     if (authState is Authenticated) {
       final name = authState.user.fullName ?? authState.user.displayName;
@@ -410,7 +412,7 @@ class _DashboardPageState extends State<DashboardPage>
         final emailPart = authState.user.email.split('@').first;
         userName = emailPart.isNotEmpty
             ? emailPart[0].toUpperCase() + emailPart.substring(1)
-            : "Resident";
+            : AppLocalizations.of(context).commonResident;
       }
     } else {
       final fbUser = FirebaseAuth.instance.currentUser;
@@ -420,7 +422,7 @@ class _DashboardPageState extends State<DashboardPage>
         final emailPart = fbUser.email!.split('@').first;
         userName = emailPart.isNotEmpty
             ? emailPart[0].toUpperCase() + emailPart.substring(1)
-            : "Resident";
+            : AppLocalizations.of(context).commonResident;
       }
     }
 
@@ -509,7 +511,7 @@ class _DashboardPageState extends State<DashboardPage>
                 ),
                 SizedBox(width: 8),
                 Text(
-                  "MY REPORTS STATUS",
+                  AppLocalizations.of(context).dashboardMyReportsStatus,
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontSize: 12.5,
@@ -525,13 +527,13 @@ class _DashboardPageState extends State<DashboardPage>
                 MaterialPageRoute(builder: (_) => const MyReportsPage()),
               ),
               borderRadius: BorderRadius.circular(6),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "View All",
+                      AppLocalizations.of(context).dashboardViewAll,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 11,
@@ -549,7 +551,7 @@ class _DashboardPageState extends State<DashboardPage>
         ),
         SizedBox(height: 4),
         Text(
-          "Personal incident filings • Real-time response tracking",
+          AppLocalizations.of(context).dashboardMyReportsSubtitle,
           style: TextStyle(
             color: AppColors.textLight,
             fontSize: 11.5,
@@ -569,7 +571,7 @@ class _DashboardPageState extends State<DashboardPage>
       );
     } else if (state is IncidentError) {
       return Center(
-        child: Text("Error: ${state.message}",
+        child: Text(AppLocalizations.of(context).commonError(state.message),
             style: TextStyle(color: AppColors.danger)),
       );
     } else if (state is IncidentLoaded) {
@@ -586,7 +588,7 @@ class _DashboardPageState extends State<DashboardPage>
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                "Community Incidents",
+                AppLocalizations.of(context).dashboardCommunityIncidents,
                 style: TextStyle(
                   color: AppColors.textDark,
                   fontSize: 20,
@@ -595,7 +597,7 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               if (topReports.isNotEmpty)
                 Text(
-                  "${topReports.length} Active",
+                  AppLocalizations.of(context).dashboardActiveCount(topReports.length),
                   style: const TextStyle(
                     color: AppColors.primary,
                     fontSize: 12,
@@ -606,7 +608,7 @@ class _DashboardPageState extends State<DashboardPage>
           ),
           SizedBox(height: 4),
           Text(
-            "Recent reports from nearby compounds and streets",
+            AppLocalizations.of(context).dashboardCommunitySubtitle,
             style: TextStyle(
                 color: AppColors.textLight,
                 fontSize: 12,
@@ -624,7 +626,7 @@ class _DashboardPageState extends State<DashboardPage>
                         size: 48),
                     SizedBox(height: 12),
                     Text(
-                      "No active incidents",
+                      AppLocalizations.of(context).dashboardNoActiveIncidents,
                       style: TextStyle(
                           color: AppColors.textLight,
                           fontWeight: FontWeight.w600),
@@ -880,7 +882,7 @@ class _WelcomeHeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome back,",
+                  AppLocalizations.of(context).dashboardWelcomeBack,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -925,7 +927,7 @@ class _WelcomeHeroCard extends StatelessWidget {
                     ),
                     SizedBox(width: 6),
                     Text(
-                      "Resident",
+                      AppLocalizations.of(context).commonResident,
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w500,
@@ -991,8 +993,8 @@ class _QuickStatsRow extends StatelessWidget {
     return Row(
       children: [
         _MiniStatCard(
-          label: "Pending",
-          sublabel: "In Queue",
+          label: AppLocalizations.of(context).dashboardStatPending,
+          sublabel: AppLocalizations.of(context).dashboardStatInQueue,
           value: pending.toString(),
           color: AppColors.pending,
           icon: Icons.hourglass_empty_rounded,
@@ -1003,8 +1005,8 @@ class _QuickStatsRow extends StatelessWidget {
         ),
         SizedBox(width: 10),
         _MiniStatCard(
-          label: "Active",
-          sublabel: "Responding",
+          label: AppLocalizations.of(context).dashboardStatActive,
+          sublabel: AppLocalizations.of(context).dashboardStatResponding,
           value: inProgress.toString(),
           color: AppColors.progress,
           icon: Icons.sync_rounded,
@@ -1015,8 +1017,8 @@ class _QuickStatsRow extends StatelessWidget {
         ),
         SizedBox(width: 10),
         _MiniStatCard(
-          label: "Solved",
-          sublabel: "Resolved",
+          label: AppLocalizations.of(context).dashboardStatSolved,
+          sublabel: AppLocalizations.of(context).dashboardStatResolved,
           value: solved.toString(),
           color: AppColors.solved,
           icon: Icons.check_circle_rounded,
@@ -1203,7 +1205,7 @@ class _InfoBannerState extends State<_InfoBanner>
                   ),
                   SizedBox(height: 14),
                   Text(
-                    "Video Instructions",
+                    AppLocalizations.of(context).dashboardVideoInstructions,
                     style: TextStyle(
                       color: AppColors.textDark,
                       fontSize: 18,
@@ -1212,7 +1214,7 @@ class _InfoBannerState extends State<_InfoBanner>
                   ),
                   SizedBox(height: 4),
                   Text(
-                    "How to report safety issues in Moonwalk",
+                    AppLocalizations.of(context).dashboardVideoSubtitle,
                     style: TextStyle(
                       color: AppColors.textLight,
                       fontSize: 12,
@@ -1233,19 +1235,19 @@ class _StatusChip extends StatelessWidget {
   final Color color;
   const _StatusChip({required this.status, required this.color});
 
-  String _formatStatus(String raw) {
+  String _formatStatus(BuildContext context, String raw) {
     switch (raw.toLowerCase().replaceAll('_', '').replaceAll(' ', '').trim()) {
       case 'pending':
-        return 'Pending';
+        return AppLocalizations.of(context).statusPending;
       case 'inprogress':
-        return 'In Progress';
+        return AppLocalizations.of(context).statusInProgress;
       case 'solved':
       case 'resolved':
-        return 'Solved';
+        return AppLocalizations.of(context).statusSolved;
       case 'spam':
-        return 'Spam';
+        return AppLocalizations.of(context).statusSpam;
       case 'archived':
-        return 'Archived';
+        return AppLocalizations.of(context).statusArchived;
       default:
         return raw;
     }
@@ -1253,7 +1255,7 @@ class _StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayStatus = _formatStatus(status);
+    final displayStatus = _formatStatus(context, status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
@@ -1342,10 +1344,10 @@ class _ActiveEmergencyBanner extends StatelessWidget {
         final docs = snapshot.data!.docs;
         final latestDoc = docs.first;
         final data = latestDoc.data() as Map<String, dynamic>;
-        final title = data['title'] as String? ?? "EMERGENCY ADVISORY";
-        final alertType = data['alertType'] as String? ?? "Siren Alert";
+        final title = data['title'] as String? ?? AppLocalizations.of(context).dashboardAdvisoryFallback;
+        final alertType = data['alertType'] as String? ?? AppLocalizations.of(context).dashboardSirenAlertFallback;
         final message = data['message'] as String? ?? "";
-        final sector = data['sector'] as String? ?? "All Sectors";
+        final sector = data['sector'] as String? ?? AppLocalizations.of(context).dashboardAllSectors;
 
         final isDark = AppColors.isDarkMode;
         return Container(
@@ -1414,9 +1416,9 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                                     .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
-                                "ACTIVE SIREN",
-                                style: TextStyle(
+                              child: Text(
+                                AppLocalizations.of(context).dashboardActiveSiren,
+                                style: const TextStyle(
                                   color: Color(0xFFFF3B30),
                                   fontWeight: FontWeight.w900,
                                   fontSize: 9,
@@ -1461,7 +1463,7 @@ class _ActiveEmergencyBanner extends StatelessWidget {
                       size: 13, color: AppColors.textLight),
                   const SizedBox(width: 4),
                   Text(
-                    "Target: $sector",
+                    AppLocalizations.of(context).dashboardBroadcastTarget(sector),
                     style: TextStyle(
                       color: AppColors.textLight,
                       fontSize: 11,

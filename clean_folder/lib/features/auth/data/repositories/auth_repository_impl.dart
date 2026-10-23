@@ -21,15 +21,15 @@ class AuthRepositoryImpl implements AuthRepository {
   ) async {
     try {
       if (email.trim().isEmpty || password.isEmpty) {
-        return const Left(ServerFailure("Email and password cannot be empty."));
+        return const Left(ServerFailure("Email and password cannot be empty.", code: 'empty-credentials'));
       }
       final user = await _remoteDataSource.signInWithEmailAndPassword(email, password)
           .timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException("Login request timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -40,9 +40,9 @@ class AuthRepositoryImpl implements AuthRepository {
           .timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException("Google sign in timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -55,7 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       if (email.trim().isEmpty || password.isEmpty) {
-        return const Left(ServerFailure("Email and password cannot be empty."));
+        return const Left(ServerFailure("Email and password cannot be empty.", code: 'empty-credentials'));
       }
       final user = await _remoteDataSource.signUpWithEmailAndPassword(
         email,
@@ -65,9 +65,9 @@ class AuthRepositoryImpl implements AuthRepository {
       ).timeout(const Duration(seconds: 15), onTimeout: () => throw TimeoutException("Registration request timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -79,9 +79,9 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource.signOut();
       return const Right(null);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -92,9 +92,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (user != null) return Right(user);
       return const Right(null);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -120,9 +120,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final updated = await _remoteDataSource.updateUserProfile(model);
       return Right(updated);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -135,9 +135,9 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource.changePassword(currentPassword, newPassword);
       return const Right(null);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 
@@ -147,9 +147,9 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource.deleteAccount();
       return const Right(null);
     } on FirebaseAuthException catch (e) {
-      return Left(ServerFailure(e.message ?? e.code));
+      return Left(ServerFailure(e.message ?? e.code, code: e.code));
     } catch (e) {
-      return Left(ServerFailure(e.toString()));
+      return Left(ServerFailure(e.toString(), code: e is TimeoutException ? 'timeout' : null));
     }
   }
 }

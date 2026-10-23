@@ -8,6 +8,10 @@ import 'package:community_safety_app/features/auth/presentation/pages/welcome_pa
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+
+/// Side menu entries. Navigation keys off these, not the (translated) labels.
+enum _MenuDestination { dashboard, reportIncident, myReports, maps, settings, logout }
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -17,12 +21,13 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
-  String hoveredItem = "";
+  _MenuDestination? hoveredItem;
 
   @override
   Widget build(BuildContext context) {
     // Determine active route name to show proper selected state
     final String? currentRoute = ModalRoute.of(context)?.settings.name;
+    final l10n = AppLocalizations.of(context);
 
     return ValueListenableBuilder<bool>(
       valueListenable: AppColors.isDarkModeNotifier,
@@ -87,7 +92,7 @@ class _SideMenuState extends State<SideMenu> {
                                 ),
                               ),
                               Text(
-                                "Citizen Portal",
+                                l10n.menuCitizenPortal,
                                 style: TextStyle(
                                   color: AppColors.textLight,
                                   fontSize: 11,
@@ -103,16 +108,16 @@ class _SideMenuState extends State<SideMenu> {
                   Divider(color: AppColors.border, height: 1),
                   const SizedBox(height: 20),
 
-                  menuItem(context, Icons.home_outlined, "User Dashboard", currentRoute == null || currentRoute == '/', isDark),
-                  menuItem(context, Icons.warning_amber_rounded, "Report Incident", false, isDark),
-                  menuItem(context, Icons.list_alt_rounded, "My Reports", false, isDark),
-                  menuItem(context, Icons.map_outlined, "Maps", false, isDark),
-                  menuItem(context, Icons.settings_outlined, "Settings", false, isDark),
+                  menuItem(context, Icons.home_outlined, l10n.menuDashboard, _MenuDestination.dashboard, currentRoute == null || currentRoute == '/', isDark),
+                  menuItem(context, Icons.warning_amber_rounded, l10n.menuReportIncident, _MenuDestination.reportIncident, false, isDark),
+                  menuItem(context, Icons.list_alt_rounded, l10n.menuMyReports, _MenuDestination.myReports, false, isDark),
+                  menuItem(context, Icons.map_outlined, l10n.menuMaps, _MenuDestination.maps, false, isDark),
+                  menuItem(context, Icons.settings_outlined, l10n.menuSettings, _MenuDestination.settings, false, isDark),
 
                   const Spacer(),
                   Divider(color: AppColors.border, height: 1),
                   const SizedBox(height: 16),
-                  menuItem(context, Icons.logout_rounded, "Logout", false, isDark),
+                  menuItem(context, Icons.logout_rounded, l10n.menuLogout, _MenuDestination.logout, false, isDark),
                   const SizedBox(height: 16),
                 ],
               ),
@@ -123,9 +128,9 @@ class _SideMenuState extends State<SideMenu> {
     );
   }
 
-  Widget menuItem(BuildContext context, IconData icon, String title, bool isSelected, bool isDark) {
-    final bool isHovered = hoveredItem == title;
-    final bool isLogout = title == "Logout";
+  Widget menuItem(BuildContext context, IconData icon, String title, _MenuDestination destination, bool isSelected, bool isDark) {
+    final bool isHovered = hoveredItem == destination;
+    final bool isLogout = destination == _MenuDestination.logout;
 
     // Build the visual state colors
     Color tileBgColor = Colors.transparent;
@@ -166,12 +171,12 @@ class _SideMenuState extends State<SideMenu> {
       child: MouseRegion(
         onEnter: (_) {
           setState(() {
-            hoveredItem = title;
+            hoveredItem = destination;
           });
         },
         onExit: (_) {
           setState(() {
-            hoveredItem = "";
+            hoveredItem = null;
           });
         },
         child: AnimatedContainer(
@@ -203,10 +208,10 @@ class _SideMenuState extends State<SideMenu> {
               ),
               hoverColor: Colors.transparent,
               onTap: () {
-                if (title == "User Dashboard") {
+                if (destination == _MenuDestination.dashboard) {
                   ResidentNavShell.switchTab(context, 0);
                   Navigator.pop(context);
-                } else if (title == "Report Incident") {
+                } else if (destination == _MenuDestination.reportIncident) {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
@@ -217,16 +222,16 @@ class _SideMenuState extends State<SideMenu> {
                       ),
                     ),
                   );
-                } else if (title == "My Reports") {
+                } else if (destination == _MenuDestination.myReports) {
                   ResidentNavShell.switchTab(context, 1);
                   Navigator.pop(context);
-                } else if (title == "Maps") {
+                } else if (destination == _MenuDestination.maps) {
                   ResidentNavShell.switchTab(context, 2);
                   Navigator.pop(context);
-                } else if (title == "Settings") {
+                } else if (destination == _MenuDestination.settings) {
                   ResidentNavShell.switchTab(context, 3);
                   Navigator.pop(context);
-                } else if (title == "Logout") {
+                } else if (destination == _MenuDestination.logout) {
                   Navigator.pop(context);
                   context.read<AuthBloc>().add(const LogoutRequested());
 

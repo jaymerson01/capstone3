@@ -12,6 +12,8 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:community_safety_app/features/auth/presentation/widgets/auth_modals.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -80,7 +82,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.message),
+                content: Text(LocalizedLabels.authError(
+                  context,
+                  code: state.code,
+                  message: state.message,
+                )),
                 backgroundColor: AppColors.danger,
                 behavior: SnackBarBehavior.floating,
               ),
@@ -213,9 +219,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   shaderCallback: (bounds) =>
                                       AppColors.cyanGradient.createShader(bounds),
                                   blendMode: BlendMode.srcIn,
-                                  child: const Text(
-                                    "SIGN IN",
-                                    style: TextStyle(
+                                  child: Text(
+                                    AppLocalizations.of(context).loginTitle,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w900,
                                       fontSize: 28,
@@ -225,7 +231,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  "Barangay Incident & Public Safety Portal",
+                                  AppLocalizations.of(context).loginSubtitle,
                                   style: TextStyle(
                                       color: AppColors.textLight, fontSize: 13),
                                 ),
@@ -272,21 +278,21 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           label: 'email_input',
                                           child: Custom3dTextField(
                                             controller: _emailController,
-                                            labelText: "Email Address",
-                                            hintText: "e.g. juan@gmail.com",
+                                            labelText: AppLocalizations.of(context).authEmailLabel,
+                                            hintText: AppLocalizations.of(context).authEmailHint,
                                             prefixIcon: Icons.email_outlined,
                                             keyboardType:
                                                 TextInputType.emailAddress,
                                             validator: (value) {
                                               if (value == null ||
                                                   value.trim().isEmpty) {
-                                                return "Email is required.";
+                                                return AppLocalizations.of(context).authEmailRequired;
                                               }
                                               final emailRegex = RegExp(
                                                   r'^[\w-\.]+@gmail\.com$');
                                               if (!emailRegex.hasMatch(
                                                   value.trim().toLowerCase())) {
-                                                return "Enter a valid Gmail address.";
+                                                return AppLocalizations.of(context).authEmailInvalid;
                                               }
                                               return null;
                                             },
@@ -297,8 +303,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           label: 'password_input',
                                           child: Custom3dTextField(
                                             controller: _passwordController,
-                                            labelText: "Password",
-                                            hintText: "e.g. Moonwalk#01",
+                                            labelText: AppLocalizations.of(context).authPasswordLabel,
+                                            hintText: AppLocalizations.of(context).authPasswordHint,
                                             prefixIcon: Icons.lock_outline,
                                             obscureText: _obscurePassword,
                                             suffixIcon: IconButton(
@@ -316,7 +322,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                             validator: (value) {
                                               if (value == null ||
                                                   value.isEmpty) {
-                                                return "Password is required.";
+                                                return AppLocalizations.of(context).authPasswordRequired;
                                               }
                                               return null;
                                             },
@@ -337,7 +343,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                                       .shrinkWrap,
                                             ),
                                             child: Text(
-                                              "Forgot Password?",
+                                              AppLocalizations.of(context).loginForgotPassword,
                                               style: TextStyle(
                                                 color: AppColors.primary,
                                                 fontSize: 12.5,
@@ -353,8 +359,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           button: true,
                                           child: Custom3dButton(
                                             text: isLoading
-                                                ? "SIGNING IN..."
-                                                : "CONTINUE",
+                                                ? AppLocalizations.of(context).loginSigningIn
+                                                : AppLocalizations.of(context).loginContinue,
                                             icon: isLoading
                                                 ? null
                                                 : Icons.arrow_forward_rounded,
@@ -401,7 +407,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child: Text(
-                                    "or continue with",
+                                    AppLocalizations.of(context).authOrContinueWith,
                                     style: TextStyle(
                                         color: AppColors.textLight,
                                         fontSize: 12),
@@ -427,7 +433,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Don't have an account? ",
+                                  AppLocalizations.of(context).loginNoAccount,
                                   style: TextStyle(color: AppColors.textLight),
                                 ),
                                 Semantics(
@@ -440,7 +446,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                           builder: (_) => const SignUpPage()),
                                     ),
                                     child: Text(
-                                      "Sign Up",
+                                      AppLocalizations.of(context).authSignUp,
                                       style: TextStyle(
                                         color: AppColors.primary,
                                         fontWeight: FontWeight.bold,
@@ -504,7 +510,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               Icon(Icons.g_mobiledata, size: 28, color: AppColors.primary),
               const SizedBox(width: 8),
               Text(
-                "Continue with Google",
+                AppLocalizations.of(context).authContinueWithGoogle,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 14.5,
@@ -548,7 +554,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               ),
               SizedBox(width: 12),
               Text(
-                "Reset Password",
+                AppLocalizations.of(context).resetTitle,
                 style: TextStyle(
                   fontWeight: FontWeight.w900,
                   color: AppColors.textDark,
@@ -562,7 +568,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Enter your registered email and we'll send you an official link to reset your password.",
+                AppLocalizations.of(context).resetMessage,
                 style: TextStyle(
                   fontSize: 12.5,
                   color: AppColors.textLight,
@@ -575,7 +581,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(color: AppColors.textDark, fontSize: 13.5),
                 decoration: InputDecoration(
-                  labelText: "Registered Email",
+                  labelText: AppLocalizations.of(context).resetEmailLabel,
                   labelStyle: TextStyle(color: AppColors.textLight),
                   prefixIcon: Icon(Icons.email_outlined,
                       color: AppColors.primary, size: 20),
@@ -600,7 +606,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           actions: [
             TextButton(
               onPressed: isSending ? null : () => Navigator.pop(ctx),
-              child: Text("Cancel",
+              child: Text(AppLocalizations.of(context).commonCancel,
                   style: TextStyle(color: AppColors.textLight)),
             ),
             ElevatedButton(
@@ -617,9 +623,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       final email = resetEmailCtrl.text.trim();
                       if (email.isEmpty || !email.contains('@')) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                                "Please enter a valid registered email address."),
+                          SnackBar(
+                            content: Text(AppLocalizations.of(context).resetEmailInvalid),
                             backgroundColor: AppColors.warning,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -629,6 +634,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
                       setDialogState(() => isSending = true);
                       final messenger = ScaffoldMessenger.of(context);
+                      final l10n = AppLocalizations.of(context);
 
                       try {
                         await FirebaseAuth.instance
@@ -636,8 +642,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         if (ctx.mounted) Navigator.pop(ctx);
                         messenger.showSnackBar(
                           SnackBar(
-                            content: Text(
-                                "Password reset email sent to $email! Please check your inbox."),
+                            content: Text(l10n.resetSent(email)),
                             backgroundColor: AppColors.solved,
                             behavior: SnackBarBehavior.floating,
                             duration: const Duration(seconds: 5),
@@ -647,7 +652,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         setDialogState(() => isSending = false);
                         messenger.showSnackBar(
                           SnackBar(
-                            content: Text("Failed to send reset link: $e"),
+                            content: Text(l10n.resetFailed('$e')),
                             backgroundColor: AppColors.danger,
                             behavior: SnackBarBehavior.floating,
                           ),
@@ -663,7 +668,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                         strokeWidth: 2,
                       ),
                     )
-                  : Text("Send Link"),
+                  : Text(AppLocalizations.of(context).resetSendLink),
             ),
           ],
         ),
@@ -752,7 +757,7 @@ class _SuccessDialog extends StatelessWidget {
             ),
             SizedBox(height: 18),
             Text(
-              "Welcome Back!",
+              AppLocalizations.of(context).loginWelcomeBack,
               style: TextStyle(
                 color: AppColors.textDark,
                 fontSize: 20,
@@ -761,7 +766,7 @@ class _SuccessDialog extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              "You have successfully signed in.",
+              AppLocalizations.of(context).loginSuccess,
               style: TextStyle(color: AppColors.textLight, fontSize: 14),
             ),
             SizedBox(height: 24),
@@ -769,7 +774,7 @@ class _SuccessDialog extends StatelessWidget {
               label: 'continue_dialog_button',
               button: true,
               child: Custom3dButton(
-                text: "Continue",
+                text: AppLocalizations.of(context).commonContinue,
                 gradient: const LinearGradient(
                   colors: [AppColors.solved, Color(0xFF00A843)],
                 ),

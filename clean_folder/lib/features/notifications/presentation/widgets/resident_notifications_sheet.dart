@@ -5,6 +5,7 @@ import '../../../incident/data/models/incident_model.dart';
 import '../../../incident/presentation/pages/incident_detail_page.dart';
 import '../../data/datasources/notification_service.dart';
 import '../../data/models/notification_model.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class ResidentNotificationsSheet extends StatelessWidget {
   final String userId;
@@ -20,12 +21,13 @@ class ResidentNotificationsSheet extends StatelessWidget {
     );
   }
 
-  String _formatRelativeTime(DateTime dt) {
+  String _formatRelativeTime(BuildContext context, DateTime dt) {
+    final l10n = AppLocalizations.of(context);
     final diff = DateTime.now().difference(dt);
-    if (diff.inSeconds < 60) return "Just now";
-    if (diff.inMinutes < 60) return "${diff.inMinutes}m ago";
-    if (diff.inHours < 24) return "${diff.inHours}h ago";
-    if (diff.inDays < 7) return "${diff.inDays}d ago";
+    if (diff.inSeconds < 60) return l10n.timeShortJustNow;
+    if (diff.inMinutes < 60) return l10n.timeShortMinutes(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeShortHours(diff.inHours);
+    if (diff.inDays < 7) return l10n.timeShortDays(diff.inDays);
     return "${dt.month}/${dt.day}/${dt.year}";
   }
 
@@ -109,7 +111,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                 ),
                 SizedBox(width: 12),
                 Text(
-                  "NOTIFICATIONS",
+                  AppLocalizations.of(context).notificationsTitle,
                   style: TextStyle(
                     color: AppColors.textDark,
                     fontWeight: FontWeight.w900,
@@ -125,7 +127,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                   icon: Icon(Icons.done_all_rounded,
                       size: 16, color: Color(0xFF7B8DB0)),
                   label: Text(
-                    "Mark all read",
+                    AppLocalizations.of(context).notificationsMarkAllRead,
                     style: TextStyle(
                       color: Color(0xFF7B8DB0),
                       fontSize: 12,
@@ -173,7 +175,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            "No Notifications Yet",
+                            AppLocalizations.of(context).notificationsEmptyTitle,
                             style: TextStyle(
                               color: AppColors.textDark,
                               fontSize: 16,
@@ -182,7 +184,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            "You will be alerted when dispatch updates your reports, neighbors corroborate incidents, or community sirens sound.",
+                            AppLocalizations.of(context).notificationsEmptyMessage,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Color(0xFF7B8DB0),
@@ -204,7 +206,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                     final item = notifications[index];
                     final color = _getTypeColor(item.type);
                     final icon = _getTypeIcon(item.type);
-                    final timeStr = _formatRelativeTime(item.createdAt);
+                    final timeStr = _formatRelativeTime(context, item.createdAt);
 
                     return Material(
                       color: Colors.transparent,
@@ -369,7 +371,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                             item.incidentId!.isNotEmpty) ...[
                                           const Spacer(),
                                           Text(
-                                            "View report →",
+                                            AppLocalizations.of(context).notificationsViewReport,
                                             style: TextStyle(
                                               color: color,
                                               fontSize: 11.5,
@@ -392,7 +394,7 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                 },
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
-                                tooltip: "Remove",
+                                tooltip: AppLocalizations.of(context).notificationsRemove,
                               ),
                             ],
                           ),

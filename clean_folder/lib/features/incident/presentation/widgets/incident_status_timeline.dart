@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import '../../domain/entities/incident_entity.dart';
 import '../helpers/safety_kits_provider.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class IncidentStatusTimeline extends StatelessWidget {
   final IncidentEntity incident;
@@ -13,7 +14,10 @@ class IncidentStatusTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final instructions = SafetyKitsProvider.getInstructionsForCategory(incident.category);
+    final instructions = SafetyKitsProvider.getInstructionsForCategory(
+      AppLocalizations.of(context),
+      incident.category,
+    );
 
     return Container(
       padding: const EdgeInsets.all(20.0),
@@ -45,7 +49,7 @@ class IncidentStatusTimeline extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                'Safety Action Protocol',
+                AppLocalizations.of(context).timelineSafetyProtocol,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 16,
@@ -71,7 +75,7 @@ class IncidentStatusTimeline extends StatelessWidget {
               ),
               SizedBox(width: 10),
               Text(
-                'Incident Resolution Stage',
+                AppLocalizations.of(context).timelineResolutionStage,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 16,
@@ -100,7 +104,7 @@ class IncidentStatusTimeline extends StatelessWidget {
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      "Responders on the way • Estimated Arrival: ${incident.estimatedResponseTime!}",
+                      AppLocalizations.of(context).timelineRespondersOnTheWay(incident.estimatedResponseTime!),
                       style: const TextStyle(
                         color: Color(0xFF00E5FF),
                         fontSize: 12,
@@ -194,11 +198,11 @@ class IncidentStatusTimeline extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildNode('Pending', isN1Pulsing, isN1Active, n1Color),
+        _buildNode(AppLocalizations.of(context).statusPending, isN1Pulsing, isN1Active, n1Color),
         _buildLine(l1Color),
-        _buildNode('In Progress', isN2Pulsing, isN2Active, n2Color),
+        _buildNode(AppLocalizations.of(context).statusInProgress, isN2Pulsing, isN2Active, n2Color),
         _buildLine(l2Color),
-        _buildNode('Resolved', false, isN3Active, n3Color),
+        _buildNode(AppLocalizations.of(context).statusResolved, false, isN3Active, n3Color),
       ],
     );
   }
