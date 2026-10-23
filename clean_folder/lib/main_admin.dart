@@ -14,6 +14,7 @@ import 'package:community_safety_app/features/incident/data/models/incident_mode
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,11 @@ class ResQAdminApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ResQ Admin Command Center',
         debugShowCheckedModeBanner: false,
+        // The admin portal stays in English; the delegates let shared widgets
+        // look up their (resident-app) strings.
+        locale: const Locale('en'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         theme: ThemeData(
           brightness: Brightness.dark,
           scaffoldBackgroundColor: AdminColors.background,

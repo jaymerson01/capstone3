@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "languageSettingTitle": "Language",
+  "@languageSettingTitle": {
+    "description": "Title of the Settings row where the resident picks the app's interface language."
+  }
+}

@@ -7,7 +7,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
+import 'package:community_safety_app/core/services/locale_controller.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
@@ -44,6 +46,7 @@ void main() async {
     debugPrint("Notice: .env loading skipped or warning: $e");
   }
 
+  await LocaleController.load();
 
   try {
     await Hive.initFlutter();
@@ -114,13 +117,19 @@ class ResQResidentApp extends StatelessWidget {
               sl<IncidentBloc>()..add(const StreamActiveIncidentsRequested()),
         ),
       ],
-      child: ValueListenableBuilder<bool>(
-        valueListenable: AppColors.isDarkModeNotifier,
-        builder: (context, isDark, child) {
+      child: ListenableBuilder(
+        listenable: Listenable.merge([
+          AppColors.isDarkModeNotifier,
+          LocaleController.localeNotifier,
+        ]),
+        builder: (context, child) {
           return MaterialApp(
             navigatorKey: residentNavigatorKey,
             title: 'ResQ Community Safety',
             debugShowCheckedModeBanner: false,
+            locale: LocaleController.locale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
               scaffoldBackgroundColor: AppColors.background,
