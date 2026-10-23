@@ -3,6 +3,9 @@ class SafetyKitsProvider {
   /// mapped specifically to Barangay Moonwalk's emergency protocols.
   static List<String> getInstructionsForCategory(String category) {
     switch (category) {
+      // Report Incident saves the full category names; the short names are
+      // kept for reports saved by older versions of the app.
+      case 'Fire Incident':
       case 'Fire':
         return [
           '**Evacuate immediately** using the safest and nearest exit.',
@@ -10,6 +13,7 @@ class SafetyKitsProvider {
           '**Do not use elevators**; always use the stairs during a fire.',
           'Once outside, proceed directly to the **Moonwalk Multipurpose Hall** or your designated evacuation area.',
         ];
+      case 'Flood / Calamity':
       case 'Flood/Typhoon':
         return [
           '**Monitor local water levels** and official Barangay Moonwalk announcements.',
