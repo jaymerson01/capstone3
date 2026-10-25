@@ -8,6 +8,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -45,7 +46,7 @@ class _WelcomePageState extends State<WelcomePage>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
+    );
 
     _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
@@ -87,6 +88,12 @@ class _WelcomePageState extends State<WelcomePage>
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _contentController.forward();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseController, context);
   }
 
   @override
@@ -355,22 +362,24 @@ class _LogoRings extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          AnimatedBuilder(
-            animation: pulse,
-            builder: (context, _) {
-              return Container(
-                width: 136 + (14 * pulse.value),
-                height: 136 + (14 * pulse.value),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white
-                        .withValues(alpha: 0.1 + 0.35 * (1 - pulse.value)),
-                    width: 1.5,
+          RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: pulse,
+              builder: (context, _) {
+                return Container(
+                  width: 136 + (14 * pulse.value),
+                  height: 136 + (14 * pulse.value),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white
+                          .withValues(alpha: 0.1 + 0.35 * (1 - pulse.value)),
+                      width: 1.5,
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           Container(
             width: 114,
@@ -478,16 +487,19 @@ class _GlassTopButtonState extends State<_GlassTopButton> {
               : const [],
         ),
         // Hug the label (an alignment alone would stretch the button).
+        // Long labels shrink to fit instead of being cut off.
         child: Align(
           widthFactor: 1,
-          child: Text(
-            widget.text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              fontSize: 14,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              widget.text,
+              maxLines: 1,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
             ),
           ),
         ),

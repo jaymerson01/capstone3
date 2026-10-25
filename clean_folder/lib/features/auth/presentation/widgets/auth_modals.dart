@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class AuthModals {
   /// ── Invalid Credentials ──────────────────────────────────────────────────
@@ -207,10 +208,16 @@ class _AccountLockedDialogContentState
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+    );
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.06).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseController, context);
   }
 
   void _updateRemainingTime() {
@@ -252,12 +259,14 @@ class _AccountLockedDialogContentState
         mainAxisSize: MainAxisSize.min,
         children: [
           // Pulsing lock icon
-          ScaleTransition(
-            scale: _pulseAnimation,
-            child: NeoDialogIcon(
-              icon: Icons.lock_person_rounded,
-              color: AppColors.pending,
-              size: 80,
+          RepaintBoundary(
+            child: ScaleTransition(
+              scale: _pulseAnimation,
+              child: NeoDialogIcon(
+                icon: Icons.lock_person_rounded,
+                color: AppColors.pending,
+                size: 80,
+              ),
             ),
           ),
           SizedBox(height: 20),

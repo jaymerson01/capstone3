@@ -22,6 +22,8 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class MapsPage extends StatefulWidget {
   final IncidentEntity? focusedIncident;
@@ -387,6 +389,8 @@ class _MapsPageState extends State<MapsPage> {
       valueListenable: AppColors.isDarkModeNotifier,
       builder: (context, isDark, _) {
         final l10n = AppLocalizations.of(context);
+        final largeText =
+            MediaQuery.textScalerOf(context).scale(17) > 17 * 1.15;
         return Scaffold(
           backgroundColor: AppColors.background,
           body: BlocBuilder<IncidentBloc, IncidentState>(
@@ -484,9 +488,11 @@ class _MapsPageState extends State<MapsPage> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        // Wraps (on small phones, with large
+                                        // text) instead of being cut off.
+                                        WordSafeText(
                                           l10n.mapsTitle,
-                                          maxLines: 1,
+                                          maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: TextStyle(
                                             color: AppColors.textDark,
@@ -504,11 +510,20 @@ class _MapsPageState extends State<MapsPage> {
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
+                                        // With large text the live pill moves
+                                        // here, so the title keeps the width.
+                                        if (largeText) ...[
+                                          const SizedBox(height: 8),
+                                          const RepaintBoundary(
+                                              child: _LiveBadge()),
+                                        ],
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  const _LiveBadge(),
+                                  if (!largeText) ...[
+                                    const SizedBox(width: 8),
+                                    const RepaintBoundary(child: _LiveBadge()),
+                                  ],
                                 ],
                               ),
                             ),
@@ -655,7 +670,13 @@ class _LiveBadgeState extends State<_LiveBadge>
     _ctrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_ctrl, context);
   }
 
   @override

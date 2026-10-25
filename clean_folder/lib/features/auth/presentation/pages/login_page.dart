@@ -18,6 +18,7 @@ import 'package:community_safety_app/features/auth/presentation/widgets/auth_gla
 import 'package:community_safety_app/features/auth/presentation/widgets/auth_modals.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -459,7 +460,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                textStyle: const TextStyle(fontWeight: FontWeight.w700),
+                textStyle: const TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontWeight: FontWeight.w700,
+                ),
                 shape: const StadiumBorder(),
               ),
               onPressed: isSending

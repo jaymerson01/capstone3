@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 
 /// The full-screen municipal siren alert: rings around a siren, the
 /// advisory, where it applies and who sent it, and a big acknowledge button.
@@ -195,6 +196,7 @@ class EmergencySirenAlert extends StatelessWidget {
                             minimumSize: const Size.fromHeight(60),
                             shape: const StadiumBorder(),
                             textStyle: const TextStyle(
+                              fontFamily: AppTheme.fontFamily,
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1.2,

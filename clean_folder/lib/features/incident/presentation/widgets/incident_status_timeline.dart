@@ -5,6 +5,7 @@ import 'package:community_safety_app/core/theme/app_colors.dart';
 import '../../domain/entities/incident_entity.dart';
 import '../helpers/safety_kits_provider.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 /// The report's resolution stage (Pending → In Progress → Resolved) and the
 /// safety steps for its category, as two glass cards.
@@ -372,10 +373,16 @@ class _PulsatingNodeState extends State<_PulsatingNode> with SingleTickerProvide
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
+    );
     _animation = Tween<double>(begin: 1.0, end: 1.14).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_controller, context);
   }
 
   @override
@@ -386,9 +393,11 @@ class _PulsatingNodeState extends State<_PulsatingNode> with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _animation,
-      child: widget.child,
+    return RepaintBoundary(
+      child: ScaleTransition(
+        scale: _animation,
+        child: widget.child,
+      ),
     );
   }
 }

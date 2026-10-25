@@ -16,6 +16,7 @@ import 'package:community_safety_app/features/incident/presentation/pages/incide
 import 'package:community_safety_app/features/incident_reporting/presentation/widgets/my_report_card.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 
 class MyReportsPage extends StatefulWidget {
   final bool isRootTab;
@@ -132,7 +133,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
+                              WordSafeText(
                                 l10n.myReportsTitle,
                                 style: TextStyle(
                                   fontSize: 24,

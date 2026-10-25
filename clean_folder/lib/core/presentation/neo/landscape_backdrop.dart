@@ -26,7 +26,9 @@ class LandscapeBackdrop extends StatelessWidget {
         painter: _LandscapePainter(
           time == LandscapeTime.dusk ? _Palette.dusk : _Palette.night,
         ),
-        child: child,
+        // Scrolling and pulses in the content repaint on their own layer,
+        // so the full-screen backdrop isn't redrawn with them.
+        child: child == null ? null : RepaintBoundary(child: child),
       ),
     );
   }

@@ -8,6 +8,8 @@ import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart'
 import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class EmergencyHotlinesPage extends StatelessWidget {
   final void Function(String title, String number)? onCallPressed;
@@ -113,85 +115,143 @@ class EmergencyHotlinesPage extends StatelessWidget {
     final isDark = AppColors.isDarkMode;
     final iconColor = isDark ? Color.lerp(accent, Colors.white, 0.4)! : accent;
 
-    final content = Row(
-      children: [
-        Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: featured
-                ? AppColors.ink
-                : accent.withValues(alpha: isDark ? 0.22 : 0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: featured
-                ? Border.all(color: AppColors.secondary, width: 2)
-                : null,
-            boxShadow: featured
-                ? [
-                    BoxShadow(
-                      color: AppColors.secondary.withValues(alpha: 0.55),
-                      blurRadius: 14,
-                    ),
-                  ]
-                : null,
-          ),
-          child: Icon(
-            icon,
-            color: featured ? AppColors.secondary : iconColor,
-            size: 22,
+    final iconBox = Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: featured
+            ? AppColors.ink
+            : accent.withValues(alpha: isDark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: featured
+            ? Border.all(color: AppColors.secondary, width: 2)
+            : null,
+        boxShadow: featured
+            ? [
+                BoxShadow(
+                  color: AppColors.secondary.withValues(alpha: 0.55),
+                  blurRadius: 14,
+                ),
+              ]
+            : null,
+      ),
+      child: Icon(
+        icon,
+        color: featured ? AppColors.secondary : iconColor,
+        size: 22,
+      ),
+    );
+
+    final names = [
+      WordSafeText(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: featured ? const Color(0xFFF8FAFC) : AppColors.textDark,
+        ),
+      ),
+      SizedBox(height: 3),
+      Text(
+        description,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: featured ? NeoTray.soft : AppColors.textLight,
+          height: 1.35,
+        ),
+      ),
+    ];
+
+    final numberLink = InkWell(
+      onTap: () => _makeDirectCall(context, title, number),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        // A number never wraps; it shrinks to fit if it has to.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            number,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: featured
+                  ? AppColors.secondaryLight
+                  : (isDark ? AppColors.primaryText : AppColors.deepBlue),
+            ),
           ),
         ),
-        SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+    );
+
+    // Its pulse repaints on its own layer, not the whole card.
+    final callButton = RepaintBoundary(
+      child: _CallButton(
+        live: featured,
+        onTap: () => _makeDirectCall(context, title, number),
+        onLongPress: () => _showCallConfirmation(context, title, number),
+      ),
+    );
+
+    // On narrow phones (or with large text) the CALL button moves under the
+    // text, beside the number, so the name and description get the width.
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(15) / 15;
+        if (constraints.maxWidth >= 300 * textScale) {
+          return Row(
             children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: featured ? const Color(0xFFF8FAFC) : AppColors.textDark,
+              iconBox,
+              SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [...names, SizedBox(height: 4), numberLink],
                 ),
               ),
-              SizedBox(height: 3),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: featured ? NeoTray.soft : AppColors.textLight,
-                  height: 1.35,
-                ),
-              ),
-              SizedBox(height: 4),
-              InkWell(
-                onTap: () => _makeDirectCall(context, title, number),
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(
-                    number,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: featured
-                          ? AppColors.secondaryLight
-                          : (isDark ? AppColors.primaryText : AppColors.deepBlue),
-                    ),
+              SizedBox(width: 10),
+              callButton,
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                iconBox,
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: names,
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(width: 10),
-        _CallButton(
-          live: featured,
-          onTap: () => _makeDirectCall(context, title, number),
-          onLongPress: () => _showCallConfirmation(context, title, number),
-        ),
-      ],
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                SizedBox(width: 62),
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: numberLink,
+                  ),
+                ),
+                SizedBox(width: 10),
+                callButton,
+              ],
+            ),
+          ],
+        );
+      },
     );
 
     return _AnimatedHotlineCard(
@@ -343,7 +403,13 @@ class _CallButtonState extends State<_CallButton>
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseCtrl, context);
   }
 
   @override

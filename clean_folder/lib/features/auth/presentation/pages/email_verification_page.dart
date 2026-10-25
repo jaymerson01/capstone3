@@ -14,6 +14,7 @@ import 'package:community_safety_app/features/auth/domain/entities/user_entity.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class EmailVerificationPage extends StatefulWidget {
   final UserEntity? user;
@@ -46,13 +47,19 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+    );
 
     _pulseAnimation = Tween<double>(begin: 0.94, end: 1.06).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     _startCountdown();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseController, context);
   }
 
   void _startCountdown() {
@@ -386,11 +393,14 @@ class _EmailVerificationPageState extends State<EmailVerificationPage>
                           child: Column(
                             children: [
                               // Live mail badge: waiting for the link
-                              ScaleTransition(
-                                scale: _pulseAnimation,
-                                child: const LiveIndicator.ring(
-                                  size: 86,
-                                  child: Icon(Icons.mark_email_unread_rounded),
+                              RepaintBoundary(
+                                child: ScaleTransition(
+                                  scale: _pulseAnimation,
+                                  child: const LiveIndicator.ring(
+                                    size: 86,
+                                    child:
+                                        Icon(Icons.mark_email_unread_rounded),
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 22),

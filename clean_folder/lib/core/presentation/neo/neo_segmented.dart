@@ -128,10 +128,10 @@ class _Segment extends StatelessWidget {
               );
             },
           ),
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          // Shrinks to fit (large text) rather than cutting the label off.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, maxLines: 1),
           ),
         ),
       ),

@@ -28,6 +28,7 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 
 
 class SettingsPage extends StatefulWidget {
@@ -487,7 +488,11 @@ class _SettingsPageState extends State<SettingsPage> {
               overlayColor: const WidgetStatePropertyAll(Colors.transparent),
               shape: const WidgetStatePropertyAll(StadiumBorder()),
               textStyle: const WidgetStatePropertyAll(
-                TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+                TextStyle(
+                  fontFamily: AppTheme.fontFamily,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
               backgroundBuilder: NeoSurface.background(NeoFill.raised),
             ),
@@ -1258,14 +1263,17 @@ class _PillProgressButton extends StatelessWidget {
                     strokeWidth: 2.5,
                   ),
                 )
-              : Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                    letterSpacing: 0.3,
+              // Shrinks to fit rather than cutting the label off.
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ),
         ),
@@ -1659,6 +1667,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       borderRadius: BorderRadius.circular(16),
                       isExpanded: true,
                       style: TextStyle(color: AppColors.textDark,
+                        fontFamily: AppTheme.fontFamily,
                         fontSize: 13.5,
                         fontWeight: FontWeight.w600,
                       ),

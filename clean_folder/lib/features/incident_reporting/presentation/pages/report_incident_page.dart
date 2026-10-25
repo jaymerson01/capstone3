@@ -40,6 +40,7 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -1513,32 +1514,43 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ],
           ),
           SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: NeoButton(
-                  label: _l10n.reportCall911,
-                  icon: Icons.phone_rounded,
-                  variant: NeoButtonVariant.emergency,
-                  height: 48,
-                  expand: true,
-                  onPressed: () => _showEmergencyCallConfirmation(
-                      _l10n.reportEmergencyHotline, "911"),
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: NeoButton(
-                  label: _l10n.reportBarangayDesk,
-                  icon: Icons.shield_outlined,
-                  variant: NeoButtonVariant.slate,
-                  height: 48,
-                  expand: true,
-                  onPressed: () => _showEmergencyCallConfirmation(
-                      _l10n.reportBarangayDesk, "0917-000-0000"),
-                ),
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final call911 = NeoButton(
+                label: _l10n.reportCall911,
+                icon: Icons.phone_rounded,
+                variant: NeoButtonVariant.emergency,
+                height: 48,
+                expand: true,
+                onPressed: () => _showEmergencyCallConfirmation(
+                    _l10n.reportEmergencyHotline, "911"),
+              );
+              final desk = NeoButton(
+                label: _l10n.reportBarangayDesk,
+                icon: Icons.shield_outlined,
+                variant: NeoButtonVariant.slate,
+                height: 48,
+                expand: true,
+                onPressed: () => _showEmergencyCallConfirmation(
+                    _l10n.reportBarangayDesk, "0917-000-0000"),
+              );
+              // Side by side while both labels fit on one line; stacked on
+              // small phones, with longer Filipino labels or large text.
+              final half = (constraints.maxWidth - 10) / 2;
+              if (call911.fitsOneLine(context, half) &&
+                  desk.fitsOneLine(context, half)) {
+                return Row(
+                  children: [
+                    Expanded(child: call911),
+                    SizedBox(width: 10),
+                    Expanded(child: desk),
+                  ],
+                );
+              }
+              return Column(
+                children: [call911, SizedBox(height: 10), desk],
+              );
+            },
           ),
         ],
       ),
@@ -2741,7 +2753,7 @@ class _CategoryTile extends StatelessWidget {
               Icon(visual.icon, size: 19, color: visual.foreground),
               SizedBox(width: 8),
               Expanded(
-                child: Text(
+                child: WordSafeText(
                   label,
                   style: TextStyle(
                     fontSize: 13,

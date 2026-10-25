@@ -13,6 +13,7 @@ import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
 import 'package:community_safety_app/features/incident/data/datasources/incident_ai_remote_data_source.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class FloatingChatBot extends StatefulWidget {
   const FloatingChatBot({super.key});
@@ -58,7 +59,13 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     _fabPulse = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_fabPulse, context);
   }
 
   @override
@@ -417,7 +424,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
         clipBehavior: Clip.antiAlias,
         child: _isOpen
             ? _buildChatWindow(chatWidth, chatHeight, keyboardHeight > 0)
-            : _buildFAB(),
+            : RepaintBoundary(child: _buildFAB()),
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'package:community_safety_app/core/presentation/neo/neo_tag.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/theme/neo_tokens.dart';
 import 'package:community_safety_app/features/incident/presentation/widgets/incident_category_visuals.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 
 /// One of the resident's own reports in My Reports: the category, where and
 /// when, the status, whether it reached the command center, and any tags
@@ -48,6 +49,10 @@ class MyReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final onBehalf = onBehalfLabel;
     final eta = etaLabel;
+    // With large text the status pill joins the tags under the header, so
+    // the category, place and time keep the card's width.
+    final pillBelow = MediaQuery.textScalerOf(context).scale(15) > 15 * 1.15;
+    final pill = NeoStatusPill(label: statusLabel, color: statusColor);
 
     Widget card = GlassCard(
       padding: const EdgeInsets.all(16),
@@ -64,7 +69,7 @@ class MyReportCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    WordSafeText(
                       categoryLabel,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -81,16 +86,20 @@ class MyReportCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              NeoStatusPill(label: statusLabel, color: statusColor),
+              if (!pillBelow) ...[
+                const SizedBox(width: 8),
+                pill,
+              ],
             ],
           ),
-          if (onBehalf != null || eta != null) ...[
+          if (pillBelow || onBehalf != null || eta != null) ...[
             const SizedBox(height: 12),
             Wrap(
               spacing: 6,
               runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
+                if (pillBelow) pill,
                 if (onBehalf != null)
                   NeoTag(
                     icon: Icons.person_pin_circle_outlined,

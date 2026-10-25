@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 
 /// Blue for actions, red only for emergencies, raised white for the rest,
 /// and slate for buttons on dark trays.
@@ -38,6 +39,28 @@ class NeoButton extends StatelessWidget {
     }
   }
 
+  TextStyle? _labelStyle(BuildContext context) =>
+      Theme.of(context).textTheme.labelLarge?.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.2,
+          );
+
+  /// Whether the label fits on one line in a button [width] wide, so a row
+  /// of buttons can stack instead when it does not.
+  bool fitsOneLine(BuildContext context, double width) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: _labelStyle(context)),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    // 44 of side padding, plus the icon and its gap.
+    final needed = painter.width + 44 + (icon == null ? 0 : 28);
+    painter.dispose();
+    return needed <= width;
+  }
+
   @override
   Widget build(BuildContext context) {
     final fill = _fill;
@@ -56,21 +79,16 @@ class NeoButton extends StatelessWidget {
         EdgeInsets.symmetric(horizontal: 22, vertical: 8),
       ),
       shape: const WidgetStatePropertyAll(StadiumBorder()),
-      textStyle: WidgetStatePropertyAll(
-        Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.2,
-            ),
-      ),
+      textStyle: WidgetStatePropertyAll(_labelStyle(context)),
       backgroundBuilder: NeoSurface.background(fill),
     );
 
     // Clip.none keeps the shadows, which a background builder would clip.
-    // Long labels (often in Filipino) wrap to a second line before clipping.
-    final text = Text(
+    // Long labels (often in Filipino, or with large text) wrap before
+    // clipping, and never break a word in the middle.
+    final text = WordSafeText(
       label,
-      maxLines: 2,
+      maxLines: 3,
       textAlign: TextAlign.center,
       overflow: TextOverflow.ellipsis,
     );

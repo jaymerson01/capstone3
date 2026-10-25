@@ -4,6 +4,8 @@ import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.da
 import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_status_pill.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 // Display-only pieces of the resident Home screen. They take plain values;
 // DashboardPage keeps the data streams, counts and navigation.
@@ -709,6 +711,18 @@ class HomeIncidentRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(18);
+    // With large text the status pill moves under the title, so the title
+    // keeps its width.
+    final pillBelow = MediaQuery.textScalerOf(context).scale(15) > 15 * 1.15;
+    final titleText = WordSafeText(
+      title,
+      style: TextStyle(
+        color: AppColors.textDark,
+        fontSize: 15,
+        fontWeight: FontWeight.w800,
+      ),
+    );
+    final pill = NeoStatusPill.status(status: status, label: statusLabel);
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Material(
@@ -748,24 +762,19 @@ class HomeIncidentRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              title,
-                              style: TextStyle(
-                                color: AppColors.textDark,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          NeoStatusPill.status(
-                              status: status, label: statusLabel),
-                        ],
-                      ),
+                      if (pillBelow) ...[
+                        titleText,
+                        const SizedBox(height: 6),
+                        pill,
+                      ] else
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: titleText),
+                            const SizedBox(width: 8),
+                            pill,
+                          ],
+                        ),
                       const SizedBox(height: 6),
                       _MetaLine(icon: Icons.location_on_outlined, text: location),
                       const SizedBox(height: 3),
@@ -855,7 +864,13 @@ class _HomeVideoCardState extends State<HomeVideoCard>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseController, context);
   }
 
   @override
@@ -887,28 +902,30 @@ class _HomeVideoCardState extends State<HomeVideoCard>
               ],
             ),
             child: Center(
-              child: AnimatedBuilder(
-                animation: _pulseController,
-                builder: (context, child) {
-                  return Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppColors.primaryGradient,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(
-                              alpha: 0.35 + 0.35 * _pulseController.value),
-                          blurRadius: 14,
-                        ),
-                      ],
-                    ),
-                    child: child,
-                  );
-                },
-                child: const Icon(Icons.play_arrow_rounded,
-                    color: Colors.white, size: 22),
+              child: RepaintBoundary(
+                child: AnimatedBuilder(
+                  animation: _pulseController,
+                  builder: (context, child) {
+                    return Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: AppColors.primaryGradient,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withValues(
+                                alpha: 0.35 + 0.35 * _pulseController.value),
+                            blurRadius: 14,
+                          ),
+                        ],
+                      ),
+                      child: child,
+                    );
+                  },
+                  child: const Icon(Icons.play_arrow_rounded,
+                      color: Colors.white, size: 22),
+                ),
               ),
             ),
           ),

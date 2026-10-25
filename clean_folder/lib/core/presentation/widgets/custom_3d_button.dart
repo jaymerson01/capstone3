@@ -166,18 +166,23 @@ class _Custom3dButtonState extends State<Custom3dButton> {
                             ),
                             const SizedBox(width: 10),
                           ],
+                          // Long labels (Filipino, large text) shrink to fit
+                          // instead of being cut off.
                           Flexible(
-                            child: Text(
-                              widget.text,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: isDisabled
-                                    ? effectiveTextColor.withValues(alpha: 0.5)
-                                    : effectiveTextColor,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.6,
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                widget.text,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: isDisabled
+                                      ? effectiveTextColor.withValues(alpha: 0.5)
+                                      : effectiveTextColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.6,
+                                ),
                               ),
                             ),
                           ),

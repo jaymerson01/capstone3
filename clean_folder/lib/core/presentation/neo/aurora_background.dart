@@ -19,7 +19,9 @@ class AuroraBackground extends StatelessWidget {
         painter: _AuroraPainter(
           AppColors.isDarkMode ? _AuroraPalette.night : _AuroraPalette.day,
         ),
-        child: child,
+        // Scrolling and pulses in the content repaint on their own layer,
+        // so the full-screen backdrop isn't redrawn with them.
+        child: child == null ? null : RepaintBoundary(child: child),
       ),
     );
   }
