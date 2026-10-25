@@ -556,5 +556,7 @@
   "chatAllHotlines": "Lahat ng Hotline",
   "chatHint": "Magtanong tungkol sa kaligtasan o first aid...",
   "videoPlay": "I-play",
-  "videoPause": "I-pause"
+  "videoPause": "I-pause",
+  "reportTakePhoto": "Kumuha ng litrato",
+  "reportRecordVideo": "Mag-record ng video"
 }

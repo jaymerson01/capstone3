@@ -31,7 +31,7 @@ class NeoChip extends StatelessWidget {
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       minimumSize: const WidgetStatePropertyAll(Size(48, 36)),
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 16),
+        EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       ),
       shape: const WidgetStatePropertyAll(StadiumBorder()),
       textStyle: WidgetStatePropertyAll(
@@ -43,7 +43,13 @@ class NeoChip extends StatelessWidget {
       backgroundBuilder: NeoSurface.background(fill),
     );
 
-    final text = Text(label, overflow: TextOverflow.ellipsis);
+    // Long labels (often in Filipino) wrap to a second line before clipping.
+    final text = Text(
+      label,
+      maxLines: 2,
+      textAlign: TextAlign.center,
+      overflow: TextOverflow.ellipsis,
+    );
     return MergeSemantics(
       child: Semantics(
         selected: selected,

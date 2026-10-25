@@ -1947,4 +1947,10 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get videoPause => 'I-pause';
+
+  @override
+  String get reportTakePhoto => 'Kumuha ng litrato';
+
+  @override
+  String get reportRecordVideo => 'Mag-record ng video';
 }

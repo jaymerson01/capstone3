@@ -83,4 +83,28 @@ void main() {
     expect(find.text('Incident Details'), findsOneWidget);
     expect(find.text('Self: juan'), findsOneWidget);
   });
+
+  testWidgets('the category grid picks a category; Other asks for the type',
+      (tester) async {
+    await pumpReportPage(tester, const Locale('en'));
+    expect(find.text('Specify Emergency Type'), findsNothing);
+
+    await tester.ensureVisible(find.text('Other Emergency'));
+    await tester.tap(find.text('Other Emergency'));
+    await tester.pump();
+    expect(find.text('Specify Emergency Type'), findsOneWidget);
+
+    await tester.tap(find.text('Fire Incident'));
+    await tester.pump();
+    expect(find.text('Specify Emergency Type'), findsNothing);
+  });
+
+  testWidgets('For Someone shows the affected person fields', (tester) async {
+    await pumpReportPage(tester, const Locale('en'));
+    expect(find.text("Affected Person's Full Name *"), findsNothing);
+
+    await tester.tap(find.text('For Someone'));
+    await tester.pump();
+    expect(find.text("Affected Person's Full Name *"), findsOneWidget);
+  });
 }

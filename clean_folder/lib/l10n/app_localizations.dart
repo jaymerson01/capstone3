@@ -3439,6 +3439,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pause'**
   String get videoPause;
+
+  /// Tooltip on the camera button that takes an evidence photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get reportTakePhoto;
+
+  /// Tooltip on the camera button that records an evidence video.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a video'**
+  String get reportRecordVideo;
 }
 
 class _AppLocalizationsDelegate

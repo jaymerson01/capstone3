@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 
 /// RESQ Premium Text Field — Animated neon focus ring, glass surface, icon glow
@@ -18,6 +19,9 @@ class Custom3dTextField extends StatefulWidget {
   /// over a landscape (the sign-in screens).
   final bool onGlass;
 
+  /// A sunken well, for forms on frosted glass (Report Incident).
+  final bool inset;
+
   const Custom3dTextField({
     super.key,
     this.controller,
@@ -31,6 +35,7 @@ class Custom3dTextField extends StatefulWidget {
     this.validator,
     this.onChanged,
     this.onGlass = false,
+    this.inset = false,
   });
 
   @override
@@ -80,6 +85,8 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
     final quiet = glass ? Colors.white.withValues(alpha: 0.78) : AppColors.textLight;
     final error = glass ? AppColors.dangerLight : AppColors.danger;
 
+    final sunken = widget.inset && !glass;
+
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
@@ -87,7 +94,19 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
+          decoration: sunken
+              ? NeoSurface.inset(radius: 16, focused: _isFocused).copyWith(
+                  boxShadow: _isFocused
+                      ? [
+                          BoxShadow(
+                            color: accent.withValues(
+                                alpha: 0.22 * _pulseAnimation.value),
+                            blurRadius: 18,
+                          ),
+                        ]
+                      : null,
+                )
+              : BoxDecoration(
             color: glass
                 ? Colors.white.withValues(alpha: 0.08)
                 : AppColors.surfaceLight,

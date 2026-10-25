@@ -1968,4 +1968,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get videoPause => 'Pause';
+
+  @override
+  String get reportTakePhoto => 'Take a photo';
+
+  @override
+  String get reportRecordVideo => 'Record a video';
 }

@@ -2521,5 +2521,13 @@
   "videoPause": "Pause",
   "@videoPause": {
     "description": "Pause button on the How to use ResQ video."
+  },
+  "reportTakePhoto": "Take a photo",
+  "@reportTakePhoto": {
+    "description": "Tooltip on the camera button that takes an evidence photo."
+  },
+  "reportRecordVideo": "Record a video",
+  "@reportRecordVideo": {
+    "description": "Tooltip on the camera button that records an evidence video."
   }
 }
