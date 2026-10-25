@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
@@ -157,11 +156,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: AppColors.primary.withValues(alpha: 0.2),
+          color: AdminColors.primary.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.12),
+            color: AdminColors.primary.withValues(alpha: 0.12),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -178,7 +177,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
+                    color: AdminColors.textDark,
                     letterSpacing: -0.3,
                   ),
                 ),
@@ -187,7 +186,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   "Real-time community safety dispatch, municipal alerts, and telemetry overview.",
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textLight,
+                    color: AdminColors.textLight,
                     height: 1.4,
                   ),
                 ),
@@ -199,10 +198,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.solved.withValues(alpha: 0.12),
+                    color: AdminColors.success.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: AppColors.solved.withValues(alpha: 0.25),
+                      color: AdminColors.success.withValues(alpha: 0.25),
                     ),
                   ),
                   child: Row(
@@ -213,10 +212,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         height: 7,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.solved,
+                          color: AdminColors.success,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.solved.withValues(alpha: 0.6),
+                              color: AdminColors.success.withValues(alpha: 0.6),
                               blurRadius: 6,
                             ),
                           ],
@@ -226,7 +225,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       Text(
                         "Command Center Online · Live Firestore Sync",
                         style: TextStyle(
-                          color: AppColors.solved,
+                          color: AdminColors.success,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -245,10 +244,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               vertical: 14,
             ),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
+              color: AdminColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.2),
+                color: AdminColors.primary.withValues(alpha: 0.2),
               ),
             ),
             child: Column(
@@ -256,7 +255,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 Icon(
                   Icons.calendar_today_outlined,
                   size: 18,
-                  color: AppColors.primary,
+                  color: AdminColors.primary,
                 ),
                 SizedBox(height: 6),
                 Text(
@@ -264,14 +263,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
+                    color: AdminColors.textDark,
                   ),
                 ),
                 Text(
                   _monthName(now.month),
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textLight,
+                    color: AdminColors.textLight,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -307,12 +306,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.12),
+                      color: AdminColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(
                       Icons.bolt_outlined,
-                      color: AppColors.primary,
+                      color: AdminColors.primary,
                       size: 18,
                     ),
                   ),
@@ -325,7 +324,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.textDark,
+                          color: AdminColors.textDark,
                         ),
                       ),
                       SizedBox(height: 2),
@@ -333,7 +332,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         "Live stream of latest incoming citizen emergency reports",
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textLight,
+                          color: AdminColors.textLight,
                         ),
                       ),
                     ],
@@ -345,12 +344,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 icon: Icon(
                   Icons.arrow_forward,
                   size: 14,
-                  color: AppColors.primary,
+                  color: AdminColors.primary,
                 ),
                 label: Text(
                   "View All in Dispatch",
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: AdminColors.primary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -359,7 +358,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             ],
           ),
           SizedBox(height: 16),
-          Container(height: 1, color: AppColors.border),
+          Container(height: 1, color: AdminColors.border),
           SizedBox(height: 12),
 
           if (displayList.isEmpty)
@@ -392,7 +391,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               itemCount: displayList.length,
               separatorBuilder: (context, index) => Container(
                 height: 1,
-                color: AppColors.border,
+                color: AdminColors.border,
                 margin: const EdgeInsets.symmetric(vertical: 8),
               ),
               itemBuilder: (context, index) {
@@ -881,7 +880,7 @@ class _IncidentListItemState extends State<_IncidentListItem> {
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: _hovered
-                ? AppColors.primary.withValues(alpha: 0.08)
+                ? AdminColors.primary.withValues(alpha: 0.08)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
@@ -917,7 +916,7 @@ class _IncidentListItemState extends State<_IncidentListItem> {
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
-                        color: AppColors.textDark,
+                        color: AdminColors.textDark,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -926,7 +925,7 @@ class _IncidentListItemState extends State<_IncidentListItem> {
                       "By ${inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? 'Citizen')} · ${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textLight,
+                        color: AdminColors.textLight,
                       ),
                     ),
                   ],

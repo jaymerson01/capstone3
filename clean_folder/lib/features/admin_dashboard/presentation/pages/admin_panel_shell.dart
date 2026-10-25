@@ -326,6 +326,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       backgroundColor: AdminColors.background,
       drawer: isMobile
           ? Drawer(
+              backgroundColor: AdminColors.surfaceDeep,
               child: AdminSidebar(
                 selectedIndex: _selectedIndex,
                 onItemSelected: (index) {
@@ -340,65 +341,68 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
               ),
             )
           : null,
-      body: Row(
-        children: [
-          if (!isMobile)
-            AdminSidebar(
-              selectedIndex: _selectedIndex,
-              onItemSelected: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              isCollapsed: _isSidebarCollapsed,
-              onLogout: _handleLogout,
-            ),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AdminColors.pageGradient),
+        child: Row(
+          children: [
+            if (!isMobile)
+              AdminSidebar(
+                selectedIndex: _selectedIndex,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                isCollapsed: _isSidebarCollapsed,
+                onLogout: _handleLogout,
+              ),
 
-          Expanded(
-            child: Column(
-              children: [
-                AdminHeader(
-                  title: _pageTitles[_selectedIndex],
-                  isMobile: isMobile,
-                  onNavigate: (index) {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  onLogout: _handleLogout,
-                  onMenuPressed: () {
-                    if (isMobile) {
-                      _scaffoldKey.currentState?.openDrawer();
-                    } else {
+            Expanded(
+              child: Column(
+                children: [
+                  AdminHeader(
+                    title: _pageTitles[_selectedIndex],
+                    isMobile: isMobile,
+                    onNavigate: (index) {
                       setState(() {
-                        _isSidebarCollapsed = !_isSidebarCollapsed;
+                        _selectedIndex = index;
                       });
-                    }
-                  },
-                ),
-
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: (
-                      Widget child,
-                      Animation<double> animation,
-                    ) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
                     },
-                    child: KeyedSubtree(
-                      key: ValueKey<int>(_selectedIndex),
-                      child: _getSelectedPage(),
+                    onLogout: _handleLogout,
+                    onMenuPressed: () {
+                      if (isMobile) {
+                        _scaffoldKey.currentState?.openDrawer();
+                      } else {
+                        setState(() {
+                          _isSidebarCollapsed = !_isSidebarCollapsed;
+                        });
+                      }
+                    },
+                  ),
+
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: (
+                        Widget child,
+                        Animation<double> animation,
+                      ) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                      child: KeyedSubtree(
+                        key: ValueKey<int>(_selectedIndex),
+                        child: _getSelectedPage(),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

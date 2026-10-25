@@ -148,11 +148,11 @@ class _AdminLoginPageState extends State<AdminLoginPage>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
+                  color: AdminColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(Icons.lock_reset_rounded,
-                    color: AppColors.primary, size: 22),
+                    color: AdminColors.primary, size: 22),
               ),
               SizedBox(width: 12),
               const Expanded(
@@ -190,11 +190,11 @@ class _AdminLoginPageState extends State<AdminLoginPage>
             TextButton(
               onPressed: isSending ? null : () => Navigator.pop(dialogCtx),
               child: Text("Cancel",
-                  style: TextStyle(color: AppColors.textLight)),
+                  style: TextStyle(color: AdminColors.textLight)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: AdminColors.primary,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
@@ -208,7 +208,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                           const SnackBar(
                             content: Text(
                                 "Please enter a valid registered email address."),
-                            backgroundColor: AppColors.warning,
+                            backgroundColor: AdminColors.amber,
                           ),
                         );
                         return;
@@ -223,7 +223,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                           SnackBar(
                             content: Text(
                                 "Password reset email dispatched to $email! Please check your inbox."),
-                            backgroundColor: AppColors.solved,
+                            backgroundColor: AdminColors.success,
                             duration: const Duration(seconds: 6),
                           ),
                         );
@@ -232,7 +232,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                         messenger.showSnackBar(
                           SnackBar(
                             content: Text("Failed to send reset link: $e"),
-                            backgroundColor: AppColors.danger,
+                            backgroundColor: AdminColors.danger,
                           ),
                         );
                       }
@@ -255,7 +255,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AdminColors.background,
       body: Stack(
         children: [
           // ── Animated Background ──────────────────────────────────────────
@@ -274,21 +274,21 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                     right: -40,
                     child: _Orb(
                         size: 300,
-                        color: AppColors.primary.withValues(alpha: 0.08)),
+                        color: AdminColors.primary.withValues(alpha: 0.08)),
                   ),
                   Positioned(
                     bottom: -80,
                     left: -60 + (30 * (1 - _bgController.value)),
                     child: _Orb(
                         size: 350,
-                        color: AppColors.secondary.withValues(alpha: 0.06)),
+                        color: AdminColors.cyan.withValues(alpha: 0.06)),
                   ),
                   Positioned(
                     top: MediaQuery.of(context).size.height * 0.5,
                     right: MediaQuery.of(context).size.width * 0.15,
                     child: _Orb(
                         size: 200,
-                        color: AppColors.accent.withValues(alpha: 0.05)),
+                        color: AdminColors.violet.withValues(alpha: 0.05)),
                   ),
                   // Grid
                   CustomPaint(
@@ -322,11 +322,11 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                             child: TextButton.icon(
                               onPressed: () => Navigator.pop(context),
                               icon: Icon(Icons.arrow_back,
-                                  size: 16, color: AppColors.textLight),
+                                  size: 16, color: AdminColors.textLight),
                               label: Text(
                                 "Back",
                                 style: TextStyle(
-                                  color: AppColors.textLight,
+                                  color: AdminColors.textLight,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -348,7 +348,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.45),
+                                color: AdminColors.primary.withValues(alpha: 0.45),
                                 blurRadius: 28,
                                 spreadRadius: 4,
                               ),
@@ -380,7 +380,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                         Text(
                           "Barangay Safety & Incident Command Center",
                           style: TextStyle(
-                            color: AppColors.textLight,
+                            color: AdminColors.textLight,
                             fontSize: 13,
                           ),
                           textAlign: TextAlign.center,
@@ -419,25 +419,25 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                           margin: const EdgeInsets.only(
                                               bottom: 16),
                                           decoration: BoxDecoration(
-                                            color: AppColors.danger
+                                            color: AdminColors.danger
                                                 .withValues(alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(14),
                                             border: Border.all(
-                                              color: AppColors.danger
+                                              color: AdminColors.danger
                                                   .withValues(alpha: 0.3),
                                             ),
                                           ),
                                           child: Row(
                                             children: [
                                               Icon(Icons.error_outline,
-                                                  color: AppColors.danger,
+                                                  color: AdminColors.danger,
                                                   size: 18),
                                               SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
                                                   _errorMessage!,
-                                                  style: TextStyle(color: AppColors.danger,
+                                                  style: TextStyle(color: AdminColors.danger,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -479,7 +479,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                             _obscurePassword
                                                 ? Icons.visibility_off_outlined
                                                 : Icons.visibility_outlined,
-                                            color: AppColors.textLight,
+                                            color: AdminColors.textLight,
                                             size: 20,
                                           ),
                                           onPressed: () => setState(() =>
@@ -511,7 +511,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                           child: Text(
                                             "Forgot Password?",
                                             style: TextStyle(
-                                              color: AppColors.primary,
+                                              color: AdminColors.primary,
                                               fontSize: 12.5,
                                               fontWeight: FontWeight.w600,
                                             ),
@@ -560,7 +560,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                               child: Text(
                                                 "Authorized municipal personnel only. All access attempts are recorded.",
                                                 style: TextStyle(
-                                                  color: AppColors.textLight,
+                                                  color: AdminColors.textLight,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w500,
                                                   height: 1.3,

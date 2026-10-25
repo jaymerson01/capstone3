@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/broadcast_siren_parts.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:community_safety_app/features/notifications/data/models/notification_model.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
@@ -27,225 +29,76 @@ class AdminHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+      height: 76,
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 28),
       decoration: BoxDecoration(
-        gradient: AdminColors.headerGradient,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        border: const Border(
-          bottom: BorderSide(
-            color: AdminColors.border,
-            width: 1,
-          ),
+        border: Border(
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Left: Title and Toggle Menu Menu Icon
-          Row(
-            children: [
-              if (isMobile)
-                IconButton(
-                  icon: Icon(Icons.menu, color: AdminColors.primaryGreen, size: 22),
-                  onPressed: onMenuPressed,
-                )
-              else
-                IconButton(
-                  icon: Icon(Icons.menu_open, color: AdminColors.primaryGreen, size: 22),
-                  onPressed: onMenuPressed,
-                  tooltip: "Toggle Sidebar",
-                ),
-              SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                  color: AdminColors.textDark,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
+          // Left: Toggle Menu and Title
+          AdminHeaderButton(
+            icon: isMobile ? Icons.menu_rounded : Icons.menu_open_rounded,
+            onPressed: onMenuPressed,
+            tooltip: isMobile ? null : "Toggle Sidebar",
           ),
-
-          // Right: Emergency Siren, Profile Avatar and Admin Title
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Emergency Broadcast Siren Button with Live Active Counter
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('broadcasts')
-                    .where('isActive', isEqualTo: true)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  final activeDocs = snapshot.data?.docs ?? [];
-                  final hasActive = activeDocs.isNotEmpty;
-
-                  return InkWell(
-                    onTap: () => _showBroadcastModal(context,
-                        initialTab: hasActive ? 0 : 1),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: hasActive
-                              ? const [AdminColors.danger, AdminColors.dangerDeep]
-                              : const [AdminColors.sirenIdle, AdminColors.border],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: hasActive
-                            ? [
-                                BoxShadow(
-                                  color: AdminColors.danger
-                                      .withValues(alpha: 0.55),
-                                  blurRadius: 14,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ]
-                            : null,
-                        border: Border.all(
-                          color: hasActive
-                              ? AdminColors.danger
-                              : AdminColors.border,
-                          width: hasActive ? 1.5 : 1,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            hasActive
-                                ? Icons.crisis_alert_rounded
-                                : Icons.campaign_rounded,
-                            color: hasActive
-                                ? Colors.white
-                                : AdminColors.danger,
-                            size: 18,
-                          ),
-                          if (!isMobile) ...[
-                            SizedBox(width: 8),
-                            Text(
-                              hasActive
-                                  ? "${activeDocs.length} ACTIVE SIREN • MANAGE"
-                                  : "BROADCAST SIREN",
-                              style: TextStyle(
-                                color: hasActive
-                                    ? Colors.white
-                                    : AdminColors.textDark,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 11.5,
-                                letterSpacing: 0.6,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  );
-                },
+          SizedBox(width: 14),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AdminColors.textStrong,
+                letterSpacing: -0.2,
               ),
-              SizedBox(width: 16),
-
-              // Interactive Dispatch Notifications Bell
-              StreamBuilder<List<NotificationModel>>(
-                stream: NotificationService().streamAdminNotifications(),
-                builder: (context, snapshot) {
-                  final notifications = snapshot.data ?? [];
-                  final unreadCount =
-                      notifications.where((n) => !n.isRead).length;
-
-                  return InkWell(
-                    onTap: () => _showAdminNotificationsModal(context),
-                    borderRadius: BorderRadius.circular(20),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: unreadCount > 0
-                                ? AdminColors.primary
-                                    .withValues(alpha: 0.15)
-                                : AdminColors.cardBackground,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: unreadCount > 0
-                                  ? AdminColors.primary
-                                  : AdminColors.border,
-                            ),
-                          ),
-                          child: Center(
-                            child: Icon(
-                              unreadCount > 0
-                                  ? Icons.notifications_active_rounded
-                                  : Icons.notifications_none_outlined,
-                              color: unreadCount > 0
-                                  ? AdminColors.primary
-                                  : AdminColors.textLight,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                        if (unreadCount > 0)
-                          Positioned(
-                            right: -2,
-                            top: -2,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 2),
-                              constraints: const BoxConstraints(
-                                  minWidth: 17, minHeight: 17),
-                              decoration: BoxDecoration(
-                                color: AdminColors.danger,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                    color: AdminColors.background, width: 1.5),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  unreadCount > 9 ? '9+' : '$unreadCount',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-              SizedBox(width: 16),
-              
-              // Divider
-              Container(
-                height: 24,
-                width: 1,
-                color: Colors.grey.shade200,
-              ),
-              SizedBox(width: 16),
-              
-              // Interactive Admin Profile Dropdown Menu
-              _buildAdminUserMenu(context),
-            ],
+            ),
           ),
+          SizedBox(width: 12),
+
+          // Right: Emergency Siren, Notifications and Admin Profile
+          // Emergency Broadcast Siren Button with Live Active Counter
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('broadcasts')
+                .where('isActive', isEqualTo: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              final activeDocs = snapshot.data?.docs ?? [];
+              final hasActive = activeDocs.isNotEmpty;
+
+              return AdminSirenButton(
+                activeCount: activeDocs.length,
+                compact: isMobile,
+                onTap: () => _showBroadcastModal(context,
+                    initialTab: hasActive ? 0 : 1),
+              );
+            },
+          ),
+          SizedBox(width: isMobile ? 10 : 12),
+
+          // Interactive Dispatch Notifications Bell
+          StreamBuilder<List<NotificationModel>>(
+            stream: NotificationService().streamAdminNotifications(),
+            builder: (context, snapshot) {
+              final notifications = snapshot.data ?? [];
+              final unreadCount =
+                  notifications.where((n) => !n.isRead).length;
+
+              return AdminBellButton(
+                unreadCount: unreadCount,
+                onTap: () => _showAdminNotificationsModal(context),
+              );
+            },
+          ),
+          SizedBox(width: isMobile ? 10 : 12),
+
+          // Interactive Admin Profile Dropdown Menu
+          _buildAdminUserMenu(context),
         ],
       ),
     );
@@ -303,7 +156,7 @@ class AdminHeader extends StatelessWidget {
         : (email.isNotEmpty ? email[0].toUpperCase() : 'A');
 
     return SizedBox(
-      height: 48,
+      height: 44,
       child: Theme(
         data: Theme.of(context).copyWith(
           splashColor: Colors.transparent,
@@ -312,11 +165,12 @@ class AdminHeader extends StatelessWidget {
         child: PopupMenuButton<int>(
           tooltip: "Admin Account & Station Options",
           padding: EdgeInsets.zero,
-          color: AdminColors.cardBackground,
+          color: AdminColors.dialogBackground,
           elevation: 16,
+          shadowColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
-            side: const BorderSide(color: AdminColors.border, width: 1.2),
+            side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
           ),
           offset: const Offset(0, 52),
         onSelected: (val) {
@@ -363,44 +217,11 @@ class AdminHeader extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             child: Row(
               children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: AdminColors.border,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AdminColors.success,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: ClipOval(
-                    child: photoUrl != null && photoUrl.isNotEmpty
-                        ? Image.network(
-                            photoUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (ctx, err, stack) => Center(
-                              child: Text(
-                                initial,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          )
-                        : Center(
-                            child: Text(
-                              initial,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                  ),
+                AdminAvatar(
+                  initial: initial,
+                  photoUrl: photoUrl,
+                  size: 42,
+                  online: true,
                 ),
                 SizedBox(width: 12),
                 Expanded(
@@ -544,123 +365,36 @@ class AdminHeader extends StatelessWidget {
             ),
           ),
         ],
-        child: Container(
-          height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: AdminColors.cardBackground,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: AdminColors.border,
-              width: 1.2,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (!isMobile) ...[
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      displayName,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textDark,
-                        height: 1.15,
-                      ),
-                    ),
-                    SizedBox(height: 2),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: AdminColors.success,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        SizedBox(width: 5),
-                        Text(
-                          "Municipal Dispatcher",
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: AdminColors.textLight,
-                            fontWeight: FontWeight.w600,
-                            height: 1.15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(width: 10),
-              ],
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AdminColors.surfaceLight,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: AdminColors.success,
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AdminColors.success.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: ClipOval(
-                  child: photoUrl != null && photoUrl.isNotEmpty
-                      ? Image.network(
-                          photoUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (ctx, err, stack) => Center(
-                            child: Text(
-                              initial,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        )
-                      : Center(
-                          child: Text(
-                            initial,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-              SizedBox(width: 4),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                size: 16,
-                color: AdminColors.textLight,
-              ),
-            ],
-          ),
+        child: AdminUserChip(
+          displayName: displayName,
+          initial: initial,
+          photoUrl: photoUrl,
+          compact: isMobile,
         ),
       ),
     ),
   );
 }
+
+  // Alert types and target sectors offered by the broadcast form.
+  static const List<String> _alertTypes = [
+    "Fire Alarm",
+    "Flood Evacuation",
+    "Earthquake Advisory",
+    "Severe Weather",
+    "Security Curfew",
+    "General Notice",
+  ];
+
+  // Stored sector value → the shorter name shown in the picker.
+  static const Map<String, String> _targetSectors = {
+    "All Barangay Moonwalk": "All Moonwalk",
+    "Area 1 - San Jose": "Area 1",
+    "Area 2 - Airborne": "Area 2",
+    "Area 3 - Multinational": "Area 3",
+    "Area 4 - San Agustin": "Area 4",
+    "Area 5 - Moonwalk Proper": "Area 5",
+  };
 
   void _showBroadcastModal(BuildContext context, {int initialTab = 0}) {
     final titleController = TextEditingController();
@@ -669,807 +403,213 @@ class AdminHeader extends StatelessWidget {
     String targetSector = "All Barangay Moonwalk";
     bool isBroadcasting = false;
     int currentTab = initialTab;
+    // One listener for the whole dialog, so picking an alert type next to
+    // the list doesn't resubscribe it.
+    final activeSirensStream = FirebaseFirestore.instance
+        .collection('broadcasts')
+        .where('isActive', isEqualTo: true)
+        .snapshots();
 
     showDialog(
       context: context,
+      barrierColor: const Color(0x99050810),
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: AdminColors.cardBackground,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-                side: const BorderSide(color: AdminColors.danger, width: 1.5),
-              ),
-              titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              actionsPadding: const EdgeInsets.fromLTRB(24, 12, 24, 20),
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AdminColors.danger.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.crisis_alert,
-                            color: AdminColors.danger, size: 22),
-                      ),
-                      SizedBox(width: 12),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Municipal Emergency Broadcast",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            Text(
-                              "Real-time Siren Transmission & Silence Controls",
-                              style: TextStyle(
-                                color: AdminColors.textLight,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  // Segmented Tabs: Active Sirens vs New Broadcast
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AdminColors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AdminColors.border),
+            Future<void> deleteRecord(String docId) async {
+              await FirebaseFirestore.instance
+                  .collection('broadcasts')
+                  .doc(docId)
+                  .delete();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    backgroundColor: AdminColors.cardBackground,
+                    content: Text(
+                      "Broadcast record deleted.",
+                      style: TextStyle(color: Colors.white),
                     ),
-                    padding: const EdgeInsets.all(4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => setDialogState(() => currentTab = 0),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: currentTab == 0
-                                    ? AdminColors.danger
-                                        .withValues(alpha: 0.2)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: currentTab == 0
-                                    ? Border.all(
-                                        color: AdminColors.danger
-                                            .withValues(alpha: 0.5))
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.campaign,
-                                    size: 16,
-                                    color: currentTab == 0
-                                        ? AdminColors.danger
-                                        : AdminColors.textLight,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "Active Sirens",
-                                    style: TextStyle(
-                                      color: currentTab == 0
-                                          ? Colors.white
-                                          : AdminColors.textLight,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () => setDialogState(() => currentTab = 1),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: currentTab == 1
-                                    ? AdminColors.primary
-                                        .withValues(alpha: 0.2)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: currentTab == 1
-                                    ? Border.all(
-                                        color: AdminColors.primary
-                                            .withValues(alpha: 0.5))
-                                    : null,
-                              ),
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.add_alert_rounded,
-                                    size: 16,
-                                    color: currentTab == 1
-                                        ? AdminColors.primary
-                                        : AdminColors.textLight,
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "Transmit New",
-                                    style: TextStyle(
-                                      color: currentTab == 1
-                                          ? Colors.white
-                                          : AdminColors.textLight,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    behavior: SnackBarBehavior.floating,
                   ),
-                ],
-              ),
-              content: SizedBox(
-                width: 520,
-                child: currentTab == 0
-                    // ── Tab 0: Active Sirens List & Silence Controls ──
-                    ? StreamBuilder<QuerySnapshot>(
-                        stream: FirebaseFirestore.instance
-                            .collection('broadcasts')
-                            .where('isActive', isEqualTo: true)
-                            .snapshots(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Padding(
-                              padding: EdgeInsets.all(32.0),
-                              child:
-                                  Center(child: CircularProgressIndicator()),
-                            );
-                          }
+                );
+              }
+            }
 
-                          final docs = snapshot.data?.docs ?? [];
-                          if (docs.isEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 36.0, horizontal: 16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: AdminColors.success
-                                          .withValues(alpha: 0.12),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                        Icons.check_circle_outline,
-                                        color: AdminColors.success,
-                                        size: 40),
-                                  ),
-                                  SizedBox(height: 14),
-                                  Text(
-                                    "All Municipal Sectors Clear",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15),
-                                  ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    "There are no active sirens currently broadcasting to citizens.",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        color: AdminColors.textLight,
-                                        fontSize: 12),
-                                  ),
-                                  SizedBox(height: 16),
-                                  OutlinedButton.icon(
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor:
-                                          AdminColors.primary,
-                                      side: const BorderSide(
-                                          color: AdminColors.primary),
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16, vertical: 8),
-                                    ),
-                                    icon: Icon(Icons.add_alert_rounded,
-                                        size: 14),
-                                    label: Text("Transmit New Alert",
-                                        style: TextStyle(fontSize: 12)),
-                                    onPressed: () => setDialogState(
-                                        () => currentTab = 1),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
+            Future<void> silenceSiren(
+                String docId, String title, String sector) async {
+              await FirebaseFirestore.instance
+                  .collection('broadcasts')
+                  .doc(docId)
+                  .update({
+                'isActive': false,
+                'silencedAt': FieldValue.serverTimestamp(),
+              });
 
-                          return SingleChildScrollView(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: docs.map((doc) {
-                                final data =
-                                    doc.data() as Map<String, dynamic>;
-                                final title = data['title'] as String? ??
-                                    "Emergency Broadcast";
-                                final type = data['alertType'] as String? ??
-                                    "Siren";
-                                final sector = data['sector'] as String? ??
-                                    "All Sectors";
-                                final message =
-                                    data['message'] as String? ?? "";
-                                final createdAt =
-                                    data['createdAt'] as Timestamp?;
-                                final dateStr = createdAt != null
-                                    ? "${createdAt.toDate().hour > 12 ? createdAt.toDate().hour - 12 : (createdAt.toDate().hour == 0 ? 12 : createdAt.toDate().hour)}:${createdAt.toDate().minute.toString().padLeft(2, '0')} ${createdAt.toDate().hour >= 12 ? 'PM' : 'AM'}"
-                                    : "Just now";
+              await sl<AuditLogRemoteDataSource>().recordLog(
+                actionType: 'Emergency Siren',
+                details: 'Silenced and cleared emergency siren broadcast: "$title" (Sector: $sector)',
+                targetId: docId,
+              );
 
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: AdminColors.background,
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                        color: AdminColors.danger
-                                            .withValues(alpha: 0.6),
-                                        width: 1.5),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AdminColors.danger
-                                            .withValues(alpha: 0.15),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 3),
-                                            decoration: BoxDecoration(
-                                              color: AdminColors.orange
-                                                  .withValues(alpha: 0.15),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                  color:
-                                                      AdminColors.orange
-                                                          .withValues(
-                                                              alpha: 0.4)),
-                                            ),
-                                            child: Text(
-                                              type.toUpperCase(),
-                                              style: const TextStyle(
-                                                color: AdminColors.orange,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8, vertical: 3),
-                                            decoration: BoxDecoration(
-                                              color: AdminColors.primary
-                                                  .withValues(alpha: 0.15),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                  color:
-                                                      AdminColors.primary
-                                                          .withValues(
-                                                              alpha: 0.4)),
-                                            ),
-                                            child: Text(
-                                              sector,
-                                              style: const TextStyle(
-                                                color: AdminColors.primary,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          Text(
-                                            dateStr,
-                                            style: const TextStyle(
-                                                color: AdminColors.textLight,
-                                                fontSize: 11),
-                                          ),
-                                        ],
-                                      ),
-                                      SizedBox(height: 10),
-                                      Text(
-                                        title,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      if (message.isNotEmpty) ...[
-                                        SizedBox(height: 6),
-                                        Text(
-                                          message,
-                                          style: const TextStyle(
-                                            color: AdminColors.textDark,
-                                            fontSize: 12.5,
-                                            height: 1.35,
-                                          ),
-                                        ),
-                                      ],
-                                      SizedBox(height: 14),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
-                                          IconButton(
-                                            icon: Icon(
-                                                Icons.delete_outline,
-                                                color: AdminColors.danger,
-                                                size: 20),
-                                            tooltip: "Delete Record",
-                                            onPressed: () async {
-                                              await FirebaseFirestore.instance
-                                                  .collection('broadcasts')
-                                                  .doc(doc.id)
-                                                  .delete();
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  const SnackBar(
-                                                    backgroundColor:
-                                                        AdminColors.cardBackground,
-                                                    content: Text(
-                                                      "Broadcast record deleted.",
-                                                      style: TextStyle(
-                                                          color:
-                                                              Colors.white),
-                                                    ),
-                                                    behavior: SnackBarBehavior
-                                                        .floating,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                          SizedBox(width: 8),
-                                          ElevatedButton.icon(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  AdminColors.orange,
-                                              foregroundColor: Colors.black,
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 14,
-                                                      vertical: 8),
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                            ),
-                                            icon: Icon(Icons.volume_off,
-                                                size: 16),
-                                            label: Text(
-                                              "SILENCE & CLEAR SIREN",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 11),
-                                            ),
-                                            onPressed: () async {
-                                              await FirebaseFirestore.instance
-                                                  .collection('broadcasts')
-                                                  .doc(doc.id)
-                                                  .update({
-                                                'isActive': false,
-                                                'silencedAt': FieldValue
-                                                    .serverTimestamp(),
-                                              });
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: AdminColors.cardBackground,
+                    content: Text(
+                      "🚨 Siren '$title' silenced and removed from citizen devices!",
+                      style: const TextStyle(
+                          color: AdminColors.success,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            }
 
-                                              await sl<AuditLogRemoteDataSource>().recordLog(
-                                                actionType: 'Emergency Siren',
-                                                details: 'Silenced and cleared emergency siren broadcast: "$title" (Sector: $sector)',
-                                                targetId: doc.id,
-                                              );
+            Future<void> transmitSiren() async {
+              final title = titleController.text.trim();
+              final message = messageController.text.trim();
+              if (title.isEmpty) return;
 
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    backgroundColor:
-                                                        AdminColors.cardBackground,
-                                                    content: Text(
-                                                      "🚨 Siren '$title' silenced and removed from citizen devices!",
-                                                      style: const TextStyle(
-                                                        color:
-                                                            AdminColors.success,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    ),
-                                                    behavior: SnackBarBehavior
-                                                        .floating,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          );
-                        },
-                      )
-                    // ── Tab 1: Transmit New Siren Form ──
-                    : SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "BROADCAST TITLE",
-                              style: TextStyle(
-                                color: AdminColors.textLight,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            TextField(
-                              controller: titleController,
-                              style: const TextStyle(
-                                  color: AdminColors.textDark, fontSize: 13),
-                              decoration: InputDecoration(
-                                hintText:
-                                    "e.g. FLASH FLOOD RED ALERT - SAN JOSE",
-                                hintStyle: const TextStyle(
-                                    color: AdminColors.textFaint, fontSize: 12),
-                                filled: true,
-                                fillColor: AdminColors.background,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 12),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(
-                                      color: AdminColors.border),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(
-                                      color: AdminColors.border),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 14),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "ALERT TYPE",
-                                        style: TextStyle(
-                                          color: AdminColors.textLight,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      DropdownButtonFormField<String>(
-                                        initialValue: alertType,
-                                        dropdownColor:
-                                            AdminColors.cardBackground,
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12),
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: AdminColors.background,
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 10),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            borderSide: const BorderSide(
-                                                color: AdminColors.border),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            borderSide: const BorderSide(
-                                                color: AdminColors.border),
-                                          ),
-                                        ),
-                                        items: const [
-                                          DropdownMenuItem(
-                                              value: "Fire Alarm",
-                                              child: Text("Fire Alarm")),
-                                          DropdownMenuItem(
-                                              value: "Flood Evacuation",
-                                              child:
-                                                  Text("Flood Evacuation")),
-                                          DropdownMenuItem(
-                                              value: "Earthquake Advisory",
-                                              child: Text(
-                                                  "Earthquake Advisory")),
-                                          DropdownMenuItem(
-                                              value: "Severe Weather",
-                                              child:
-                                                  Text("Severe Weather")),
-                                          DropdownMenuItem(
-                                              value: "Security Curfew",
-                                              child:
-                                                  Text("Security Curfew")),
-                                          DropdownMenuItem(
-                                              value: "General Notice",
-                                              child:
-                                                  Text("General Notice")),
-                                        ],
-                                        onChanged: (v) {
-                                          if (v != null) {
-                                            setDialogState(
-                                                () => alertType = v);
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "TARGET SECTOR",
-                                        style: TextStyle(
-                                          color: AdminColors.textLight,
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      DropdownButtonFormField<String>(
-                                        initialValue: targetSector,
-                                        dropdownColor:
-                                            AdminColors.cardBackground,
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12),
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: AdminColors.background,
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 10),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            borderSide: const BorderSide(
-                                                color: AdminColors.border),
-                                          ),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            borderSide: const BorderSide(
-                                                color: AdminColors.border),
-                                          ),
-                                        ),
-                                        items: const [
-                                          DropdownMenuItem(
-                                              value:
-                                                  "All Barangay Moonwalk",
-                                              child: Text("All Moonwalk")),
-                                          DropdownMenuItem(
-                                              value: "Area 1 - San Jose",
-                                              child: Text("Area 1")),
-                                          DropdownMenuItem(
-                                              value: "Area 2 - Airborne",
-                                              child: Text("Area 2")),
-                                          DropdownMenuItem(
-                                              value:
-                                                  "Area 3 - Multinational",
-                                              child: Text("Area 3")),
-                                          DropdownMenuItem(
-                                              value: "Area 4 - San Agustin",
-                                              child: Text("Area 4")),
-                                          DropdownMenuItem(
-                                              value:
-                                                  "Area 5 - Moonwalk Proper",
-                                              child: Text("Area 5")),
-                                        ],
-                                        onChanged: (v) {
-                                          if (v != null) {
-                                            setDialogState(
-                                                () => targetSector = v);
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 14),
-                            Text(
-                              "BROADCAST MESSAGE / INSTRUCTIONS",
-                              style: TextStyle(
-                                color: AdminColors.textLight,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                            SizedBox(height: 6),
-                            TextField(
-                              controller: messageController,
-                              maxLines: 3,
-                              style: const TextStyle(
-                                  color: AdminColors.textDark, fontSize: 13),
-                              decoration: InputDecoration(
-                                hintText:
-                                    "State mandatory instructions, evacuation points, emergency hotlines...",
-                                hintStyle: const TextStyle(
-                                    color: AdminColors.textFaint, fontSize: 12),
-                                filled: true,
-                                fillColor: AdminColors.background,
-                                contentPadding: const EdgeInsets.all(12),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(
-                                      color: AdminColors.border),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(
-                                      color: AdminColors.border),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(dialogCtx),
-                  child: Text("Close",
-                      style: TextStyle(color: AdminColors.textLight)),
-                ),
-                if (currentTab == 1)
-                  ElevatedButton.icon(
-                    icon: isBroadcasting
-                        ? SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
-                          )
-                        : Icon(Icons.send_rounded, size: 16),
-                    style: ElevatedButton.styleFrom(
+              setDialogState(() => isBroadcasting = true);
+              try {
+                await FirebaseFirestore.instance
+                    .collection('broadcasts')
+                    .add({
+                  'title': title,
+                  'alertType': alertType,
+                  'sector': targetSector,
+                  'message': message,
+                  'createdAt': FieldValue.serverTimestamp(),
+                  'isActive': true,
+                  'source':
+                      'Barangay Moonwalk Command Center',
+                });
+
+                // Dispatch in-app notification to all citizens
+                await NotificationService().sendNotification(
+                  recipientId: 'all_residents',
+                  title: '🚨 MUNICIPAL SIREN: $title',
+                  message:
+                      '[$alertType • $targetSector] ${message.isNotEmpty ? message : "Immediate safety precautions advised by authorities."}',
+                  type: 'siren',
+                );
+
+                await sl<AuditLogRemoteDataSource>().recordLog(
+                  actionType: 'Emergency Siren',
+                  details: 'Transmitted emergency siren broadcast: "$title" [$alertType • $targetSector]',
+                );
+
+                if (context.mounted) {
+                  Navigator.pop(dialogCtx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
                       backgroundColor: AdminColors.danger,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                      content: Text(
+                        "🚨 Emergency Broadcast Dispatched to Barangay Moonwalk!",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      behavior: SnackBarBehavior.floating,
                     ),
-                    onPressed: isBroadcasting
-                        ? null
-                        : () async {
-                            final title = titleController.text.trim();
-                            final message = messageController.text.trim();
-                            if (title.isEmpty) return;
-
-                            setDialogState(() => isBroadcasting = true);
-                            try {
-                              await FirebaseFirestore.instance
-                                  .collection('broadcasts')
-                                  .add({
-                                'title': title,
-                                'alertType': alertType,
-                                'sector': targetSector,
-                                'message': message,
-                                'createdAt': FieldValue.serverTimestamp(),
-                                'isActive': true,
-                                'source':
-                                    'Barangay Moonwalk Command Center',
-                              });
-
-                              // Dispatch in-app notification to all citizens
-                              await NotificationService().sendNotification(
-                                recipientId: 'all_residents',
-                                title: '🚨 MUNICIPAL SIREN: $title',
-                                message:
-                                    '[$alertType • $targetSector] ${message.isNotEmpty ? message : "Immediate safety precautions advised by authorities."}',
-                                type: 'siren',
-                              );
-
-                              await sl<AuditLogRemoteDataSource>().recordLog(
-                                actionType: 'Emergency Siren',
-                                details: 'Transmitted emergency siren broadcast: "$title" [$alertType • $targetSector]',
-                              );
-
-                              if (context.mounted) {
-                                Navigator.pop(dialogCtx);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    backgroundColor: AdminColors.danger,
-                                    content: Text(
-                                      "🚨 Emergency Broadcast Dispatched to Barangay Moonwalk!",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                            } catch (e) {
-                              setDialogState(() => isBroadcasting = false);
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    backgroundColor: Colors.red.shade900,
-                                    content: Text(
-                                        "Failed to dispatch broadcast: $e"),
-                                    behavior: SnackBarBehavior.floating,
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                    label: Text(
-                      isBroadcasting
-                          ? "TRANSMITTING..."
-                          : "TRANSMIT SIREN BROADCAST",
-                      style: const TextStyle(fontWeight: FontWeight.w900),
+                  );
+                }
+              } catch (e) {
+                setDialogState(() => isBroadcasting = false);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.red.shade900,
+                      content: Text(
+                          "Failed to dispatch broadcast: $e"),
+                      behavior: SnackBarBehavior.floating,
                     ),
-                  ),
-              ],
+                  );
+                }
+              }
+            }
+
+            return Dialog(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              insetPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: BroadcastSirenPanel(
+                tab: currentTab,
+                onTabChanged: (tab) => setDialogState(() => currentTab = tab),
+                onClose: () => Navigator.pop(dialogCtx),
+                // ── Active Sirens List & Silence Controls ──
+                activeSirens: (context, sideBySide) =>
+                    StreamBuilder<QuerySnapshot>(
+                  stream: activeSirensStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.all(32.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    final docs = snapshot.data?.docs ?? [];
+                    if (docs.isEmpty) {
+                      return SirensClearNotice(
+                        onTransmitNew: sideBySide
+                            ? null
+                            : () => setDialogState(() => currentTab = 1),
+                      );
+                    }
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: docs.map((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        final title =
+                            data['title'] as String? ?? "Emergency Broadcast";
+                        final type = data['alertType'] as String? ?? "Siren";
+                        final sector =
+                            data['sector'] as String? ?? "All Sectors";
+                        final message = data['message'] as String? ?? "";
+                        final createdAt = data['createdAt'] as Timestamp?;
+                        final dateStr = createdAt != null
+                            ? "${createdAt.toDate().hour > 12 ? createdAt.toDate().hour - 12 : (createdAt.toDate().hour == 0 ? 12 : createdAt.toDate().hour)}:${createdAt.toDate().minute.toString().padLeft(2, '0')} ${createdAt.toDate().hour >= 12 ? 'PM' : 'AM'}"
+                            : "Just now";
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ActiveSirenCard(
+                            type: type,
+                            title: title,
+                            sector: sector,
+                            message: message,
+                            timeLabel: dateStr,
+                            onSilence: () =>
+                                silenceSiren(doc.id, title, sector),
+                            onDelete: () => deleteRecord(doc.id),
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                // ── Transmit New Siren Form ──
+                transmitForm: BroadcastTransmitForm(
+                  titleController: titleController,
+                  messageController: messageController,
+                  alertTypes: _alertTypes,
+                  alertType: alertType,
+                  onAlertTypeChanged: (v) =>
+                      setDialogState(() => alertType = v),
+                  sectors: _targetSectors,
+                  sector: targetSector,
+                  onSectorChanged: (v) =>
+                      setDialogState(() => targetSector = v),
+                  busy: isBroadcasting,
+                  onTransmit: transmitSiren,
+                ),
+              ),
             );
           },
         );

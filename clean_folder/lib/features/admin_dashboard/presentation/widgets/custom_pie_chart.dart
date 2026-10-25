@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
@@ -64,15 +63,15 @@ class _CustomPieChartState extends State<CustomPieChart> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: AdminColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
+                        color: AdminColors.primary.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Icon(
                       Icons.pie_chart_outline_rounded,
-                      color: AppColors.primary,
+                      color: AdminColors.primary,
                       size: 18,
                     ),
                   ),
@@ -244,12 +243,12 @@ class _CustomPieChartState extends State<CustomPieChart> {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.25)
+              ? AdminColors.primary.withValues(alpha: 0.25)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.4)
+                ? AdminColors.primary.withValues(alpha: 0.4)
                 : Colors.transparent,
           ),
         ),

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
@@ -179,7 +178,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Case ${inc.id.substring(0, min(8, inc.id.length))} updated to $newStatus!"),
-        backgroundColor: AppColors.solved,
+        backgroundColor: AdminColors.success,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -353,7 +352,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Dispatcher remarks saved!"),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AdminColors.primary,
         behavior: SnackBarBehavior.floating,
       ),
     );

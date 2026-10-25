@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 
@@ -84,15 +83,15 @@ class CustomLineChart extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
+                      color: AdminColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
+                        color: AdminColors.primary.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Icon(
                       Icons.show_chart_rounded,
-                      color: AppColors.primary,
+                      color: AdminColors.primary,
                       size: 18,
                     ),
                   ),
@@ -128,15 +127,15 @@ class CustomLineChart extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
+                  color: AdminColors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppColors.primary.withValues(alpha: 0.25),
+                    color: AdminColors.primary.withValues(alpha: 0.25),
                   ),
                 ),
                 child: Text(
                   "${incidents.length} Total Logs",
-                  style: TextStyle(color: AppColors.primary,
+                  style: TextStyle(color: AdminColors.primary,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
