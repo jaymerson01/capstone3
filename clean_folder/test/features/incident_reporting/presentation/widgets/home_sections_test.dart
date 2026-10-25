@@ -168,6 +168,27 @@ void main() {
     });
   });
 
+  testWidgets('HomeVideoCard opens the guide when tapped', (tester) async {
+    final semantics = tester.ensureSemantics();
+    var opened = 0;
+    await pumpSection(
+      tester,
+      HomeVideoCard(
+        title: 'Video Instructions',
+        subtitle: 'How to report safety issues in Moonwalk',
+        onTap: () => opened++,
+      ),
+    );
+
+    await tester.tap(find.text('Video Instructions'));
+    expect(opened, 1);
+    expect(
+      tester.getSemantics(find.text('Video Instructions')),
+      isSemantics(isButton: true, hasTapAction: true),
+    );
+    semantics.dispose();
+  });
+
   testWidgets('HomeVideoCard shows the video guide', (tester) async {
     await pumpSection(
       tester,

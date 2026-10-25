@@ -1941,4 +1941,10 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get chatHint => 'Magtanong tungkol sa kaligtasan o first aid...';
+
+  @override
+  String get videoPlay => 'I-play';
+
+  @override
+  String get videoPause => 'I-pause';
 }

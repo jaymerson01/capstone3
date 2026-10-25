@@ -2513,5 +2513,13 @@
   "chatHint": "Ask safety or first-aid guide...",
   "@chatHint": {
     "description": "Chat input hint."
+  },
+  "videoPlay": "Play",
+  "@videoPlay": {
+    "description": "Play button on the How to use ResQ video."
+  },
+  "videoPause": "Pause",
+  "@videoPause": {
+    "description": "Pause button on the How to use ResQ video."
   }
 }

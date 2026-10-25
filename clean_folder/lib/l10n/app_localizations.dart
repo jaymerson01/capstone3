@@ -3427,6 +3427,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ask safety or first-aid guide...'**
   String get chatHint;
+
+  /// Play button on the How to use ResQ video.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get videoPlay;
+
+  /// Pause button on the How to use ResQ video.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get videoPause;
 }
 
 class _AppLocalizationsDelegate

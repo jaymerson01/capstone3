@@ -1962,4 +1962,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatHint => 'Ask safety or first-aid guide...';
+
+  @override
+  String get videoPlay => 'Play';
+
+  @override
+  String get videoPause => 'Pause';
 }

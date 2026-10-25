@@ -97,6 +97,7 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/sounds/
+    - assets/videos/
     - .env
     - assets/fonts/PlusJakartaSans/OFL.txt
 

@@ -554,5 +554,7 @@
   "chatSenderOfficer": "CIVIL DEFENSE OFFICER",
   "chatHotlineDialers": "Mga Hotline na Puwedeng Tawagan:",
   "chatAllHotlines": "Lahat ng Hotline",
-  "chatHint": "Magtanong tungkol sa kaligtasan o first aid..."
+  "chatHint": "Magtanong tungkol sa kaligtasan o first aid...",
+  "videoPlay": "I-play",
+  "videoPause": "I-pause"
 }

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/my_reports_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/maps_page.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/instruction_video_page.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
@@ -377,21 +378,28 @@ class _DashboardPageState extends State<DashboardPage>
                                       // ── Active Municipal Siren / Emergency Broadcast ──
                                       _ActiveEmergencyBanner(),
 
+                                      // ── How to use ResQ (video guide) ──────────────
+                                      HomeVideoCard(
+                                        title: AppLocalizations.of(context)
+                                            .dashboardVideoInstructions,
+                                        subtitle: AppLocalizations.of(context)
+                                            .dashboardVideoSubtitle,
+                                        onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) =>
+                                                const InstructionVideoPage(),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 18),
+
                                       // ── My Reports Status (counts) ─────────────────
                                       _QuickStatsRow(incidents: incidents),
                                       SizedBox(height: 18),
 
                                       // ── Community Reports ──────────────────────────
                                       _buildCommunityReportsSection(state),
-                                      SizedBox(height: 18),
-
-                                      // ── Video / Info Banner ────────────────────────
-                                      HomeVideoCard(
-                                        title: AppLocalizations.of(context)
-                                            .dashboardVideoInstructions,
-                                        subtitle: AppLocalizations.of(context)
-                                            .dashboardVideoSubtitle,
-                                      ),
                                     ],
                                   );
                                 },

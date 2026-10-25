@@ -806,11 +806,18 @@ class _MetaLine extends StatelessWidget {
 }
 
 /// "Video Instructions" with a dark play thumbnail whose glow pulses.
+/// Tapping it plays the guide.
 class HomeVideoCard extends StatefulWidget {
   final String title;
   final String subtitle;
+  final VoidCallback? onTap;
 
-  const HomeVideoCard({super.key, required this.title, required this.subtitle});
+  const HomeVideoCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.onTap,
+  });
 
   @override
   State<HomeVideoCard> createState() => _HomeVideoCardState();
@@ -837,9 +844,10 @@ class _HomeVideoCardState extends State<HomeVideoCard>
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
+    final card = GlassCard(
       padding: const EdgeInsets.all(14),
       borderRadius: 24,
+      onTap: widget.onTap,
       child: Row(
         children: [
           Container(
@@ -907,8 +915,14 @@ class _HomeVideoCardState extends State<HomeVideoCard>
               ],
             ),
           ),
+          if (widget.onTap != null)
+            Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
         ],
       ),
+    );
+    // Screen readers hear one button: the title, then the subtitle.
+    return MergeSemantics(
+      child: Semantics(button: widget.onTap != null, child: card),
     );
   }
 }
