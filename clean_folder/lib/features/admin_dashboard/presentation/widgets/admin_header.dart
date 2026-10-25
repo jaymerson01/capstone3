@@ -36,75 +36,87 @@ class AdminHeader extends StatelessWidget {
           bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
         ),
       ),
-      child: Row(
-        children: [
-          // Left: Toggle Menu and Title
-          AdminHeaderButton(
-            icon: isMobile ? Icons.menu_rounded : Icons.menu_open_rounded,
-            onPressed: onMenuPressed,
-            tooltip: isMobile ? null : "Toggle Sidebar",
-          ),
-          SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w800,
-                color: AdminColors.textStrong,
-                letterSpacing: -0.2,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // On smaller laptop screens (or zoomed in) the profile chip
+          // shows just the avatar, so the page title keeps its room.
+          final compactChip = isMobile || constraints.maxWidth < 900;
+          return Row(
+            children: [
+              // Left: Toggle Menu and Title
+              AdminHeaderButton(
+                icon: isMobile ? Icons.menu_rounded : Icons.menu_open_rounded,
+                onPressed: onMenuPressed,
+                tooltip: isMobile ? null : "Toggle Sidebar",
               ),
-            ),
-          ),
-          SizedBox(width: 12),
+              SizedBox(width: 14),
+              // Long titles shrink a little on small laptops instead of
+              // being cut off.
+              Expanded(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: AdminColors.textStrong,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12),
 
-          // Right: Emergency Siren, Notifications and Admin Profile
-          // Emergency Broadcast Siren Button with Live Active Counter
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('broadcasts')
-                .where('isActive', isEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              final activeDocs = snapshot.data?.docs ?? [];
-              final hasActive = activeDocs.isNotEmpty;
+              // Right: Emergency Siren, Notifications and Admin Profile
+              // Emergency Broadcast Siren Button with Live Active Counter
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('broadcasts')
+                    .where('isActive', isEqualTo: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  final activeDocs = snapshot.data?.docs ?? [];
+                  final hasActive = activeDocs.isNotEmpty;
 
-              return AdminSirenButton(
-                activeCount: activeDocs.length,
-                compact: isMobile,
-                onTap: () => _showBroadcastModal(context,
-                    initialTab: hasActive ? 0 : 1),
-              );
-            },
-          ),
-          SizedBox(width: isMobile ? 10 : 12),
+                  return AdminSirenButton(
+                    activeCount: activeDocs.length,
+                    compact: isMobile,
+                    onTap: () => _showBroadcastModal(context,
+                        initialTab: hasActive ? 0 : 1),
+                  );
+                },
+              ),
+              SizedBox(width: isMobile ? 10 : 12),
 
-          // Interactive Dispatch Notifications Bell
-          StreamBuilder<List<NotificationModel>>(
-            stream: NotificationService().streamAdminNotifications(),
-            builder: (context, snapshot) {
-              final notifications = snapshot.data ?? [];
-              final unreadCount =
-                  notifications.where((n) => !n.isRead).length;
+              // Interactive Dispatch Notifications Bell
+              StreamBuilder<List<NotificationModel>>(
+                stream: NotificationService().streamAdminNotifications(),
+                builder: (context, snapshot) {
+                  final notifications = snapshot.data ?? [];
+                  final unreadCount =
+                      notifications.where((n) => !n.isRead).length;
 
-              return AdminBellButton(
-                unreadCount: unreadCount,
-                onTap: () => _showAdminNotificationsModal(context),
-              );
-            },
-          ),
-          SizedBox(width: isMobile ? 10 : 12),
+                  return AdminBellButton(
+                    unreadCount: unreadCount,
+                    onTap: () => _showAdminNotificationsModal(context),
+                  );
+                },
+              ),
+              SizedBox(width: isMobile ? 10 : 12),
 
-          // Interactive Admin Profile Dropdown Menu
-          _buildAdminUserMenu(context),
-        ],
+              // Interactive Admin Profile Dropdown Menu
+              _buildAdminUserMenu(context, compact: compactChip),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildAdminUserMenu(BuildContext context) {
+  Widget _buildAdminUserMenu(BuildContext context, {required bool compact}) {
     final currentFirebaseUser = FirebaseAuth.instance.currentUser;
     final uid = currentFirebaseUser?.uid;
 
@@ -114,6 +126,7 @@ class AdminHeader extends StatelessWidget {
         displayName: "Admin",
         email: "admin@safe.gov",
         photoUrl: null,
+        compact: compact,
       );
     }
 
@@ -140,6 +153,7 @@ class AdminHeader extends StatelessWidget {
           displayName: displayName,
           email: email,
           photoUrl: photoUrl,
+          compact: compact,
         );
       },
     );
@@ -150,6 +164,7 @@ class AdminHeader extends StatelessWidget {
     required String displayName,
     required String email,
     String? photoUrl,
+    required bool compact,
   }) {
     final initial = displayName.trim().isNotEmpty
         ? displayName.trim()[0].toUpperCase()
@@ -369,7 +384,7 @@ class AdminHeader extends StatelessWidget {
           displayName: displayName,
           initial: initial,
           photoUrl: photoUrl,
-          compact: isMobile,
+          compact: compact,
         ),
       ),
     ),

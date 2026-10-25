@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'admin_ui.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 
 class CustomLineChart extends StatelessWidget {
   final List<IncidentEntity> incidents;
@@ -190,6 +191,7 @@ class _OledLineChartPainter extends CustomPainter {
       textPainter.text = TextSpan(
         text: labelVal.round().toString(),
         style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: AdminColors.chartAxis,
           fontSize: 10,
           fontWeight: FontWeight.w600,
@@ -205,6 +207,7 @@ class _OledLineChartPainter extends CustomPainter {
       textPainter.text = TextSpan(
         text: dayLabels[i],
         style: TextStyle(
+          fontFamily: AppTheme.fontFamily,
           color: i == dayLabels.length - 1
               ? AdminColors.cyan
               : AdminColors.chartAxis,

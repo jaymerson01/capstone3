@@ -15,6 +15,7 @@ import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 
 enum ReportTimeframe { allTime, thisMonth, last30Days, thisWeek }
 
@@ -1096,7 +1097,11 @@ class _AnalyticsCurvePainter extends CustomPainter {
       final val = maxValue - ((maxValue / gridRows) * i);
       textPainter.text = TextSpan(
         text: val.round().toString(),
-        style: const TextStyle(color: AdminColors.chartAxis, fontSize: 9.5),
+        style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          color: AdminColors.chartAxis,
+          fontSize: 9.5,
+        ),
       );
       textPainter.layout();
       textPainter.paint(canvas, Offset(4, y - 6));
@@ -1107,7 +1112,11 @@ class _AnalyticsCurvePainter extends CustomPainter {
       final double x = leftMargin + (xSpacing * i);
       textPainter.text = TextSpan(
         text: labels[i],
-        style: const TextStyle(color: AdminColors.chartAxis, fontSize: 9.5),
+        style: const TextStyle(
+          fontFamily: AppTheme.fontFamily,
+          color: AdminColors.chartAxis,
+          fontSize: 9.5,
+        ),
       );
       textPainter.layout();
       textPainter.paint(
