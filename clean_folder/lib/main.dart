@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
@@ -71,11 +72,7 @@ class MyApp extends StatelessWidget {
         locale: const Locale('en'),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
-          scaffoldBackgroundColor: const Color(0xFF060D1A),
-          useMaterial3: true,
-        ),
+        theme: AppTheme.resident(),
         home: const AuthWrapper(),
         routes: {
           '/welcome': (context) => const WelcomePage(),

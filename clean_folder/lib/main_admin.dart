@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
@@ -57,17 +58,7 @@ class ResQAdminApp extends StatelessWidget {
         locale: const Locale('en'),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: AdminColors.background,
-          colorScheme: const ColorScheme.dark(
-            primary: AdminColors.primaryRose,
-            secondary: AdminColors.secondaryGreen,
-            surface: AdminColors.surfaceLight,
-          ),
-          fontFamily: 'Inter',
-          useMaterial3: true,
-        ),
+        theme: AppTheme.admin(),
         home: const AdminAuthWrapper(),
         routes: {
           '/admin/login': (context) => const AdminLoginPage(),

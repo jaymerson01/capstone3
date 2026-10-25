@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -130,11 +131,7 @@ class ResQResidentApp extends StatelessWidget {
             locale: LocaleController.locale,
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
-            theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
-              scaffoldBackgroundColor: AppColors.background,
-              useMaterial3: true,
-        ),
+            theme: AppTheme.resident(),
         home: const ResidentAuthWrapper(),
         routes: {
           '/welcome': (context) => const WelcomePage(),
