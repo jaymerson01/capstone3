@@ -19,6 +19,30 @@ class AdminDashboardPage extends StatefulWidget {
 
   const AdminDashboardPage({super.key, this.onViewAllReports});
 
+  /// The pill colour for a stored report status. The admin portal saves
+  /// "in_progress", so underscores count as spaces.
+  @visibleForTesting
+  static AdminTone statusTone(String status) {
+    switch (status.toLowerCase().replaceAll('_', ' ')) {
+      case 'solved':
+      case 'resolved':
+        return AdminTone.green;
+      case 'inprogress':
+      case 'in progress':
+      case 'responding':
+        return AdminTone.blue;
+      case 'spam':
+        return AdminTone.slate;
+      default:
+        return AdminTone.yellow;
+    }
+  }
+
+  /// The pill text for a stored report status, e.g. "IN PROGRESS".
+  @visibleForTesting
+  static String statusLabel(String status) =>
+      status.replaceAll('_', ' ').toUpperCase();
+
   @override
   State<AdminDashboardPage> createState() => _AdminDashboardPageState();
 }
@@ -338,7 +362,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       runSpacing: 8,
                       children: [
                         AdminPill(
-                          label: inc.status.toUpperCase(),
+                          label: AdminDashboardPage.statusLabel(inc.status),
                           tone: statusTone,
                         ),
                         if (isUrgent)
@@ -585,21 +609,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Icons.warning_amber_rounded;
   }
 
-  static AdminTone _statusTone(String status) {
-    switch (status.toLowerCase()) {
-      case 'solved':
-      case 'resolved':
-        return AdminTone.green;
-      case 'inprogress':
-      case 'in progress':
-      case 'responding':
-        return AdminTone.blue;
-      case 'spam':
-        return AdminTone.slate;
-      default:
-        return AdminTone.yellow;
-    }
-  }
+  static AdminTone _statusTone(String status) =>
+      AdminDashboardPage.statusTone(status);
 
   static bool _isUrgent(IncidentEntity inc) {
     return (inc.urgencyStatus ?? '').toLowerCase() == 'critical' ||
@@ -693,7 +704,7 @@ class _IncidentListItemState extends State<_IncidentListItem> {
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 140),
                   child: AdminPill(
-                    label: inc.status.toUpperCase(),
+                    label: AdminDashboardPage.statusLabel(inc.status),
                     tone: statusTone,
                   ),
                 ),
