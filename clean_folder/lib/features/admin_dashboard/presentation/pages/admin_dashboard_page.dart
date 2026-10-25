@@ -65,39 +65,43 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       SizedBox(height: 28),
 
                       // ── Live Stat Cards ──────────────────────────────────────
-                      GridView.count(
+                      GridView(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                        childAspectRatio: 1.5,
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: isDesktop ? 4 : (isTablet ? 2 : 1),
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 124,
+                        ),
                         children: [
                           StatCard(
                             title: "Incident Reports",
                             value: totalIncidents.toString(),
-                            icon: Icons.warning_amber_rounded,
+                            icon: Icons.description_outlined,
                             backgroundColor: AdminColors.primary,
                           ),
                           StatCard(
                             title: "Active Sirens",
                             value: activeSirens.toString(),
-                            icon: Icons.emergency_share_rounded,
+                            icon: Icons.campaign_rounded,
                             backgroundColor: activeSirens > 0
                                 ? AdminColors.danger
                                 : AdminColors.borderHighlight,
+                            highlight: activeSirens > 0,
                           ),
                           StatCard(
                             title: "Solved Cases",
                             value: solvedCases.toString(),
-                            icon: Icons.check_circle_outline,
+                            icon: Icons.check_rounded,
                             backgroundColor: AdminColors.success,
                           ),
                           StatCard(
                             title: "Registered Citizens",
                             value: registeredUsers.toString(),
                             icon: Icons.people_alt_outlined,
-                            backgroundColor: AdminColors.violet,
+                            backgroundColor: AdminColors.cyan,
                           ),
                         ],
                       ),

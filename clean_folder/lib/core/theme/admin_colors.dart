@@ -28,6 +28,7 @@ class AdminColors {
   // ─── Text ─────────────────────────────────────────────────────────────────
   static const Color textStrong = Color(0xFFFFFFFF);
   static const Color textDark = Color(0xFFF1F5F9);
+  static const Color textBody = Color(0xFFE2E8F0);
   static const Color textSoft = Color(0xFFCBD5E1);
   static const Color textHint = Color(0xFF94A3B8);
   static const Color chartAxis = Color(0xFF94A3B8);
@@ -42,7 +43,9 @@ class AdminColors {
   static const Color cyan = Color(0xFF22D3EE);
   static const Color cyanSoft = Color(0xFF67E8F9);
   static const Color cyanText = Color(0xFFA5F3FC);
+  static const Color blue = Color(0xFF3B82F6);
   static const Color violet = Color(0xFF8B5CF6);
+  static const Color violetText = Color(0xFFC4B5FD);
   static const Color violetDeep = Color(0xFF7C3AED);
   static const Color violetLight = Color(0xFFA78BFA);
   static const Color violetMuted = Color(0xFF6D5BD0);
@@ -182,5 +185,17 @@ class AdminColors {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [Color(0xF51E2942), Color(0xF80F1422)],
+  );
+
+  /// Raised panels and the other admin dialogs.
+  static const Gradient panelGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xF21E2942), Color(0xF5111827)],
+  );
+
+  /// Primary actions: ResQuick blue, across.
+  static const Gradient primaryGradient = LinearGradient(
+    colors: [primary, primaryDeep],
   );
 }
