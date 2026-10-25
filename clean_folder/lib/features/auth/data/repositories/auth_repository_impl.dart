@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/error/failures.dart';
 import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
@@ -36,8 +37,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserEntity>> signInWithGoogle() async {
     try {
+      // On the web the person signs in inside a popup, which takes longer.
+      final limit = kIsWeb ? const Duration(minutes: 2) : const Duration(seconds: 10);
       final user = await _remoteDataSource.signInWithGoogle()
-          .timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException("Google sign in timed out. Please check your internet connection."));
+          .timeout(limit, onTimeout: () => throw TimeoutException("Google sign in timed out. Please check your internet connection."));
       return Right(user);
     } on FirebaseAuthException catch (e) {
       return Left(ServerFailure(e.message ?? e.code, code: e.code));
