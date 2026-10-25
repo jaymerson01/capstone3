@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_chip.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -101,5 +102,31 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Sunog'), findsNothing);
     expect(find.text('Walang ulat sa filter na ito.'), findsOneWidget);
+  });
+
+  testWidgets('the In Progress filter finds reports saved as in_progress',
+      (tester) async {
+    final repository = MockIncidentRepository();
+    when(() => repository.streamUserIncidents(any()))
+        .thenAnswer((_) => Stream.value([incident]));
+    sl.registerLazySingleton<IncidentRepository>(() => repository);
+
+    await pumpPage(tester, const MyReportsPage(), const Locale('en'));
+
+    // The admin portal saves the status as "in_progress".
+    await tester.tap(find.descendant(
+      of: find.byType(NeoChip),
+      matching: find.text('In Progress'),
+    ));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Fire Incident'), findsOneWidget);
+    expect(find.text('No reports found under this status filter.'), findsNothing);
+
+    await tester.tap(find.descendant(
+      of: find.byType(NeoChip),
+      matching: find.text('Pending'),
+    ));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('Fire Incident'), findsNothing);
   });
 }

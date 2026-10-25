@@ -286,9 +286,11 @@ class _MyReportsPageState extends State<MyReportsPage>
                                         incident.status.toLowerCase() ==
                                             "resolve";
                                   } else {
-                                    matchesStatus =
-                                        incident.status.toLowerCase() ==
-                                            selectedFilter.toLowerCase();
+                                    // The admin portal saves "in_progress".
+                                    matchesStatus = incident.status
+                                            .toLowerCase()
+                                            .replaceAll('_', ' ') ==
+                                        selectedFilter.toLowerCase();
                                   }
                                 }
                                 if (!matchesStatus) return false;
