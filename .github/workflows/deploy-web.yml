@@ -1,0 +1,59 @@
+name: Publish the web app
+
+# Publishes the resident app to GitHub Pages
+# (https://jaymerson01.github.io/capstone3/), so iPhone users can open it in
+# Safari and add it to their Home Screen.
+#
+# The site is public, so it is built without the Gemini key (.env is left
+# empty).
+on:
+  push:
+    branches: [feature/neo-tactile-ui]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: clean_folder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Create an empty .env (no keys on a public site)
+        run: touch .env
+
+      - run: flutter pub get
+
+      - name: Build the resident web app
+        run: flutter build web --release -t lib/main_resident.dart --base-href /capstone3/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: clean_folder/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
