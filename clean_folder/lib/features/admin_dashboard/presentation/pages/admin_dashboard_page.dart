@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
@@ -9,6 +8,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_player_dialog.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
+import '../widgets/admin_ui.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/custom_line_chart.dart';
 import '../widgets/custom_pie_chart.dart';
@@ -56,13 +56,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
                 return SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.all(24.0),
+                  padding: EdgeInsets.all(screenWidth >= 700 ? 28 : 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // ── Welcome Header ──────────────────────────────────────
                       _buildWelcomeHeader(),
-                      SizedBox(height: 28),
+                      SizedBox(height: 24),
 
                       // ── Live Stat Cards ──────────────────────────────────────
                       GridView(
@@ -105,7 +105,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 28),
+                      SizedBox(height: 22),
 
                       // ── Charts ──────────────────────────────────────────────
                       if (isDesktop)
@@ -116,7 +116,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               flex: 6,
                               child: CustomLineChart(incidents: incidents),
                             ),
-                            SizedBox(width: 20),
+                            SizedBox(width: 18),
                             Expanded(
                               flex: 4,
                               child: CustomPieChart(incidents: incidents),
@@ -125,14 +125,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         )
                       else
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             CustomLineChart(incidents: incidents),
-                            SizedBox(height: 20),
+                            SizedBox(height: 18),
                             CustomPieChart(incidents: incidents),
                           ],
                         ),
 
-                      SizedBox(height: 28),
+                      SizedBox(height: 22),
 
                       // ── Recent Urgent Incidents Table ───────────────────────
                       _buildRecentIncidentsCard(context, incidents),
@@ -150,139 +151,60 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _buildWelcomeHeader() {
     final now = DateTime.now();
-    return Container(
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AdminColors.surfaceDeep, AdminColors.heroEnd],
+    return AdminPageTitle(
+      title: "Barangay Moonwalk Command Center",
+      subtitle:
+          "Real-time community safety dispatch, municipal alerts, and telemetry overview.",
+      trailing: [
+        // Live status pill
+        const AdminLiveBadge(
+          label: "Command Center Online · Live Firestore Sync",
         ),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: AdminColors.primary.withValues(alpha: 0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AdminColors.primary.withValues(alpha: 0.12),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
+        // Date badge
+        Container(
+          padding: const EdgeInsets.fromLTRB(6, 6, 16, 6),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Barangay Moonwalk Command Center",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: AdminColors.textDark,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  "Real-time community safety dispatch, municipal alerts, and telemetry overview.",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AdminColors.textLight,
-                    height: 1.4,
-                  ),
-                ),
-                SizedBox(height: 12),
-                // Live status pill
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AdminColors.success.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AdminColors.success.withValues(alpha: 0.25),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const AdminIconTile(
+                icon: Icons.calendar_today_outlined,
+                tone: AdminTone.blue,
+                size: 34,
+              ),
+              SizedBox(width: 10),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${now.day}",
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: AdminColors.textStrong,
+                      height: 1.1,
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 7,
-                        height: 7,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AdminColors.success,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AdminColors.success.withValues(alpha: 0.6),
-                              blurRadius: 6,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 7),
-                      Text(
-                        "Command Center Online · Live Firestore Sync",
-                        style: TextStyle(
-                          color: AdminColors.success,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    _monthName(now.month),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AdminColors.textLight,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 20),
-          // Date badge
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            decoration: BoxDecoration(
-              color: AdminColors.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AdminColors.primary.withValues(alpha: 0.2),
+                ],
               ),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.calendar_today_outlined,
-                  size: 18,
-                  color: AdminColors.primary,
-                ),
-                SizedBox(height: 6),
-                Text(
-                  "${now.day}",
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: AdminColors.textDark,
-                  ),
-                ),
-                Text(
-                  _monthName(now.month),
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AdminColors.textLight,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -295,97 +217,23 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     final displayList = recentList.take(5).toList();
 
-    return Custom3dCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 22,
-      margin: EdgeInsets.zero,
+    return AdminPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AdminColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.bolt_outlined,
-                      color: AdminColors.primary,
-                      size: 18,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Recent Community Incidents",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: AdminColors.textDark,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        "Live stream of latest incoming citizen emergency reports",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AdminColors.textLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              TextButton.icon(
-                onPressed: widget.onViewAllReports,
-                icon: Icon(
-                  Icons.arrow_forward,
-                  size: 14,
-                  color: AdminColors.primary,
-                ),
-                label: Text(
-                  "View All in Dispatch",
-                  style: TextStyle(
-                    color: AdminColors.primary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
+          const AdminSectionTitle(
+            icon: Icons.bolt_outlined,
+            tone: AdminTone.cyan,
+            title: "Recent Community Incidents",
+            subtitle: "Live stream of latest incoming citizen emergency reports",
           ),
           SizedBox(height: 16),
-          Container(height: 1, color: AdminColors.border),
-          SizedBox(height: 12),
 
           if (displayList.isEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 36),
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.check_circle_outline,
-                    color: AdminColors.success.withValues(alpha: 0.5),
-                    size: 40,
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "No active or pending incident reports",
-                    style: TextStyle(
-                      color: AdminColors.textLight,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
+            const Center(
+              child: AdminEmptyState(
+                icon: Icons.check_circle_outline,
+                title: "No active or pending incident reports",
               ),
             )
           else
@@ -393,11 +241,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: displayList.length,
-              separatorBuilder: (context, index) => Container(
-                height: 1,
-                color: AdminColors.border,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-              ),
+              separatorBuilder: (context, index) => SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final incident = displayList[index];
                 return _IncidentListItem(
@@ -406,383 +250,295 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 );
               },
             ),
+          SizedBox(height: 12),
+          TextButton(
+            onPressed: widget.onViewAllReports,
+            style: ButtonStyle(
+              padding: const WidgetStatePropertyAll(
+                EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              ),
+              minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
+              foregroundColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.hovered)
+                    ? AdminColors.textStrong
+                    : AdminColors.primaryText,
+              ),
+              overlayColor: WidgetStatePropertyAll(
+                AdminColors.primary.withValues(alpha: 0.1),
+              ),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    "View All in Dispatch",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                SizedBox(width: 6),
+                Icon(Icons.arrow_forward_rounded, size: 15),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
   void _showIncidentDetailModal(BuildContext context, IncidentEntity inc) {
-    final statusColor = _statusColor(inc.status);
-    final isUrgent = (inc.urgencyStatus ?? '').toLowerCase() == 'critical' ||
-        (inc.urgencyStatus ?? '').toLowerCase() == 'high';
+    final statusTone = _statusTone(inc.status);
+    final isUrgent = _isUrgent(inc);
 
     showDialog(
       context: context,
       builder: (dialogCtx) {
-        return Dialog(
-          backgroundColor: AdminColors.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-            side: const BorderSide(color: AdminColors.border),
-          ),
-          child: Container(
-            width: 540,
-            padding: const EdgeInsets.all(26),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return AdminDialog(
+          // Top Title & Close
+          icon: _categoryIcon(inc.category),
+          tone: statusTone,
+          title: inc.category,
+          subtitle:
+              "Report ID: ${inc.id.length > 10 ? inc.id.substring(0, 10) : inc.id}",
+          onClose: () => Navigator.pop(dialogCtx),
+          maxWidth: 540,
+          // Action buttons
+          actions: [
+            AdminButton(
+              label: "Close",
+              style: AdminButtonStyle.ghost,
+              onPressed: () => Navigator.pop(dialogCtx),
+            ),
+            AdminButton(
+              label: "Manage in Dispatch",
+              icon: Icons.open_in_new,
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                if (widget.onViewAllReports != null) {
+                  widget.onViewAllReports!();
+                }
+              },
+            ),
+          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Urgency and Status Tags
+              Row(
                 children: [
-                  // Top Title & Close
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: statusColor.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              _categoryIcon(inc.category),
-                              color: statusColor,
-                              size: 20,
-                            ),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        AdminPill(
+                          label: inc.status.toUpperCase(),
+                          tone: statusTone,
+                        ),
+                        if (isUrgent)
+                          const AdminPill(
+                            label: "HIGH PRIORITY",
+                            tone: AdminTone.red,
+                            solid: true,
                           ),
-                          SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                inc.category,
-                                style: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.w900,
-                                  color: AdminColors.textDark,
-                                ),
-                              ),
-                              Text(
-                                "Report ID: ${inc.id.length > 10 ? inc.id.substring(0, 10) : inc.id}",
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: AdminColors.textLight,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: AdminColors.textLight),
-                        onPressed: () => Navigator.pop(dialogCtx),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 18),
-                  Divider(color: AdminColors.border),
-                  SizedBox(height: 14),
-
-                  // Urgency and Status Tags
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: statusColor.withValues(alpha: 0.35),
-                          ),
-                        ),
-                        child: Text(
-                          inc.status.toUpperCase(),
-                          style: TextStyle(
-                            color: statusColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      if (isUrgent)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AdminColors.danger.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color:
-                                  AdminColors.danger.withValues(alpha: 0.35),
-                            ),
-                          ),
-                          child: Text(
-                            "HIGH PRIORITY",
-                            style: TextStyle(
-                              color: AdminColors.danger,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      const Spacer(),
-                      Text(
-                        "${inc.upvoteCount} Corroborated",
-                        style: const TextStyle(
-                          color: AdminColors.cyan,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-
-                  // Description
+                  SizedBox(width: 10),
                   Text(
-                    "Citizen Description",
-                    style: TextStyle(
+                    "${inc.upvoteCount} Corroborated",
+                    style: const TextStyle(
+                      color: AdminColors.cyanText,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: AdminColors.textLight,
                     ),
                   ),
-                  SizedBox(height: 6),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AdminColors.background,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AdminColors.border),
-                    ),
-                    child: Text(
-                      inc.description.isEmpty
-                          ? "No narrative provided."
-                          : inc.description,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AdminColors.textDark,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 14),
+                ],
+              ),
+              SizedBox(height: 18),
 
-                  // Location & Reporter Details
-                  _modalDetailRow(
-                    Icons.location_on_outlined,
-                    "Location",
-                    inc.resolvedAddress ??
-                        inc.areaSector ??
-                        "GPS (${inc.latitude.toStringAsFixed(4)}, ${inc.longitude.toStringAsFixed(4)})",
-                  ),
-                  SizedBox(height: 8),
-                  _modalDetailRow(
-                    Icons.person_outline,
-                    "Reporter",
-                    inc.isAnonymous
-                        ? "Anonymous Citizen"
-                        : (inc.reporterName ?? inc.reporterEmail ?? inc.reporterId),
-                  ),
-                  SizedBox(height: 8),
-                  _modalDetailRow(
-                    Icons.access_time_rounded,
-                    "Reported At",
-                    "${inc.timestamp.day}/${inc.timestamp.month}/${inc.timestamp.year} ${inc.timestamp.hour.toString().padLeft(2, '0')}:${inc.timestamp.minute.toString().padLeft(2, '0')}",
-                  ),
-
-                  // Evidence preview if present
-                  if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
-                    SizedBox(height: 14),
-                    Text(
-                      "Photo Evidence",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AdminColors.textLight,
-                      ),
+              // Description
+              const AdminFieldLabel("Citizen Description"),
+              SizedBox(
+                width: double.infinity,
+                child: AdminInset(
+                  padding: const EdgeInsets.all(14),
+                  child: Text(
+                    inc.description.isEmpty
+                        ? "No narrative provided."
+                        : inc.description,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AdminColors.textDark,
+                      height: 1.45,
                     ),
-                    SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () {
-                        InAppImageViewerDialog.show(
-                          context,
-                          imageUrl: inc.photoUrl!,
-                          title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Photo Evidence",
-                        );
-                      },
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: Tooltip(
-                          message: "Click to open full resolution viewer",
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              inc.photoUrl!,
-                              height: 180,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, stack) {
-                                return Container(
-                                  height: 80,
-                                  color: AdminColors.background,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "Unable to load evidence image",
-                                    style: TextStyle(
-                                      color: AdminColors.textLight,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 12),
+
+              // Location & Reporter Details
+              SizedBox(
+                width: double.infinity,
+                child: AdminInset(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _modalDetailRow(
+                        Icons.location_on_outlined,
+                        "Location",
+                        inc.resolvedAddress ??
+                            inc.areaSector ??
+                            "GPS (${inc.latitude.toStringAsFixed(4)}, ${inc.longitude.toStringAsFixed(4)})",
+                      ),
+                      SizedBox(height: 10),
+                      _modalDetailRow(
+                        Icons.person_outline,
+                        "Reporter",
+                        inc.isAnonymous
+                            ? "Anonymous Citizen"
+                            : (inc.reporterName ?? inc.reporterEmail ?? inc.reporterId),
+                      ),
+                      SizedBox(height: 10),
+                      _modalDetailRow(
+                        Icons.access_time_rounded,
+                        "Reported At",
+                        "${inc.timestamp.day}/${inc.timestamp.month}/${inc.timestamp.year} ${inc.timestamp.hour.toString().padLeft(2, '0')}:${inc.timestamp.minute.toString().padLeft(2, '0')}",
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Evidence preview if present
+              if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
+                SizedBox(height: 18),
+                const AdminFieldLabel("Photo Evidence"),
+                GestureDetector(
+                  onTap: () {
+                    InAppImageViewerDialog.show(
+                      context,
+                      imageUrl: inc.photoUrl!,
+                      title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Photo Evidence",
+                    );
+                  },
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Tooltip(
+                      message: "Click to open full resolution viewer",
+                      child: Container(
+                        foregroundDecoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-
-                  if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
-                    SizedBox(height: 14),
-                    Text(
-                      "Video Evidence",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AdminColors.textLight,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: AdminColors.background,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AdminColors.primary.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.videocam_rounded, color: AdminColors.primary, size: 22),
-                          SizedBox(width: 10),
-                          const Expanded(
-                            child: Text(
-                              "Video Recording Attached",
-                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AdminColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                            icon: Icon(Icons.play_arrow_rounded, size: 16),
-                            label: Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                            onPressed: () {
-                              InAppEvidencePlayerDialog.show(
-                                context,
-                                videoUrl: inc.videoUrl!,
-                                title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Video Evidence",
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: Image.network(
+                            inc.photoUrl!,
+                            height: 180,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (ctx, err, stack) {
+                              return Container(
+                                height: 80,
+                                color: AdminColors.well,
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "Unable to load evidence image",
+                                  style: TextStyle(
+                                    color: AdminColors.textLight,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               );
                             },
                           ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  if (inc.dispatcherNotes != null &&
-                      inc.dispatcherNotes!.isNotEmpty) ...[
-                    SizedBox(height: 14),
-                    Text(
-                      "Dispatcher Remarks",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AdminColors.cyan,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AdminColors.cyan.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AdminColors.cyan.withValues(alpha: 0.25),
-                        ),
-                      ),
-                      child: Text(
-                        inc.dispatcherNotes!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AdminColors.textDark,
-                          height: 1.4,
                         ),
                       ),
                     ),
-                  ],
+                  ),
+                ),
+              ],
 
-                  SizedBox(height: 22),
-                  // Action buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+              if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
+                SizedBox(height: 18),
+                const AdminFieldLabel("Video Evidence"),
+                AdminInset(
+                  tone: AdminTone.blue,
+                  padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                  child: Row(
                     children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(dialogCtx),
-                        child: Text(
-                          "Close",
-                          style: TextStyle(color: AdminColors.textLight),
-                        ),
+                      const AdminIconTile(
+                        icon: Icons.videocam_rounded,
+                        tone: AdminTone.blue,
+                        size: 34,
                       ),
-                      SizedBox(width: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(dialogCtx);
-                          if (widget.onViewAllReports != null) {
-                            widget.onViewAllReports!();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AdminColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
-                          ),
-                        ),
-                        icon: Icon(
-                          Icons.open_in_new,
-                          size: 16,
-                          color: Colors.white,
-                        ),
-                        label: Text(
-                          "Manage in Dispatch",
+                      SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          "Video Recording Attached",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white,
+                            color: AdminColors.textStrong,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
+                      SizedBox(width: 10),
+                      AdminButton(
+                        label: "Play In-App",
+                        icon: Icons.play_arrow_rounded,
+                        height: 38,
+                        onPressed: () {
+                          InAppEvidencePlayerDialog.show(
+                            context,
+                            videoUrl: inc.videoUrl!,
+                            title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Video Evidence",
+                          );
+                        },
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              ],
+
+              if (inc.dispatcherNotes != null &&
+                  inc.dispatcherNotes!.isNotEmpty) ...[
+                SizedBox(height: 18),
+                const AdminFieldLabel("Dispatcher Remarks"),
+                SizedBox(
+                  width: double.infinity,
+                  child: AdminInset(
+                    tone: AdminTone.cyan,
+                    padding: const EdgeInsets.all(14),
+                    child: Text(
+                      inc.dispatcherNotes!,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AdminColors.textDark,
+                        height: 1.45,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              SizedBox(height: 4),
+            ],
           ),
         );
       },
@@ -791,26 +547,26 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Widget _modalDetailRow(IconData icon, String title, String value) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: AdminColors.textLight),
-        SizedBox(width: 8),
+        Icon(icon, size: 16, color: AdminColors.textHint),
+        SizedBox(width: 10),
         Text(
           "$title: ",
           style: const TextStyle(
-            fontSize: 12,
+            fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: AdminColors.textLight,
+            color: AdminColors.textHint,
           ),
         ),
         Expanded(
           child: Text(
             value,
             style: const TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: AdminColors.textDark,
             ),
+            maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -829,20 +585,25 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Icons.warning_amber_rounded;
   }
 
-  static Color _statusColor(String status) {
+  static AdminTone _statusTone(String status) {
     switch (status.toLowerCase()) {
       case 'solved':
       case 'resolved':
-        return AdminColors.success;
+        return AdminTone.green;
       case 'inprogress':
       case 'in progress':
       case 'responding':
-        return AdminColors.cyan;
+        return AdminTone.blue;
       case 'spam':
-        return AdminColors.critical;
+        return AdminTone.slate;
       default:
-        return AdminColors.amber;
+        return AdminTone.yellow;
     }
+  }
+
+  static bool _isUrgent(IncidentEntity inc) {
+    return (inc.urgencyStatus ?? '').toLowerCase() == 'critical' ||
+        (inc.urgencyStatus ?? '').toLowerCase() == 'high';
   }
 
   static String _monthName(int month) {
@@ -870,7 +631,8 @@ class _IncidentListItemState extends State<_IncidentListItem> {
   @override
   Widget build(BuildContext context) {
     final inc = widget.incident;
-    final statusClr = _AdminDashboardPageState._statusColor(inc.status);
+    final statusTone = _AdminDashboardPageState._statusTone(inc.status);
+    final bool isUrgent = _AdminDashboardPageState._isUrgent(inc);
     final date = inc.timestamp;
 
     return MouseRegion(
@@ -881,77 +643,62 @@ class _IncidentListItemState extends State<_IncidentListItem> {
         onTap: widget.onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: _hovered
-                ? AdminColors.primary.withValues(alpha: 0.08)
+                ? (isUrgent ? AdminColors.critical : AdminColors.primary)
+                      .withValues(alpha: 0.08)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: statusClr.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: statusClr.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+          child: AdminInset(
+            tone: isUrgent ? AdminTone.red : null,
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                AdminIconTile(
+                  icon: _AdminDashboardPageState._categoryIcon(inc.category),
+                  tone: statusTone,
+                  size: 40,
                 ),
-                child: Icon(
-                  _AdminDashboardPageState._categoryIcon(inc.category),
-                  color: statusClr,
-                  size: 19,
-                ),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "${inc.category} — ${BarangaySectorHelper.normalizeSector(inc.areaSector, inc.resolvedAddress)}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: AdminColors.textDark,
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${inc.category} — ${BarangaySectorHelper.normalizeSector(inc.areaSector, inc.resolvedAddress)}",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          color: AdminColors.textStrong,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 3),
-                    Text(
-                      "By ${inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? 'Citizen')} · ${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AdminColors.textLight,
+                      SizedBox(height: 3),
+                      Text(
+                        "By ${inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? 'Citizen')} · ${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AdminColors.textLight,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusClr.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: statusClr.withValues(alpha: 0.3)),
-                ),
-                child: Text(
-                  inc.status.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: statusClr,
+                    ],
                   ),
                 ),
-              ),
-            ],
+                SizedBox(width: 10),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 140),
+                  child: AdminPill(
+                    label: inc.status.toUpperCase(),
+                    tone: statusTone,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

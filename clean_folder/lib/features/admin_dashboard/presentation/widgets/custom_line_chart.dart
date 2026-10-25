@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'admin_ui.dart';
 
 class CustomLineChart extends StatelessWidget {
   final List<IncidentEntity> incidents;
@@ -55,120 +56,52 @@ class CustomLineChart extends StatelessWidget {
 
     final dayLabels = days.map((d) => _dayAbbr(d.weekday)).toList();
 
-    return Container(
-      height: 310,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: AdminColors.cardBackground,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: AdminColors.border.withValues(alpha: 0.8),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AdminColors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: AdminColors.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.show_chart_rounded,
-                      color: AdminColors.primary,
-                      size: 18,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Incident Frequency Trend",
-                        style: TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          color: AdminColors.textDark,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        "Daily report volume (Past 7 Days)",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AdminColors.textLight,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: AdminColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: AdminColors.primary.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Text(
-                  "${incidents.length} Total Logs",
-                  style: TextStyle(color: AdminColors.primary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 18),
-          Expanded(
-            child: CustomPaint(
-              size: Size.infinite,
-              painter: _OledLineChartPainter(
-                totalCounts: totalCounts,
-                urgentCounts: urgentCounts,
-                solvedCounts: solvedCounts,
-                dayLabels: dayLabels,
-                maxValue: maxVal,
+    return SizedBox(
+      height: 330,
+      child: AdminPanel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _ChartHeader(
+              icon: Icons.show_chart_rounded,
+              tone: AdminTone.blue,
+              title: "Incident Frequency Trend",
+              subtitle: "Daily report volume (Past 7 Days)",
+              inlineMinWidth: 400,
+              trailing: AdminPill(
+                label: "${incidents.length} Total Logs",
+                tone: AdminTone.blue,
               ),
             ),
-          ),
-          SizedBox(height: 12),
-          // Chart Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _legendItem("Total Reports", AdminColors.cyan),
-              SizedBox(width: 20),
-              _legendItem("Urgent / Critical", AdminColors.danger),
-              SizedBox(width: 20),
-              _legendItem("Resolved Cases", AdminColors.success),
-            ],
-          ),
-        ],
+            SizedBox(height: 18),
+            Expanded(
+              child: CustomPaint(
+                size: Size.infinite,
+                painter: _OledLineChartPainter(
+                  totalCounts: totalCounts,
+                  urgentCounts: urgentCounts,
+                  solvedCounts: solvedCounts,
+                  dayLabels: dayLabels,
+                  maxValue: maxVal,
+                ),
+              ),
+            ),
+            SizedBox(height: 12),
+            // Chart Legend
+            Center(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 18,
+                runSpacing: 8,
+                children: [
+                  _legendItem("Total Reports", AdminColors.cyan),
+                  _legendItem("Urgent / Critical", AdminColors.danger),
+                  _legendItem("Resolved Cases", AdminColors.success),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -192,12 +125,12 @@ class CustomLineChart extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: 7),
+        SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 11,
-            color: AdminColors.chartAxis,
+            fontSize: 12,
+            color: AdminColors.textSoft,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -257,7 +190,7 @@ class _OledLineChartPainter extends CustomPainter {
       textPainter.text = TextSpan(
         text: labelVal.round().toString(),
         style: const TextStyle(
-          color: AdminColors.textMuted,
+          color: AdminColors.chartAxis,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
@@ -274,7 +207,7 @@ class _OledLineChartPainter extends CustomPainter {
         style: TextStyle(
           color: i == dayLabels.length - 1
               ? AdminColors.cyan
-              : AdminColors.textMuted,
+              : AdminColors.chartAxis,
           fontSize: 10,
           fontWeight: i == dayLabels.length - 1
               ? FontWeight.w800
@@ -416,4 +349,59 @@ class _OledLineChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _OledLineChartPainter oldDelegate) => true;
+}
+
+/// The chart panel heading: an icon tile, the title and its line, with
+/// [trailing] on the right, or under the title when the panel is narrower
+/// than [inlineMinWidth].
+class _ChartHeader extends StatelessWidget {
+  const _ChartHeader({
+    required this.icon,
+    required this.tone,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
+    this.inlineMinWidth = 400,
+  });
+
+  final IconData icon;
+  final AdminTone tone;
+  final String title;
+  final String subtitle;
+  final Widget trailing;
+  final double inlineMinWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= inlineMinWidth) {
+          return AdminSectionTitle(
+            icon: icon,
+            tone: tone,
+            title: title,
+            subtitle: subtitle,
+            trailing: trailing,
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AdminSectionTitle(
+              icon: icon,
+              tone: tone,
+              title: title,
+              subtitle: subtitle,
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(left: 48),
+              child: trailing,
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

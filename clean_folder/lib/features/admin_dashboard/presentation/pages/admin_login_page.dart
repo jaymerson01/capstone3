@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
+import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.dart';
+import 'package:community_safety_app/core/presentation/neo/outer_shadow.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 class AdminLoginPage extends StatefulWidget {
   final String? initialErrorMessage;
@@ -137,68 +137,19 @@ class _AdminLoginPageState extends State<AdminLoginPage>
     showDialog(
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
-        builder: (dialogStateContext, setDialogState) => AlertDialog(
-          backgroundColor: AdminColors.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: AdminColors.border),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AdminColors.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(Icons.lock_reset_rounded,
-                    color: AdminColors.primary, size: 22),
-              ),
-              SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  "Reset Admin Password",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Enter your registered municipal admin email address. We will dispatch a secure Google password reset link directly to your inbox.",
-                style: TextStyle(
-                    color: AdminColors.textHint, fontSize: 12.5, height: 1.4),
-              ),
-              SizedBox(height: 16),
-              Custom3dTextField(
-                controller: resetEmailController,
-                labelText: "Admin Email",
-                hintText: "admin@example.com",
-                prefixIcon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-              ),
-            ],
-          ),
+        builder: (dialogStateContext, setDialogState) => AdminDialog(
+          title: "Reset Admin Password",
+          icon: Icons.lock_reset_rounded,
+          maxWidth: 460,
           actions: [
-            TextButton(
+            AdminButton(
+              label: "Cancel",
+              style: AdminButtonStyle.ghost,
               onPressed: isSending ? null : () => Navigator.pop(dialogCtx),
-              child: Text("Cancel",
-                  style: TextStyle(color: AdminColors.textLight)),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AdminColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
+            AdminButton(
+              label: "Send Reset Link",
+              busy: isSending,
               onPressed: isSending
                   ? null
                   : () async {
@@ -237,16 +188,34 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                         );
                       }
                     },
-              child: isSending
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
-                  : Text("Send Reset Link"),
             ),
           ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Enter your registered municipal admin email address. We will dispatch a secure Google password reset link directly to your inbox.",
+                style: TextStyle(
+                  color: AdminColors.textSoft,
+                  fontSize: 13,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 18),
+              const AdminFieldLabel("Admin Email"),
+              TextField(
+                controller: resetEmailController,
+                keyboardType: TextInputType.emailAddress,
+                style: adminInputText,
+                cursorColor: AdminColors.cyan,
+                decoration: adminInputDecoration(
+                  hint: "admin@example.com",
+                  icon: Icons.email_outlined,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -254,192 +223,312 @@ class _AdminLoginPageState extends State<AdminLoginPage>
 
   @override
   Widget build(BuildContext context) {
+    final bool narrow = MediaQuery.of(context).size.width < 420;
+
     return Scaffold(
       backgroundColor: AdminColors.background,
       body: Stack(
         children: [
           // ── Animated Background ──────────────────────────────────────────
-          AnimatedBuilder(
-            animation: _bgController,
-            builder: (context, _) {
-              return Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                        gradient: AppColors.commandGradient),
-                  ),
-                  // Ambient orbs
-                  Positioned(
-                    top: -60 + (50 * _bgController.value),
-                    right: -40,
-                    child: _Orb(
-                        size: 300,
-                        color: AdminColors.primary.withValues(alpha: 0.08)),
-                  ),
-                  Positioned(
-                    bottom: -80,
-                    left: -60 + (30 * (1 - _bgController.value)),
-                    child: _Orb(
-                        size: 350,
-                        color: AdminColors.cyan.withValues(alpha: 0.06)),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height * 0.5,
-                    right: MediaQuery.of(context).size.width * 0.15,
-                    child: _Orb(
-                        size: 200,
-                        color: AdminColors.violet.withValues(alpha: 0.05)),
-                  ),
-                  // Grid
-                  CustomPaint(
-                    size: Size(
-                      MediaQuery.of(context).size.width,
-                      MediaQuery.of(context).size.height,
-                    ),
-                    painter: _GridPainter(),
-                  ),
-                ],
-              );
-            },
+          // The night landscape, with slow ambient glows drifting over it.
+          const Positioned.fill(
+            child: RepaintBoundary(
+              child: LandscapeBackdrop(time: LandscapeTime.night),
+            ),
+          ),
+          Positioned.fill(
+            child: RepaintBoundary(
+              child: AnimatedBuilder(
+                animation: _bgController,
+                builder: (context, _) {
+                  return Stack(
+                    children: [
+                      // Ambient orbs
+                      Positioned(
+                        top: -60 + (50 * _bgController.value),
+                        right: -40,
+                        child: _Orb(
+                            size: 300,
+                            color: AdminColors.primary.withValues(alpha: 0.12)),
+                      ),
+                      Positioned(
+                        bottom: -80,
+                        left: -60 + (30 * (1 - _bgController.value)),
+                        child: _Orb(
+                            size: 350,
+                            color: AdminColors.cyan.withValues(alpha: 0.06)),
+                      ),
+                      Positioned(
+                        top: MediaQuery.of(context).size.height * 0.5,
+                        right: MediaQuery.of(context).size.width * 0.15,
+                        child: _Orb(
+                            size: 200,
+                            color: AdminColors.cyanText.withValues(alpha: 0.06)),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
 
           // ── Main Content ─────────────────────────────────────────────────
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
                 child: FadeTransition(
                   opacity: _cardFade,
                   child: SlideTransition(
                     position: _cardSlide,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Back button (if accessible from navigation stack)
-                        if (Navigator.canPop(context))
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: TextButton.icon(
-                              onPressed: () => Navigator.pop(context),
-                              icon: Icon(Icons.arrow_back,
-                                  size: 16, color: AdminColors.textLight),
-                              label: Text(
-                                "Back",
-                                style: TextStyle(
-                                  color: AdminColors.textLight,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 460),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Back button (if accessible from navigation stack)
+                          if (Navigator.canPop(context))
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: AdminButton(
+                                label: "Back",
+                                icon: Icons.arrow_back,
+                                style: AdminButtonStyle.ghost,
+                                height: 38,
+                                onPressed: () => Navigator.pop(context),
                               ),
                             ),
-                          ),
-                        SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
-                        // Admin shield icon
-                        Container(
-                          width: 90,
-                          height: 90,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [AdminColors.primary, AdminColors.cyanSoft],
-                            ),
-                            boxShadow: [
+                          // Admin logo tile
+                          const _LogoTile(),
+                          const SizedBox(height: 22),
+
+                          // ── Glass Card Form ─────────────────────────────────
+                          OuterShadow(
+                            borderRadius: BorderRadius.circular(30),
+                            shadows: [
                               BoxShadow(
-                                color: AdminColors.primary.withValues(alpha: 0.45),
-                                blurRadius: 28,
-                                spreadRadius: 4,
+                                color: AdminColors.cyan.withValues(alpha: 0.18),
+                                spreadRadius: 1,
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.45),
+                                blurRadius: 70,
+                                offset: const Offset(0, 30),
                               ),
                             ],
-                          ),
-                          child: Icon(
-                            Icons.admin_panel_settings,
-                            color: Colors.white,
-                            size: 44,
-                          ),
-                        ),
-                        SizedBox(height: 20),
-
-                        ShaderMask(
-                          shaderCallback: (bounds) =>
-                              AppColors.cyanGradient.createShader(bounds),
-                          blendMode: BlendMode.srcIn,
-                          child: Text(
-                            "ADMIN PORTAL",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 28,
-                              letterSpacing: 4,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Text(
-                          "Barangay Safety & Incident Command Center",
-                          style: TextStyle(
-                            color: AdminColors.textLight,
-                            fontSize: 13,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 28),
-
-                        // ── Glass Card Form ─────────────────────────────────
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 480),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(
-                                  sigmaX: 16, sigmaY: 16),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.06),
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.1),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                    sigmaX: 18, sigmaY: 18),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        AdminColors.surfaceDeep
+                                            .withValues(alpha: 0.5),
+                                        AdminColors.surfaceDeep
+                                            .withValues(alpha: 0.62),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.4),
+                                      width: 1.5,
+                                    ),
                                   ),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 32, vertical: 36),
-                                child: Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Error alert
-                                      if (_errorMessage != null) ...[
-                                        Container(
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.all(14),
-                                          margin: const EdgeInsets.only(
-                                              bottom: 16),
-                                          decoration: BoxDecoration(
-                                            color: AdminColors.danger
-                                                .withValues(alpha: 0.1),
-                                            borderRadius:
-                                                BorderRadius.circular(14),
-                                            border: Border.all(
-                                              color: AdminColors.danger
-                                                  .withValues(alpha: 0.3),
+                                  padding: narrow
+                                      ? const EdgeInsets.fromLTRB(22, 28, 22, 24)
+                                      : const EdgeInsets.fromLTRB(30, 34, 30, 30),
+                                  child: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          "ADMIN PORTAL",
+                                          style: TextStyle(
+                                            color: AdminColors.textStrong,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 28,
+                                            letterSpacing: 1.5,
+                                            height: 1.2,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        const Text(
+                                          "Barangay Safety & Incident Command Center",
+                                          style: TextStyle(
+                                            color: AdminColors.textBody,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 22),
+
+                                        // Error alert
+                                        if (_errorMessage != null) ...[
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 16),
+                                            child: AdminInset(
+                                              tone: AdminTone.red,
+                                              radius: 14,
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Icon(Icons.error_outline,
+                                                      color: AdminColors.dangerSoft,
+                                                      size: 18),
+                                                  const SizedBox(width: 10),
+                                                  Expanded(
+                                                    child: Text(
+                                                      _errorMessage!,
+                                                      style: const TextStyle(
+                                                        color: AdminColors.dangerText,
+                                                        fontSize: 12.5,
+                                                        fontWeight: FontWeight.w600,
+                                                        height: 1.4,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
+                                        ],
+
+                                        const AdminFieldLabel("Admin Email"),
+                                        TextFormField(
+                                          controller: _emailController,
+                                          keyboardType:
+                                              TextInputType.emailAddress,
+                                          style: adminInputText,
+                                          cursorColor: AdminColors.cyan,
+                                          decoration: _glassInputDecoration(
+                                            hint: "e.g. dispatcher@gmail.com",
+                                            icon: Icons.email_outlined,
+                                          ),
+                                          validator: (v) {
+                                            if (v == null || v.isEmpty) {
+                                              return "Email required.";
+                                            }
+                                            if (!RegExp(
+                                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                                .hasMatch(v)) {
+                                              return "Enter valid email.";
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                        const SizedBox(height: 16),
+
+                                        const AdminFieldLabel("Admin Password"),
+                                        TextFormField(
+                                          controller: _passwordController,
+                                          obscureText: _obscurePassword,
+                                          style: adminInputText,
+                                          cursorColor: AdminColors.cyan,
+                                          decoration: _glassInputDecoration(
+                                            hint: "Enter secure password",
+                                            icon: Icons.lock_outline,
+                                            suffix: IconButton(
+                                              icon: Icon(
+                                                _obscurePassword
+                                                    ? Icons.visibility_off_outlined
+                                                    : Icons.visibility_outlined,
+                                                color: AdminColors.textSoft,
+                                                size: 20,
+                                              ),
+                                              onPressed: () => setState(() =>
+                                                  _obscurePassword =
+                                                      !_obscurePassword),
+                                            ),
+                                          ),
+                                          validator: (v) {
+                                            if (v == null || v.isEmpty) {
+                                              return "Password required.";
+                                            }
+                                            return null;
+                                          },
+                                        ),
+
+                                        const SizedBox(height: 8),
+
+                                        // Forgot Password trigger
+                                        Align(
+                                          alignment: Alignment.centerRight,
+                                          child: TextButton(
+                                            onPressed: _isLoading
+                                                ? null
+                                                : _showForgotPasswordDialog,
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  AdminColors.cyanText,
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 4, vertical: 2),
+                                              visualDensity: VisualDensity.compact,
+                                            ),
+                                            child: const Text(
+                                              "Forgot Password?",
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                        const SizedBox(height: 12),
+
+                                        AdminButton(
+                                          label: _isLoading
+                                              ? "VERIFYING..."
+                                              : "LOGIN TO DASHBOARD",
+                                          icon: _isLoading
+                                              ? null
+                                              : Icons.login_rounded,
+                                          busy: _isLoading,
+                                          height: 56,
+                                          expand: true,
+                                          debounce: true,
+                                          onPressed: _isLoading
+                                              ? null
+                                              : _handleLogin,
+                                        ),
+
+                                        const SizedBox(height: 20),
+
+                                        // Municipal Security Notice
+                                        const AdminInset(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 14, vertical: 12),
+                                          radius: 14,
                                           child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Icon(Icons.error_outline,
-                                                  color: AdminColors.danger,
-                                                  size: 18),
+                                              Icon(
+                                                Icons.shield_outlined,
+                                                color: AdminColors.success,
+                                                size: 18,
+                                              ),
                                               SizedBox(width: 10),
                                               Expanded(
                                                 child: Text(
-                                                  _errorMessage!,
-                                                  style: TextStyle(color: AdminColors.danger,
+                                                  "Authorized municipal personnel only. All access attempts are recorded.",
+                                                  style: TextStyle(
+                                                    color: AdminColors.textBody,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
+                                                    height: 1.45,
                                                   ),
                                                 ),
                                               ),
@@ -447,137 +536,14 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                           ),
                                         ),
                                       ],
-
-                                      Custom3dTextField(
-                                        controller: _emailController,
-                                        labelText: "Admin Email",
-                                        hintText: "e.g. dispatcher@gmail.com",
-                                        prefixIcon: Icons.email_outlined,
-                                        keyboardType:
-                                            TextInputType.emailAddress,
-                                        validator: (v) {
-                                          if (v == null || v.isEmpty) {
-                                            return "Email required.";
-                                          }
-                                          if (!RegExp(
-                                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                              .hasMatch(v)) {
-                                            return "Enter valid email.";
-                                          }
-                                          return null;
-                                        },
-                                      ),
-
-                                      Custom3dTextField(
-                                        controller: _passwordController,
-                                        labelText: "Admin Password",
-                                        hintText: "Enter secure password",
-                                        prefixIcon: Icons.lock_outline,
-                                        obscureText: _obscurePassword,
-                                        suffixIcon: IconButton(
-                                          icon: Icon(
-                                            _obscurePassword
-                                                ? Icons.visibility_off_outlined
-                                                : Icons.visibility_outlined,
-                                            color: AdminColors.textLight,
-                                            size: 20,
-                                          ),
-                                          onPressed: () => setState(() =>
-                                              _obscurePassword =
-                                                  !_obscurePassword),
-                                        ),
-                                        validator: (v) {
-                                          if (v == null || v.isEmpty) {
-                                            return "Password required.";
-                                          }
-                                          return null;
-                                        },
-                                      ),
-
-                                      SizedBox(height: 4),
-
-                                      // Forgot Password trigger
-                                      Align(
-                                        alignment: Alignment.centerRight,
-                                        child: TextButton(
-                                          onPressed: _isLoading
-                                              ? null
-                                              : _showForgotPasswordDialog,
-                                          style: TextButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 4, vertical: 2),
-                                            visualDensity: VisualDensity.compact,
-                                          ),
-                                          child: Text(
-                                            "Forgot Password?",
-                                            style: TextStyle(
-                                              color: AdminColors.primary,
-                                              fontSize: 12.5,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      SizedBox(height: 12),
-
-                                      Custom3dButton(
-                                        text: _isLoading
-                                            ? "VERIFYING..."
-                                            : "LOGIN TO DASHBOARD",
-                                        icon: _isLoading
-                                            ? null
-                                            : Icons.login_rounded,
-                                        gradient: AppColors.primaryGradient,
-                                        onPressed: _isLoading
-                                            ? null
-                                            : _handleLogin,
-                                      ),
-
-                                      SizedBox(height: 20),
-
-                                      // Municipal Security Notice
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 14, vertical: 10),
-                                        decoration: BoxDecoration(
-                                          color: AdminColors.cardBackground,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          border: Border.all(
-                                            color: AdminColors.border,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.shield_outlined,
-                                              color: AdminColors.success,
-                                              size: 16,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Expanded(
-                                              child: Text(
-                                                "Authorized municipal personnel only. All access attempts are recorded.",
-                                                style: TextStyle(
-                                                  color: AdminColors.textLight,
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w500,
-                                                  height: 1.3,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -608,21 +574,86 @@ class _Orb extends StatelessWidget {
   }
 }
 
-class _GridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.025)
-      ..strokeWidth = 0.5;
-    const spacing = 50.0;
-    for (double x = 0; x < size.width; x += spacing) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += spacing) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
+/// The app logo as a rounded tile above the sign-in card. Falls back to the
+/// admin shield if the image can't load.
+class _LogoTile extends StatelessWidget {
+  const _LogoTile();
 
   @override
-  bool shouldRepaint(covariant CustomPainter old) => false;
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(18);
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 30,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Image.asset(
+          'assets/images/logo.png',
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => const DecoratedBox(
+            decoration: BoxDecoration(gradient: AdminColors.primaryGradient),
+            child: Center(
+              child: Icon(
+                Icons.admin_panel_settings,
+                color: Colors.white,
+                size: 34,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The sign-in fields: clear glass with a white edge, so they read on the
+/// smoked card over the night landscape (the admin input well, lightened).
+InputDecoration _glassInputDecoration({
+  required String hint,
+  required IconData icon,
+  Widget? suffix,
+}) {
+  OutlineInputBorder edge(Color color, [double width = 1.5]) {
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: color, width: width),
+    );
+  }
+
+  final Color rest = Colors.white.withValues(alpha: 0.5);
+
+  return InputDecoration(
+    hintText: hint,
+    hintStyle: const TextStyle(
+      color: AdminColors.textHint,
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+    ),
+    prefixIcon: Icon(icon, size: 20, color: AdminColors.textSoft),
+    suffixIcon: suffix,
+    errorStyle: const TextStyle(
+      color: AdminColors.dangerText,
+      fontSize: 12,
+      fontWeight: FontWeight.w600,
+    ),
+    filled: true,
+    fillColor: Colors.white.withValues(alpha: 0.07),
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
+    border: edge(rest),
+    enabledBorder: edge(rest),
+    focusedBorder: edge(AdminColors.cyan, 2),
+    errorBorder: edge(AdminColors.dangerSoft),
+    focusedErrorBorder: edge(AdminColors.dangerSoft, 2),
+  );
 }

@@ -7,7 +7,6 @@ import 'package:csv/csv.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
@@ -15,6 +14,7 @@ import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 enum ReportTimeframe { allTime, thisMonth, last30Days, thisWeek }
 
@@ -117,15 +117,15 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── Top Header & Actions Bar ───────────────────────────────
               _buildHeaderBar(context, filteredIncidents),
-              SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // ── Timeframe Selector Bar ─────────────────────────────────
               _buildTimeframeSelector(),
-              SizedBox(height: 24),
+              const SizedBox(height: 20),
 
               // ── KPI Summary Cards ──────────────────────────────────────
               _buildKpiCards(
@@ -138,28 +138,47 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 avgResponseSpeed: avgResponseSpeed,
                 responseSpeedSubtitle: responseSpeedSubtitle,
               ),
-              SizedBox(height: 28),
+              const SizedBox(height: 20),
 
               // ── Charts Row (Trend Curve & Sector Ranking) ───────────────
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 6,
-                    child: _buildTrendChartCard(filteredIncidents),
-                  ),
-                  SizedBox(width: 20),
-                  Expanded(
-                    flex: 4,
-                    child: _buildSectorRankingCard(sectorCounts, totalCount),
-                  ),
-                ],
+              // Side by side (same height) on wide screens, stacked on
+              // narrow ones.
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final Widget trendCard = _buildTrendChartCard(
+                    filteredIncidents,
+                  );
+                  final Widget rankingCard = _buildSectorRankingCard(
+                    sectorCounts,
+                    totalCount,
+                  );
+                  if (constraints.maxWidth < 760) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        trendCard,
+                        const SizedBox(height: 18),
+                        rankingCard,
+                      ],
+                    );
+                  }
+                  return IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(flex: 6, child: trendCard),
+                        const SizedBox(width: 18),
+                        Expanded(flex: 4, child: rankingCard),
+                      ],
+                    ),
+                  );
+                },
               ),
-              SizedBox(height: 28),
+              const SizedBox(height: 20),
 
               // ── Incident Blotter Ledger Table ──────────────────────────
               _buildBlotterLedgerCard(searchedIncidents),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
             ],
           ),
         );
@@ -172,116 +191,27 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     BuildContext context,
     List<IncidentEntity> filteredIncidents,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [AdminColors.cyan, AdminColors.primary],
-                ),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: AdminColors.cyan.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.analytics_rounded,
-                color: Colors.white,
-                size: 22,
-              ),
-            ),
-            SizedBox(width: 14),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Reports & Municipal Analytics Hub",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: AdminColors.textDark,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  "Barangay Moonwalk blotter ledger, sector load diagnostics, and certified LGU exports",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AdminColors.textLight,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ],
+    return AdminPageTitle(
+      title: "Reports & Municipal Analytics Hub",
+      subtitle:
+          "Barangay Moonwalk blotter ledger, sector load diagnostics, and certified LGU exports",
+      trailing: [
+        // 1-Click CSV Export Button
+        AdminButton(
+          label: "Export Blotter CSV",
+          icon: Icons.table_chart_outlined,
+          style: AdminButtonStyle.ghost,
+          onPressed: _isExporting
+              ? null
+              : () => _exportBlotterCsv(filteredIncidents),
         ),
-        Row(
-          children: [
-            // 1-Click CSV Export Button
-            OutlinedButton.icon(
-              onPressed: _isExporting
-                  ? null
-                  : () => _exportBlotterCsv(filteredIncidents),
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: AdminColors.cyan, width: 1.4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                backgroundColor: AdminColors.cyan.withValues(alpha: 0.08),
-              ),
-              icon: Icon(
-                Icons.table_chart_outlined,
-                size: 17,
-                color: AdminColors.cyan,
-              ),
-              label: Text(
-                "Export Blotter CSV",
-                style: TextStyle(
-                  color: AdminColors.cyan,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            // Official PDF Report Generator Button
-            ElevatedButton.icon(
-              onPressed: _isExporting
-                  ? null
-                  : () => _generateOfficialPdfReport(filteredIncidents),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AdminColors.danger,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 18,
-                  vertical: 14,
-                ),
-                elevation: 4,
-                shadowColor: AdminColors.danger.withValues(alpha: 0.4),
-              ),
-              icon: Icon(Icons.picture_as_pdf_rounded, size: 18),
-              label: Text(
-                "Official PDF Report",
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-              ),
-            ),
-          ],
+        // Official PDF Report Generator Button
+        AdminButton(
+          label: "Official PDF Report",
+          icon: Icons.picture_as_pdf_rounded,
+          onPressed: _isExporting
+              ? null
+              : () => _generateOfficialPdfReport(filteredIncidents),
         ),
       ],
     );
@@ -289,83 +219,18 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
 
   // ── Timeframe Selector ─────────────────────────────────────────────────
   Widget _buildTimeframeSelector() {
-    return Container(
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        color: AdminColors.cardBackground,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AdminColors.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _timeframePill(
-            "All Time",
-            ReportTimeframe.allTime,
-            Icons.all_inclusive_rounded,
-          ),
-          _timeframePill(
-            "This Month",
-            ReportTimeframe.thisMonth,
-            Icons.calendar_month_rounded,
-          ),
-          _timeframePill(
-            "Last 30 Days",
-            ReportTimeframe.last30Days,
-            Icons.history_toggle_off_rounded,
-          ),
-          _timeframePill(
-            "This Week",
-            ReportTimeframe.thisWeek,
-            Icons.date_range_rounded,
-          ),
+    // Scrolls sideways on narrow phones instead of overflowing.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: AdminSegmented<ReportTimeframe>(
+        segments: const [
+          (ReportTimeframe.allTime, "All Time"),
+          (ReportTimeframe.thisMonth, "This Month"),
+          (ReportTimeframe.last30Days, "Last 30 Days"),
+          (ReportTimeframe.thisWeek, "This Week"),
         ],
-      ),
-    );
-  }
-
-  Widget _timeframePill(
-    String title,
-    ReportTimeframe tf,
-    IconData icon,
-  ) {
-    final isSelected = _selectedTimeframe == tf;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedTimeframe = tf),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? AdminColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AdminColors.primary.withValues(alpha: 0.35),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              size: 15,
-              color: isSelected ? Colors.white : AdminColors.textLight,
-            ),
-            SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                color: isSelected ? Colors.white : AdminColors.textLight,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+        value: _selectedTimeframe,
+        onChanged: (tf) => setState(() => _selectedTimeframe = tf),
       ),
     );
   }
@@ -381,135 +246,84 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     required String avgResponseSpeed,
     required String responseSpeedSubtitle,
   }) {
+    final List<Widget> tiles = [
+      _KpiTile(
+        title: "Total Blotter Cases",
+        value: "$totalCount",
+        subtitle: "Recorded in period",
+        icon: Icons.assignment_outlined,
+        accentColor: AdminColors.primary,
+      ),
+      _KpiTile(
+        title: "Resolution Rate",
+        value: "${resolutionRate.toStringAsFixed(1)}%",
+        subtitle: "$solvedCount resolved cases",
+        icon: Icons.verified_outlined,
+        accentColor: AdminColors.success,
+        valueColor: AdminColors.successText,
+        progress: resolutionRate / 100,
+      ),
+      _KpiTile(
+        title: "Avg Response Speed",
+        value: avgResponseSpeed,
+        subtitle: responseSpeedSubtitle,
+        icon: Icons.timer_outlined,
+        accentColor: AdminColors.cyan,
+        valueColor: AdminColors.cyanSoft,
+        edged: true,
+      ),
+      _KpiTile(
+        title: "Top Hotspot Sector",
+        value: topHotspot,
+        subtitle: "$hotspotCount incidents recorded",
+        icon: Icons.place_outlined,
+        accentColor: AdminColors.amber,
+        compact: true,
+      ),
+      _KpiTile(
+        title: "High / Critical",
+        value: "$criticalCount",
+        subtitle: "Immediate action tickets",
+        icon: Icons.warning_amber_rounded,
+        accentColor: AdminColors.danger,
+        highlight: true,
+      ),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isNarrow = constraints.maxWidth < 1000;
-        final cardWidth = isNarrow
-            ? (constraints.maxWidth - 16) / 2
-            : (constraints.maxWidth - 64) / 5;
+        // As many 170px-wide tiles as fit (two to five per row); the tiles
+        // in a row share one height.
+        const double gap = 14;
+        final int fit = ((constraints.maxWidth + gap) / (170 + gap)).floor();
+        final int columns = max(2, min(tiles.length, fit));
+        final double tileWidth =
+            (constraints.maxWidth - gap * (columns - 1)) / columns;
 
-        return Wrap(
-          spacing: 16,
-          runSpacing: 16,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _kpiCard(
-              width: cardWidth,
-              title: "Total Blotter Cases",
-              value: "$totalCount",
-              subtitle: "Recorded in period",
-              icon: Icons.assignment_outlined,
-              accentColor: AdminColors.primary,
-            ),
-            _kpiCard(
-              width: cardWidth,
-              title: "Resolution Rate",
-              value: "${resolutionRate.toStringAsFixed(1)}%",
-              subtitle: "$solvedCount resolved cases",
-              icon: Icons.verified_outlined,
-              accentColor: AdminColors.success,
-            ),
-            _kpiCard(
-              width: cardWidth,
-              title: "Avg Response Speed",
-              value: avgResponseSpeed,
-              subtitle: responseSpeedSubtitle,
-              icon: Icons.timer_outlined,
-              accentColor: AdminColors.cyan,
-            ),
-            _kpiCard(
-              width: cardWidth,
-              title: "Top Hotspot Sector",
-              value: topHotspot,
-              subtitle: "$hotspotCount incidents recorded",
-              icon: Icons.place_outlined,
-              accentColor: AdminColors.amber,
-            ),
-            _kpiCard(
-              width: cardWidth,
-              title: "High / Critical",
-              value: "$criticalCount",
-              subtitle: "Immediate action tickets",
-              icon: Icons.warning_amber_rounded,
-              accentColor: AdminColors.danger,
-            ),
+            for (int start = 0; start < tiles.length; start += columns) ...[
+              if (start > 0) const SizedBox(height: gap),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (
+                      int i = start;
+                      i < min(start + columns, tiles.length);
+                      i++
+                    ) ...[
+                      if (i > start) const SizedBox(width: gap),
+                      SizedBox(width: tileWidth, child: tiles[i]),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       },
-    );
-  }
-
-  Widget _kpiCard({
-    required double width,
-    required String title,
-    required String value,
-    required String subtitle,
-    required IconData icon,
-    required Color accentColor,
-  }) {
-    return Container(
-      width: width,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: AdminColors.cardBackground,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AdminColors.border.withValues(alpha: 0.8),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AdminColors.textLight,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: accentColor, size: 16),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: AdminColors.textDark,
-              letterSpacing: -0.5,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 11,
-              color: accentColor,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -535,59 +349,20 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     final double maxVal = [...dailyTotals, 4.0].reduce(max);
     final dayLabels = days.map((d) => "${d.day}/${d.month}").toList();
 
-    return Custom3dCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 22,
-      margin: EdgeInsets.zero,
+    return AdminPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Incident Frequency Trend",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: AdminColors.textDark,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    "Daily incident frequency timeline within selected window",
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AdminColors.textLight,
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AdminColors.cyan.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: AdminColors.cyan.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Text(
-                  "${incidents.length} Records",
-                  style: const TextStyle(
-                    color: AdminColors.cyan,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ),
-            ],
+          AdminSectionTitle(
+            title: "Incident Frequency Trend",
+            subtitle:
+                "Daily incident frequency timeline within selected window",
+            trailing: AdminPill(
+              label: "${incidents.length} Records",
+              tone: AdminTone.cyan,
+            ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 20),
           SizedBox(
             height: 220,
             child: CustomPaint(
@@ -612,328 +387,200 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     final sortedSectors = sectorCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Custom3dCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 22,
-      margin: EdgeInsets.zero,
+    return AdminPanel(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Sector Incident Ranking",
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: AdminColors.textDark,
-                    ),
-                  ),
-                  SizedBox(height: 2),
-                  Text(
-                    "Geographic incident load distribution",
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: AdminColors.textLight,
-                    ),
-                  ),
-                ],
-              ),
-              Icon(Icons.bar_chart_rounded, color: AdminColors.primary, size: 20),
-            ],
+          const AdminSectionTitle(
+            title: "Sector Incident Ranking",
+            subtitle: "Geographic incident load distribution",
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 18),
           if (sortedSectors.isEmpty)
-            Container(
-              height: 200,
-              alignment: Alignment.center,
-              child: Text(
-                "No sector logs found",
-                style: TextStyle(color: AdminColors.textLight, fontSize: 12),
-              ),
+            const AdminEmptyState(
+              icon: Icons.bar_chart_rounded,
+              title: "No sector logs found",
             )
           else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: min(5, sortedSectors.length),
-              separatorBuilder: (context, index) => SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final entry = sortedSectors[index];
-                final double pct =
-                    totalCount > 0 ? (entry.value / totalCount) : 0.0;
-                final bool isTop = index == 0;
-                final barColor = isTop
-                    ? AdminColors.dangerSoft
-                    : (index == 1
-                        ? AdminColors.orangeLight
-                        : AdminColors.cyan);
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          entry.key,
-                          style: TextStyle(
-                            color: isTop
-                                ? AdminColors.textDark
-                                : AdminColors.textSoft,
-                            fontSize: 12,
-                            fontWeight:
-                                isTop ? FontWeight.w800 : FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          "${entry.value} (${(pct * 100).toStringAsFixed(1)}%)",
-                          style: TextStyle(
-                            color: barColor,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 7,
-                            width: double.infinity,
-                            color: AdminColors.background,
-                          ),
-                          FractionallySizedBox(
-                            widthFactor: pct.clamp(0.02, 1.0),
-                            child: Container(
-                              height: 7,
-                              decoration: BoxDecoration(
-                                color: barColor,
-                                borderRadius: BorderRadius.circular(6),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: barColor.withValues(alpha: 0.5),
-                                    blurRadius: 6,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
+            // A plain column rather than a list view, so the card can match
+            // the height of the trend card beside it.
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (
+                  int index = 0;
+                  index < min(5, sortedSectors.length);
+                  index++
+                ) ...[
+                  if (index > 0) const SizedBox(height: 12),
+                  _buildSectorBar(sortedSectors[index], index, totalCount),
+                ],
+              ],
             ),
         ],
       ),
     );
   }
 
-  // ── Blotter Ledger Table Card ──────────────────────────────────────────
-  Widget _buildBlotterLedgerCard(List<IncidentEntity> incidents) {
-    return Custom3dCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 22,
-      margin: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AdminColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.folder_shared_outlined,
-                      color: AdminColors.primary,
-                      size: 18,
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Barangay Municipal Blotter Ledger",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w900,
-                          color: AdminColors.textDark,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        "Certified community incident register for dispatch accountability",
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AdminColors.textLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+  Widget _buildSectorBar(
+    MapEntry<String, int> entry,
+    int index,
+    int totalCount,
+  ) {
+    final double pct = totalCount > 0 ? (entry.value / totalCount) : 0.0;
+    final bool isTop = index == 0;
+    // The busiest sector runs red to orange, the rest blue to cyan.
+    final List<Color> barColors = isTop
+        ? const [AdminColors.danger, AdminColors.orange]
+        : const [AdminColors.primary, AdminColors.cyan];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                entry.key,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isTop ? AdminColors.textStrong : AdminColors.textBody,
+                  fontSize: 13,
+                  fontWeight: isTop ? FontWeight.w800 : FontWeight.w700,
+                ),
               ),
-              // Search Input
-              SizedBox(
-                width: 280,
-                child: TextField(
-                  style: const TextStyle(
-                    color: AdminColors.textDark,
-                    fontSize: 12.5,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              "${entry.value} (${(pct * 100).toStringAsFixed(1)}%)",
+              style: const TextStyle(
+                color: AdminColors.textLight,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(999),
+          child: Stack(
+            children: [
+              Container(
+                height: 10,
+                width: double.infinity,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+              FractionallySizedBox(
+                widthFactor: pct.clamp(0.02, 1.0),
+                child: Container(
+                  height: 10,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: barColors),
+                    borderRadius: BorderRadius.circular(999),
                   ),
-                  decoration: InputDecoration(
-                    hintText: "Search ledger records...",
-                    hintStyle: const TextStyle(
-                      color: AdminColors.textMuted,
-                      fontSize: 12,
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: AdminColors.textLight,
-                      size: 18,
-                    ),
-                    filled: true,
-                    fillColor: AdminColors.background,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 10,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AdminColors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AdminColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: AdminColors.primary,
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                  onChanged: (val) => setState(() => _searchQuery = val),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 18),
-          Container(height: 1, color: AdminColors.border),
-          SizedBox(height: 12),
+        ),
+      ],
+    );
+  }
 
-          if (incidents.isEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              alignment: Alignment.center,
-              child: Text(
-                "No matching incident ledger records in this timeframe.",
-                style: TextStyle(color: AdminColors.textLight, fontSize: 13),
-              ),
-            )
-          else
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowHeight: 46,
-                headingRowColor:
-                    WidgetStateProperty.all(AdminColors.background),
-                dataRowColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.hovered)
-                      ? AdminColors.cardBackground.withValues(alpha: 0.8)
-                      : Colors.transparent,
-                ),
-                dividerThickness: 0.5,
-                columns: const [
-                  DataColumn(
-                    label: Text(
-                      "Case ID",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
+  // ── Blotter Ledger Table Card ──────────────────────────────────────────
+  Widget _buildBlotterLedgerCard(List<IncidentEntity> incidents) {
+    return AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final bool wide = constraints.maxWidth >= 640;
+              // One Flex for both layouts, so the search field keeps its
+              // text when the width crosses the breakpoint.
+              return Flex(
+                direction: wide ? Axis.horizontal : Axis.vertical,
+                crossAxisAlignment: wide
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.stretch,
+                children: [
+                  Flexible(
+                    flex: wide ? 1 : 0,
+                    fit: FlexFit.tight,
+                    child: const AdminSectionTitle(
+                      title: "Barangay Municipal Blotter Ledger",
+                      subtitle:
+                          "Certified community incident register for dispatch accountability",
                     ),
                   ),
-                  DataColumn(
-                    label: Text(
-                      "Date & Time",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Emergency Category",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Sector / Address",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Complainant",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Status",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Dispatcher Remarks",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textLight,
-                        fontSize: 11.5,
-                      ),
+                  const SizedBox(width: 14, height: 14),
+                  // Search Input
+                  SizedBox(
+                    width: wide ? 300 : null,
+                    child: AdminSearchField(
+                      hint: "Search ledger records...",
+                      onChanged: (val) => setState(() => _searchQuery = val),
                     ),
                   ),
                 ],
+              );
+            },
+          ),
+          const SizedBox(height: 16),
+
+          if (incidents.isEmpty)
+            const AdminEmptyState(
+              icon: Icons.folder_open_rounded,
+              title: "No matching incident ledger records in this timeframe.",
+            )
+          else
+            _buildLedgerTable(incidents),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLedgerTable(List<IncidentEntity> incidents) {
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      // Fills the card on wide screens and scrolls sideways on narrow ones.
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: constraints.maxWidth),
+            child: DividerTheme(
+              data: const DividerThemeData(color: AdminTable.divider),
+              child: DataTable(
+                headingRowHeight: 46,
+                headingRowColor: WidgetStateProperty.all(
+                  Colors.white.withValues(alpha: 0.04),
+                ),
+                dataRowColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.hovered)
+                      ? AdminTable.hoverRow
+                      : Colors.transparent,
+                ),
+                dividerThickness: 1,
+                horizontalMargin: 16,
+                columnSpacing: 28,
+                columns: [
+                  _tableColumn("Case ID"),
+                  _tableColumn("Date & Time"),
+                  _tableColumn("Emergency Category"),
+                  _tableColumn("Sector / Address"),
+                  _tableColumn("Complainant"),
+                  _tableColumn("Status"),
+                  _tableColumn("Dispatcher Remarks"),
+                ],
                 rows: incidents.map((inc) {
-                  final statusClr = _statusColor(inc.status);
+                  final statusTone = _statusTone(inc.status);
                   final d = inc.timestamp;
                   final dateStr =
                       "${d.day}/${d.month}/${d.year} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}";
@@ -943,32 +590,11 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       DataCell(
                         Text(
                           inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
-                          style: const TextStyle(
-                            color: AdminColors.cyan,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 11.5,
-                          ),
+                          style: AdminTable.cellStrong,
                         ),
                       ),
-                      DataCell(
-                        Text(
-                          dateStr,
-                          style: const TextStyle(
-                            color: AdminColors.textLight,
-                            fontSize: 11.5,
-                          ),
-                        ),
-                      ),
-                      DataCell(
-                        Text(
-                          inc.category,
-                          style: const TextStyle(
-                            color: AdminColors.textDark,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 11.5,
-                          ),
-                        ),
-                      ),
+                      DataCell(Text(dateStr, style: AdminTable.cellMuted)),
+                      DataCell(Text(inc.category, style: AdminTable.cell)),
                       DataCell(
                         SizedBox(
                           width: 160,
@@ -976,11 +602,9 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                             inc.resolvedAddress ??
                                 inc.areaSector ??
                                 "GPS Coordinates Recorded",
-                            style: const TextStyle(
-                              color: AdminColors.textSoft,
-                              fontSize: 11.5,
-                            ),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            style: AdminTable.cell,
                           ),
                         ),
                       ),
@@ -989,35 +613,15 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                           inc.isAnonymous
                               ? "Anonymous Citizen"
                               : (inc.reporterName ??
-                                  inc.reporterEmail ??
-                                  "Citizen"),
-                          style: const TextStyle(
-                            color: AdminColors.textDark,
-                            fontSize: 11.5,
-                          ),
+                                    inc.reporterEmail ??
+                                    "Citizen"),
+                          style: AdminTable.cell,
                         ),
                       ),
                       DataCell(
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: statusClr.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: statusClr.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Text(
-                            inc.status.toUpperCase(),
-                            style: TextStyle(
-                              color: statusClr,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
+                        AdminPill(
+                          label: inc.status.toUpperCase(),
+                          tone: statusTone,
                         ),
                       ),
                       DataCell(
@@ -1028,12 +632,9 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                                     inc.dispatcherNotes!.isNotEmpty)
                                 ? inc.dispatcherNotes!
                                 : "—",
-                            style: const TextStyle(
-                              color: AdminColors.textLight,
-                              fontSize: 11,
-                              fontStyle: FontStyle.italic,
-                            ),
+                            maxLines: 1,
                             overflow: TextOverflow.ellipsis,
+                            style: AdminTable.cellMuted,
                           ),
                         ),
                       ),
@@ -1042,8 +643,16 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 }).toList(),
               ),
             ),
-        ],
+          ),
+        ),
       ),
+    );
+  }
+
+  /// A table heading, in capitals as on the board.
+  DataColumn _tableColumn(String label) {
+    return DataColumn(
+      label: Text(label.toUpperCase(), style: AdminTable.header),
     );
   }
 
@@ -1117,7 +726,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to export CSV: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: AdminColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1372,7 +981,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to generate PDF report: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: AdminColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1434,18 +1043,18 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     }
   }
 
-  Color _statusColor(String status) {
+  AdminTone _statusTone(String status) {
     switch (status.toLowerCase()) {
       case 'solved':
       case 'resolved':
-        return AdminColors.success;
+        return AdminTone.green;
       case 'inprogress':
       case 'in progress':
-        return AdminColors.cyan;
+        return AdminTone.blue;
       case 'spam':
-        return AdminColors.critical;
+        return AdminTone.slate;
       default:
-        return AdminColors.amber;
+        return AdminTone.yellow;
     }
   }
 }
@@ -1472,7 +1081,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
     final double graphHeight = height - bottomMargin;
 
     final Paint gridPaint = Paint()
-      ..color = AdminColors.border.withValues(alpha: 0.5)
+      ..color = Colors.white.withValues(alpha: 0.08)
       ..strokeWidth = 1.0;
 
     final TextPainter textPainter = TextPainter(
@@ -1487,7 +1096,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
       final val = maxValue - ((maxValue / gridRows) * i);
       textPainter.text = TextSpan(
         text: val.round().toString(),
-        style: const TextStyle(color: AdminColors.textMuted, fontSize: 9.5),
+        style: const TextStyle(color: AdminColors.chartAxis, fontSize: 9.5),
       );
       textPainter.layout();
       textPainter.paint(canvas, Offset(4, y - 6));
@@ -1498,7 +1107,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
       final double x = leftMargin + (xSpacing * i);
       textPainter.text = TextSpan(
         text: labels[i],
-        style: const TextStyle(color: AdminColors.textMuted, fontSize: 9.5),
+        style: const TextStyle(color: AdminColors.chartAxis, fontSize: 9.5),
       );
       textPainter.layout();
       textPainter.paint(
@@ -1544,7 +1153,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          AdminColors.cyan.withValues(alpha: 0.25),
+          AdminColors.cyan.withValues(alpha: 0.35),
           AdminColors.cyan.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTRB(leftMargin, 0, points.last.dx, graphHeight))
@@ -1554,9 +1163,10 @@ class _AnalyticsCurvePainter extends CustomPainter {
 
     final Paint linePaint = Paint()
       ..color = AdminColors.cyan
-      ..strokeWidth = 2.5
+      ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
       ..isAntiAlias = true;
 
     canvas.drawPath(path, linePaint);
@@ -1578,4 +1188,194 @@ class _AnalyticsCurvePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _AnalyticsCurvePainter oldDelegate) => true;
+}
+
+/// A KPI tile in the dashboard's stat card style, with a line of context
+/// under the figure. [progress] (0 to 1) adds a thin bar under the figure,
+/// [edged] tints the edge with [accentColor], [highlight] washes the tile red
+/// and [compact] sets a smaller figure that may wrap, for a name.
+class _KpiTile extends StatelessWidget {
+  const _KpiTile({
+    required this.title,
+    required this.value,
+    required this.subtitle,
+    required this.icon,
+    required this.accentColor,
+    this.valueColor = AdminColors.textStrong,
+    this.progress,
+    this.edged = false,
+    this.highlight = false,
+    this.compact = false,
+  });
+
+  final String title;
+  final String value;
+  final String subtitle;
+  final IconData icon;
+  final Color accentColor;
+  final Color valueColor;
+  final double? progress;
+  final bool edged;
+  final bool highlight;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color labelColor = highlight
+        ? AdminColors.dangerPale
+        : AdminColors.textLight;
+    final TextStyle valueStyle = TextStyle(
+      color: valueColor,
+      fontSize: compact ? 20 : 30,
+      fontWeight: FontWeight.w800,
+      height: compact ? 1.2 : 1.1,
+      letterSpacing: -0.5,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: highlight ? null : AdminColors.cardBackground,
+        gradient: highlight
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color.alphaBlend(
+                    AdminColors.critical.withValues(alpha: 0.18),
+                    AdminColors.cardBackground,
+                  ),
+                  Color.alphaBlend(
+                    AdminColors.critical.withValues(alpha: 0.06),
+                    AdminColors.cardBackground,
+                  ),
+                ],
+              )
+            : null,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: highlight
+              ? AdminColors.dangerSoft.withValues(alpha: 0.4)
+              : edged
+              ? accentColor.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.1),
+        ),
+        boxShadow: [
+          if (highlight)
+            BoxShadow(
+              color: AdminColors.critical.withValues(alpha: 0.18),
+              blurRadius: 26,
+            ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 32,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: labelColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(
+                        alpha: highlight ? 0.3 : 0.2,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 16,
+                      color: highlight
+                          ? AdminColors.dangerPale
+                          : Color.lerp(accentColor, Colors.white, 0.55),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (compact)
+                Text(
+                  value,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: valueStyle,
+                )
+              else
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(value, maxLines: 1, style: valueStyle),
+                ),
+              if (progress != null) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 6,
+                        width: double.infinity,
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                      FractionallySizedBox(
+                        widthFactor: progress!.clamp(0.0, 1.0),
+                        child: Container(
+                          height: 6,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [accentColor, valueColor],
+                            ),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              subtitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: labelColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                height: 1.35,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

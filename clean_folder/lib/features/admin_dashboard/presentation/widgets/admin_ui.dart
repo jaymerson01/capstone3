@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 /// Shared Neo command-center pieces for the admin pages: panels, titles,
@@ -436,7 +437,7 @@ enum AdminButtonStyle {
 
 /// The admin button. [onPressed] null disables it; [busy] swaps the icon
 /// for a spinner.
-class AdminButton extends StatelessWidget {
+class AdminButton extends StatefulWidget {
   const AdminButton({
     super.key,
     required this.label,
@@ -446,6 +447,7 @@ class AdminButton extends StatelessWidget {
     this.busy = false,
     this.height = 46,
     this.expand = false,
+    this.debounce = false,
   });
 
   final String label;
@@ -458,8 +460,37 @@ class AdminButton extends StatelessWidget {
   /// Fills the available width.
   final bool expand;
 
+  /// Ignores a second tap within 600 ms and gives a light haptic tap on
+  /// press, as the older 3D button did. Use it where that button was.
+  final bool debounce;
+
+  @override
+  State<AdminButton> createState() => _AdminButtonState();
+}
+
+class _AdminButtonState extends State<AdminButton> {
+  DateTime? _lastTap;
+
+  void _handleTap() {
+    if (widget.debounce) {
+      final now = DateTime.now();
+      if (_lastTap != null &&
+          now.difference(_lastTap!) < const Duration(milliseconds: 600)) {
+        return;
+      }
+      _lastTap = now;
+    }
+    widget.onPressed?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final String label = widget.label;
+    final VoidCallback? onPressed = widget.onPressed;
+    final IconData? icon = widget.icon;
+    final AdminButtonStyle style = widget.style;
+    final bool busy = widget.busy;
+    final bool expand = widget.expand;
     final bool enabled = onPressed != null;
     final bool filled =
         style == AdminButtonStyle.primary || style == AdminButtonStyle.danger;
@@ -554,12 +585,15 @@ class AdminButton extends StatelessWidget {
       child: Opacity(
         opacity: enabled || busy ? 1 : 0.5,
         child: Container(
-          height: height,
+          height: widget.height,
           decoration: decoration,
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
-              onTap: busy ? null : onPressed,
+              onTap: busy || onPressed == null ? null : _handleTap,
+              onTapDown: widget.debounce && enabled && !busy
+                  ? (_) => HapticFeedback.lightImpact()
+                  : null,
               borderRadius: BorderRadius.circular(14),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18),

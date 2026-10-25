@@ -10,10 +10,8 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:community_safety_app/core/services/station_audio_service.dart';
@@ -316,73 +314,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     showDialog(
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: AdminColors.cardBackground,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: AdminColors.border),
-          ),
-          title: Row(
-            children: [
-              Icon(Icons.lock_reset_rounded, color: AdminColors.success, size: 22),
-              SizedBox(width: 10),
-              Text(
-                "Change Account Password",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          content: Form(
-            key: passFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Custom3dTextField(
-                  controller: currentPasswordController,
-                  labelText: "Current Password",
-                  prefixIcon: Icons.lock_outline,
-                  obscureText: true,
-                  validator: (v) => v == null || v.isEmpty ? "Required." : null,
-                ),
-                Custom3dTextField(
-                  controller: newPasswordController,
-                  labelText: "New Password",
-                  prefixIcon: Icons.lock_open,
-                  obscureText: true,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return "Required.";
-                    if (v.length < 6) return "At least 6 characters required.";
-                    return null;
-                  },
-                ),
-                Custom3dTextField(
-                  controller: confirmPasswordController,
-                  labelText: "Confirm New Password",
-                  prefixIcon: Icons.check_circle_outline,
-                  obscureText: true,
-                  validator: (v) {
-                    if (v != newPasswordController.text) return "Passwords do not match.";
-                    return null;
-                  },
-                ),
-              ],
-            ),
-          ),
+        builder: (context, setDialogState) => AdminDialog(
+          title: "Change Account Password",
+          icon: Icons.lock_reset_rounded,
+          tone: AdminTone.green,
+          maxWidth: 480,
           actions: [
-            TextButton(
+            AdminButton(
+              label: "Cancel",
+              style: AdminButtonStyle.ghost,
               onPressed: isUpdating ? null : () => Navigator.pop(dialogCtx),
-              child: Text("Cancel", style: TextStyle(color: AdminColors.textLight)),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AdminColors.success,
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
+            AdminButton(
+              label: "Update Password",
+              busy: isUpdating,
               onPressed: isUpdating
                   ? null
                   : () async {
@@ -421,16 +366,52 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         );
                       }
                     },
-              child: isUpdating
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-                    )
-                  : Text("Update Password",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ],
+          child: Form(
+            key: passFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const AdminFieldLabel("Current Password"),
+                TextFormField(
+                  controller: currentPasswordController,
+                  obscureText: true,
+                  style: adminInputText,
+                  decoration: adminInputDecoration(icon: Icons.lock_outline),
+                  validator: (v) => v == null || v.isEmpty ? "Required." : null,
+                ),
+                const SizedBox(height: 14),
+                const AdminFieldLabel("New Password"),
+                TextFormField(
+                  controller: newPasswordController,
+                  obscureText: true,
+                  style: adminInputText,
+                  decoration: adminInputDecoration(icon: Icons.lock_open),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return "Required.";
+                    if (v.length < 6) return "At least 6 characters required.";
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 14),
+                const AdminFieldLabel("Confirm New Password"),
+                TextFormField(
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  style: adminInputText,
+                  decoration: adminInputDecoration(
+                    icon: Icons.check_circle_outline,
+                  ),
+                  validator: (v) {
+                    if (v != newPasswordController.text) return "Passwords do not match.";
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -450,8 +431,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return Center(
-        child: CircularProgressIndicator(color: AdminColors.primaryGreen),
+      return const Center(
+        child: CircularProgressIndicator(color: AdminColors.cyan),
       );
     }
 
@@ -459,476 +440,525 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         ? _nameController.text.trim()[0].toUpperCase()
         : 'A';
 
+    // ── 1. Avatar & Credentials + 2. Profile Details Form ────────────────
+    final Widget identityPanel = AdminPanel(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Stack(
+                children: [
+                  // Leaves room for the camera button on the ring's edge.
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4, bottom: 4),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AdminColors.cyan.withValues(alpha: 0.6),
+                            spreadRadius: 3,
+                          ),
+                          BoxShadow(
+                            color: AdminColors.cyan.withValues(alpha: 0.3),
+                            blurRadius: 22,
+                          ),
+                        ],
+                      ),
+                      child: _isUploadingPhoto
+                          ? Container(
+                              width: 84,
+                              height: 84,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AdminColors.surfaceDeep,
+                              ),
+                              child: const Center(
+                                child: SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: AdminColors.cyan,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : AdminAvatar(
+                              initial: initial,
+                              photoUrl: _currentPhotoUrl,
+                              size: 84,
+                            ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Material(
+                      type: MaterialType.transparency,
+                      child: InkWell(
+                        onTap: _isUploadingPhoto ? null : _pickAndUploadPhoto,
+                        customBorder: const CircleBorder(),
+                        child: Ink(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            gradient: AdminColors.buttonGradient,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AdminColors.surfaceDeep,
+                              width: 2,
+                            ),
+                            boxShadow: AdminColors.buttonShadow,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt_rounded,
+                            size: 16,
+                            color: AdminColors.textStrong,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _nameController.text.trim().isNotEmpty
+                          ? _nameController.text
+                          : "Municipal Administrator",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: AdminColors.textStrong,
+                        height: 1.25,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      _emailController.text,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: AdminColors.textLight,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Non-technical Admin Badge
+                    const AdminPill(
+                      label: "Admin",
+                      tone: AdminTone.blue,
+                      icon: Icons.shield_rounded,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const AdminSectionTitle(
+                  title: "Administrator Identity & Contact",
+                ),
+                const SizedBox(height: 16),
+                LayoutBuilder(
+                  builder: (_, constraints) {
+                    // Two fields to a row when there is room for them.
+                    final double fieldWidth = constraints.maxWidth >= 520
+                        ? ((constraints.maxWidth - 14) / 2).floorToDouble()
+                        : constraints.maxWidth;
+                    return Wrap(
+                      spacing: 14,
+                      runSpacing: 16,
+                      children: [
+                        SizedBox(
+                          width: fieldWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AdminFieldLabel("Display Name / Title"),
+                              TextFormField(
+                                controller: _nameController,
+                                style: adminInputText,
+                                decoration: adminInputDecoration(
+                                  hint: "e.g. Dispatcher Juan",
+                                  icon: Icons.badge_outlined,
+                                ),
+                                validator: (val) =>
+                                    val == null || val.trim().isEmpty ? "Display name required." : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AdminFieldLabel(
+                                "Registered Google Account Email",
+                              ),
+                              TextFormField(
+                                controller: _emailController,
+                                style: adminInputText,
+                                decoration: adminInputDecoration(
+                                  icon: Icons.email_outlined,
+                                  suffix: const Icon(
+                                    Icons.verified_user_rounded,
+                                    color: AdminColors.successText,
+                                    size: 18,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 7),
+                              const Text(
+                                "Authenticated & verified via Google Cloud Identity.",
+                                style: TextStyle(
+                                  color: AdminColors.textHint,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AdminFieldLabel(
+                                "Desk Phone / Contact Number",
+                              ),
+                              TextFormField(
+                                controller: _phoneController,
+                                keyboardType: TextInputType.phone,
+                                style: adminInputText,
+                                decoration: adminInputDecoration(
+                                  hint: "e.g. 0917 123 4567 / (02) 8800 1234",
+                                  icon: Icons.phone_in_talk_outlined,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: fieldWidth,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AdminFieldLabel(
+                                "Command Center Duty Station",
+                              ),
+                              TextFormField(
+                                controller: _dutyStationController,
+                                style: adminInputText,
+                                decoration: adminInputDecoration(
+                                  hint:
+                                      "e.g. Barangay Moonwalk - Command Center",
+                                  icon: Icons.location_city_outlined,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 22),
+                AdminButton(
+                  icon: _isSaving ? null : Icons.save_rounded,
+                  label: _isSaving ? "SAVING CHANGES..." : "SAVE PROFILE CHANGES",
+                  busy: _isSaving,
+                  height: 48,
+                  debounce: true,
+                  onPressed: _isSaving ? null : _saveProfile,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // ── 3. Security & Password Management ────────────────────────────────
+    final Widget securityPanel = AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AdminSectionTitle(title: "Security & Credentials"),
+          const SizedBox(height: 8),
+          const Text(
+            "Manage your login password or dispatch an official password reset link directly to your registered Google inbox.",
+            style: TextStyle(
+              fontSize: 12.5,
+              color: AdminColors.textLight,
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 16),
+          AdminButton(
+            label: "Send Reset Link to Gmail",
+            icon: Icons.mark_email_read_outlined,
+            style: AdminButtonStyle.ghost,
+            expand: true,
+            onPressed: _sendPasswordReset,
+          ),
+          const SizedBox(height: 10),
+          AdminButton(
+            label: "Change Password Directly",
+            icon: Icons.password_rounded,
+            style: AdminButtonStyle.ghost,
+            expand: true,
+            onPressed: _showChangePasswordDialog,
+          ),
+        ],
+      ),
+    );
+
+    // ── 4. Station Audio & System Check ──────────────────────────────────
+    final Widget audioPanel = AdminPanel(
+      padding: EdgeInsets.zero,
+      accent: AdminColors.dangerSoft,
+      glow: true,
+      // A faint red wash over the panel, as on the board.
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(21),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AdminColors.critical.withValues(alpha: 0.12),
+              AdminColors.critical.withValues(alpha: 0.04),
+            ],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const AdminSectionTitle(title: "Station Speaker & Audio Check"),
+              const SizedBox(height: 8),
+              const Text(
+                "Verify that your command center desktop speakers are operational so you do not miss incoming citizen emergency alerts or siren broadcasts.",
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: AdminColors.textLight,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _RedOutlineButton(
+                strong: true,
+                icon: _isTestingAudio
+                    ? Icons.volume_up_rounded
+                    : Icons.play_arrow_rounded,
+                label: _isTestingAudio
+                    ? "PLAYING STATION SIREN CHIME..."
+                    : "TEST STATION ALERT SOUND (resq_alert.wav)",
+                onPressed: _testStationAudio,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // ── 5. Logout Option ─────────────────────────────────────────────────
+    final Widget logoutButton = _RedOutlineButton(
+      icon: Icons.logout_rounded,
+      label: "Log Out of Admin Command Center",
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (ctx) => AdminDialog(
+            title: "Confirm Logout",
+            icon: Icons.logout_rounded,
+            tone: AdminTone.red,
+            maxWidth: 460,
+            actions: [
+              AdminButton(
+                label: "Cancel",
+                style: AdminButtonStyle.ghost,
+                onPressed: () => Navigator.pop(ctx),
+              ),
+              AdminButton(
+                label: "Log Out",
+                style: AdminButtonStyle.danger,
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  context.read<AuthBloc>().add(const LogoutRequested());
+                  Navigator.pushReplacementNamed(context, '/admin/login');
+                },
+              ),
+            ],
+            child: const Text(
+              "Are you sure you want to log out of the municipal admin panel?",
+              style: TextStyle(
+                color: AdminColors.textSoft,
+                fontSize: 13.5,
+                height: 1.5,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 28.0),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 720),
+          constraints: const BoxConstraints(maxWidth: 1180),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header Card ──────────────────────────────────────────
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AdminColors.success.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AdminColors.success.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.admin_panel_settings_rounded,
-                      color: AdminColors.success,
-                      size: 28,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Admin Profile & Station Settings",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w900,
-                            color: AdminColors.textDark,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "Manage your administrator credentials, duty station, and command audio settings.",
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            color: AdminColors.textLight,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              // ── Header ───────────────────────────────────────────────
+              const AdminPageTitle(
+                title: "Admin Profile & Station Settings",
+                subtitle:
+                    "Manage your administrator credentials, duty station, and command audio settings.",
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 22),
 
-              // ── 1. Avatar & Credentials Card ────────────────────────
-              Custom3dCard(
-                padding: const EdgeInsets.all(28),
-                borderRadius: 22,
-                child: Column(
-                  children: [
-                    Center(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 104,
-                            height: 104,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [AdminColors.success, AdminColors.primary],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AdminColors.success.withValues(alpha: 0.3),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(3.5),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AdminColors.cardBackground,
-                              ),
-                              child: ClipOval(
-                                child: _isUploadingPhoto
-                                    ? Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: AdminColors.success,
-                                        ),
-                                      )
-                                    : (_currentPhotoUrl != null && _currentPhotoUrl!.isNotEmpty
-                                        ? Image.network(
-                                            _currentPhotoUrl!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder: (ctx, err, stack) => Center(
-                                              child: Text(
-                                                initial,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 38,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        : Center(
-                                            child: Text(
-                                              initial,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 38,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          )),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: InkWell(
-                              onTap: _isUploadingPhoto ? null : _pickAndUploadPhoto,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Container(
-                                width: 34,
-                                height: 34,
-                                decoration: BoxDecoration(
-                                  color: AdminColors.success,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AdminColors.cardBackground, width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.4),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(Icons.camera_alt_rounded,
-                                    size: 16, color: Colors.black),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      _nameController.text.trim().isNotEmpty
-                          ? _nameController.text
-                          : "Municipal Administrator",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: AdminColors.textDark,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      _emailController.text,
-                      style: const TextStyle(
-                        fontSize: 12.5,
-                        color: AdminColors.textLight,
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    // Non-technical Admin Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AdminColors.success.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: AdminColors.success.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.shield_rounded, color: AdminColors.success, size: 14),
-                          SizedBox(width: 5),
-                          Text(
-                            "Admin",
-                            style: TextStyle(
-                              color: AdminColors.success,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // ── 2. Profile Details Form ──────────────────────────────
-              Custom3dCard(
-                padding: const EdgeInsets.all(28),
-                borderRadius: 22,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              // Identity on the left and the station tools on the right
+              // when there is room, stacked otherwise. The children keep
+              // their places either way, so the form is not rebuilt.
+              LayoutBuilder(
+                builder: (_, constraints) {
+                  final bool sideBySide = constraints.maxWidth >= 860;
+                  return Flex(
+                    direction:
+                        sideBySide ? Axis.horizontal : Axis.vertical,
+                    crossAxisAlignment: sideBySide
+                        ? CrossAxisAlignment.start
+                        : CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        "Administrator Identity & Contact",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: AdminColors.textDark,
-                        ),
+                      Flexible(
+                        flex: sideBySide ? 1 : 0,
+                        fit: FlexFit.tight,
+                        child: identityPanel,
                       ),
-                      SizedBox(height: 18),
-
-                      Custom3dTextField(
-                        controller: _nameController,
-                        labelText: "Display Name / Title",
-                        hintText: "e.g. Dispatcher Juan",
-                        prefixIcon: Icons.badge_outlined,
-                        validator: (val) =>
-                            val == null || val.trim().isEmpty ? "Display name required." : null,
-                      ),
-
-                      Custom3dTextField(
-                        controller: _emailController,
-                        labelText: "Registered Google Account Email",
-                        prefixIcon: Icons.email_outlined,
-                      ),
-                      SizedBox(height: 6),
-                      const Padding(
-                        padding: EdgeInsets.only(left: 4, bottom: 8),
-                        child: Row(
+                      const SizedBox(width: 18, height: 18),
+                      SizedBox(
+                        width: 340,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Icon(Icons.verified_user_rounded,
-                                color: AdminColors.success, size: 14),
-                            SizedBox(width: 6),
-                            Text(
-                              "Authenticated & verified via Google Cloud Identity.",
-                              style: TextStyle(
-                                color: AdminColors.success,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            securityPanel,
+                            const SizedBox(height: 18),
+                            audioPanel,
+                            const SizedBox(height: 18),
+                            logoutButton,
                           ],
                         ),
                       ),
-
-                      Custom3dTextField(
-                        controller: _phoneController,
-                        labelText: "Desk Phone / Contact Number",
-                        hintText: "e.g. 0917 123 4567 / (02) 8800 1234",
-                        prefixIcon: Icons.phone_in_talk_outlined,
-                        keyboardType: TextInputType.phone,
-                      ),
-
-                      Custom3dTextField(
-                        controller: _dutyStationController,
-                        labelText: "Command Center Duty Station",
-                        hintText: "e.g. Barangay Moonwalk - Command Center",
-                        prefixIcon: Icons.location_city_outlined,
-                      ),
-
-                      SizedBox(height: 20),
-
-                      SizedBox(
-                        width: double.infinity,
-                        child: Custom3dButton(
-                          icon: _isSaving ? null : Icons.save_rounded,
-                          text: _isSaving ? "SAVING CHANGES..." : "SAVE PROFILE CHANGES",
-                          gradient: AppColors.primaryGradient,
-                          onPressed: _isSaving ? null : _saveProfile,
-                        ),
-                      ),
                     ],
-                  ),
-                ),
+                  );
+                },
               ),
-              SizedBox(height: 20),
-
-              // ── 3. Security & Password Management ────────────────────
-              Custom3dCard(
-                padding: const EdgeInsets.all(26),
-                borderRadius: 22,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.security_rounded, color: AdminColors.primary, size: 20),
-                        SizedBox(width: 10),
-                        Text(
-                          "Security & Credentials",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: AdminColors.textDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      "Manage your login password or dispatch an official password reset link directly to your registered Google inbox.",
-                      style: TextStyle(fontSize: 12.5, color: AdminColors.textLight, height: 1.4),
-                    ),
-                    SizedBox(height: 18),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AdminColors.primary,
-                              side: const BorderSide(color: AdminColors.primary, width: 1.3),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            icon: Icon(Icons.mark_email_read_outlined, size: 18),
-                            label: Text(
-                              "Send Reset Link to Gmail",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
-                            ),
-                            onPressed: _sendPasswordReset,
-                          ),
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AdminColors.success,
-                              side: const BorderSide(color: AdminColors.success, width: 1.3),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            icon: Icon(Icons.password_rounded, size: 18),
-                            label: Text(
-                              "Change Password Directly",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
-                            ),
-                            onPressed: _showChangePasswordDialog,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20),
-
-              // ── 4. Station Audio & System Check ──────────────────────
-              Custom3dCard(
-                padding: const EdgeInsets.all(26),
-                borderRadius: 22,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.volume_up_rounded, color: AdminColors.orange, size: 20),
-                        SizedBox(width: 10),
-                        Text(
-                          "Station Speaker & Audio Check",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: AdminColors.textDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      "Verify that your command center desktop speakers are operational so you do not miss incoming citizen emergency alerts or siren broadcasts.",
-                      style: TextStyle(fontSize: 12.5, color: AdminColors.textLight, height: 1.4),
-                    ),
-                    SizedBox(height: 16),
-
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AdminColors.orange,
-                        side: const BorderSide(color: AdminColors.orange, width: 1.3),
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      icon: Icon(
-                        _isTestingAudio ? Icons.volume_up_rounded : Icons.play_arrow_rounded,
-                        size: 20,
-                      ),
-                      label: Text(
-                        _isTestingAudio
-                            ? "PLAYING STATION SIREN CHIME..."
-                            : "TEST STATION ALERT SOUND (resq_alert.wav)",
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
-                      ),
-                      onPressed: _testStationAudio,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24),
-
-              // ── 5. Logout Option ─────────────────────────────────────
-              Center(
-                child: TextButton.icon(
-                  style: TextButton.styleFrom(
-                    foregroundColor: AdminColors.dangerRed,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  ),
-                  icon: Icon(Icons.logout_rounded, size: 18),
-                  label: Text(
-                    "Log Out of Admin Command Center",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        backgroundColor: AdminColors.cardBackground,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: const BorderSide(color: AdminColors.border),
-                        ),
-                        title: Text("Confirm Logout",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        content: Text(
-                          "Are you sure you want to log out of the municipal admin panel?",
-                          style: TextStyle(color: AdminColors.textLight),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(ctx),
-                            child: Text("Cancel", style: TextStyle(color: AdminColors.textLight)),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(ctx);
-                              context.read<AuthBloc>().add(const LogoutRequested());
-                              Navigator.pushReplacementNamed(context, '/admin/login');
-                            },
-                            child: Text("Log Out",
-                                style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The board's red outlined button. [strong] is the tinted station alert
+/// test; otherwise it is the quieter log out.
+class _RedOutlineButton extends StatelessWidget {
+  const _RedOutlineButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    this.strong = false,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final bool strong;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color foreground =
+        strong ? AdminColors.dangerPale : AdminColors.dangerText;
+    return Semantics(
+      button: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: strong
+              ? AdminColors.critical.withValues(alpha: 0.14)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AdminColors.dangerSoft.withValues(
+              alpha: strong ? 0.7 : 0.35,
+            ),
+            width: strong ? 1.5 : 1,
+          ),
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: BorderRadius.circular(14),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, size: 18, color: foreground),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: foreground,
+                          fontSize: strong ? 12 : 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: strong ? 0.6 : 0,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),
