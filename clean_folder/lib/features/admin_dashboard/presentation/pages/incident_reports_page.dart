@@ -11,6 +11,7 @@ import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_player_dialog.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class IncidentReportsPage extends StatefulWidget {
   const IncidentReportsPage({super.key});
@@ -49,7 +50,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFFE8F0FE),
+                  color: AdminColors.textDark,
                 ),
               ),
               Row(
@@ -59,13 +60,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 12,
-                      color: Color(0xFF7B8DB0),
+                      color: AdminColors.textLight,
                     ),
                   ),
                   SizedBox(width: 8),
                   Switch(
                     value: showArchivedReports,
-                    activeTrackColor: const Color(0xFF0A84FF),
+                    activeTrackColor: AdminColors.primary,
                     activeThumbColor: Colors.white,
                     onChanged: (val) {
                       setState(() {
@@ -83,9 +84,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D1627),
+                    color: AdminColors.cardBackground,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E2D4A)),
+                    border: Border.all(color: AdminColors.border),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.15),
@@ -96,31 +97,31 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   ),
                   child: TextField(
                     style: const TextStyle(
-                        color: Color(0xFFE8F0FE), fontSize: 13),
+                        color: AdminColors.textDark, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: "Search by ID, type, reporter, location...",
                       hintStyle: const TextStyle(
-                          color: Color(0xFF4A5568), fontSize: 12.5),
+                          color: AdminColors.textFaint, fontSize: 12.5),
                       prefixIcon: Icon(Icons.search,
-                          color: Color(0xFF7B8DB0), size: 20),
+                          color: AdminColors.textLight, size: 20),
                       filled: true,
-                      fillColor: const Color(0xFF0D1627),
+                      fillColor: AdminColors.cardBackground,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide:
-                            const BorderSide(color: Color(0xFF1E2D4A)),
+                            const BorderSide(color: AdminColors.border),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide:
-                            const BorderSide(color: Color(0xFF1E2D4A)),
+                            const BorderSide(color: AdminColors.border),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: const BorderSide(
-                            color: Color(0xFF0A84FF), width: 2),
+                            color: AdminColors.primary, width: 2),
                       ),
                     ),
                     onChanged: (value) =>
@@ -133,18 +134,18 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
+                  color: AdminColors.cardBackground,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
+                  border: Border.all(color: AdminColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: statusFilter,
-                    dropdownColor: const Color(0xFF0D1627),
+                    dropdownColor: AdminColors.cardBackground,
                     style: const TextStyle(
-                        color: Color(0xFFE8F0FE), fontSize: 13),
+                        color: AdminColors.textDark, fontSize: 13),
                     icon: Icon(Icons.keyboard_arrow_down_rounded,
-                        color: Color(0xFF0A84FF)),
+                        color: AdminColors.primary),
                     items: const [
                       DropdownMenuItem(
                           value: "All", child: Text("All Statuses")),
@@ -176,7 +177,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 Text(
                   "PRIORITY QUEUE:",
                   style: TextStyle(
-                    color: Color(0xFF7B8DB0),
+                    color: AdminColors.textLight,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.6,
@@ -187,28 +188,28 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   key: "latest",
                   label: "Latest First",
                   icon: Icons.access_time_rounded,
-                  activeColor: const Color(0xFF0A84FF),
+                  activeColor: AdminColors.primary,
                 ),
                 SizedBox(width: 8),
                 _buildSortChip(
                   key: "urgency",
                   label: "Critical & Urgent First",
                   icon: Icons.warning_amber_rounded,
-                  activeColor: const Color(0xFFFF3B30),
+                  activeColor: AdminColors.danger,
                 ),
                 SizedBox(width: 8),
                 _buildSortChip(
                   key: "corroborated",
                   label: "Most Corroborated / Affected",
                   icon: Icons.people_alt_outlined,
-                  activeColor: const Color(0xFF00E5FF),
+                  activeColor: AdminColors.cyan,
                 ),
                 SizedBox(width: 8),
                 _buildSortChip(
                   key: "oldest_pending",
                   label: "Oldest Pending Backlog",
                   icon: Icons.hourglass_top_rounded,
-                  activeColor: const Color(0xFFFF9500),
+                  activeColor: AdminColors.orange,
                 ),
               ],
             ),
@@ -320,13 +321,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.inbox_outlined,
-                                    color: const Color(0xFF2A3F60),
+                                    color: AdminColors.borderStrong,
                                     size: 56),
                                 SizedBox(height: 14),
                                 Text(
                                   "No incident reports found",
                                   style: TextStyle(
-                                    color: Color(0xFF7B8DB0),
+                                    color: AdminColors.textLight,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -353,12 +354,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         dataRowMaxHeight: 60,
                                         headingRowColor:
                                             WidgetStateProperty.all(
-                                                const Color(0xFF060D1A)),
+                                                AdminColors.background),
                                         dataRowColor:
                                             WidgetStateProperty.resolveWith(
                                                 (states) => states.contains(
                                                         WidgetState.hovered)
-                                                    ? const Color(0xFF0D1627)
+                                                    ? AdminColors.cardBackground
                                                         .withValues(alpha: 0.8)
                                                     : Colors.transparent),
                                         dividerThickness: 0.5,
@@ -370,21 +371,21 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12))),
                                           const DataColumn(
                                               label: Text("Category",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12))),
                                           DataColumn(
                                               label: Text("Urgency",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12)),
                                               onSort:
                                                   (columnIndex, ascending) {
@@ -400,7 +401,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12)),
                                               onSort:
                                                   (columnIndex, ascending) {
@@ -415,21 +416,21 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12))),
                                           const DataColumn(
                                               label: Text("Location",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12))),
                                           DataColumn(
                                               label: Text("Date",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12)),
                                               onSort:
                                                   (columnIndex, ascending) {
@@ -444,7 +445,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12))),
                                         ],
                                         rows: filteredReports.map((report) {
@@ -487,11 +488,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                   style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.w700,
-                                                      color: Color(0xFFE8F0FE),
+                                                      color: AdminColors.textDark,
                                                       fontSize: 12))),
                                               DataCell(Text(report.category,
                                                   style: const TextStyle(
-                                                      color: Color(0xFFE8F0FE),
+                                                      color: AdminColors.textDark,
                                                       fontSize: 12))),
                                               DataCell(
                                                 Container(
@@ -529,16 +530,16 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                       horizontal: 8,
                                                       vertical: 3),
                                                   decoration: BoxDecoration(
-                                                    color: const Color(0xFF00E5FF)
+                                                    color: AdminColors.cyan
                                                         .withValues(alpha: 0.1),
                                                     borderRadius:
                                                         BorderRadius.circular(8),
                                                     border: Border.all(
                                                       color: (report.upvoteCount + 1) >= 5
-                                                          ? const Color(0xFFFF3B30).withValues(alpha: 0.5)
+                                                          ? AdminColors.danger.withValues(alpha: 0.5)
                                                           : ((report.upvoteCount + 1) >= 3
-                                                              ? const Color(0xFFFF9500).withValues(alpha: 0.5)
-                                                              : const Color(0xFF00E5FF).withValues(alpha: 0.35)),
+                                                              ? AdminColors.orange.withValues(alpha: 0.5)
+                                                              : AdminColors.cyan.withValues(alpha: 0.35)),
                                                     ),
                                                   ),
                                                   child: Row(
@@ -550,20 +551,20 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                             .people_alt_outlined,
                                                         size: 13,
                                                         color: (report.upvoteCount + 1) >= 5
-                                                            ? const Color(0xFFFF3B30)
+                                                            ? AdminColors.danger
                                                             : ((report.upvoteCount + 1) >= 3
-                                                                ? const Color(0xFFFF9500)
-                                                                : const Color(0xFF00E5FF)),
+                                                                ? AdminColors.orange
+                                                                : AdminColors.cyan),
                                                       ),
                                                       SizedBox(width: 5),
                                                       Text(
                                                         "${report.upvoteCount + 1} Affected",
                                                         style: TextStyle(
                                                           color: (report.upvoteCount + 1) >= 5
-                                                              ? const Color(0xFFFF3B30)
+                                                              ? AdminColors.danger
                                                               : ((report.upvoteCount + 1) >= 3
-                                                                  ? const Color(0xFFFF9500)
-                                                                  : const Color(0xFF00E5FF)),
+                                                                  ? AdminColors.orange
+                                                                  : AdminColors.cyan),
                                                           fontWeight:
                                                               FontWeight.w700,
                                                           fontSize: 11,
@@ -584,7 +585,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                       reporterDisplayName,
                                                       style: const TextStyle(
                                                         color:
-                                                            Color(0xFFE8F0FE),
+                                                            AdminColors.textDark,
                                                         fontWeight:
                                                             FontWeight.w700,
                                                         fontSize: 12,
@@ -596,7 +597,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                         "👥 For: ${report.victimName ?? 'Relative'}",
                                                         style: const TextStyle(
                                                           color:
-                                                              Color(0xFFFF9500),
+                                                              AdminColors.orange,
                                                           fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.w700,
@@ -610,7 +611,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                         "Anon to Public",
                                                         style: TextStyle(
                                                           color:
-                                                              Color(0xFFFF9500),
+                                                              AdminColors.orange,
                                                           fontSize: 10,
                                                           fontWeight:
                                                               FontWeight.w600,
@@ -628,7 +629,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                       locationDisplay,
                                                       style: const TextStyle(
                                                           color:
-                                                              Color(0xFF7B8DB0),
+                                                              AdminColors.textLight,
                                                           fontSize: 12),
                                                       maxLines: 1,
                                                       overflow:
@@ -640,7 +641,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                               DataCell(Text(
                                                   _formatDate(report.timestamp),
                                                   style: const TextStyle(
-                                                      color: Color(0xFF7B8DB0),
+                                                      color: AdminColors.textLight,
                                                       fontSize: 12))),
                                               DataCell(
                                                 Column(
@@ -723,10 +724,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 // Sticky / Frozen Actions Column on the far right
                                 Container(
                                   decoration: BoxDecoration(
-                                    color: Color(0xFF060D1A),
+                                    color: AdminColors.background,
                                     border: Border(
                                       left: BorderSide(
-                                        color: Color(0xFF1E293B),
+                                        color: AdminColors.slate,
                                         width: 1.5,
                                       ),
                                     ),
@@ -743,12 +744,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     dataRowMinHeight: 60,
                                     dataRowMaxHeight: 60,
                                     headingRowColor: WidgetStateProperty.all(
-                                        const Color(0xFF060D1A)),
+                                        AdminColors.background),
                                     dataRowColor:
                                         WidgetStateProperty.resolveWith(
                                             (states) => states.contains(
                                                     WidgetState.hovered)
-                                                ? const Color(0xFF0D1627)
+                                                ? AdminColors.cardBackground
                                                     .withValues(alpha: 0.8)
                                                 : Colors.transparent),
                                     dividerThickness: 0.5,
@@ -760,7 +761,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                           "Actions",
                                           style: TextStyle(
                                             fontWeight: FontWeight.w800,
-                                            color: Color(0xFF7B8DB0),
+                                            color: AdminColors.textLight,
                                             fontSize: 12,
                                           ),
                                         ),
@@ -776,7 +777,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                                 IconButton(
                                                   icon: Icon(
                                                     Icons.visibility,
-                                                    color: Color(0xFF0A84FF),
+                                                    color: AdminColors.primary,
                                                     size: 19,
                                                   ),
                                                   tooltip: "View Details",
@@ -893,33 +894,33 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     switch (
         status.toLowerCase().replaceAll(' ', '').replaceAll('_', '').trim()) {
       case 'pending':
-        return const Color(0xFFFFCC00);
+        return AdminColors.yellow;
       case 'inprogress':
-        return const Color(0xFF0A84FF);
+        return AdminColors.primary;
       case 'solved':
       case 'resolved':
-        return const Color(0xFF30D158);
+        return AdminColors.success;
       case 'spam':
-        return const Color(0xFFFF3B30);
+        return AdminColors.danger;
       case 'archived':
-        return const Color(0xFF8E8E93);
+        return AdminColors.neutral;
       default:
-        return const Color(0xFF7B8DB0);
+        return AdminColors.textLight;
     }
   }
 
   Color _getUrgencyColor(String urgency) {
     switch (urgency.toUpperCase().trim()) {
       case 'CRITICAL':
-        return const Color(0xFFFF3B30); // Crimson Red
+        return AdminColors.danger; // Crimson Red
       case 'HIGH':
-        return const Color(0xFFFF9500); // Amber Orange
+        return AdminColors.orange; // Amber Orange
       case 'MEDIUM':
-        return const Color(0xFF00E5FF); // Electric Cyan
+        return AdminColors.cyan; // Electric Cyan
       case 'LOW':
-        return const Color(0xFF8E8E93); // Slate Gray
+        return AdminColors.neutral; // Slate Gray
       default:
-        return const Color(0xFF7B8DB0);
+        return AdminColors.textLight;
     }
   }
 
@@ -930,7 +931,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     Color? activeColor,
   }) {
     final isSelected = sortBy == key && _sortColumnIndex == null;
-    final color = activeColor ?? const Color(0xFF0A84FF);
+    final color = activeColor ?? AdminColors.primary;
     return InkWell(
       onTap: () {
         setState(() {
@@ -945,10 +946,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         decoration: BoxDecoration(
           color: isSelected
               ? color.withValues(alpha: 0.16)
-              : const Color(0xFF0D1627),
+              : AdminColors.cardBackground,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? color : const Color(0xFF1E2D4A),
+            color: isSelected ? color : AdminColors.border,
             width: isSelected ? 1.5 : 1.0,
           ),
         ),
@@ -957,12 +958,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           children: [
             Icon(icon,
                 size: 14,
-                color: isSelected ? color : const Color(0xFF7B8DB0)),
+                color: isSelected ? color : AdminColors.textLight),
             SizedBox(width: 6),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
+                color: isSelected ? Colors.white : AdminColors.textLight,
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
@@ -986,20 +987,20 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              backgroundColor: const Color(0xFF0D1627),
+              backgroundColor: AdminColors.cardBackground,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFF1E2D4A))),
+                  side: const BorderSide(color: AdminColors.border)),
               title: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
+                      color: AdminColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.edit_note,
-                        color: Color(0xFF0A84FF), size: 20),
+                        color: AdminColors.primary, size: 20),
                   ),
                   SizedBox(width: 12),
                   Expanded(
@@ -1024,7 +1025,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       Text(
                         "RESOLUTION STAGE",
                         style: TextStyle(
-                            color: Color(0xFF7B8DB0),
+                            color: AdminColors.textLight,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5),
@@ -1032,22 +1033,22 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         initialValue: selectedStatus,
-                        dropdownColor: const Color(0xFF0D1627),
+                        dropdownColor: AdminColors.cardBackground,
                         style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.w600),
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: const Color(0xFF060D1A),
+                          fillColor: AdminColors.background,
                           contentPadding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 14),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
+                                  const BorderSide(color: AdminColors.border)),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
+                                  const BorderSide(color: AdminColors.border)),
                         ),
                         items: const [
                           DropdownMenuItem(
@@ -1080,7 +1081,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             Text(
                               "ESTIMATED TIME OF ARRIVAL (ETA)",
                               style: TextStyle(
-                                  color: Color(0xFF00E5FF),
+                                  color: AdminColors.cyan,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5),
@@ -1090,14 +1091,14 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00E5FF)
+                                color: AdminColors.cyan
                                     .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
                                 "CITIZEN VISIBLE",
                                 style: TextStyle(
-                                  color: Color(0xFF00E5FF),
+                                  color: AdminColors.cyan,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -1129,14 +1130,14 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? const Color(0xFF00E5FF)
+                                      ? AdminColors.cyan
                                           .withValues(alpha: 0.25)
-                                      : const Color(0xFF060D1A),
+                                      : AdminColors.background,
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: isSelected
-                                        ? const Color(0xFF00E5FF)
-                                        : const Color(0xFF1E2D4A),
+                                        ? AdminColors.cyan
+                                        : AdminColors.border,
                                   ),
                                 ),
                                 child: Text(
@@ -1147,8 +1148,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         ? FontWeight.w800
                                         : FontWeight.w600,
                                     color: isSelected
-                                        ? const Color(0xFF00E5FF)
-                                        : const Color(0xFF7B8DB0),
+                                        ? AdminColors.cyan
+                                        : AdminColors.textLight,
                                   ),
                                 ),
                               ),
@@ -1159,30 +1160,30 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         TextField(
                           controller: etaController,
                           style: const TextStyle(
-                              color: Color(0xFFE8F0FE), fontSize: 13),
+                              color: AdminColors.textDark, fontSize: 13),
                           decoration: InputDecoration(
                             hintText:
                                 "Or type custom ETA (e.g. 8 mins, On scene)...",
                             hintStyle: const TextStyle(
-                                color: Color(0xFF4A5568), fontSize: 12),
+                                color: AdminColors.textFaint, fontSize: 12),
                             prefixIcon: Icon(Icons.timer_outlined,
-                                color: Color(0xFF00E5FF), size: 18),
+                                color: AdminColors.cyan, size: 18),
                             filled: true,
-                            fillColor: const Color(0xFF060D1A),
+                            fillColor: AdminColors.background,
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 12),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide:
-                                    const BorderSide(color: Color(0xFF1E2D4A))),
+                                    const BorderSide(color: AdminColors.border)),
                             enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide:
-                                    const BorderSide(color: Color(0xFF1E2D4A))),
+                                    const BorderSide(color: AdminColors.border)),
                             focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide:
-                                    const BorderSide(color: Color(0xFF00E5FF))),
+                                    const BorderSide(color: AdminColors.cyan)),
                           ),
                         ),
                       ],
@@ -1190,7 +1191,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       Text(
                         "DISPATCHER & OPERATIONAL NOTES",
                         style: TextStyle(
-                            color: Color(0xFF7B8DB0),
+                            color: AdminColors.textLight,
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.5),
@@ -1200,27 +1201,27 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         controller: notesController,
                         maxLines: 4,
                         style: const TextStyle(
-                            color: Color(0xFFE8F0FE), fontSize: 13),
+                            color: AdminColors.textDark, fontSize: 13),
                         decoration: InputDecoration(
                           hintText:
                               "Log responder dispatch units, field actions, or resident advisory...",
                           hintStyle: const TextStyle(
-                              color: Color(0xFF4A5568), fontSize: 12),
+                              color: AdminColors.textFaint, fontSize: 12),
                           filled: true,
-                          fillColor: const Color(0xFF060D1A),
+                          fillColor: AdminColors.background,
                           contentPadding: const EdgeInsets.all(14),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
+                                  const BorderSide(color: AdminColors.border)),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
+                                  const BorderSide(color: AdminColors.border)),
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(14),
                               borderSide:
-                                  const BorderSide(color: Color(0xFF0A84FF))),
+                                  const BorderSide(color: AdminColors.primary)),
                         ),
                       ),
                     ],
@@ -1231,11 +1232,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
                   child: Text("Cancel",
-                      style: TextStyle(color: Color(0xFF7B8DB0))),
+                      style: TextStyle(color: AdminColors.textLight)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0A84FF),
+                    backgroundColor: AdminColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 12),
@@ -1264,11 +1265,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        backgroundColor: const Color(0xFF0D1627),
+                        backgroundColor: AdminColors.cardBackground,
                         content: Text(
                           "Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} status updated to '$selectedStatus'!",
                           style: const TextStyle(
-                              color: Color(0xFF30D158),
+                              color: AdminColors.success,
                               fontWeight: FontWeight.bold),
                         ),
                         behavior: SnackBarBehavior.floating,
@@ -1318,10 +1319,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: const Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
+            side: const BorderSide(color: AdminColors.border),
           ),
           titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
           contentPadding:
@@ -1332,11 +1333,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
+                  color: AdminColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(Icons.shield_outlined,
-                    color: Color(0xFF0A84FF), size: 22),
+                    color: AdminColors.primary, size: 22),
               ),
               SizedBox(width: 14),
               Expanded(
@@ -1356,7 +1357,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     Text(
                       _formatDateTime(report.timestamp),
                       style: const TextStyle(
-                          color: Color(0xFF7B8DB0), fontSize: 12),
+                          color: AdminColors.textLight, fontSize: 12),
                     ),
                   ],
                 ),
@@ -1392,10 +1393,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       margin: const EdgeInsets.only(bottom: 14),
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF9500).withValues(alpha: 0.12),
+                        color: AdminColors.orange.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: const Color(0xFFFF9500).withValues(alpha: 0.5),
+                          color: AdminColors.orange.withValues(alpha: 0.5),
                           width: 1.5,
                         ),
                       ),
@@ -1404,11 +1405,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF9500).withValues(alpha: 0.2),
+                              color: AdminColors.orange.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.people_alt,
-                                color: Color(0xFFFF9500), size: 22),
+                                color: AdminColors.orange, size: 22),
                           ),
                           SizedBox(width: 14),
                           Expanded(
@@ -1420,7 +1421,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     Text(
                                       "REPORTED ON BEHALF (OFF-SITE FILING)",
                                       style: TextStyle(
-                                        color: Color(0xFFFF9500),
+                                        color: AdminColors.orange,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w900,
                                         letterSpacing: 0.6,
@@ -1431,14 +1432,14 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 6, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFFF9500)
+                                        color: AdminColors.orange
                                             .withValues(alpha: 0.25),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         "ACTION REQUIRED",
                                         style: TextStyle(
-                                          color: Color(0xFFFF9500),
+                                          color: AdminColors.orange,
                                           fontSize: 9,
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -1461,7 +1462,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                   Text(
                                     "Victim Phone: ${report.victimPhone!}",
                                     style: const TextStyle(
-                                      color: Color(0xFF00E5FF),
+                                      color: AdminColors.cyan,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -1481,9 +1482,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 }
                               },
                               icon: Icon(Icons.phone_in_talk,
-                                  color: Color(0xFF00E5FF), size: 20),
+                                  color: AdminColors.cyan, size: 20),
                               style: IconButton.styleFrom(
-                                backgroundColor: const Color(0xFF00E5FF)
+                                backgroundColor: AdminColors.cyan
                                     .withValues(alpha: 0.15),
                               ),
                               tooltip: "Call Victim Directly",
@@ -1498,9 +1499,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
+                      color: AdminColors.background,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                      border: Border.all(color: AdminColors.border),
                     ),
                     child: Row(
                       children: [
@@ -1511,7 +1512,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               Text(
                                 "CATEGORY",
                                 style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
+                                  color: AdminColors.textLight,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5,
@@ -1532,7 +1533,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         Container(
                           height: 32,
                           width: 1,
-                          color: const Color(0xFF1E2D4A),
+                          color: AdminColors.border,
                         ),
                         SizedBox(width: 16),
                         Expanded(
@@ -1542,7 +1543,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               Text(
                                 "TRIAGE URGENCY LEVEL",
                                 style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
+                                  color: AdminColors.textLight,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5,
@@ -1576,7 +1577,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         Container(
                           height: 32,
                           width: 1,
-                          color: const Color(0xFF1E2D4A),
+                          color: AdminColors.border,
                         ),
                         SizedBox(width: 16),
                         Column(
@@ -1585,7 +1586,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             Text(
                               "COMMUNITY CONFIRMED",
                               style: TextStyle(
-                                color: Color(0xFF7B8DB0),
+                                color: AdminColors.textLight,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 0.5,
@@ -1595,7 +1596,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             Text(
                               "${report.upvoteCount} citizen${report.upvoteCount == 1 ? '' : 's'}",
                               style: const TextStyle(
-                                color: Color(0xFF30D158),
+                                color: AdminColors.success,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 13,
                               ),
@@ -1607,7 +1608,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           Container(
                             height: 32,
                             width: 1,
-                            color: const Color(0xFF1E2D4A),
+                            color: AdminColors.border,
                           ),
                           SizedBox(width: 16),
                           Column(
@@ -1616,7 +1617,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               Text(
                                 "DISPATCH ETA",
                                 style: TextStyle(
-                                  color: Color(0xFF00E5FF),
+                                  color: AdminColors.cyan,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 0.5,
@@ -1626,12 +1627,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               Row(
                                 children: [
                                   Icon(Icons.timer_outlined,
-                                      size: 13, color: Color(0xFF00E5FF)),
+                                      size: 13, color: AdminColors.cyan),
                                   SizedBox(width: 4),
                                   Text(
                                     report.estimatedResponseTime!,
                                     style: const TextStyle(
-                                      color: Color(0xFF00E5FF),
+                                      color: AdminColors.cyan,
                                       fontWeight: FontWeight.w800,
                                       fontSize: 13,
                                     ),
@@ -1655,12 +1656,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
+                      color: AdminColors.background,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: report.isAnonymous
-                            ? const Color(0xFFFF9500).withValues(alpha: 0.4)
-                            : const Color(0xFF1E2D4A),
+                            ? AdminColors.orange.withValues(alpha: 0.4)
+                            : AdminColors.border,
                       ),
                     ),
                     child: Column(
@@ -1670,7 +1671,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           children: [
                             CircleAvatar(
                               radius: 18,
-                              backgroundColor: const Color(0xFF1E2D4A),
+                              backgroundColor: AdminColors.border,
                               child: Text(
                                 (report.reporterName != null &&
                                         report.reporterName!.isNotEmpty)
@@ -1702,7 +1703,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     Text(
                                       report.reporterEmail!,
                                       style: const TextStyle(
-                                          color: Color(0xFF7B8DB0),
+                                          color: AdminColors.textLight,
                                           fontSize: 12),
                                     ),
                                 ],
@@ -1713,23 +1714,23 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFF9500)
+                                  color: AdminColors.orange
                                       .withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                      color: const Color(0xFFFF9500)
+                                      color: AdminColors.orange
                                           .withValues(alpha: 0.4)),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(Icons.lock_outline,
-                                        size: 12, color: Color(0xFFFF9500)),
+                                        size: 12, color: AdminColors.orange),
                                     SizedBox(width: 4),
                                     Text(
                                       "Anonymous to Public",
                                       style: TextStyle(
-                                        color: Color(0xFFFF9500),
+                                        color: AdminColors.orange,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -1744,20 +1745,20 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF9500)
+                              color: AdminColors.orange
                                   .withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               children: [
                                 Icon(Icons.info_outline,
-                                    size: 14, color: Color(0xFFFF9500)),
+                                    size: 14, color: AdminColors.orange),
                                 SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
                                     "Citizen requested public anonymity. Identity is only visible to Command Center Dispatchers for verification and emergency response.",
                                     style: TextStyle(
-                                        color: Color(0xFFFFB340), fontSize: 11),
+                                        color: AdminColors.amberLight, fontSize: 11),
                                   ),
                                 ),
                               ],
@@ -1768,7 +1769,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         Text(
                           "Account UID: ${report.reporterId}",
                           style: const TextStyle(
-                              color: Color(0xFF4A5568),
+                              color: AdminColors.textFaint,
                               fontSize: 10,
                               fontFamily: 'monospace'),
                         ),
@@ -1785,10 +1786,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFF9500).withValues(alpha: 0.08),
+                        color: AdminColors.orange.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: const Color(0xFFFF9500).withValues(alpha: 0.4)),
+                            color: AdminColors.orange.withValues(alpha: 0.4)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1796,7 +1797,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           Row(
                             children: [
                               Icon(Icons.person_pin_circle,
-                                  color: Color(0xFFFF9500), size: 18),
+                                  color: AdminColors.orange, size: 18),
                               SizedBox(width: 8),
                               Expanded(
                                 child: Text(
@@ -1814,13 +1815,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFF9500).withValues(alpha: 0.2),
+                                  color: AdminColors.orange.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   "OFF-SITE FILING",
                                   style: TextStyle(
-                                    color: Color(0xFFFF9500),
+                                    color: AdminColors.orange,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
                                   ),
@@ -1837,12 +1838,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 Row(
                                   children: [
                                     Icon(Icons.phone,
-                                        color: Color(0xFF00E5FF), size: 14),
+                                        color: AdminColors.cyan, size: 14),
                                     SizedBox(width: 6),
                                     Text(
                                       "Contact: ${report.victimPhone!}",
                                       style: const TextStyle(
-                                        color: Color(0xFF00E5FF),
+                                        color: AdminColors.cyan,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -1862,23 +1863,23 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF00E5FF)
+                                      color: AdminColors.cyan
                                           .withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(6),
                                       border: Border.all(
-                                          color: const Color(0xFF00E5FF)
+                                          color: AdminColors.cyan
                                               .withValues(alpha: 0.4)),
                                     ),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Icon(Icons.phone_in_talk,
-                                            color: Color(0xFF00E5FF), size: 12),
+                                            color: AdminColors.cyan, size: 12),
                                         SizedBox(width: 4),
                                         Text(
                                           "Call Victim",
                                           style: TextStyle(
-                                            color: Color(0xFF00E5FF),
+                                            color: AdminColors.cyan,
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -1905,9 +1906,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
+                      color: AdminColors.background,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                      border: Border.all(color: AdminColors.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1916,13 +1917,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Icon(Icons.place,
-                                color: Color(0xFF0A84FF), size: 18),
+                                color: AdminColors.primary, size: 18),
                             SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 fullAddress,
                                 style: const TextStyle(
-                                  color: Color(0xFFE8F0FE),
+                                  color: AdminColors.textDark,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   height: 1.3,
@@ -1939,15 +1940,15 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               Text(
                                 "GPS: ${report.latitude.toStringAsFixed(6)}, ${report.longitude.toStringAsFixed(6)}",
                                 style: const TextStyle(
-                                  color: Color(0xFF7B8DB0),
+                                  color: AdminColors.textLight,
                                   fontSize: 11,
                                   fontFamily: 'monospace',
                                 ),
                               ),
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1E2D4A),
-                                  foregroundColor: const Color(0xFF0A84FF),
+                                  backgroundColor: AdminColors.border,
+                                  foregroundColor: AdminColors.primary,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 8),
                                   shape: RoundedRectangleBorder(
@@ -1983,16 +1984,16 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
+                      color: AdminColors.background,
                       borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                      border: Border.all(color: AdminColors.border),
                     ),
                     child: Text(
                       report.description.isNotEmpty
                           ? report.description
                           : "No description provided.",
                       style: const TextStyle(
-                          color: Color(0xFFE8F0FE), fontSize: 13, height: 1.4),
+                          color: AdminColors.textDark, fontSize: 13, height: 1.4),
                     ),
                   ),
 
@@ -2006,19 +2007,19 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
+                        color: AdminColors.background,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF1E2D4A)),
+                        border: Border.all(color: AdminColors.border),
                       ),
                       child: Row(
                         children: [
                           Icon(Icons.attachment,
-                              color: Color(0xFF4A5568), size: 16),
+                              color: AdminColors.textFaint, size: 16),
                           SizedBox(width: 10),
                           Text(
                             "No photo or video attachments submitted.",
                             style: TextStyle(
-                                color: Color(0xFF7B8DB0), fontSize: 12),
+                                color: AdminColors.textLight, fontSize: 12),
                           ),
                         ],
                       ),
@@ -2029,9 +2030,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
+                        color: AdminColors.background,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF1E2D4A)),
+                        border: Border.all(color: AdminColors.border),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2061,7 +2062,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                       if (loadingProgress == null) return child;
                                       return Container(
                                         height: 220,
-                                        color: const Color(0xFF060D1A),
+                                        color: AdminColors.background,
                                         child: Center(
                                             child: CircularProgressIndicator()),
                                       );
@@ -2069,19 +2070,19 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     errorBuilder: (context, error, stackTrace) =>
                                         Container(
                                       height: 140,
-                                      color: const Color(0xFF060D1A),
+                                      color: AdminColors.background,
                                       padding: const EdgeInsets.all(12),
                                       child: Center(
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             Icon(Icons.broken_image_outlined,
-                                                color: Color(0xFF7B8DB0), size: 32),
+                                                color: AdminColors.textLight, size: 32),
                                             SizedBox(height: 6),
                                             Text(
                                               "Image preview blocked by browser security.",
                                               style: TextStyle(
-                                                  color: Color(0xFF7B8DB0),
+                                                  color: AdminColors.textLight,
                                                   fontSize: 11),
                                             ),
                                             SizedBox(height: 6),
@@ -2110,7 +2111,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               children: [
                                 Text("Citizen Attached Photo",
                                     style: TextStyle(
-                                        color: Color(0xFF7B8DB0), fontSize: 12)),
+                                        color: AdminColors.textLight, fontSize: 12)),
                                 TextButton.icon(
                                   icon: Icon(Icons.fullscreen_rounded, size: 16),
                                   label: Text("View Full Resolution",
@@ -2135,10 +2136,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
+                        color: AdminColors.background,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: const Color(0xFFFF9500)
+                            color: AdminColors.orange
                                 .withValues(alpha: 0.4)),
                       ),
                       child: Row(
@@ -2147,12 +2148,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFF9500)
+                              color: AdminColors.orange
                                   .withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.phonelink_erase_rounded,
-                                color: Color(0xFFFF9500), size: 20),
+                                color: AdminColors.orange, size: 20),
                           ),
                           SizedBox(width: 12),
                           Expanded(
@@ -2171,7 +2172,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 Text(
                                   "This report was saved while the citizen was offline or before cloud upload finished. The photo was cached on the reporting phone.",
                                   style: TextStyle(
-                                    color: Color(0xFF7B8DB0),
+                                    color: AdminColors.textLight,
                                     fontSize: 11.5,
                                     height: 1.35,
                                   ),
@@ -2180,7 +2181,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 Text(
                                   "Path: ${report.photoUrl}",
                                   style: const TextStyle(
-                                    color: Color(0xFF4A5568),
+                                    color: AdminColors.textFaint,
                                     fontSize: 10,
                                     fontFamily: 'monospace',
                                   ),
@@ -2201,10 +2202,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
+                        color: AdminColors.background,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: const Color(0xFF0A84FF)
+                            color: AdminColors.primary
                                 .withValues(alpha: 0.4)),
                       ),
                       child: Row(
@@ -2212,12 +2213,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0A84FF)
+                              color: AdminColors.primary
                                   .withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.videocam,
-                                color: Color(0xFF0A84FF), size: 24),
+                                color: AdminColors.primary, size: 24),
                           ),
                           SizedBox(width: 14),
                           const Expanded(
@@ -2235,7 +2236,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 Text(
                                   "High-definition video recording captured at scene",
                                   style: TextStyle(
-                                      color: Color(0xFF7B8DB0), fontSize: 11),
+                                      color: AdminColors.textLight, fontSize: 11),
                                 ),
                               ],
                             ),
@@ -2245,7 +2246,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                             children: [
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0A84FF),
+                                  backgroundColor: AdminColors.primary,
                                   foregroundColor: Colors.white,
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 14, vertical: 10),
@@ -2267,7 +2268,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               SizedBox(width: 8),
                               IconButton(
                                 icon: Icon(Icons.open_in_new_rounded,
-                                    color: Color(0xFF7B8DB0), size: 18),
+                                    color: AdminColors.textLight, size: 18),
                                 tooltip: "Open in External Tab",
                                 onPressed: () => launchUrl(
                                     Uri.parse(InAppEvidencePlayerDialog.formatPlayableVideoUrl(report.videoUrl!)),
@@ -2284,22 +2285,22 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
+                        color: AdminColors.background,
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: const Color(0xFFFF9500)
+                            color: AdminColors.orange
                                 .withValues(alpha: 0.4)),
                       ),
                       child: Row(
                         children: const [
                           Icon(Icons.videocam_off_rounded,
-                              color: Color(0xFFFF9500), size: 20),
+                              color: AdminColors.orange, size: 20),
                           SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               "Video evidence was cached locally on citizen device and not uploaded to cloud.",
                               style: TextStyle(
-                                  color: Color(0xFF7B8DB0), fontSize: 11.5),
+                                  color: AdminColors.textLight, fontSize: 11.5),
                             ),
                           ),
                         ],
@@ -2320,16 +2321,16 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color:
-                            const Color(0xFF0A84FF).withValues(alpha: 0.08),
+                            AdminColors.primary.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: const Color(0xFF0A84FF)
+                            color: AdminColors.primary
                                 .withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         report.dispatcherNotes!,
                         style: const TextStyle(
-                            color: Color(0xFFE8F0FE), height: 1.4, fontSize: 13),
+                            color: AdminColors.textDark, height: 1.4, fontSize: 13),
                       ),
                     ),
                   ],
@@ -2341,11 +2342,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text("Close",
-                  style: TextStyle(color: Color(0xFF7B8DB0))),
+                  style: TextStyle(color: AdminColors.textLight)),
             ),
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A84FF),
+                backgroundColor: AdminColors.primary,
                 foregroundColor: Colors.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -2369,12 +2370,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
   Widget _buildSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF7B8DB0)),
+        Icon(icon, size: 14, color: AdminColors.textLight),
         SizedBox(width: 6),
         Text(
           title,
           style: const TextStyle(
-            color: Color(0xFF7B8DB0),
+            color: AdminColors.textLight,
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.5,

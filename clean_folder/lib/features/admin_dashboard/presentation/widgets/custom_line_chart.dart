@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class CustomLineChart extends StatelessWidget {
   final List<IncidentEntity> incidents;
@@ -59,10 +60,10 @@ class CustomLineChart extends StatelessWidget {
       height: 310,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
+        color: AdminColors.cardBackground,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: const Color(0xFF1E2D4A).withValues(alpha: 0.8),
+          color: AdminColors.border.withValues(alpha: 0.8),
         ),
         boxShadow: [
           BoxShadow(
@@ -104,7 +105,7 @@ class CustomLineChart extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 15,
-                          color: Color(0xFFE8F0FE),
+                          color: AdminColors.textDark,
                           letterSpacing: -0.2,
                         ),
                       ),
@@ -113,7 +114,7 @@ class CustomLineChart extends StatelessWidget {
                         "Daily report volume (Past 7 Days)",
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF7B8DB0),
+                          color: AdminColors.textLight,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -161,11 +162,11 @@ class CustomLineChart extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _legendItem("Total Reports", const Color(0xFF00E5FF)),
+              _legendItem("Total Reports", AdminColors.cyan),
               SizedBox(width: 20),
-              _legendItem("Urgent / Critical", const Color(0xFFFF3B30)),
+              _legendItem("Urgent / Critical", AdminColors.danger),
               SizedBox(width: 20),
-              _legendItem("Resolved Cases", const Color(0xFF30D158)),
+              _legendItem("Resolved Cases", AdminColors.success),
             ],
           ),
         ],
@@ -197,7 +198,7 @@ class CustomLineChart extends StatelessWidget {
           title,
           style: const TextStyle(
             fontSize: 11,
-            color: Color(0xFF8DA0C2),
+            color: AdminColors.chartAxis,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -237,7 +238,7 @@ class _OledLineChartPainter extends CustomPainter {
     final double graphHeight = height - bottomMargin;
 
     final Paint gridPaint = Paint()
-      ..color = const Color(0xFF1E2D4A).withValues(alpha: 0.6)
+      ..color = AdminColors.border.withValues(alpha: 0.6)
       ..strokeWidth = 1.0;
 
     final TextPainter textPainter = TextPainter(
@@ -257,7 +258,7 @@ class _OledLineChartPainter extends CustomPainter {
       textPainter.text = TextSpan(
         text: labelVal.round().toString(),
         style: const TextStyle(
-          color: Color(0xFF5A6E8C),
+          color: AdminColors.textMuted,
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),
@@ -273,8 +274,8 @@ class _OledLineChartPainter extends CustomPainter {
         text: dayLabels[i],
         style: TextStyle(
           color: i == dayLabels.length - 1
-              ? const Color(0xFF00E5FF)
-              : const Color(0xFF5A6E8C),
+              ? AdminColors.cyan
+              : AdminColors.textMuted,
           fontSize: 10,
           fontWeight: i == dayLabels.length - 1
               ? FontWeight.w800
@@ -298,7 +299,7 @@ class _OledLineChartPainter extends CustomPainter {
     _drawCurvedLine(
       canvas: canvas,
       values: solvedCounts,
-      color: const Color(0xFF30D158),
+      color: AdminColors.success,
       leftMargin: leftMargin,
       xSpacing: xSpacing,
       getY: getY,
@@ -309,7 +310,7 @@ class _OledLineChartPainter extends CustomPainter {
     _drawCurvedLine(
       canvas: canvas,
       values: urgentCounts,
-      color: const Color(0xFFFF3B30),
+      color: AdminColors.danger,
       leftMargin: leftMargin,
       xSpacing: xSpacing,
       getY: getY,
@@ -320,7 +321,7 @@ class _OledLineChartPainter extends CustomPainter {
     _drawCurvedLine(
       canvas: canvas,
       values: totalCounts,
-      color: const Color(0xFF00E5FF),
+      color: AdminColors.cyan,
       leftMargin: leftMargin,
       xSpacing: xSpacing,
       getY: getY,
@@ -400,7 +401,7 @@ class _OledLineChartPainter extends CustomPainter {
 
     // Points
     final Paint dotFill = Paint()
-      ..color = const Color(0xFF0D1627)
+      ..color = AdminColors.cardBackground
       ..style = PaintingStyle.fill;
 
     final Paint dotBorder = Paint()

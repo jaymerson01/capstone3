@@ -43,10 +43,10 @@ class _AdminSidebarState extends State<AdminSidebar> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
+          colors: [AdminColors.background, AdminColors.surfaceDeep],
         ),
         border: const Border(
-          right: BorderSide(color: Color(0xFF1E2D4A), width: 1),
+          right: BorderSide(color: AdminColors.border, width: 1),
         ),
         boxShadow: [
           BoxShadow(
@@ -126,7 +126,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            Divider(color: Color(0xFF1E2D4A), height: 1),
+            Divider(color: AdminColors.border, height: 1),
             SizedBox(height: 15),
 
             Expanded(
@@ -221,7 +221,7 @@ class _AdminSidebarState extends State<AdminSidebar> {
               ),
             ),
 
-            Divider(color: Color(0xFF1E2D4A), height: 1),
+            Divider(color: AdminColors.border, height: 1),
             SizedBox(height: 10),
 
             Padding(

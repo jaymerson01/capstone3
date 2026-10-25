@@ -7,6 +7,7 @@ import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.da
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/admin_dashboard/domain/entities/audit_log_entity.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class AdminAuditLogsPage extends StatefulWidget {
   const AdminAuditLogsPage({super.key});
@@ -37,7 +38,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF3A4B6B), Color(0xFF1E2D4A)],
+                        colors: [AdminColors.borderHighlight, AdminColors.border],
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
@@ -50,7 +51,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                     ),
                     child: Icon(
                       Icons.history_edu_rounded,
-                      color: Color(0xFF00E5FF),
+                      color: AdminColors.cyan,
                       size: 22,
                     ),
                   ),
@@ -63,7 +64,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFFE8F0FE),
+                          color: AdminColors.textDark,
                           letterSpacing: -0.3,
                         ),
                       ),
@@ -72,7 +73,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                         "Immutable ledger of dispatch status updates, sirens, moderation, and blotter exports",
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF7B8DB0),
+                          color: AdminColors.textLight,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -90,7 +91,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                         ? null
                         : () => _exportAuditLogsCsv(logs),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF00E5FF), width: 1.4),
+                      side: const BorderSide(color: AdminColors.cyan, width: 1.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -99,17 +100,17 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                         vertical: 14,
                       ),
                       backgroundColor:
-                          const Color(0xFF00E5FF).withValues(alpha: 0.08),
+                          AdminColors.cyan.withValues(alpha: 0.08),
                     ),
                     icon: Icon(
                       Icons.download_rounded,
                       size: 17,
-                      color: Color(0xFF00E5FF),
+                      color: AdminColors.cyan,
                     ),
                     label: Text(
                       "Export Audit CSV",
                       style: TextStyle(
-                        color: Color(0xFF00E5FF),
+                        color: AdminColors.cyan,
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
@@ -127,28 +128,28 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D1627),
+                    color: AdminColors.cardBackground,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E2D4A)),
+                    border: Border.all(color: AdminColors.border),
                   ),
                   child: TextField(
                     style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                       fontSize: 13,
                     ),
                     decoration: InputDecoration(
                       hintText: "Search audit logs by admin, action, target, or details...",
                       hintStyle: const TextStyle(
-                        color: Color(0xFF5A6E8C),
+                        color: AdminColors.textMuted,
                         fontSize: 12.5,
                       ),
                       prefixIcon: Icon(
                         Icons.search,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         size: 20,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF0D1627),
+                      fillColor: AdminColors.cardBackground,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
@@ -168,21 +169,21 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
+                  color: AdminColors.cardBackground,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
+                  border: Border.all(color: AdminColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _actionFilter,
-                    dropdownColor: const Color(0xFF0D1627),
+                    dropdownColor: AdminColors.cardBackground,
                     style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                       fontSize: 13,
                     ),
                     icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF00E5FF),
+                      color: AdminColors.cyan,
                     ),
                     items: const [
                       DropdownMenuItem(value: "All", child: Text("All Actions")),
@@ -229,7 +230,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
 
                 if (!snapshot.hasData) {
                   return Center(
-                    child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                    child: CircularProgressIndicator(color: AdminColors.cyan),
                   );
                 }
 
@@ -258,14 +259,14 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                             children: [
                               Icon(
                                 Icons.verified_user_outlined,
-                                color: const Color(0xFF2A3F60),
+                                color: AdminColors.borderStrong,
                                 size: 52,
                               ),
                               SizedBox(height: 12),
                               Text(
                                 "No audit log entries found for this filter.",
                                 style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
+                                  color: AdminColors.textLight,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -280,11 +281,11 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                             child: DataTable(
                               headingRowHeight: 48,
                               headingRowColor: WidgetStateProperty.all(
-                                const Color(0xFF060D1A),
+                                AdminColors.background,
                               ),
                               dataRowColor: WidgetStateProperty.resolveWith(
                                 (states) => states.contains(WidgetState.hovered)
-                                    ? const Color(0xFF0D1627)
+                                    ? AdminColors.cardBackground
                                         .withValues(alpha: 0.8)
                                     : Colors.transparent,
                               ),
@@ -295,7 +296,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                     "Timestamp",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -305,7 +306,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                     "Admin Officer",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -315,7 +316,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                     "Action Type",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -325,7 +326,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                     "Target ID",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -335,7 +336,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                     "Operational Details",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -353,7 +354,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                       Text(
                                         timeStr,
                                         style: const TextStyle(
-                                          color: Color(0xFF7B8DB0),
+                                          color: AdminColors.textLight,
                                           fontSize: 11.5,
                                         ),
                                       ),
@@ -368,7 +369,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                           Text(
                                             log.adminName,
                                             style: const TextStyle(
-                                              color: Color(0xFFE8F0FE),
+                                              color: AdminColors.textDark,
                                               fontWeight: FontWeight.w700,
                                               fontSize: 12,
                                             ),
@@ -376,7 +377,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                           Text(
                                             log.adminEmail,
                                             style: const TextStyle(
-                                              color: Color(0xFF5A6E8C),
+                                              color: AdminColors.textMuted,
                                               fontSize: 10,
                                             ),
                                           ),
@@ -416,7 +417,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                                 : log.targetId!)
                                             : "—",
                                         style: const TextStyle(
-                                          color: Color(0xFF00E5FF),
+                                          color: AdminColors.cyan,
                                           fontSize: 11.5,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -428,7 +429,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                                         child: Text(
                                           log.details,
                                           style: const TextStyle(
-                                            color: Color(0xFFB0C4DE),
+                                            color: AdminColors.textSoft,
                                             fontSize: 12,
                                           ),
                                           overflow: TextOverflow.ellipsis,
@@ -453,18 +454,18 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
   Color _actionColor(String action) {
     final a = action.toLowerCase();
     if (a.contains('siren') || a.contains('broadcast')) {
-      return const Color(0xFFFF3B30);
+      return AdminColors.danger;
     }
     if (a.contains('moderation') || a.contains('suspend')) {
-      return const Color(0xFFFF9F0A);
+      return AdminColors.amber;
     }
     if (a.contains('export') || a.contains('pdf') || a.contains('csv')) {
-      return const Color(0xFF00E5FF);
+      return AdminColors.cyan;
     }
     if (a.contains('status') || a.contains('solved')) {
-      return const Color(0xFF30D158);
+      return AdminColors.success;
     }
-    return const Color(0xFF7C4DFF);
+    return AdminColors.violet;
   }
 
   Future<void> _exportAuditLogsCsv(List<AuditLogEntity> logs) async {
@@ -506,7 +507,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("✓ Audit trail CSV exported: $filename"),
-            backgroundColor: const Color(0xFF30D158),
+            backgroundColor: AdminColors.success,
             behavior: SnackBarBehavior.floating,
           ),
         );

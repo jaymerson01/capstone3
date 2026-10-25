@@ -13,6 +13,7 @@ import 'package:community_safety_app/core/presentation/widgets/in_app_image_view
 import '../widgets/stat_card.dart';
 import '../widgets/custom_line_chart.dart';
 import '../widgets/custom_pie_chart.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   final VoidCallback? onViewAllReports;
@@ -77,27 +78,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             title: "Incident Reports",
                             value: totalIncidents.toString(),
                             icon: Icons.warning_amber_rounded,
-                            backgroundColor: const Color(0xFF0A84FF),
+                            backgroundColor: AdminColors.primary,
                           ),
                           StatCard(
                             title: "Active Sirens",
                             value: activeSirens.toString(),
                             icon: Icons.emergency_share_rounded,
                             backgroundColor: activeSirens > 0
-                                ? const Color(0xFFFF3B30)
-                                : const Color(0xFF3A4B6B),
+                                ? AdminColors.danger
+                                : AdminColors.borderHighlight,
                           ),
                           StatCard(
                             title: "Solved Cases",
                             value: solvedCases.toString(),
                             icon: Icons.check_circle_outline,
-                            backgroundColor: const Color(0xFF30D158),
+                            backgroundColor: AdminColors.success,
                           ),
                           StatCard(
                             title: "Registered Citizens",
                             value: registeredUsers.toString(),
                             icon: Icons.people_alt_outlined,
-                            backgroundColor: const Color(0xFF7C4DFF),
+                            backgroundColor: AdminColors.violet,
                           ),
                         ],
                       ),
@@ -152,7 +153,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0A1628), Color(0xFF0D2040)],
+          colors: [AdminColors.surfaceDeep, AdminColors.heroEnd],
         ),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
@@ -369,14 +370,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 children: [
                   Icon(
                     Icons.check_circle_outline,
-                    color: const Color(0xFF30D158).withValues(alpha: 0.5),
+                    color: AdminColors.success.withValues(alpha: 0.5),
                     size: 40,
                   ),
                   SizedBox(height: 10),
                   Text(
                     "No active or pending incident reports",
                     style: TextStyle(
-                      color: Color(0xFF7B8DB0),
+                      color: AdminColors.textLight,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -416,10 +417,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       context: context,
       builder: (dialogCtx) {
         return Dialog(
-          backgroundColor: const Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(22),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
+            side: const BorderSide(color: AdminColors.border),
           ),
           child: Container(
             width: 540,
@@ -456,14 +457,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.w900,
-                                  color: Color(0xFFE8F0FE),
+                                  color: AdminColors.textDark,
                                 ),
                               ),
                               Text(
                                 "Report ID: ${inc.id.length > 10 ? inc.id.substring(0, 10) : inc.id}",
                                 style: const TextStyle(
                                   fontSize: 11,
-                                  color: Color(0xFF7B8DB0),
+                                  color: AdminColors.textLight,
                                 ),
                               ),
                             ],
@@ -471,13 +472,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         ],
                       ),
                       IconButton(
-                        icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                        icon: Icon(Icons.close, color: AdminColors.textLight),
                         onPressed: () => Navigator.pop(dialogCtx),
                       ),
                     ],
                   ),
                   SizedBox(height: 18),
-                  Divider(color: Color(0xFF1E2D4A)),
+                  Divider(color: AdminColors.border),
                   SizedBox(height: 14),
 
                   // Urgency and Status Tags
@@ -512,17 +513,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFF3B30).withValues(alpha: 0.15),
+                            color: AdminColors.danger.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color:
-                                  const Color(0xFFFF3B30).withValues(alpha: 0.35),
+                                  AdminColors.danger.withValues(alpha: 0.35),
                             ),
                           ),
                           child: Text(
                             "HIGH PRIORITY",
                             style: TextStyle(
-                              color: Color(0xFFFF3B30),
+                              color: AdminColors.danger,
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
@@ -532,7 +533,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       Text(
                         "${inc.upvoteCount} Corroborated",
                         style: const TextStyle(
-                          color: Color(0xFF00E5FF),
+                          color: AdminColors.cyan,
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                         ),
@@ -547,7 +548,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF7B8DB0),
+                      color: AdminColors.textLight,
                     ),
                   ),
                   SizedBox(height: 6),
@@ -555,9 +556,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
+                      color: AdminColors.background,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                      border: Border.all(color: AdminColors.border),
                     ),
                     child: Text(
                       inc.description.isEmpty
@@ -565,7 +566,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           : inc.description,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFFE8F0FE),
+                        color: AdminColors.textDark,
                         height: 1.4,
                       ),
                     ),
@@ -603,7 +604,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -629,12 +630,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               errorBuilder: (ctx, err, stack) {
                                 return Container(
                                   height: 80,
-                                  color: const Color(0xFF060D1A),
+                                  color: AdminColors.background,
                                   alignment: Alignment.center,
                                   child: Text(
                                     "Unable to load evidence image",
                                     style: TextStyle(
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -654,7 +655,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -662,13 +663,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
+                        color: AdminColors.background,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF0A84FF).withValues(alpha: 0.3)),
+                        border: Border.all(color: AdminColors.primary.withValues(alpha: 0.3)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
+                          Icon(Icons.videocam_rounded, color: AdminColors.primary, size: 22),
                           SizedBox(width: 10),
                           const Expanded(
                             child: Text(
@@ -678,7 +679,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF0A84FF),
+                              backgroundColor: AdminColors.primary,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -706,7 +707,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF00E5FF),
+                        color: AdminColors.cyan,
                       ),
                     ),
                     SizedBox(height: 6),
@@ -714,17 +715,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
+                        color: AdminColors.cyan.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: const Color(0xFF00E5FF).withValues(alpha: 0.25),
+                          color: AdminColors.cyan.withValues(alpha: 0.25),
                         ),
                       ),
                       child: Text(
                         inc.dispatcherNotes!,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFFE8F0FE),
+                          color: AdminColors.textDark,
                           height: 1.4,
                         ),
                       ),
@@ -740,7 +741,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         onPressed: () => Navigator.pop(dialogCtx),
                         child: Text(
                           "Close",
-                          style: TextStyle(color: Color(0xFF7B8DB0)),
+                          style: TextStyle(color: AdminColors.textLight),
                         ),
                       ),
                       SizedBox(width: 10),
@@ -752,7 +753,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0A84FF),
+                          backgroundColor: AdminColors.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -789,14 +790,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: const Color(0xFF7B8DB0)),
+        Icon(icon, size: 16, color: AdminColors.textLight),
         SizedBox(width: 8),
         Text(
           "$title: ",
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF7B8DB0),
+            color: AdminColors.textLight,
           ),
         ),
         Expanded(
@@ -805,7 +806,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFFE8F0FE),
+              color: AdminColors.textDark,
             ),
             overflow: TextOverflow.ellipsis,
           ),
@@ -829,15 +830,15 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     switch (status.toLowerCase()) {
       case 'solved':
       case 'resolved':
-        return const Color(0xFF30D158);
+        return AdminColors.success;
       case 'inprogress':
       case 'in progress':
       case 'responding':
-        return const Color(0xFF00E5FF);
+        return AdminColors.cyan;
       case 'spam':
-        return const Color(0xFFFF453A);
+        return AdminColors.critical;
       default:
-        return const Color(0xFFFF9F0A);
+        return AdminColors.amber;
     }
   }
 

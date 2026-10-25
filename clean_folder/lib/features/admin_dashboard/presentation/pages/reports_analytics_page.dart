@@ -15,6 +15,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 enum ReportTimeframe { allTime, thisMonth, last30Days, thisWeek }
 
@@ -181,12 +182,12 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF00E5FF), Color(0xFF0A84FF)],
+                  colors: [AdminColors.cyan, AdminColors.primary],
                 ),
                 borderRadius: BorderRadius.circular(14),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                    color: AdminColors.cyan.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -207,7 +208,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFFE8F0FE),
+                    color: AdminColors.textDark,
                     letterSpacing: -0.3,
                   ),
                 ),
@@ -216,7 +217,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   "Barangay Moonwalk blotter ledger, sector load diagnostics, and certified LGU exports",
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF7B8DB0),
+                    color: AdminColors.textLight,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -232,7 +233,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   ? null
                   : () => _exportBlotterCsv(filteredIncidents),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFF00E5FF), width: 1.4),
+                side: const BorderSide(color: AdminColors.cyan, width: 1.4),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
@@ -240,17 +241,17 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   horizontal: 16,
                   vertical: 14,
                 ),
-                backgroundColor: const Color(0xFF00E5FF).withValues(alpha: 0.08),
+                backgroundColor: AdminColors.cyan.withValues(alpha: 0.08),
               ),
               icon: Icon(
                 Icons.table_chart_outlined,
                 size: 17,
-                color: Color(0xFF00E5FF),
+                color: AdminColors.cyan,
               ),
               label: Text(
                 "Export Blotter CSV",
                 style: TextStyle(
-                  color: Color(0xFF00E5FF),
+                  color: AdminColors.cyan,
                   fontWeight: FontWeight.w700,
                   fontSize: 13,
                 ),
@@ -263,7 +264,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   ? null
                   : () => _generateOfficialPdfReport(filteredIncidents),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF3B30),
+                backgroundColor: AdminColors.danger,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -273,7 +274,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   vertical: 14,
                 ),
                 elevation: 4,
-                shadowColor: const Color(0xFFFF3B30).withValues(alpha: 0.4),
+                shadowColor: AdminColors.danger.withValues(alpha: 0.4),
               ),
               icon: Icon(Icons.picture_as_pdf_rounded, size: 18),
               label: Text(
@@ -292,9 +293,9 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     return Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
+        color: AdminColors.cardBackground,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1E2D4A)),
+        border: Border.all(color: AdminColors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -336,12 +337,12 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF0A84FF) : Colors.transparent,
+          color: isSelected ? AdminColors.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF0A84FF).withValues(alpha: 0.35),
+                    color: AdminColors.primary.withValues(alpha: 0.35),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -353,13 +354,13 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
             Icon(
               icon,
               size: 15,
-              color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
+              color: isSelected ? Colors.white : AdminColors.textLight,
             ),
             SizedBox(width: 8),
             Text(
               title,
               style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
+                color: isSelected ? Colors.white : AdminColors.textLight,
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
@@ -398,7 +399,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               value: "$totalCount",
               subtitle: "Recorded in period",
               icon: Icons.assignment_outlined,
-              accentColor: const Color(0xFF0A84FF),
+              accentColor: AdminColors.primary,
             ),
             _kpiCard(
               width: cardWidth,
@@ -406,7 +407,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               value: "${resolutionRate.toStringAsFixed(1)}%",
               subtitle: "$solvedCount resolved cases",
               icon: Icons.verified_outlined,
-              accentColor: const Color(0xFF30D158),
+              accentColor: AdminColors.success,
             ),
             _kpiCard(
               width: cardWidth,
@@ -414,7 +415,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               value: avgResponseSpeed,
               subtitle: responseSpeedSubtitle,
               icon: Icons.timer_outlined,
-              accentColor: const Color(0xFF00E5FF),
+              accentColor: AdminColors.cyan,
             ),
             _kpiCard(
               width: cardWidth,
@@ -422,7 +423,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               value: topHotspot,
               subtitle: "$hotspotCount incidents recorded",
               icon: Icons.place_outlined,
-              accentColor: const Color(0xFFFF9F0A),
+              accentColor: AdminColors.amber,
             ),
             _kpiCard(
               width: cardWidth,
@@ -430,7 +431,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               value: "$criticalCount",
               subtitle: "Immediate action tickets",
               icon: Icons.warning_amber_rounded,
-              accentColor: const Color(0xFFFF3B30),
+              accentColor: AdminColors.danger,
             ),
           ],
         );
@@ -450,10 +451,10 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
       width: width,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
+        color: AdminColors.cardBackground,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: const Color(0xFF1E2D4A).withValues(alpha: 0.8),
+          color: AdminColors.border.withValues(alpha: 0.8),
         ),
         boxShadow: [
           BoxShadow(
@@ -472,7 +473,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               Text(
                 title,
                 style: const TextStyle(
-                  color: Color(0xFF7B8DB0),
+                  color: AdminColors.textLight,
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
                 ),
@@ -493,7 +494,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: Color(0xFFE8F0FE),
+              color: AdminColors.textDark,
               letterSpacing: -0.5,
             ),
             maxLines: 1,
@@ -553,7 +554,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                     ),
                   ),
                   SizedBox(height: 2),
@@ -561,7 +562,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     "Daily incident frequency timeline within selected window",
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF7B8DB0),
+                      color: AdminColors.textLight,
                     ),
                   ),
                 ],
@@ -570,16 +571,16 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
+                  color: AdminColors.cyan.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                    color: AdminColors.cyan.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
                   "${incidents.length} Records",
                   style: const TextStyle(
-                    color: Color(0xFF00E5FF),
+                    color: AdminColors.cyan,
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
                   ),
@@ -630,7 +631,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                     ),
                   ),
                   SizedBox(height: 2),
@@ -638,12 +639,12 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     "Geographic incident load distribution",
                     style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF7B8DB0),
+                      color: AdminColors.textLight,
                     ),
                   ),
                 ],
               ),
-              Icon(Icons.bar_chart_rounded, color: Color(0xFF0A84FF), size: 20),
+              Icon(Icons.bar_chart_rounded, color: AdminColors.primary, size: 20),
             ],
           ),
           SizedBox(height: 20),
@@ -653,7 +654,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               alignment: Alignment.center,
               child: Text(
                 "No sector logs found",
-                style: TextStyle(color: Color(0xFF7B8DB0), fontSize: 12),
+                style: TextStyle(color: AdminColors.textLight, fontSize: 12),
               ),
             )
           else
@@ -668,10 +669,10 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     totalCount > 0 ? (entry.value / totalCount) : 0.0;
                 final bool isTop = index == 0;
                 final barColor = isTop
-                    ? const Color(0xFFFF5252)
+                    ? AdminColors.dangerSoft
                     : (index == 1
-                        ? const Color(0xFFFFAB40)
-                        : const Color(0xFF00E5FF));
+                        ? AdminColors.orangeLight
+                        : AdminColors.cyan);
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -683,8 +684,8 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                           entry.key,
                           style: TextStyle(
                             color: isTop
-                                ? const Color(0xFFE8F0FE)
-                                : const Color(0xFFB0C4DE),
+                                ? AdminColors.textDark
+                                : AdminColors.textSoft,
                             fontSize: 12,
                             fontWeight:
                                 isTop ? FontWeight.w800 : FontWeight.w600,
@@ -708,7 +709,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                           Container(
                             height: 7,
                             width: double.infinity,
-                            color: const Color(0xFF060D1A),
+                            color: AdminColors.background,
                           ),
                           FractionallySizedBox(
                             widthFactor: pct.clamp(0.02, 1.0),
@@ -773,7 +774,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFFE8F0FE),
+                          color: AdminColors.textDark,
                         ),
                       ),
                       SizedBox(height: 2),
@@ -781,7 +782,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         "Certified community incident register for dispatch accountability",
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF7B8DB0),
+                          color: AdminColors.textLight,
                         ),
                       ),
                     ],
@@ -793,38 +794,38 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                 width: 280,
                 child: TextField(
                   style: const TextStyle(
-                    color: Color(0xFFE8F0FE),
+                    color: AdminColors.textDark,
                     fontSize: 12.5,
                   ),
                   decoration: InputDecoration(
                     hintText: "Search ledger records...",
                     hintStyle: const TextStyle(
-                      color: Color(0xFF5A6E8C),
+                      color: AdminColors.textMuted,
                       fontSize: 12,
                     ),
                     prefixIcon: Icon(
                       Icons.search,
-                      color: Color(0xFF7B8DB0),
+                      color: AdminColors.textLight,
                       size: 18,
                     ),
                     filled: true,
-                    fillColor: const Color(0xFF060D1A),
+                    fillColor: AdminColors.background,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 10,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF1E2D4A)),
+                      borderSide: const BorderSide(color: AdminColors.border),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: Color(0xFF1E2D4A)),
+                      borderSide: const BorderSide(color: AdminColors.border),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
                       borderSide: const BorderSide(
-                        color: Color(0xFF0A84FF),
+                        color: AdminColors.primary,
                         width: 1.5,
                       ),
                     ),
@@ -835,7 +836,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
             ],
           ),
           SizedBox(height: 18),
-          Container(height: 1, color: const Color(0xFF1E2D4A)),
+          Container(height: 1, color: AdminColors.border),
           SizedBox(height: 12),
 
           if (incidents.isEmpty)
@@ -844,7 +845,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               alignment: Alignment.center,
               child: Text(
                 "No matching incident ledger records in this timeframe.",
-                style: TextStyle(color: Color(0xFF7B8DB0), fontSize: 13),
+                style: TextStyle(color: AdminColors.textLight, fontSize: 13),
               ),
             )
           else
@@ -853,10 +854,10 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               child: DataTable(
                 headingRowHeight: 46,
                 headingRowColor:
-                    WidgetStateProperty.all(const Color(0xFF060D1A)),
+                    WidgetStateProperty.all(AdminColors.background),
                 dataRowColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.hovered)
-                      ? const Color(0xFF0D1627).withValues(alpha: 0.8)
+                      ? AdminColors.cardBackground.withValues(alpha: 0.8)
                       : Colors.transparent,
                 ),
                 dividerThickness: 0.5,
@@ -866,7 +867,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Case ID",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -876,7 +877,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Date & Time",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -886,7 +887,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Emergency Category",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -896,7 +897,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Sector / Address",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -906,7 +907,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Complainant",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -916,7 +917,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Status",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -926,7 +927,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                       "Dispatcher Remarks",
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 11.5,
                       ),
                     ),
@@ -944,7 +945,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         Text(
                           inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
                           style: const TextStyle(
-                            color: Color(0xFF00E5FF),
+                            color: AdminColors.cyan,
                             fontWeight: FontWeight.w700,
                             fontSize: 11.5,
                           ),
@@ -954,7 +955,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         Text(
                           dateStr,
                           style: const TextStyle(
-                            color: Color(0xFF7B8DB0),
+                            color: AdminColors.textLight,
                             fontSize: 11.5,
                           ),
                         ),
@@ -963,7 +964,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         Text(
                           inc.category,
                           style: const TextStyle(
-                            color: Color(0xFFE8F0FE),
+                            color: AdminColors.textDark,
                             fontWeight: FontWeight.w600,
                             fontSize: 11.5,
                           ),
@@ -977,7 +978,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                                 inc.areaSector ??
                                 "GPS Coordinates Recorded",
                             style: const TextStyle(
-                              color: Color(0xFFB0C4DE),
+                              color: AdminColors.textSoft,
                               fontSize: 11.5,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -992,7 +993,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                                   inc.reporterEmail ??
                                   "Citizen"),
                           style: const TextStyle(
-                            color: Color(0xFFE8F0FE),
+                            color: AdminColors.textDark,
                             fontSize: 11.5,
                           ),
                         ),
@@ -1029,7 +1030,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                                 ? inc.dispatcherNotes!
                                 : "—",
                             style: const TextStyle(
-                              color: Color(0xFF7B8DB0),
+                              color: AdminColors.textLight,
                               fontSize: 11,
                               fontStyle: FontStyle.italic,
                             ),
@@ -1107,7 +1108,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("✓ Blotter ledger CSV exported successfully: $filename"),
-            backgroundColor: const Color(0xFF30D158),
+            backgroundColor: AdminColors.success,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1438,14 +1439,14 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     switch (status.toLowerCase()) {
       case 'solved':
       case 'resolved':
-        return const Color(0xFF30D158);
+        return AdminColors.success;
       case 'inprogress':
       case 'in progress':
-        return const Color(0xFF00E5FF);
+        return AdminColors.cyan;
       case 'spam':
-        return const Color(0xFFFF453A);
+        return AdminColors.critical;
       default:
-        return const Color(0xFFFF9F0A);
+        return AdminColors.amber;
     }
   }
 }
@@ -1472,7 +1473,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
     final double graphHeight = height - bottomMargin;
 
     final Paint gridPaint = Paint()
-      ..color = const Color(0xFF1E2D4A).withValues(alpha: 0.5)
+      ..color = AdminColors.border.withValues(alpha: 0.5)
       ..strokeWidth = 1.0;
 
     final TextPainter textPainter = TextPainter(
@@ -1487,7 +1488,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
       final val = maxValue - ((maxValue / gridRows) * i);
       textPainter.text = TextSpan(
         text: val.round().toString(),
-        style: const TextStyle(color: Color(0xFF5A6E8C), fontSize: 9.5),
+        style: const TextStyle(color: AdminColors.textMuted, fontSize: 9.5),
       );
       textPainter.layout();
       textPainter.paint(canvas, Offset(4, y - 6));
@@ -1498,7 +1499,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
       final double x = leftMargin + (xSpacing * i);
       textPainter.text = TextSpan(
         text: labels[i],
-        style: const TextStyle(color: Color(0xFF5A6E8C), fontSize: 9.5),
+        style: const TextStyle(color: AdminColors.textMuted, fontSize: 9.5),
       );
       textPainter.layout();
       textPainter.paint(
@@ -1544,8 +1545,8 @@ class _AnalyticsCurvePainter extends CustomPainter {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          const Color(0xFF00E5FF).withValues(alpha: 0.25),
-          const Color(0xFF00E5FF).withValues(alpha: 0.0),
+          AdminColors.cyan.withValues(alpha: 0.25),
+          AdminColors.cyan.withValues(alpha: 0.0),
         ],
       ).createShader(Rect.fromLTRB(leftMargin, 0, points.last.dx, graphHeight))
       ..style = PaintingStyle.fill;
@@ -1553,7 +1554,7 @@ class _AnalyticsCurvePainter extends CustomPainter {
     canvas.drawPath(areaPath, areaPaint);
 
     final Paint linePaint = Paint()
-      ..color = const Color(0xFF00E5FF)
+      ..color = AdminColors.cyan
       ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -1562,11 +1563,11 @@ class _AnalyticsCurvePainter extends CustomPainter {
     canvas.drawPath(path, linePaint);
 
     final Paint dotFill = Paint()
-      ..color = const Color(0xFF0D1627)
+      ..color = AdminColors.cardBackground
       ..style = PaintingStyle.fill;
 
     final Paint dotBorder = Paint()
-      ..color = const Color(0xFF00E5FF)
+      ..color = AdminColors.cyan
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 

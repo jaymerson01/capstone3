@@ -161,11 +161,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                backgroundColor: Color(0xFF0D1627),
+                backgroundColor: AdminColors.cardBackground,
                 behavior: SnackBarBehavior.floating,
                 content: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: Color(0xFF30D158), size: 18),
+                    Icon(Icons.check_circle_rounded, color: AdminColors.success, size: 18),
                     SizedBox(width: 8),
                     Text("Profile picture updated successfully!",
                         style: TextStyle(color: Colors.white)),
@@ -239,11 +239,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
       messenger.showSnackBar(
         const SnackBar(
-          backgroundColor: Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           behavior: SnackBarBehavior.floating,
           content: Row(
             children: [
-              Icon(Icons.check_circle_rounded, color: Color(0xFF30D158), size: 18),
+              Icon(Icons.check_circle_rounded, color: AdminColors.success, size: 18),
               SizedBox(width: 8),
               Text("Admin profile updated successfully!",
                   style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -274,13 +274,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: const Color(0xFF0D1627),
+            backgroundColor: AdminColors.cardBackground,
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 5),
             content: Row(
               children: [
                 Icon(Icons.mark_email_read_rounded,
-                    color: Color(0xFF30D158), size: 18),
+                    color: AdminColors.success, size: 18),
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -317,14 +317,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: const Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
+            side: const BorderSide(color: AdminColors.border),
           ),
           title: Row(
             children: [
-              Icon(Icons.lock_reset_rounded, color: Color(0xFF30D158), size: 22),
+              Icon(Icons.lock_reset_rounded, color: AdminColors.success, size: 22),
               SizedBox(width: 10),
               Text(
                 "Change Account Password",
@@ -375,11 +375,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           actions: [
             TextButton(
               onPressed: isUpdating ? null : () => Navigator.pop(dialogCtx),
-              child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+              child: Text("Cancel", style: TextStyle(color: AdminColors.textLight)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF30D158),
+                backgroundColor: AdminColors.success,
                 foregroundColor: Colors.black,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -402,11 +402,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           if (dialogCtx.mounted) Navigator.pop(dialogCtx);
                           messenger.showSnackBar(
                             const SnackBar(
-                              backgroundColor: Color(0xFF0D1627),
+                              backgroundColor: AdminColors.cardBackground,
                               behavior: SnackBarBehavior.floating,
                               content: Text(
                                 "Password updated successfully!",
-                                style: TextStyle(color: Color(0xFF30D158)),
+                                style: TextStyle(color: AdminColors.success),
                               ),
                             ),
                           );
@@ -475,15 +475,15 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF30D158).withValues(alpha: 0.15),
+                      color: AdminColors.success.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFF30D158).withValues(alpha: 0.3),
+                        color: AdminColors.success.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Icon(
                       Icons.admin_panel_settings_rounded,
-                      color: Color(0xFF30D158),
+                      color: AdminColors.success,
                       size: 28,
                     ),
                   ),
@@ -532,13 +532,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: const LinearGradient(
-                                colors: [Color(0xFF30D158), Color(0xFF0A84FF)],
+                                colors: [AdminColors.success, AdminColors.primary],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF30D158).withValues(alpha: 0.3),
+                                  color: AdminColors.success.withValues(alpha: 0.3),
                                   blurRadius: 16,
                                   offset: const Offset(0, 4),
                                 ),
@@ -548,14 +548,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Color(0xFF0D1627),
+                                color: AdminColors.cardBackground,
                               ),
                               child: ClipOval(
                                 child: _isUploadingPhoto
                                     ? Center(
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
-                                          color: Color(0xFF30D158),
+                                          color: AdminColors.success,
                                         ),
                                       )
                                     : (_currentPhotoUrl != null && _currentPhotoUrl!.isNotEmpty
@@ -596,9 +596,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 width: 34,
                                 height: 34,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF30D158),
+                                  color: AdminColors.success,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: const Color(0xFF0D1627), width: 2),
+                                  border: Border.all(color: AdminColors.cardBackground, width: 2),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withValues(alpha: 0.4),
@@ -639,21 +639,21 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF30D158).withValues(alpha: 0.15),
+                        color: AdminColors.success.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: const Color(0xFF30D158).withValues(alpha: 0.4),
+                          color: AdminColors.success.withValues(alpha: 0.4),
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.shield_rounded, color: Color(0xFF30D158), size: 14),
+                          Icon(Icons.shield_rounded, color: AdminColors.success, size: 14),
                           SizedBox(width: 5),
                           Text(
                             "Admin",
                             style: TextStyle(
-                              color: Color(0xFF30D158),
+                              color: AdminColors.success,
                               fontSize: 11.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.4,
@@ -706,12 +706,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         child: Row(
                           children: [
                             Icon(Icons.verified_user_rounded,
-                                color: Color(0xFF30D158), size: 14),
+                                color: AdminColors.success, size: 14),
                             SizedBox(width: 6),
                             Text(
                               "Authenticated & verified via Google Cloud Identity.",
                               style: TextStyle(
-                                color: Color(0xFF30D158),
+                                color: AdminColors.success,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -761,7 +761,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.security_rounded, color: Color(0xFF0A84FF), size: 20),
+                        Icon(Icons.security_rounded, color: AdminColors.primary, size: 20),
                         SizedBox(width: 10),
                         Text(
                           "Security & Credentials",
@@ -785,8 +785,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         Expanded(
                           child: OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF0A84FF),
-                              side: const BorderSide(color: Color(0xFF0A84FF), width: 1.3),
+                              foregroundColor: AdminColors.primary,
+                              side: const BorderSide(color: AdminColors.primary, width: 1.3),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -804,8 +804,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         Expanded(
                           child: OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF30D158),
-                              side: const BorderSide(color: Color(0xFF30D158), width: 1.3),
+                              foregroundColor: AdminColors.success,
+                              side: const BorderSide(color: AdminColors.success, width: 1.3),
                               padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -835,7 +835,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.volume_up_rounded, color: Color(0xFFFF9500), size: 20),
+                        Icon(Icons.volume_up_rounded, color: AdminColors.orange, size: 20),
                         SizedBox(width: 10),
                         Text(
                           "Station Speaker & Audio Check",
@@ -856,8 +856,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFFF9500),
-                        side: const BorderSide(color: Color(0xFFFF9500), width: 1.3),
+                        foregroundColor: AdminColors.orange,
+                        side: const BorderSide(color: AdminColors.orange, width: 1.3),
                         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -896,21 +896,21 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     showDialog(
                       context: context,
                       builder: (ctx) => AlertDialog(
-                        backgroundColor: const Color(0xFF0D1627),
+                        backgroundColor: AdminColors.cardBackground,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
-                          side: const BorderSide(color: Color(0xFF1E2D4A)),
+                          side: const BorderSide(color: AdminColors.border),
                         ),
                         title: Text("Confirm Logout",
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                         content: Text(
                           "Are you sure you want to log out of the municipal admin panel?",
-                          style: TextStyle(color: Color(0xFF7B8DB0)),
+                          style: TextStyle(color: AdminColors.textLight),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(ctx),
-                            child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+                            child: Text("Cancel", style: TextStyle(color: AdminColors.textLight)),
                           ),
                           TextButton(
                             onPressed: () {

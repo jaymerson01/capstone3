@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class CustomPieChart extends StatefulWidget {
   final List<IncidentEntity> incidents;
@@ -18,16 +19,16 @@ class _CustomPieChartState extends State<CustomPieChart> {
 
   // Curated harmonious neon palette for OLED dark mode
   static const List<Color> _palette = [
-    Color(0xFF00E5FF), // Cyan
-    Color(0xFFFF5252), // Coral Red
-    Color(0xFFFFD600), // Amber
-    Color(0xFF69F0AE), // Mint Green
-    Color(0xFFE040FB), // Magenta
-    Color(0xFF448AFF), // Azure Blue
-    Color(0xFFFFAB40), // Orange
-    Color(0xFF7C4DFF), // Purple
-    Color(0xFF00B0FF), // Light Blue
-    Color(0xFF1DE9B6), // Teal
+    AdminColors.cyan, // Cyan
+    AdminColors.dangerSoft, // Coral Red
+    AdminColors.chartAmber, // Amber
+    AdminColors.chartMint, // Mint Green
+    AdminColors.chartMagenta, // Magenta
+    AdminColors.chartAzure, // Azure Blue
+    AdminColors.orangeLight, // Orange
+    AdminColors.violet, // Purple
+    AdminColors.chartSky, // Light Blue
+    AdminColors.chartTeal, // Teal
   ];
 
   @override
@@ -38,10 +39,10 @@ class _CustomPieChartState extends State<CustomPieChart> {
       height: 310,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
+        color: AdminColors.cardBackground,
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: const Color(0xFF1E2D4A).withValues(alpha: 0.8),
+          color: AdminColors.border.withValues(alpha: 0.8),
         ),
         boxShadow: [
           BoxShadow(
@@ -86,7 +87,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 15,
-                          color: Color(0xFFE8F0FE),
+                          color: AdminColors.textDark,
                           letterSpacing: -0.2,
                         ),
                       ),
@@ -97,7 +98,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                             : "Geographic territory distribution",
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF7B8DB0),
+                          color: AdminColors.textLight,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -108,9 +109,9 @@ class _CustomPieChartState extends State<CustomPieChart> {
               // Dual-View Toggle Pill
               Container(
                 decoration: BoxDecoration(
-                  color: const Color(0xFF070E1A),
+                  color: AdminColors.chartHole,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
+                  border: Border.all(color: AdminColors.border),
                 ),
                 padding: const EdgeInsets.all(3),
                 child: Row(
@@ -153,7 +154,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w900,
-                                    color: Color(0xFFE8F0FE),
+                                    color: AdminColors.textDark,
                                   ),
                                 ),
                                 Text(
@@ -161,7 +162,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                                   style: TextStyle(
                                     fontSize: 9,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF5A6E8C),
+                                    color: AdminColors.textMuted,
                                     letterSpacing: 1.0,
                                   ),
                                 ),
@@ -207,7 +208,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
                                         style: const TextStyle(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFFB0C4DE),
+                                          color: AdminColors.textSoft,
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -257,7 +258,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? const Color(0xFF00E5FF) : const Color(0xFF7B8DB0),
+            color: isSelected ? AdminColors.cyan : AdminColors.textLight,
           ),
         ),
       ),
@@ -271,14 +272,14 @@ class _CustomPieChartState extends State<CustomPieChart> {
         children: [
           Icon(
             Icons.hourglass_empty_rounded,
-            color: const Color(0xFF5A6E8C).withValues(alpha: 0.5),
+            color: AdminColors.textMuted.withValues(alpha: 0.5),
             size: 36,
           ),
           SizedBox(height: 10),
           Text(
             "No recorded incident logs yet",
             style: TextStyle(
-              color: Color(0xFF7B8DB0),
+              color: AdminColors.textLight,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -324,7 +325,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
 
     if (otherCount > 0) {
       final pct = (otherCount / total) * 100.0;
-      result.add(PieSliceData("Others", pct, const Color(0xFF78909C)));
+      result.add(PieSliceData("Others", pct, AdminColors.chartOther));
     }
 
     return result;

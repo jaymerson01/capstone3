@@ -15,6 +15,7 @@ import 'package:community_safety_app/features/admin_dashboard/data/datasources/a
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_player_dialog.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class AdminDispatchMapPage extends StatefulWidget {
   const AdminDispatchMapPage({super.key});
@@ -196,20 +197,20 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
             return AlertDialog(
-              backgroundColor: const Color(0xFF0D1627),
+              backgroundColor: AdminColors.cardBackground,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
-                side: const BorderSide(color: Color(0xFF1E2D4A)),
+                side: const BorderSide(color: AdminColors.border),
               ),
               title: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                      color: AdminColors.cyan.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.timer_outlined, color: Color(0xFF00E5FF), size: 20),
+                    child: Icon(Icons.timer_outlined, color: AdminColors.cyan, size: 20),
                   ),
                   SizedBox(width: 10),
                   const Expanded(
@@ -228,12 +229,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                   children: [
                     Text(
                       "Dispatching responders to ${inc.areaSector ?? 'Moonwalk'} for ${inc.category}. The citizen will be notified of this estimated arrival time.",
-                      style: const TextStyle(color: Color(0xFF7B8DB0), fontSize: 12),
+                      style: const TextStyle(color: AdminColors.textLight, fontSize: 12),
                     ),
                     SizedBox(height: 14),
                     Text(
                       "ESTIMATED ARRIVAL TIME (ETA)",
-                      style: TextStyle(color: Color(0xFF00E5FF), fontSize: 11, fontWeight: FontWeight.w700),
+                      style: TextStyle(color: AdminColors.cyan, fontSize: 11, fontWeight: FontWeight.w700),
                     ),
                     SizedBox(height: 8),
                     Wrap(
@@ -257,13 +258,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? const Color(0xFF00E5FF).withValues(alpha: 0.25)
-                                  : const Color(0xFF060D1A),
+                                  ? AdminColors.cyan.withValues(alpha: 0.25)
+                                  : AdminColors.background,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
                                   color: isSelected
-                                      ? const Color(0xFF00E5FF)
-                                      : const Color(0xFF1E2D4A)),
+                                      ? AdminColors.cyan
+                                      : AdminColors.border),
                             ),
                             child: Text(
                               chip,
@@ -271,8 +272,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                 fontSize: 11,
                                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                                 color: isSelected
-                                    ? const Color(0xFF00E5FF)
-                                    : const Color(0xFF7B8DB0),
+                                    ? AdminColors.cyan
+                                    : AdminColors.textLight,
                               ),
                             ),
                           ),
@@ -282,22 +283,22 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     SizedBox(height: 10),
                     TextField(
                       controller: etaController,
-                      style: const TextStyle(color: Color(0xFFE8F0FE), fontSize: 13),
+                      style: const TextStyle(color: AdminColors.textDark, fontSize: 13),
                       decoration: InputDecoration(
                         hintText: "Or custom (e.g. 7 mins)...",
-                        hintStyle: const TextStyle(color: Color(0xFF4A5568), fontSize: 12),
+                        hintStyle: const TextStyle(color: AdminColors.textFaint, fontSize: 12),
                         filled: true,
-                        fillColor: const Color(0xFF060D1A),
+                        fillColor: AdminColors.background,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF1E2D4A))),
+                            borderSide: const BorderSide(color: AdminColors.border)),
                         enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF1E2D4A))),
+                            borderSide: const BorderSide(color: AdminColors.border)),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF00E5FF))),
+                            borderSide: const BorderSide(color: AdminColors.cyan)),
                       ),
                     ),
                   ],
@@ -306,12 +307,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+                  child: Text("Cancel", style: TextStyle(color: AdminColors.textLight)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00E5FF),
-                    foregroundColor: const Color(0xFF060D1A),
+                    backgroundColor: AdminColors.cyan,
+                    foregroundColor: AdminColors.background,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   onPressed: () {
@@ -432,7 +433,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
         }).toSet();
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           body: Row(
             children: [
               Expanded(
@@ -469,8 +470,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                     targetIncidents.first.longitude,
                                   ),
                                   radius: 400, // 400 meter siren radius
-                                  fillColor: const Color(0xFFFF3B30).withValues(alpha: 0.18),
-                                  strokeColor: const Color(0xFFFF3B30).withValues(alpha: 0.8),
+                                  fillColor: AdminColors.danger.withValues(alpha: 0.18),
+                                  strokeColor: AdminColors.danger.withValues(alpha: 0.8),
                                   strokeWidth: 2,
                                 ),
                               );
@@ -563,9 +564,9 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1627).withValues(alpha: 0.94),
+        color: AdminColors.cardBackground.withValues(alpha: 0.94),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF1E2D4A)),
+        border: Border.all(color: AdminColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.45),
@@ -587,7 +588,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                 width: 10,
                 height: 10,
                 decoration: BoxDecoration(
-                  color: Color(0xFF30D158),
+                  color: AdminColors.success,
                   shape: BoxShape.circle,
                 ),
               ),
@@ -595,7 +596,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               Text(
                 "$visibleCount ON MAP",
                 style: const TextStyle(
-                  color: Color(0xFFE8F0FE),
+                  color: AdminColors.textDark,
                   fontSize: 12,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 0.8,
@@ -606,18 +607,18 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
           SizedBox(
             height: 18,
-            child: VerticalDivider(color: Color(0xFF1E2D4A), thickness: 1.2),
+            child: VerticalDivider(color: AdminColors.border, thickness: 1.2),
           ),
 
           // Status Filter Chips
           _statusFilterChip("All"),
-          _statusFilterChip("Pending", const Color(0xFFFF9F0A)),
-          _statusFilterChip("In Progress", const Color(0xFF00E5FF)),
-          _statusFilterChip("Solved", const Color(0xFF30D158)),
+          _statusFilterChip("Pending", AdminColors.amber),
+          _statusFilterChip("In Progress", AdminColors.cyan),
+          _statusFilterChip("Solved", AdminColors.success),
 
           SizedBox(
             height: 18,
-            child: VerticalDivider(color: Color(0xFF1E2D4A), thickness: 1.2),
+            child: VerticalDivider(color: AdminColors.border, thickness: 1.2),
           ),
 
           // 🚨 Critical Only Toggle Button
@@ -628,13 +629,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: _criticalOnly
-                    ? const Color(0xFFFF3B30).withValues(alpha: 0.25)
-                    : const Color(0xFF131F37),
+                    ? AdminColors.danger.withValues(alpha: 0.25)
+                    : AdminColors.surfaceRaised,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _criticalOnly
-                      ? const Color(0xFFFF3B30)
-                      : const Color(0xFF1E2D4A),
+                      ? AdminColors.danger
+                      : AdminColors.border,
                 ),
               ),
               child: Row(
@@ -644,8 +645,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     Icons.warning_amber_rounded,
                     size: 14,
                     color: _criticalOnly
-                        ? const Color(0xFFFF3B30)
-                        : const Color(0xFF7B8DB0),
+                        ? AdminColors.danger
+                        : AdminColors.textLight,
                   ),
                   SizedBox(width: 6),
                   Text(
@@ -654,8 +655,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       color: _criticalOnly
-                          ? const Color(0xFFFF3B30)
-                          : const Color(0xFFB0C4DE),
+                          ? AdminColors.danger
+                          : AdminColors.textSoft,
                     ),
                   ),
                 ],
@@ -669,7 +670,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
   Widget _statusFilterChip(String label, [Color? activeColor]) {
     final isSelected = _selectedStatus == label;
-    final color = activeColor ?? const Color(0xFF0A84FF);
+    final color = activeColor ?? AdminColors.primary;
 
     return GestureDetector(
       onTap: () => setState(() => _selectedStatus = label),
@@ -680,7 +681,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
           color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? color : const Color(0xFF1E2D4A),
+            color: isSelected ? color : AdminColors.border,
           ),
         ),
         child: Text(
@@ -688,7 +689,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
           style: TextStyle(
             fontSize: 11,
             fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? color : const Color(0xFF7B8DB0),
+            color: isSelected ? color : AdminColors.textLight,
           ),
         ),
       ),
@@ -744,13 +745,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00E5FF).withValues(alpha: 0.22)
-              : const Color(0xFF0D1627).withValues(alpha: 0.92),
+              ? AdminColors.cyan.withValues(alpha: 0.22)
+              : AdminColors.cardBackground.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF00E5FF)
-                : const Color(0xFF1E2D4A),
+                ? AdminColors.cyan
+                : AdminColors.border,
           ),
           boxShadow: [
             BoxShadow(
@@ -768,7 +769,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               style: TextStyle(
                 fontSize: 11.5,
                 fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? const Color(0xFF00E5FF) : const Color(0xFFE8F0FE),
+                color: isSelected ? AdminColors.cyan : AdminColors.textDark,
               ),
             ),
             SizedBox(width: 6),
@@ -776,8 +777,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? const Color(0xFF00E5FF).withValues(alpha: 0.3)
-                    : const Color(0xFF1E2D4A),
+                    ? AdminColors.cyan.withValues(alpha: 0.3)
+                    : AdminColors.border,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -785,7 +786,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
+                  color: isSelected ? Colors.white : AdminColors.textLight,
                 ),
               ),
             ),
@@ -801,9 +802,9 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
+        color: AdminColors.cardBackground,
         border: const Border(
-          left: BorderSide(color: Color(0xFF1E2D4A), width: 1.5),
+          left: BorderSide(color: AdminColors.border, width: 1.5),
         ),
         boxShadow: [
           BoxShadow(
@@ -821,7 +822,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 border: Border(
-                  bottom: BorderSide(color: Color(0xFF1E2D4A)),
+                  bottom: BorderSide(color: AdminColors.border),
                 ),
               ),
               child: Row(
@@ -832,12 +833,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
+                          color: AdminColors.primary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           Icons.radar_rounded,
-                          color: Color(0xFF0A84FF),
+                          color: AdminColors.primary,
                           size: 18,
                         ),
                       ),
@@ -850,7 +851,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFFE8F0FE),
+                              color: AdminColors.textDark,
                               letterSpacing: 0.8,
                             ),
                           ),
@@ -858,7 +859,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             "Case #${inc.id.substring(0, min(8, inc.id.length))}",
                             style: const TextStyle(
                               fontSize: 10.5,
-                              color: Color(0xFF7B8DB0),
+                              color: AdminColors.textLight,
                             ),
                           ),
                         ],
@@ -866,7 +867,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     ],
                   ),
                   IconButton(
-                    icon: Icon(Icons.close_rounded, color: Color(0xFF7B8DB0)),
+                    icon: Icon(Icons.close_rounded, color: AdminColors.textLight),
                     onPressed: _closeDrawer,
                   ),
                 ],
@@ -887,15 +888,15 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         _drawerBadge(
                           inc.status.toUpperCase(),
                           inc.isSolved
-                              ? const Color(0xFF30D158)
+                              ? AdminColors.success
                               : (inc.isInProgress
-                                  ? const Color(0xFF00E5FF)
-                                  : const Color(0xFFFF9F0A)),
+                                  ? AdminColors.cyan
+                                  : AdminColors.amber),
                         ),
                         SizedBox(width: 8),
                         _drawerBadge(
                           (inc.urgencyStatus ?? "NORMAL").toUpperCase(),
-                          const Color(0xFFFF3B30),
+                          AdminColors.danger,
                         ),
                       ],
                     ),
@@ -907,7 +908,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFFE8F0FE),
+                        color: AdminColors.textDark,
                       ),
                     ),
                     SizedBox(height: 6),
@@ -915,7 +916,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       inc.description,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFFB0C4DE),
+                        color: AdminColors.textSoft,
                         height: 1.45,
                       ),
                     ),
@@ -927,9 +928,9 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF131F37),
+                        color: AdminColors.surfaceRaised,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF1E2D4A)),
+                        border: Border.all(color: AdminColors.border),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -939,7 +940,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFE8F0FE),
+                              color: AdminColors.textDark,
                             ),
                           ),
                           SizedBox(height: 4),
@@ -947,7 +948,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             "Sector: $sector",
                             style: const TextStyle(
                               fontSize: 11.5,
-                              color: Color(0xFF00E5FF),
+                              color: AdminColors.cyan,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -963,16 +964,16 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                 launchUrl(url, mode: LaunchMode.externalApplication);
                               },
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Color(0xFF0A84FF)),
+                                side: const BorderSide(color: AdminColors.primary),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 padding: const EdgeInsets.symmetric(vertical: 8),
                               ),
-                              icon: Icon(Icons.navigation_rounded, size: 15, color: Color(0xFF0A84FF)),
+                              icon: Icon(Icons.navigation_rounded, size: 15, color: AdminColors.primary),
                               label: Text(
                                 "Navigate in Google Maps",
-                                style: TextStyle(color: Color(0xFF0A84FF), fontSize: 11.5, fontWeight: FontWeight.w700),
+                                style: TextStyle(color: AdminColors.primary, fontSize: 11.5, fontWeight: FontWeight.w700),
                               ),
                             ),
                           ),
@@ -994,9 +995,9 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         return Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF131F37),
+                            color: AdminColors.surfaceRaised,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF1E2D4A)),
+                            border: Border.all(color: AdminColors.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1006,20 +1007,20 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFF9500).withValues(alpha: 0.15),
+                                    color: AdminColors.orange.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFFFF9500).withValues(alpha: 0.4)),
+                                    border: Border.all(color: AdminColors.orange.withValues(alpha: 0.4)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.people_alt_rounded, size: 12, color: Color(0xFFFF9500)),
+                                      Icon(Icons.people_alt_rounded, size: 12, color: AdminColors.orange),
                                       SizedBox(width: 4),
                                       Flexible(
                                         child: Text(
                                           "REPORTED ON BEHALF: ${inc.victimName ?? 'Relative'}${inc.victimPhone != null && inc.victimPhone!.isNotEmpty ? ' • ${inc.victimPhone}' : ''}",
                                           style: const TextStyle(
-                                            color: Color(0xFFFF9500),
+                                            color: AdminColors.orange,
                                             fontSize: 10,
                                             fontWeight: FontWeight.w800,
                                           ),
@@ -1037,19 +1038,19 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                                    color: AdminColors.cyan.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.4)),
+                                    border: Border.all(color: AdminColors.cyan.withValues(alpha: 0.4)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.timer_outlined, size: 12, color: Color(0xFF00E5FF)),
+                                      Icon(Icons.timer_outlined, size: 12, color: AdminColors.cyan),
                                       SizedBox(width: 4),
                                       Text(
                                         "DISPATCH ETA: ${inc.estimatedResponseTime!}",
                                         style: const TextStyle(
-                                          color: Color(0xFF00E5FF),
+                                          color: AdminColors.cyan,
                                           fontSize: 10,
                                           fontWeight: FontWeight.w800,
                                         ),
@@ -1063,24 +1064,24 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFFE8F0FE),
+                                  color: AdminColors.textDark,
                                 ),
                               ),
                               if (!inc.isAnonymous && inc.reporterEmail != null) ...[
                                 SizedBox(height: 2),
                                 Text(
                                   inc.reporterEmail!,
-                                  style: const TextStyle(fontSize: 11, color: Color(0xFF7B8DB0)),
+                                  style: const TextStyle(fontSize: 11, color: AdminColors.textLight),
                                 ),
                               ],
-                              Divider(color: Color(0xFF1E2D4A), height: 16),
+                              Divider(color: AdminColors.border, height: 16),
                               Row(
                                 children: [
-                                  Icon(Icons.emergency_outlined, size: 15, color: Color(0xFFFF5252)),
+                                  Icon(Icons.emergency_outlined, size: 15, color: AdminColors.dangerSoft),
                                   SizedBox(width: 6),
                                   Text(
                                     "Emergency Contact: ",
-                                    style: TextStyle(fontSize: 11, color: Color(0xFF7B8DB0), fontWeight: FontWeight.w600),
+                                    style: TextStyle(fontSize: 11, color: AdminColors.textLight, fontWeight: FontWeight.w600),
                                   ),
                                   Expanded(
                                     child: Text(
@@ -1090,7 +1091,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                       style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
-                                        color: Color(0xFFFF5252),
+                                        color: AdminColors.dangerSoft,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -1167,13 +1168,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF060D1A),
+                          color: AdminColors.background,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF0A84FF).withValues(alpha: 0.3)),
+                          border: Border.all(color: AdminColors.primary.withValues(alpha: 0.3)),
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
+                            Icon(Icons.videocam_rounded, color: AdminColors.primary, size: 22),
                             SizedBox(width: 10),
                             const Expanded(
                               child: Text(
@@ -1183,7 +1184,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             ),
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0A84FF),
+                                backgroundColor: AdminColors.primary,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -1210,24 +1211,24 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                     TextField(
                       controller: _notesController,
                       maxLines: 3,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFFE8F0FE)),
+                      style: const TextStyle(fontSize: 12, color: AdminColors.textDark),
                       decoration: InputDecoration(
                         hintText: "Enter Tanod patrol remarks, response logs...",
-                        hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF5A6E8C)),
+                        hintStyle: const TextStyle(fontSize: 12, color: AdminColors.textMuted),
                         filled: true,
-                        fillColor: const Color(0xFF131F37),
+                        fillColor: AdminColors.surfaceRaised,
                         contentPadding: const EdgeInsets.all(12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF1E2D4A)),
+                          borderSide: const BorderSide(color: AdminColors.border),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF1E2D4A)),
+                          borderSide: const BorderSide(color: AdminColors.border),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF00E5FF)),
+                          borderSide: const BorderSide(color: AdminColors.cyan),
                         ),
                       ),
                     ),
@@ -1240,12 +1241,12 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             ? SizedBox(
                                 width: 12,
                                 height: 12,
-                                child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF00E5FF)),
+                                child: CircularProgressIndicator(strokeWidth: 1.5, color: AdminColors.cyan),
                               )
-                            : Icon(Icons.check, size: 14, color: Color(0xFF00E5FF)),
+                            : Icon(Icons.check, size: 14, color: AdminColors.cyan),
                         label: Text(
                           "Save Remarks",
-                          style: TextStyle(color: Color(0xFF00E5FF), fontSize: 11, fontWeight: FontWeight.w700),
+                          style: TextStyle(color: AdminColors.cyan, fontSize: 11, fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
@@ -1258,8 +1259,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Color(0xFF0D1627),
-                border: Border(top: BorderSide(color: Color(0xFF1E2D4A))),
+                color: AdminColors.cardBackground,
+                border: Border(top: BorderSide(color: AdminColors.border)),
               ),
               child: Column(
                 children: [
@@ -1270,8 +1271,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       child: ElevatedButton.icon(
                         onPressed: () => _showDispatchEtaDialog(context, inc),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00E5FF),
-                          foregroundColor: const Color(0xFF060D1A),
+                          backgroundColor: AdminColors.cyan,
+                          foregroundColor: AdminColors.background,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 3,
                         ),
@@ -1289,7 +1290,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       child: ElevatedButton.icon(
                         onPressed: () => _updateStatus("resolved"),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF30D158),
+                          backgroundColor: AdminColors.success,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           elevation: 3,
@@ -1308,13 +1309,13 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                       child: OutlinedButton.icon(
                         onPressed: () => _showDispatchEtaDialog(context, inc),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFFFF9F0A)),
+                          side: const BorderSide(color: AdminColors.amber),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        icon: Icon(Icons.replay_rounded, size: 16, color: Color(0xFFFF9F0A)),
+                        icon: Icon(Icons.replay_rounded, size: 16, color: AdminColors.amber),
                         label: Text(
                           "Re-Open Incident",
-                          style: TextStyle(color: Color(0xFFFF9F0A), fontWeight: FontWeight.w800, fontSize: 13),
+                          style: TextStyle(color: AdminColors.amber, fontWeight: FontWeight.w800, fontSize: 13),
                         ),
                       ),
                     ),
@@ -1351,14 +1352,14 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
   Widget _drawerSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, size: 15, color: const Color(0xFF00E5FF)),
+        Icon(icon, size: 15, color: AdminColors.cyan),
         SizedBox(width: 8),
         Text(
           title,
           style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
-            color: Color(0xFFE8F0FE),
+            color: AdminColors.textDark,
           ),
         ),
       ],
@@ -1374,9 +1375,9 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFF0D1627).withValues(alpha: 0.94),
+            color: AdminColors.cardBackground.withValues(alpha: 0.94),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF1E2D4A)),
+            border: Border.all(color: AdminColors.border),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.4),
@@ -1385,7 +1386,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
               ),
             ],
           ),
-          child: Icon(icon, color: const Color(0xFF00E5FF), size: 18),
+          child: Icon(icon, color: AdminColors.cyan, size: 18),
         ),
       ),
     );

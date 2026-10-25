@@ -9,6 +9,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -39,12 +40,12 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF7C4DFF), Color(0xFF651FFF)],
+                        colors: [AdminColors.violet, AdminColors.violetDeep],
                       ),
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF7C4DFF).withValues(alpha: 0.3),
+                          color: AdminColors.violet.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
@@ -65,7 +66,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFFE8F0FE),
+                          color: AdminColors.textDark,
                           letterSpacing: -0.3,
                         ),
                       ),
@@ -74,7 +75,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         "Registered Barangay Moonwalk residents, emergency contact dossiers, and moderation",
                         style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF7B8DB0),
+                          color: AdminColors.textLight,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -92,29 +93,29 @@ class _UserManagementPageState extends State<UserManagementPage> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0D1627),
+                    color: AdminColors.cardBackground,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E2D4A)),
+                    border: Border.all(color: AdminColors.border),
                   ),
                   child: TextField(
                     style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                       fontSize: 13,
                     ),
                     decoration: InputDecoration(
                       hintText:
                           "Search by citizen name, email, phone, sector...",
                       hintStyle: const TextStyle(
-                        color: Color(0xFF5A6E8C),
+                        color: AdminColors.textMuted,
                         fontSize: 12.5,
                       ),
                       prefixIcon: Icon(
                         Icons.search,
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         size: 20,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFF0D1627),
+                      fillColor: AdminColors.cardBackground,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
@@ -134,21 +135,21 @@ class _UserManagementPageState extends State<UserManagementPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
+                  color: AdminColors.cardBackground,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
+                  border: Border.all(color: AdminColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _statusFilter,
-                    dropdownColor: const Color(0xFF0D1627),
+                    dropdownColor: AdminColors.cardBackground,
                     style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                       fontSize: 13,
                     ),
                     icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF7C4DFF),
+                      color: AdminColors.violet,
                     ),
                     items: const [
                       DropdownMenuItem(
@@ -176,21 +177,21 @@ class _UserManagementPageState extends State<UserManagementPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
+                  color: AdminColors.cardBackground,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
+                  border: Border.all(color: AdminColors.border),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: _roleFilter,
-                    dropdownColor: const Color(0xFF0D1627),
+                    dropdownColor: AdminColors.cardBackground,
                     style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
+                      color: AdminColors.textDark,
                       fontSize: 13,
                     ),
                     icon: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF7C4DFF),
+                      color: AdminColors.violet,
                     ),
                     items: const [
                       DropdownMenuItem(value: "All", child: Text("All Roles")),
@@ -232,7 +233,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 if (!snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(
-                      color: Color(0xFF7C4DFF),
+                      color: AdminColors.violet,
                     ),
                   );
                 }
@@ -273,14 +274,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             children: [
                               Icon(
                                 Icons.person_search_outlined,
-                                color: const Color(0xFF2A3F60),
+                                color: AdminColors.borderStrong,
                                 size: 56,
                               ),
                               SizedBox(height: 14),
                               Text(
                                 "No citizen accounts match the criteria",
                                 style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
+                                  color: AdminColors.textLight,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -295,11 +296,11 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             child: DataTable(
                               headingRowHeight: 50,
                               headingRowColor: WidgetStateProperty.all(
-                                const Color(0xFF060D1A),
+                                AdminColors.background,
                               ),
                               dataRowColor: WidgetStateProperty.resolveWith(
                                 (states) => states.contains(WidgetState.hovered)
-                                    ? const Color(0xFF0D1627)
+                                    ? AdminColors.cardBackground
                                         .withValues(alpha: 0.8)
                                     : Colors.transparent,
                               ),
@@ -310,7 +311,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Citizen Name",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -320,7 +321,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Contact Info",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -330,7 +331,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Barangay Sector / Address",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -340,7 +341,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Role",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -350,7 +351,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Status",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -360,7 +361,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Verification",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -370,7 +371,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "Actions",
                                     style: TextStyle(
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -379,8 +380,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               rows: filteredUsers.map((user) {
                                 final bool isActive = user.isActive;
                                 final Color statusColor = isActive
-                                    ? const Color(0xFF30D158)
-                                    : const Color(0xFFFF3B30);
+                                    ? AdminColors.success
+                                    : AdminColors.danger;
 
                                 return DataRow(
                                   cells: [
@@ -403,9 +404,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                               child: CircleAvatar(
                                                 radius: 16,
                                                 backgroundColor: user.isAdmin
-                                                    ? const Color(0xFF7C4DFF)
+                                                    ? AdminColors.violet
                                                         .withValues(alpha: 0.25)
-                                                    : const Color(0xFF00E5FF)
+                                                    : AdminColors.cyan
                                                         .withValues(alpha: 0.2),
                                                 backgroundImage: (user.photoUrl != null &&
                                                         user.photoUrl!.isNotEmpty)
@@ -422,8 +423,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                             : 'U',
                                                         style: TextStyle(
                                                           color: user.isAdmin
-                                                              ? const Color(0xFF7C4DFF)
-                                                              : const Color(0xFF00E5FF),
+                                                              ? AdminColors.violet
+                                                              : AdminColors.cyan,
                                                           fontWeight: FontWeight.w900,
                                                           fontSize: 12,
                                                         ),
@@ -444,14 +445,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                     "Unnamed Citizen",
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w700,
-                                                  color: Color(0xFFE8F0FE),
+                                                  color: AdminColors.textDark,
                                                   fontSize: 12.5,
                                                 ),
                                               ),
                                               Text(
                                                 "ID: ${user.id.length > 8 ? user.id.substring(0, 8) : user.id}",
                                                 style: const TextStyle(
-                                                  color: Color(0xFF5A6E8C),
+                                                  color: AdminColors.textMuted,
                                                   fontSize: 10,
                                                 ),
                                               ),
@@ -471,7 +472,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                           Text(
                                             user.email,
                                             style: const TextStyle(
-                                              color: Color(0xFFB0C4DE),
+                                              color: AdminColors.textSoft,
                                               fontSize: 12,
                                             ),
                                           ),
@@ -480,7 +481,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             Text(
                                               user.phoneNumber!,
                                               style: const TextStyle(
-                                                color: Color(0xFF7B8DB0),
+                                                color: AdminColors.textLight,
                                                 fontSize: 11,
                                               ),
                                             ),
@@ -496,7 +497,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                               user.address ??
                                               "Barangay Moonwalk",
                                           style: const TextStyle(
-                                            color: Color(0xFF7B8DB0),
+                                            color: AdminColors.textLight,
                                             fontSize: 12,
                                           ),
                                           overflow: TextOverflow.ellipsis,
@@ -512,17 +513,17 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: user.isAdmin
-                                              ? const Color(0xFF7C4DFF)
+                                              ? AdminColors.violet
                                                   .withValues(alpha: 0.15)
-                                              : const Color(0xFF00E5FF)
+                                              : AdminColors.cyan
                                                   .withValues(alpha: 0.12),
                                           borderRadius:
                                               BorderRadius.circular(14),
                                           border: Border.all(
                                             color: user.isAdmin
-                                                ? const Color(0xFF7C4DFF)
+                                                ? AdminColors.violet
                                                     .withValues(alpha: 0.4)
-                                                : const Color(0xFF00E5FF)
+                                                : AdminColors.cyan
                                                     .withValues(alpha: 0.3),
                                           ),
                                         ),
@@ -534,8 +535,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             color: user.isAdmin
-                                                ? const Color(0xFF9D65FF)
-                                                : const Color(0xFF00E5FF),
+                                                ? AdminColors.violetLight
+                                                : AdminColors.cyan,
                                           ),
                                         ),
                                       ),
@@ -579,8 +580,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                 : Icons.pending_outlined,
                                             size: 15,
                                             color: user.isVerified
-                                                ? const Color(0xFF0A84FF)
-                                                : const Color(0xFF7B8DB0),
+                                                ? AdminColors.primary
+                                                : AdminColors.textLight,
                                           ),
                                           SizedBox(width: 5),
                                           Text(
@@ -590,8 +591,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: user.isVerified
-                                                  ? const Color(0xFF0A84FF)
-                                                  : const Color(0xFF7B8DB0),
+                                                  ? AdminColors.primary
+                                                  : AdminColors.textLight,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -606,7 +607,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                           IconButton(
                                             icon: Icon(
                                               Icons.badge_outlined,
-                                              color: Color(0xFF00E5FF),
+                                              color: AdminColors.cyan,
                                               size: 20,
                                             ),
                                             tooltip:
@@ -624,8 +625,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                   ? Icons.block_flipped
                                                   : Icons.check_circle_outline,
                                               color: isActive
-                                                  ? const Color(0xFFFF9F0A)
-                                                  : const Color(0xFF30D158),
+                                                  ? AdminColors.amber
+                                                  : AdminColors.success,
                                               size: 20,
                                             ),
                                             tooltip: isActive
@@ -644,8 +645,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                   ? Icons.verified
                                                   : Icons.verified_outlined,
                                               color: user.isVerified
-                                                  ? const Color(0xFF0A84FF)
-                                                  : const Color(0xFF7B8DB0),
+                                                  ? AdminColors.primary
+                                                  : AdminColors.textLight,
                                               size: 20,
                                             ),
                                             tooltip: user.isVerified
@@ -690,10 +691,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
         }
 
         return Dialog(
-          backgroundColor: const Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
+            side: const BorderSide(color: AdminColors.border),
           ),
           child: Container(
             width: 520,
@@ -732,7 +733,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             content: Text(
                                               "Citizen has not uploaded a profile picture yet.",
                                             ),
-                                            backgroundColor: Color(0xFF1E2D4A),
+                                            backgroundColor: AdminColors.border,
                                             behavior: SnackBarBehavior.floating,
                                             duration: Duration(seconds: 2),
                                           ),
@@ -749,16 +750,16 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: hasPhoto
-                                                  ? const Color(0xFF00E5FF)
+                                                  ? AdminColors.cyan
                                                       .withValues(alpha: 0.6)
-                                                  : const Color(0xFF1E2D4A),
+                                                  : AdminColors.border,
                                               width: 2,
                                             ),
                                             boxShadow: hasPhoto
                                                 ? [
                                                     BoxShadow(
                                                       color:
-                                                          const Color(0xFF00E5FF)
+                                                          AdminColors.cyan
                                                               .withValues(
                                                                   alpha: 0.25),
                                                       blurRadius: 10,
@@ -770,9 +771,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                           child: CircleAvatar(
                                             radius: 28,
                                             backgroundColor: user.isAdmin
-                                                ? const Color(0xFF7C4DFF)
+                                                ? AdminColors.violet
                                                     .withValues(alpha: 0.25)
-                                                : const Color(0xFF00E5FF)
+                                                : AdminColors.cyan
                                                     .withValues(alpha: 0.2),
                                             backgroundImage: hasPhoto
                                                 ? NetworkImage(user.photoUrl!)
@@ -806,18 +807,18 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             child: Container(
                                               padding: const EdgeInsets.all(4),
                                               decoration: BoxDecoration(
-                                                color: const Color(0xFF0D1627),
+                                                color: AdminColors.cardBackground,
                                                 shape: BoxShape.circle,
                                                 border: Border.all(
                                                   color:
-                                                      const Color(0xFF00E5FF),
+                                                      AdminColors.cyan,
                                                   width: 1.5,
                                                 ),
                                               ),
                                               child: Icon(
                                                 Icons.zoom_in_rounded,
                                                 size: 13,
-                                                color: Color(0xFF00E5FF),
+                                                color: AdminColors.cyan,
                                               ),
                                             ),
                                           ),
@@ -837,7 +838,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     style: const TextStyle(
                                       fontSize: 17,
                                       fontWeight: FontWeight.w900,
-                                      color: Color(0xFFE8F0FE),
+                                      color: AdminColors.textDark,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -846,7 +847,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     "UID: ${user.id}",
                                     style: const TextStyle(
                                       fontSize: 11,
-                                      color: Color(0xFF7B8DB0),
+                                      color: AdminColors.textLight,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -860,7 +861,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                           Icon(
                                             Icons.touch_app_outlined,
                                             size: 11,
-                                            color: Color(0xFF00E5FF),
+                                            color: AdminColors.cyan,
                                           ),
                                           SizedBox(width: 4),
                                           Text(
@@ -868,7 +869,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w600,
-                                              color: Color(0xFF00E5FF),
+                                              color: AdminColors.cyan,
                                             ),
                                           ),
                                         ],
@@ -881,13 +882,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                        icon: Icon(Icons.close, color: AdminColors.textLight),
                         onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
                   ),
                   SizedBox(height: 18),
-                  Divider(color: Color(0xFF1E2D4A)),
+                  Divider(color: AdminColors.border),
                   SizedBox(height: 14),
 
                   // Resident Identity & Account Attributes
@@ -925,10 +926,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFF3B30).withValues(alpha: 0.08),
+                      color: AdminColors.danger.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
+                        color: AdminColors.danger.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Column(
@@ -938,7 +939,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                           children: [
                             Icon(
                               Icons.contact_emergency_rounded,
-                              color: Color(0xFFFF3B30),
+                              color: AdminColors.danger,
                               size: 18,
                             ),
                             SizedBox(width: 8),
@@ -947,7 +948,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               style: TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFFFF3B30),
+                                color: AdminColors.danger,
                               ),
                             ),
                           ],
@@ -961,7 +962,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               style: const TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFFE8F0FE),
+                                color: AdminColors.textDark,
                               ),
                             ),
                             Text(
@@ -969,7 +970,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               style: const TextStyle(
                                 fontSize: 12.5,
                                 fontWeight: FontWeight.w700,
-                                color: Color(0xFF00E5FF),
+                                color: AdminColors.cyan,
                               ),
                             ),
                           ],
@@ -985,9 +986,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
+                      color: AdminColors.background,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                      border: Border.all(color: AdminColors.border),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -999,14 +1000,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w900,
-                                color: Color(0xFF0A84FF),
+                                color: AdminColors.primary,
                               ),
                             ),
                             Text(
                               "Submitted Reports",
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF7B8DB0),
+                                color: AdminColors.textLight,
                               ),
                             ),
                           ],
@@ -1019,15 +1020,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.w900,
                                 color: user.isVerified
-                                    ? const Color(0xFF30D158)
-                                    : const Color(0xFF7B8DB0),
+                                    ? AdminColors.success
+                                    : AdminColors.textLight,
                               ),
                             ),
                             Text(
                               "Residency Verified",
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF7B8DB0),
+                                color: AdminColors.textLight,
                               ),
                             ),
                           ],
@@ -1040,15 +1041,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.w900,
                                 color: user.isActive
-                                    ? const Color(0xFF30D158)
-                                    : const Color(0xFFFF3B30),
+                                    ? AdminColors.success
+                                    : AdminColors.danger,
                               ),
                             ),
                             Text(
                               "Account Standing",
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Color(0xFF7B8DB0),
+                                color: AdminColors.textLight,
                               ),
                             ),
                           ],
@@ -1064,7 +1065,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       onPressed: () => Navigator.pop(ctx),
                       child: Text(
                         "Close Dossier",
-                        style: TextStyle(color: Color(0xFF7B8DB0)),
+                        style: TextStyle(color: AdminColors.textLight),
                       ),
                     ),
                   ),
@@ -1086,10 +1087,10 @@ class _UserManagementPageState extends State<UserManagementPage> {
       barrierDismissible: true,
       builder: (ctx) {
         return Dialog(
-          backgroundColor: const Color(0xFF0A1220),
+          backgroundColor: AdminColors.dialogBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFF1E2D4A), width: 1.5),
+            side: const BorderSide(color: AdminColors.border, width: 1.5),
           ),
           child: Container(
             width: 520,
@@ -1109,13 +1110,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF00E5FF)
+                              color: AdminColors.cyan
                                   .withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
                               Icons.portrait_rounded,
-                              color: Color(0xFF00E5FF),
+                              color: AdminColors.cyan,
                               size: 20,
                             ),
                           ),
@@ -1129,7 +1130,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w900,
-                                    color: Color(0xFFE8F0FE),
+                                    color: AdminColors.textDark,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -1138,7 +1139,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                   "UID: ${user.id} • ${user.barangayArea ?? 'Barangay Moonwalk'}",
                                   style: const TextStyle(
                                     fontSize: 11,
-                                    color: Color(0xFF7B8DB0),
+                                    color: AdminColors.textLight,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -1149,14 +1150,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
+                      icon: Icon(Icons.close, color: AdminColors.textLight),
                       onPressed: () => Navigator.pop(ctx),
                       splashRadius: 20,
                     ),
                   ],
                 ),
                 SizedBox(height: 16),
-                Divider(color: Color(0xFF1E2D4A), height: 1),
+                Divider(color: AdminColors.border, height: 1),
                 SizedBox(height: 16),
 
                 // High-resolution photo container with InteractiveViewer
@@ -1166,9 +1167,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
                     constraints:
                         const BoxConstraints(maxHeight: 440, minHeight: 280),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF050B14),
+                      color: AdminColors.well,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
+                      border: Border.all(color: AdminColors.border),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: Stack(
@@ -1194,14 +1195,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                         height: 32,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2.5,
-                                          color: Color(0xFF00E5FF),
+                                          color: AdminColors.cyan,
                                         ),
                                       ),
                                       SizedBox(height: 12),
                                       Text(
                                         "Loading photo...",
                                         style: TextStyle(
-                                          color: Color(0xFF7B8DB0),
+                                          color: AdminColors.textLight,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -1219,13 +1220,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                         Icon(
                                           Icons.broken_image_rounded,
                                           size: 48,
-                                          color: Color(0xFFFF3B30),
+                                          color: AdminColors.danger,
                                         ),
                                         SizedBox(height: 12),
                                         Text(
                                           "Failed to load image",
                                           style: TextStyle(
-                                            color: Color(0xFFE8F0FE),
+                                            color: AdminColors.textDark,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
@@ -1233,7 +1234,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                         Text(
                                           "The remote image could not be loaded or network is offline.",
                                           style: TextStyle(
-                                            color: Color(0xFF7B8DB0),
+                                            color: AdminColors.textLight,
                                             fontSize: 11,
                                           ),
                                           textAlign: TextAlign.center,
@@ -1259,13 +1260,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   children: [
                     Row(
                       children: const [
-                        Icon(Icons.zoom_in, size: 14, color: Color(0xFF7B8DB0)),
+                        Icon(Icons.zoom_in, size: 14, color: AdminColors.textLight),
                         SizedBox(width: 4),
                         Text(
                           "Pinch or scroll to zoom • Drag to pan",
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF7B8DB0),
+                            color: AdminColors.textLight,
                           ),
                         ),
                       ],
@@ -1283,8 +1284,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                           icon: Icon(Icons.open_in_new, size: 14),
                           label: Text("Open Original"),
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF00E5FF),
-                            side: const BorderSide(color: Color(0xFF00E5FF)),
+                            foregroundColor: AdminColors.cyan,
+                            side: const BorderSide(color: AdminColors.cyan),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             textStyle: const TextStyle(
@@ -1298,8 +1299,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         ElevatedButton(
                           onPressed: () => Navigator.pop(ctx),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E2D4A),
-                            foregroundColor: const Color(0xFFE8F0FE),
+                            backgroundColor: AdminColors.border,
+                            foregroundColor: AdminColors.textDark,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             shape: RoundedRectangleBorder(
@@ -1327,7 +1328,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       style: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w800,
-        color: Color(0xFF7B8DB0),
+        color: AdminColors.textLight,
         letterSpacing: 0.2,
       ),
     );
@@ -1338,14 +1339,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 15, color: const Color(0xFF7B8DB0)),
+          Icon(icon, size: 15, color: AdminColors.textLight),
           SizedBox(width: 8),
           Text(
             "$label: ",
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF7B8DB0),
+              color: AdminColors.textLight,
             ),
           ),
           Expanded(
@@ -1354,7 +1355,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFFE8F0FE),
+                color: AdminColors.textDark,
               ),
               overflow: TextOverflow.ellipsis,
             ),
@@ -1375,15 +1376,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D1627),
+        backgroundColor: AdminColors.cardBackground,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF1E2D4A)),
+          side: const BorderSide(color: AdminColors.border),
         ),
         title: Text(
           "$actionText Citizen Account?",
           style: const TextStyle(
-            color: Color(0xFFE8F0FE),
+            color: AdminColors.textDark,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -1391,18 +1392,18 @@ class _UserManagementPageState extends State<UserManagementPage> {
           newStatus
               ? "Are you sure you want to reactivate ${user.displayName ?? user.email}'s account?"
               : "Suspending ${user.displayName ?? user.email} will immediately prevent them from submitting emergency reports or signing into the civic app (curbing spam / prank calls).",
-          style: const TextStyle(color: Color(0xFF7B8DB0), fontSize: 13),
+          style: const TextStyle(color: AdminColors.textLight, fontSize: 13),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
+            child: Text("Cancel", style: TextStyle(color: AdminColors.textLight)),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: newStatus
-                  ? const Color(0xFF30D158)
-                  : const Color(0xFFFF3B30),
+                  ? AdminColors.success
+                  : AdminColors.danger,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
@@ -1435,8 +1436,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
             SnackBar(
               content: Text("✓ Account successfully ${newStatus ? 'reactivated' : 'suspended'}."),
               backgroundColor: newStatus
-                  ? const Color(0xFF30D158)
-                  : const Color(0xFFFF9F0A),
+                  ? AdminColors.success
+                  : AdminColors.amber,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -1481,7 +1482,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   ? "✓ Resident successfully verified against barangay records."
                   : "✓ Resident verification revoked.",
             ),
-            backgroundColor: const Color(0xFF0A84FF),
+            backgroundColor: AdminColors.primary,
             behavior: SnackBarBehavior.floating,
           ),
         );

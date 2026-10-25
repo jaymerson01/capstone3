@@ -10,6 +10,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
 class AdminLoginPage extends StatefulWidget {
   final String? initialErrorMessage;
@@ -137,10 +138,10 @@ class _AdminLoginPageState extends State<AdminLoginPage>
       context: context,
       builder: (dialogCtx) => StatefulBuilder(
         builder: (dialogStateContext, setDialogState) => AlertDialog(
-          backgroundColor: const Color(0xFF0D1627),
+          backgroundColor: AdminColors.cardBackground,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
+            side: const BorderSide(color: AdminColors.border),
           ),
           title: Row(
             children: [
@@ -173,7 +174,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
               Text(
                 "Enter your registered municipal admin email address. We will dispatch a secure Google password reset link directly to your inbox.",
                 style: TextStyle(
-                    color: Color(0xFF98A6BE), fontSize: 12.5, height: 1.4),
+                    color: AdminColors.textHint, fontSize: 12.5, height: 1.4),
               ),
               SizedBox(height: 16),
               Custom3dTextField(
@@ -343,7 +344,7 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                             gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
-                              colors: [Color(0xFF0A84FF), Color(0xFF00D4FF)],
+                              colors: [AdminColors.primary, AdminColors.cyanSoft],
                             ),
                             boxShadow: [
                               BoxShadow(
@@ -540,18 +541,18 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 14, vertical: 10),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF0D1627),
+                                          color: AdminColors.cardBackground,
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
-                                            color: const Color(0xFF1E2D4A),
+                                            color: AdminColors.border,
                                           ),
                                         ),
                                         child: Row(
                                           children: [
                                             Icon(
                                               Icons.shield_outlined,
-                                              color: Color(0xFF30D158),
+                                              color: AdminColors.success,
                                               size: 16,
                                             ),
                                             SizedBox(width: 10),
