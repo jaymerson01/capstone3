@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -320,19 +319,16 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                             ],
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(30),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(
-                                    sigmaX: 18, sigmaY: 18),
-                                child: Container(
+                              child: Container(
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
                                         AdminColors.surfaceDeep
-                                            .withValues(alpha: 0.5),
+                                            .withValues(alpha: 0.8),
                                         AdminColors.surfaceDeep
-                                            .withValues(alpha: 0.62),
+                                            .withValues(alpha: 0.88),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(30),
@@ -539,7 +535,6 @@ class _AdminLoginPageState extends State<AdminLoginPage>
                                     ),
                                   ),
                                 ),
-                              ),
                             ),
                           ),
                         ],
