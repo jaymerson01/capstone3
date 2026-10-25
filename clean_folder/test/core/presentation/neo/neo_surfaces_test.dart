@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:community_safety_app/core/presentation/neo/aurora_background.dart';
 import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
 import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
 
@@ -79,5 +81,30 @@ void main() {
     );
     expect(find.text('Sign in panel'), findsOneWidget);
     expect(find.byType(BackdropFilter), findsOneWidget);
+  });
+
+  testWidgets('NeoTray writes in near-white on its dark slate', (tester) async {
+    for (final live in [false, true]) {
+      await pumpNeo(
+        tester,
+        NeoTray(live: live, child: const Text('Emergency hotlines')),
+      );
+
+      final style = DefaultTextStyle.of(
+        tester.element(find.text('Emergency hotlines')),
+      ).style;
+      expect(style.color, const Color(0xFFF8FAFC), reason: 'live: $live');
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  test('NeoSurface.inset turns blue only while focused', () {
+    final rest = NeoSurface.inset().border! as Border;
+    final focused = NeoSurface.inset(focused: true).border! as Border;
+    expect(rest.top.color, isNot(AppColors.primary));
+    expect(focused.top.color, AppColors.primary);
+
+    AppColors.isDarkMode = true;
+    expect(NeoSurface.inset().gradient, isNotNull);
   });
 }

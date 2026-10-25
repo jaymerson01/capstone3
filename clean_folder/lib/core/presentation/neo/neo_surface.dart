@@ -76,6 +76,33 @@ class NeoSurface {
     }
   }
 
+  /// A sunken well in the glass for text fields and search bars, with a
+  /// blue edge while [focused].
+  static BoxDecoration inset({
+    double radius = NeoRadii.pill,
+    bool focused = false,
+  }) {
+    final isDark = AppColors.isDarkMode;
+    final well = isDark ? const Color(0xFF0F1830) : const Color(0xFFEEF2F7);
+    // The shade along the top makes the well look pressed into the glass.
+    final shade = Colors.black.withValues(alpha: isDark ? 0.25 : 0.07);
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(radius),
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color.alphaBlend(shade, well), well],
+        stops: const [0, 0.3],
+      ),
+      border: Border.all(
+        color: focused
+            ? AppColors.primary
+            : (isDark ? AppColors.glassBorder : const Color(0xFFE2E8F0)),
+        width: focused ? 1.5 : 1,
+      ),
+    );
+  }
+
   /// [decoration] as a button background that animates between states,
   /// for `ButtonStyle.backgroundBuilder`.
   static ButtonLayerBuilder background(NeoFill fill, {bool circle = false}) {

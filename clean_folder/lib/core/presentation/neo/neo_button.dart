@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
 
-/// Blue for actions, red only for emergencies, raised white for the rest.
-enum NeoButtonVariant { primary, emergency, standard }
+/// Blue for actions, red only for emergencies, raised white for the rest,
+/// and slate for buttons on dark trays.
+enum NeoButtonVariant { primary, emergency, standard, slate }
 
 /// RESQ Neo-Tactile pill button. Pass `onPressed: null` for the disabled
 /// look; [expand] makes it fill the available width.
@@ -32,6 +33,8 @@ class NeoButton extends StatelessWidget {
         return NeoFill.emergency;
       case NeoButtonVariant.standard:
         return NeoFill.raised;
+      case NeoButtonVariant.slate:
+        return NeoFill.slate;
     }
   }
 
@@ -50,7 +53,7 @@ class NeoButton extends StatelessWidget {
       elevation: const WidgetStatePropertyAll(0),
       minimumSize: WidgetStatePropertyAll(Size(64, height)),
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 22),
+        EdgeInsets.symmetric(horizontal: 22, vertical: 8),
       ),
       shape: const WidgetStatePropertyAll(StadiumBorder()),
       textStyle: WidgetStatePropertyAll(
@@ -64,7 +67,13 @@ class NeoButton extends StatelessWidget {
     );
 
     // Clip.none keeps the shadows, which a background builder would clip.
-    final text = Text(label, overflow: TextOverflow.ellipsis);
+    // Long labels (often in Filipino) wrap to a second line before clipping.
+    final text = Text(
+      label,
+      maxLines: 2,
+      textAlign: TextAlign.center,
+      overflow: TextOverflow.ellipsis,
+    );
     final button = icon == null
         ? FilledButton(
             onPressed: onPressed,

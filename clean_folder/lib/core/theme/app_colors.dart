@@ -66,6 +66,7 @@ class AppColors {
   static const Color solved = Color(0xFF059669);         // Emerald success
   static const Color danger = Color(0xFFDC2626);         // Emergency red · report, call
   static const Color dangerDeep = Color(0xFFB91C1C);     // Emergency gradient end
+  static const Color onBehalf = Color(0xFFEA580C);       // Reported for someone else
 
   // ─── Glow Colors ──────────────────────────────────────────────────────────
   static const Color primaryGlow = primary;

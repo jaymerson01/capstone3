@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/neo_tokens.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class InAppEvidencePlayerDialog extends StatefulWidget {
@@ -123,6 +127,11 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
     });
   }
 
+  // The player is always dark, like a screen, in the resident app (day or
+  // night) and in the admin portal.
+  static const Color _soft = Color(0xFFCBD5E1);
+  static const Color _line = Color(0x1FFFFFFF);
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -131,46 +140,36 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 820),
         decoration: BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.border, width: 1.5),
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFF1C2433), AppColors.ink],
+          ),
+          borderRadius: BorderRadius.circular(NeoRadii.card + 2),
+          border: Border.all(color: _line),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.7),
-              blurRadius: 32,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.6),
+              blurRadius: 40,
+              offset: const Offset(0, 20),
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(NeoRadii.card + 2),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               // ── Header Bar ───────────────────────────────────────────────
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border(
-                    bottom: BorderSide(color: AppColors.border, width: 1),
-                  ),
-                ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
                 child: Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.progress.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(
-                        Icons.videocam_rounded,
-                        color: AppColors.progress,
-                        size: 18,
-                      ),
+                    const LiveIndicator.ring(
+                      size: 36,
+                      child: Icon(Icons.videocam_rounded),
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         widget.title ?? AppLocalizations.of(context).viewerVideoTitle,
@@ -183,27 +182,25 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.open_in_new_rounded,
-                          color: AppColors.textLight, size: 18),
+                    NeoIconButton(
+                      icon: Icons.open_in_new_rounded,
                       tooltip: AppLocalizations.of(context).viewerOpenExternalTab,
+                      tone: NeoIconButtonTone.slate,
+                      size: 38,
                       onPressed: () {
                         launchUrl(
                           Uri.parse(_playableUrl),
                           mode: LaunchMode.externalApplication,
                         );
                       },
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     ),
-                    SizedBox(width: 4),
-                    IconButton(
-                      icon: Icon(Icons.close_rounded,
-                          color: AppColors.textLight, size: 20),
+                    SizedBox(width: 8),
+                    NeoIconButton(
+                      icon: Icons.close_rounded,
                       tooltip: AppLocalizations.of(context).commonClose,
+                      tone: NeoIconButtonTone.slate,
+                      size: 38,
                       onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                     ),
                   ],
                 ),
@@ -229,15 +226,16 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                             children: [
                               Icon(
                                 Icons.error_outline_rounded,
-                                color: AppColors.danger,
+                                color: AppColors.dangerLight,
                                 size: 40,
                               ),
                               SizedBox(height: 12),
                               Text(
                                 AppLocalizations.of(context).viewerVideoError,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w800,
                                   fontSize: 14,
                                 ),
                               ),
@@ -245,29 +243,23 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                               Text(
                                 _errorMessage,
                                 style: TextStyle(
-                                  color: AppColors.textLight,
+                                  color: _soft,
                                   fontSize: 11,
                                 ),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                               ),
                               SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
+                              NeoButton(
+                                label: AppLocalizations.of(context).viewerOpenExternalPlayer,
+                                icon: Icons.open_in_browser_rounded,
+                                height: 44,
                                 onPressed: () {
                                   launchUrl(
                                     Uri.parse(widget.videoUrl),
                                     mode: LaunchMode.externalApplication,
                                   );
                                 },
-                                icon: Icon(Icons.open_in_browser, size: 16),
-                                label: Text(AppLocalizations.of(context).viewerOpenExternalPlayer, style: TextStyle(fontSize: 12)),
                               ),
                             ],
                           ),
@@ -279,14 +271,15 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               CircularProgressIndicator(
-                                color: AppColors.progress,
+                                color: AppColors.secondary,
                                 strokeWidth: 2.5,
                               ),
                               SizedBox(height: 16),
                               Text(
                                 AppLocalizations.of(context).viewerBuffering,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: AppColors.textLight,
+                                  color: _soft,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -309,15 +302,16 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                         GestureDetector(
                           onTap: _togglePlayPause,
                           child: Container(
-                            width: 60,
-                            height: 60,
+                            width: 64,
+                            height: 64,
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.6),
+                              gradient: AppColors.primaryGradient,
                               shape: BoxShape.circle,
                               border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 width: 1.5,
                               ),
+                              boxShadow: AppColors.primaryGlowShadow,
                             ),
                             child: Icon(
                               Icons.play_arrow_rounded,
@@ -334,11 +328,10 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
               // ── Player Controls Bar ──────────────────────────────────────
               if (_isInitialized)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
                     border: Border(
-                      top: BorderSide(color: AppColors.border, width: 1),
+                      top: BorderSide(color: _line, width: 1),
                     ),
                   ),
                   child: Column(
@@ -347,17 +340,17 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                       // Scrubber Slider
                       SliderTheme(
                         data: SliderTheme.of(context).copyWith(
-                          trackHeight: 3,
+                          trackHeight: 4,
                           thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 6,
+                            enabledThumbRadius: 7,
                           ),
                           overlayShape: const RoundSliderOverlayShape(
-                            overlayRadius: 12,
+                            overlayRadius: 14,
                           ),
-                          activeTrackColor: AppColors.progress,
-                          inactiveTrackColor: AppColors.border,
-                          thumbColor: AppColors.progress,
-                          overlayColor: AppColors.progress.withValues(alpha: 0.2),
+                          activeTrackColor: AppColors.secondary,
+                          inactiveTrackColor: Colors.white.withValues(alpha: 0.14),
+                          thumbColor: Colors.white,
+                          overlayColor: AppColors.secondary.withValues(alpha: 0.2),
                         ),
                         child: Slider(
                           value: _controller.value.position.inMilliseconds
@@ -388,8 +381,11 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                                   ? Icons.pause_rounded
                                   : Icons.play_arrow_rounded,
                               color: Colors.white,
-                              size: 26,
+                              size: 28,
                             ),
+                            tooltip: _controller.value.isPlaying
+                                ? AppLocalizations.of(context).videoPause
+                                : AppLocalizations.of(context).videoPlay,
                             onPressed: _togglePlayPause,
                           ),
 
@@ -399,7 +395,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                               _isMuted
                                   ? Icons.volume_off_rounded
                                   : Icons.volume_up_rounded,
-                              color: AppColors.textLight,
+                              color: _soft,
                               size: 20,
                             ),
                             onPressed: _toggleMute,
@@ -409,9 +405,10 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                           Text(
                             "${_formatDuration(_controller.value.position)} / ${_formatDuration(_controller.value.duration)}",
                             style: TextStyle(
-                              color: AppColors.textLight,
+                              color: _soft,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
+                              fontFeatures: const [FontFeature.tabularFigures()],
                             ),
                           ),
 
@@ -421,7 +418,7 @@ class _InAppEvidencePlayerDialogState extends State<InAppEvidencePlayerDialog> {
                           IconButton(
                             icon: Icon(
                               Icons.replay_rounded,
-                              color: AppColors.textLight,
+                              color: _soft,
                               size: 20,
                             ),
                             tooltip: AppLocalizations.of(context).viewerReplay,
