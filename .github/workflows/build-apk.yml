@@ -1,0 +1,46 @@
+name: Build Android APK
+
+# Builds the resident app's APK on GitHub, so no Android SDK is needed on
+# your computer. Download it from the run's "Artifacts" section.
+#
+# This repository is public, so the APK is built without the Gemini key
+# (.env is left empty): anyone signed in to GitHub can download artifacts.
+on:
+  push:
+    branches: [feature/neo-tactile-ui]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: clean_folder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Create an empty .env (no keys in a public build)
+        run: touch .env
+
+      - run: flutter pub get
+
+      - name: Build the resident app
+        run: flutter build apk --release -t lib/main_resident.dart
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: resq-resident-apk
+          path: clean_folder/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
