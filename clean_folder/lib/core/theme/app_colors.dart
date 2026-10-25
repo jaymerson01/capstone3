@@ -47,6 +47,11 @@ class AppColors {
   static const Color glassSmoke = Color(0x800F172A);
   static const Color glassSmokeBorder = Color(0x80FFFFFF);
 
+  // Lighter tints that stay readable on smoked glass and night backdrops.
+  static const Color secondaryLight = Color(0xFF67E8F9); // Live cyan
+  static const Color dangerLight = Color(0xFFFCA5A5);    // Errors
+  static const Color warningLight = Color(0xFFFCD34D);   // Pending
+
   // Legacy aliases
   static Color get accentBg => isDarkMode ? const Color(0xFF141E36) : const Color(0xFFFFFFFF);
   @Deprecated('Use AppColors.accentBg instead')
@@ -106,6 +111,16 @@ class AppColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [secondary, primary],
+  );
+
+  /// Big call-to-action buttons on the sign-in screens: blue, across.
+  static const Gradient ctaGradient = LinearGradient(
+    colors: [primary, Color(0xFF1E40AF)],
+  );
+
+  /// "Report an Incident" on the sign-in screens: emergency red, across.
+  static const Gradient emergencyCtaGradient = LinearGradient(
+    colors: [danger, dangerDeep],
   );
 
   // ─── Shadow System ────────────────────────────────────────────────────────

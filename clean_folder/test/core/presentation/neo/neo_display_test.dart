@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_list_row.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_section_header.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_status_pill.dart';
@@ -108,6 +109,36 @@ void main() {
     await tester.tap(find.text('See all'));
     expect(taps, 1);
     semantics.dispose();
+  });
+
+  testWidgets('NeoDialog shows its content on the dialog card', (tester) async {
+    await pumpNeo(
+      tester,
+      Builder(
+        builder: (context) => TextButton(
+          onPressed: () => showDialog(
+            context: context,
+            builder: (_) => const NeoDialog(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NeoDialogIcon(icon: Icons.lock_outline, color: AppColors.primary),
+                  Text('Login Required'),
+                ],
+              ),
+            ),
+          ),
+          child: const Text('open'),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Dialog), findsOneWidget);
+    expect(find.text('Login Required'), findsOneWidget);
+    expect(find.byIcon(Icons.lock_outline), findsOneWidget);
   });
 
   group('NeoListRow', () {

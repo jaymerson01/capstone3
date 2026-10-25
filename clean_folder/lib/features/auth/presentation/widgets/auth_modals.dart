@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 
@@ -110,115 +110,70 @@ class _PremiumDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
+    // Text a shade deeper (or lighter at night) than the tint behind it.
+    final actionText = AppColors.isDarkMode
+        ? Color.lerp(actionColor, Colors.white, 0.35)!
+        : Color.lerp(actionColor, AppColors.ink, 0.3)!;
+    return NeoDialog(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
       child: Semantics(
         container: true,
         explicitChildNodes: true,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: AppColors.surface.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: iconColor.withValues(alpha: 0.25)),
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withValues(alpha: 0.15),
-                  blurRadius: 30,
-                  spreadRadius: 2,
-                ),
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
-                ),
-              ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NeoDialogIcon(icon: icon, color: iconColor),
+            SizedBox(height: 18),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textDark,
+              ),
+              textAlign: TextAlign.center,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon badge
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: iconColor.withValues(alpha: 0.1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: iconColor.withValues(alpha: 0.35),
-                        blurRadius: 20,
-                        spreadRadius: 3,
-                      ),
-                    ],
-                  ),
-                  child: Icon(icon, color: iconColor, size: 36),
+            SizedBox(height: 10),
+            Text(
+              message,
+              style: TextStyle(
+                fontSize: 14,
+                color: AppColors.textLight,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: actionColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(color: actionColor.withValues(alpha: 0.35)),
                 ),
-                SizedBox(height: 18),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textLight,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: actionColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: actionColor.withValues(alpha: 0.3)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: actionColor.withValues(alpha: 0.2),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: onAction,
-                        child: Center(
-                          child: Text(
-                            actionLabel,
-                            style: TextStyle(
-                              color: actionColor,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15,
-                            ),
-                          ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(25),
+                    onTap: onAction,
+                    child: Center(
+                      child: Text(
+                        actionLabel,
+                        style: TextStyle(
+                          color: actionText,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
                         ),
                       ),
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
-      ),
       ),
     );
   }
@@ -291,136 +246,98 @@ class _AccountLockedDialogContentState
     final curr = _remaining.inSeconds;
     final progress = curr > 0 ? curr / total : 0.0;
 
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: AppColors.surface.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                  color: AppColors.pending.withValues(alpha: 0.25)),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.pending.withValues(alpha: 0.15),
-                  blurRadius: 30,
-                  spreadRadius: 2,
-                ),
-              ],
+    return NeoDialog(
+      padding: const EdgeInsets.fromLTRB(26, 30, 26, 26),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Pulsing lock icon
+          ScaleTransition(
+            scale: _pulseAnimation,
+            child: NeoDialogIcon(
+              icon: Icons.lock_person_rounded,
+              color: AppColors.pending,
+              size: 80,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Pulsing lock icon
-                ScaleTransition(
-                  scale: _pulseAnimation,
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.pending.withValues(alpha: 0.1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.pending.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          spreadRadius: 4,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.lock_person_rounded,
-                      color: AppColors.pending,
-                      size: 40,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  AppLocalizations.of(context).authLockedTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  AppLocalizations.of(context).authLockedMessage,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textLight,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 28),
+          ),
+          SizedBox(height: 20),
+          Text(
+            AppLocalizations.of(context).authLockedTitle,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textDark,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10),
+          Text(
+            AppLocalizations.of(context).authLockedMessage,
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.textLight,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 28),
 
-                // Premium countdown ring
-                SizedBox(
-                  width: 120,
-                  height: 120,
-                  child: Stack(
-                    fit: StackFit.expand,
+          // Countdown ring
+          SizedBox(
+            width: 120,
+            height: 120,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Background ring
+                CustomPaint(
+                  painter: _RingPainter(
+                    progress: progress,
+                    trackColor: AppColors.surfaceLight,
+                    progressColor: AppColors.pending,
+                  ),
+                ),
+                // Glow ring
+                CustomPaint(
+                  painter: _RingPainter(
+                    progress: progress,
+                    trackColor: Colors.transparent,
+                    progressColor: AppColors.pending.withValues(alpha: 0.25),
+                    strokeWidth: 12,
+                    blur: true,
+                  ),
+                ),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Background ring
-                      CustomPaint(
-                        painter: _RingPainter(
-                          progress: progress,
-                          trackColor: AppColors.surfaceLight,
-                          progressColor: AppColors.pending,
-                        ),
-                      ),
-                      // Glow ring
-                      CustomPaint(
-                        painter: _RingPainter(
-                          progress: progress,
-                          trackColor: Colors.transparent,
-                          progressColor:
-                              AppColors.pending.withValues(alpha: 0.25),
-                          strokeWidth: 12,
-                          blur: true,
-                        ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              _formattedTime,
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.textDark,
-                                fontFeatures: [
-                                  FontFeature.tabularFigures()
-                                ],
-                              ),
-                            ),
-                            Text(
-                              AppLocalizations.of(context).authLockedRemaining,
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: AppColors.textLight,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                      Text(
+                        _formattedTime,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textDark,
+                          fontFeatures: [
+                            FontFeature.tabularFigures()
                           ],
+                        ),
+                      ),
+                      Text(
+                        AppLocalizations.of(context).authLockedRemaining,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textLight,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 12),
               ],
             ),
           ),
-        ),
+          SizedBox(height: 8),
+        ],
       ),
     );
   }
