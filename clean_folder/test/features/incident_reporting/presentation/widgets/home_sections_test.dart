@@ -122,6 +122,52 @@ void main() {
     expect(opened, 2);
   });
 
+  testWidgets('HomeMyReportsPanel keeps long Filipino labels on one line',
+      (tester) async {
+    await pumpSection(
+      tester,
+      HomeMyReportsPanel(
+        title: 'STATUS NG AKING MGA ULAT',
+        subtitle: 'Mga personal na ulat',
+        viewAllLabel: 'Tingnan Lahat',
+        onOpenMyReports: () {},
+        stats: const [
+          HomeStat(
+            value: '1',
+            label: 'Nakabinbin',
+            sublabel: 'Nakapila',
+            color: AppColors.pending,
+            icon: Icons.hourglass_empty_rounded,
+          ),
+          HomeStat(
+            value: '2',
+            label: 'Aktibo',
+            sublabel: 'Nirerespondehan',
+            color: AppColors.progress,
+            icon: Icons.sync_rounded,
+            highlight: true,
+          ),
+          HomeStat(
+            value: '3',
+            label: 'Nalutas',
+            sublabel: 'Naresolba',
+            color: AppColors.solved,
+            icon: Icons.check_circle_rounded,
+          ),
+        ],
+      ),
+    );
+
+    for (final (text, fontSize) in [
+      ('Nakabinbin', 13.0),
+      ('Nirerespondehan', 11.5),
+    ]) {
+      expect(tester.getSize(find.text(text)).height, lessThan(fontSize * 1.5),
+          reason: '$text broke onto a second line');
+    }
+    expect(tester.takeException(), isNull);
+  });
+
   group('Community incidents', () {
     Widget panel({VoidCallback? onTap}) => HomeCommunityPanel(
           title: 'Community Incidents',

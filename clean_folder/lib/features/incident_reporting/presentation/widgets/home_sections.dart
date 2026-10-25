@@ -546,26 +546,48 @@ class _StatTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                stat.label,
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
+              // Long one-word labels ("Nakabinbin", "Nirerespondehan") shrink
+              // to fit on narrow phones instead of breaking mid-word.
+              _OneLine(
+                Text(
+                  stat.label,
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
-              Text(
-                stat.sublabel,
-                style: TextStyle(
-                  color: AppColors.textLight,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w500,
+              _OneLine(
+                Text(
+                  stat.sublabel,
+                  style: TextStyle(
+                    color: AppColors.textLight,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Keeps [child] on one line, scaling it down only when it is too wide.
+class _OneLine extends StatelessWidget {
+  final Widget child;
+
+  const _OneLine(this.child);
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: child,
     );
   }
 }
