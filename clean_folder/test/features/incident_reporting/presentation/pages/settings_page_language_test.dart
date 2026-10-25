@@ -49,6 +49,9 @@ void main() {
     );
     expect(find.text('English'), findsOneWidget);
 
+    // Built rows can still sit just below the screen; bring it fully on.
+    await tester.ensureVisible(find.text('Language'));
+    await tester.pump();
     await tester.tap(find.text('Language'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));

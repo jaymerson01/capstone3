@@ -6,6 +6,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/presentation/neo/aurora_background.dart';
+import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_chip.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_sheet.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_status_pill.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/camera_service.dart';
 import 'package:community_safety_app/core/services/locale_controller.dart';
@@ -36,111 +46,59 @@ class _SettingsPageState extends State<SettingsPage> {
     return ValueListenableBuilder<bool>(
       valueListenable: AppColors.isDarkModeNotifier,
       builder: (context, isDark, _) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
-        child: Container(
-          height: 64 + MediaQuery.of(context).padding.top,
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            border: Border(
-              bottom: BorderSide(color: AppColors.border, width: 1),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-                blurRadius: isDark ? 12 : 8,
-                offset: const Offset(0, 2),
+        final l10n = AppLocalizations.of(context);
+        // A root tab sits on the shell's aurora; a pushed page brings its own.
+        final page = Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            bottom: false,
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                16,
+                20,
+                24 + (widget.isRootTab ? 0 : MediaQuery.paddingOf(context).bottom),
               ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
               children: [
-                if (!widget.isRootTab) ...[
-                  IconButton(
-                    icon: Icon(Icons.arrow_back, color: AppColors.textDark),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 10,
+                // Header
+                Row(
+                  children: [
+                    if (!widget.isRootTab) ...[
+                      NeoIconButton(
+                        icon: Icons.arrow_back_rounded,
+                        tooltip: l10n.commonBack,
+                        onPressed: () => Navigator.pop(context),
                       ),
+                      const SizedBox(width: 12),
                     ],
-                  ),
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: AppColors.primary,
-                        child: Icon(Icons.shield,
-                            color: AppColors.textDark, size: 16),
+                    Expanded(
+                      child: Text(
+                        l10n.settingsTitle,
+                        style: TextStyle(
+                          color: AppColors.textDark,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                ShaderMask(
-                  shaderCallback: (bounds) =>
-                      AppColors.cyanGradient.createShader(bounds),
-                  blendMode: BlendMode.srcIn,
-                  child: Text(
-                    AppLocalizations.of(context).settingsTitle,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.tune_rounded,
-                      color: AppColors.primary, size: 20),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                children: [
-                  /// 1. DYNAMIC PROFILE HEADER CARD
-                  _buildProfileHeaderCard(),
-                  SizedBox(height: 24),
+                SizedBox(height: 18),
 
-                  /// 2. EMERGENCY SERVICES
-                  _buildSectionTitle(AppLocalizations.of(context).settingsEmergencyServices),
-                  SizedBox(height: 12),
+                /// 1. DYNAMIC PROFILE HEADER CARD
+                _buildProfileHeaderCard(),
+                SizedBox(height: 22),
+
+                /// 2. EMERGENCY SERVICES
+                _buildSectionTitle(l10n.settingsEmergencyServices),
+                _buildSettingsGroup([
                   _buildSettingTile(
                     icon: Icons.phone_in_talk_rounded,
                     iconColor: AppColors.danger,
-                    title: AppLocalizations.of(context).settingsHotlinesTitle,
-                    subtitle: AppLocalizations.of(context).settingsHotlinesSubtitle,
+                    title: l10n.settingsHotlinesTitle,
+                    subtitle: l10n.settingsHotlinesSubtitle,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -148,15 +106,16 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 24),
+                ]),
+                SizedBox(height: 22),
 
-                  /// 3. ACCOUNT SETTINGS
-                  _buildSectionTitle(AppLocalizations.of(context).settingsAccount),
-                  SizedBox(height: 12),
+                /// 3. ACCOUNT SETTINGS
+                _buildSectionTitle(l10n.settingsAccount),
+                _buildSettingsGroup([
                   _buildSettingTile(
                     icon: Icons.person_outline_rounded,
-                    title: AppLocalizations.of(context).settingsEditProfile,
-                    subtitle: AppLocalizations.of(context).settingsEditProfileSubtitle,
+                    title: l10n.settingsEditProfile,
+                    subtitle: l10n.settingsEditProfileSubtitle,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -166,8 +125,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   _buildSettingTile(
                     icon: Icons.shield_outlined,
-                    title: AppLocalizations.of(context).settingsPrivacy,
-                    subtitle: AppLocalizations.of(context).settingsPrivacySubtitle,
+                    title: l10n.settingsPrivacy,
+                    subtitle: l10n.settingsPrivacySubtitle,
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -175,11 +134,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 24),
+                ]),
+                SizedBox(height: 22),
 
-                  /// APP PREFERENCES
-                  _buildSectionTitle(AppLocalizations.of(context).settingsPreferences),
-                  SizedBox(height: 12),
+                /// APP PREFERENCES
+                _buildSectionTitle(l10n.settingsPreferences),
+                _buildSettingsGroup([
                   ValueListenableBuilder<bool>(
                     valueListenable: AppColors.isDarkModeNotifier,
                     builder: (context, isDark, child) {
@@ -192,7 +152,6 @@ class _SettingsPageState extends State<SettingsPage> {
                           onChanged: (value) {
                             AppColors.isDarkMode = value;
                           },
-                          activeThumbColor: AppColors.primary,
                         ),
                         onTap: () {
                           AppColors.isDarkMode = !isDark;
@@ -211,107 +170,109 @@ class _SettingsPageState extends State<SettingsPage> {
                       );
                     },
                   ),
+                ]),
+                SizedBox(height: 22),
 
-
-                  /// 5. SUPPORT & CIVIC INFORMATION
-                  _buildSectionTitle(AppLocalizations.of(context).settingsSupport),
-                  SizedBox(height: 12),
+                /// 5. SUPPORT & CIVIC INFORMATION
+                _buildSectionTitle(l10n.settingsSupport),
+                _buildSettingsGroup([
                   _buildSettingTile(
                     icon: Icons.info_outline_rounded,
-                    title: AppLocalizations.of(context).settingsAbout,
-                    subtitle: AppLocalizations.of(context).settingsAboutSubtitle,
+                    title: l10n.settingsAbout,
+                    subtitle: l10n.settingsAboutSubtitle,
                     onTap: () => _showModalInformation(
                       context,
-                      AppLocalizations.of(context).settingsAbout,
-                      AppLocalizations.of(context).settingsAboutBody,
+                      l10n.settingsAbout,
+                      l10n.settingsAboutBody,
                     ),
                   ),
                   _buildSettingTile(
                     icon: Icons.headset_mic_outlined,
-                    title: AppLocalizations.of(context).settingsHelpDesk,
-                    subtitle: AppLocalizations.of(context).settingsHelpDeskSubtitle,
+                    title: l10n.settingsHelpDesk,
+                    subtitle: l10n.settingsHelpDeskSubtitle,
                     onTap: () => _showBarangayHelpDesk(context),
                   ),
                   _buildSettingTile(
                     icon: Icons.rate_review_outlined,
-                    title: AppLocalizations.of(context).settingsFeedback,
-                    subtitle: AppLocalizations.of(context).settingsFeedbackSubtitle,
+                    title: l10n.settingsFeedback,
+                    subtitle: l10n.settingsFeedbackSubtitle,
                     onTap: () => _showFeedbackDialog(context),
                   ),
-                  SizedBox(height: 28),
+                ]),
+                SizedBox(height: 26),
 
-                  /// 5. DESTRUCTIVE ACTIONS
-                  _buildDestructiveActionButtons(),
-                  SizedBox(height: 24),
-                ],
-              ),
-            ),
+                /// 5. DESTRUCTIVE ACTIONS
+                _buildDestructiveActionButtons(),
+                SizedBox(height: 16),
 
-            // Persistent Footer
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 24,
-                bottom: 16,
-                top: 8,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "ResQ Community Safety",
-                    style: TextStyle(
-                      color: AppColors.textLight,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                    ),
+                // Footer
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "ResQ Community Safety",
+                        style: TextStyle(
+                          color: AppColors.textLight,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        "v1.0.0 Production",
+                        style: TextStyle(
+                          color: AppColors.textLight,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    "v1.0.0 Production",
-                    style: TextStyle(
-                      color: AppColors.textLight,
-                      fontSize: 11,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-      }
+          ),
+        );
+        return widget.isRootTab ? page : AuroraBackground(child: page);
+      },
     );
   }
 
   Widget _buildSectionTitle(String title) {
-    return Row(
-      children: [
-        Container(
-          width: 3,
-          height: 16,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(2),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.5),
-                blurRadius: 8,
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          color: AppColors.textLight,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  /// A section's rows on one glass card, with hairlines between them.
+  Widget _buildSettingsGroup(List<Widget> tiles) {
+    return GlassCard(
+      padding: EdgeInsets.zero,
+      borderRadius: 22,
+      child: Column(
+        children: [
+          for (var i = 0; i < tiles.length; i++) ...[
+            if (i > 0)
+              Divider(
+                height: 1,
+                thickness: 1,
+                indent: 16,
+                endIndent: 16,
+                color: AppColors.border.withValues(alpha: 0.6),
               ),
-            ],
-          ),
-        ),
-        SizedBox(width: 10),
-        Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.w900,
-            color: AppColors.textLight,
-            letterSpacing: 1.5,
-          ),
-        ),
-      ],
+            tiles[i],
+          ],
+        ],
+      ),
     );
   }
 
@@ -346,34 +307,40 @@ class _SettingsPageState extends State<SettingsPage> {
           }
         }
 
-        return Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: AppColors.border),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
-              ),
-            ],
+        final initialsText = Center(
+          child: Text(
+            initials,
+            style: const TextStyle(
+              color: Color(0xFFE2E8F0),
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+            ),
           ),
+        );
+
+        return NeoTray(
+          padding: const EdgeInsets.all(16),
           child: Row(
             children: [
               // Avatar
               Container(
-                width: 64,
-                height: 64,
+                width: 58,
+                height: 58,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: AppColors.primaryGradient,
+                  gradient: const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF5B6578), Color(0xFF394254)],
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.35),
-                      blurRadius: 14,
-                      spreadRadius: 1,
+                      color: AppColors.secondary.withValues(alpha: 0.6),
+                      spreadRadius: 3,
+                    ),
+                    BoxShadow(
+                      color: AppColors.secondary.withValues(alpha: 0.35),
+                      blurRadius: 16,
                     ),
                   ],
                 ),
@@ -383,135 +350,109 @@ class _SettingsPageState extends State<SettingsPage> {
                           ? Image.network(
                               photoUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, stack) => Center(
-                                child: Text(
-                                  initials,
-                                  style: TextStyle(color: AppColors.textDark,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
+                              errorBuilder: (ctx, err, stack) => initialsText,
                             )
                           : Image.file(
                               File(photoUrl),
                               fit: BoxFit.cover,
-                              errorBuilder: (ctx, err, stack) => Center(
-                                child: Text(
-                                  initials,
-                                  style: TextStyle(color: AppColors.textDark,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
+                              errorBuilder: (ctx, err, stack) => initialsText,
                             ))
-                      : Center(
-                          child: Text(
-                            initials,
-                            style: TextStyle(color: AppColors.textDark,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
+                      : initialsText,
                 ),
               ),
-              SizedBox(width: 16),
+              SizedBox(width: 14),
 
               // User Meta
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Name + Verified Badge
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w900,
-                              color: AppColors.textDark,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (isVerified) ...[
-                          const SizedBox(width: 6),
-                          Icon(
-                            Icons.verified_rounded,
-                            size: 16,
-                            color: AppColors.primary,
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 3),
                     Text(
-                      email,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textLight,
+                      name,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 7),
+                    if (email.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        email,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: NeoTray.soft,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const SizedBox(height: 6),
                     // Location & Verification Metadata
                     Row(
                       children: [
                         Icon(
                           Icons.location_on_outlined,
                           size: 13,
-                          color: AppColors.primary,
+                          color: AppColors.secondaryLight,
                         ),
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
                             sector,
-                            style: TextStyle(
-                              fontSize: 11.5,
-                              color: AppColors.textLight,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: NeoTray.soft,
                               fontWeight: FontWeight.w600,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        Container(
-                          width: 3,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: AppColors.textLight.withValues(alpha: 0.5),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          isVerified ? AppLocalizations.of(context).settingsVerifiedResident : AppLocalizations.of(context).settingsResidentCitizen,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isVerified ? AppColors.solved : AppColors.textLight,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
                       ],
+                    ),
+                    const SizedBox(height: 7),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: (isVerified ? AppColors.secondary : Colors.white)
+                            .withValues(alpha: isVerified ? 0.16 : 0.08),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isVerified) ...[
+                            Icon(Icons.verified_rounded,
+                                size: 12, color: AppColors.secondaryLight),
+                            const SizedBox(width: 5),
+                          ],
+                          Flexible(
+                            child: Text(
+                              isVerified ? AppLocalizations.of(context).settingsVerifiedResident : AppLocalizations.of(context).settingsResidentCitizen,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isVerified ? AppColors.secondaryLight : NeoTray.soft,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
 
               // Quick Edit Icon
-              IconButton(
-                icon: Icon(
-                  Icons.edit_outlined,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
+              NeoIconButton(
+                icon: Icons.edit_outlined,
+                tooltip: AppLocalizations.of(context).settingsEditProfile,
+                tone: NeoIconButtonTone.slate,
+                size: 40,
                 onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -527,40 +468,35 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildDestructiveActionButtons() {
+    final logOutColor =
+        AppColors.isDarkMode ? AppColors.dangerLight : AppColors.dangerDeep;
     return Column(
       children: [
-        GestureDetector(
-          onTap: () => _triggerAccountActionDialog(
-            AppLocalizations.of(context).settingsLogOut,
-            AppLocalizations.of(context).settingsLogOutConfirm,
-            false,
-          ),
-          child: Container(
-            width: double.infinity,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+        SizedBox(
+          width: double.infinity,
+          height: 52,
+          child: TextButton.icon(
+            onPressed: () => _triggerAccountActionDialog(
+              AppLocalizations.of(context).settingsLogOut,
+              AppLocalizations.of(context).settingsLogOutConfirm,
+              false,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.logout_rounded, color: AppColors.textLight, size: 18),
-                SizedBox(width: 10),
-                Text(
-                  AppLocalizations.of(context).settingsLogOut,
-                  style: TextStyle(
-                    color: AppColors.textDark,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            style: ButtonStyle(
+              backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+              foregroundColor: WidgetStatePropertyAll(logOutColor),
+              overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+              shape: const WidgetStatePropertyAll(StadiumBorder()),
+              textStyle: const WidgetStatePropertyAll(
+                TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+              ),
+              backgroundBuilder: NeoSurface.background(NeoFill.raised),
             ),
+            clipBehavior: Clip.none,
+            icon: Icon(Icons.logout_rounded, size: 18),
+            label: Text(AppLocalizations.of(context).settingsLogOut),
           ),
         ),
-        SizedBox(height: 12),
+        SizedBox(height: 8),
         TextButton(
           onPressed: () => _triggerAccountActionDialog(
             AppLocalizations.of(context).settingsDeleteAccount,
@@ -570,9 +506,9 @@ class _SettingsPageState extends State<SettingsPage> {
           child: Text(
             AppLocalizations.of(context).settingsDeleteForever,
             style: TextStyle(
-              color: AppColors.danger,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              color: logOutColor,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),
@@ -589,82 +525,94 @@ class _SettingsPageState extends State<SettingsPage> {
         isSevereDestructive ? AppColors.danger : AppColors.primary;
     showDialog(
       context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: actionColor.withValues(alpha: 0.3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: actionColor.withValues(alpha: 0.12),
-                ),
-                child: Icon(
-                  isSevereDestructive
-                      ? Icons.delete_forever_rounded
-                      : Icons.logout_rounded,
-                  color: actionColor,
-                  size: 28,
-                ),
+      builder: (ctx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NeoDialogIcon(
+              icon: isSevereDestructive
+                  ? Icons.delete_forever_rounded
+                  : Icons.logout_rounded,
+              color: actionColor,
+            ),
+            SizedBox(height: 16),
+            Text(
+              contextTitle,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontSize: 19,
+                fontWeight: FontWeight.w800,
               ),
-              SizedBox(height: 16),
-              Text(
-                contextTitle,
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              briefMsg,
+              style: TextStyle(
+                color: AppColors.textLight,
+                fontSize: 13.5,
+                height: 1.5,
               ),
-              SizedBox(height: 8),
-              Text(
-                briefMsg,
-                style: TextStyle(
-                  color: AppColors.textLight,
-                  fontSize: 13,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 22),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Center(
-                          child: Text(
-                            AppLocalizations.of(context).commonCancel,
-                            style: TextStyle(
-                              color: AppColors.textLight,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: NeoButton(
+                    label: AppLocalizations.of(context).commonCancel,
+                    variant: NeoButtonVariant.standard,
+                    height: 48,
+                    expand: true,
+                    onPressed: () => Navigator.pop(ctx),
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () async {
-                        Navigator.pop(ctx);
-                        if (!isSevereDestructive) {
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: NeoButton(
+                    label: isSevereDestructive ? AppLocalizations.of(context).commonDelete : AppLocalizations.of(context).commonConfirm,
+                    variant: isSevereDestructive
+                        ? NeoButtonVariant.emergency
+                        : NeoButtonVariant.primary,
+                    height: 48,
+                    expand: true,
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      if (!isSevereDestructive) {
+                        context.read<AuthBloc>().add(const LogoutRequested());
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const WelcomePage(),
+                          ),
+                          (route) => false,
+                        );
+                      } else {
+                        // Permanently Delete Account (RA 10173 Compliance)
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).settingsNoSession),
+                              backgroundColor: AppColors.danger,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          return;
+                        }
+
+                        try {
+                          final uid = user.uid;
+                          // 1. Delete resident profile in Firestore
+                          await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(uid)
+                              .delete();
+
+                          // 2. Delete user account in Firebase Auth
+                          await user.delete();
+
+                          if (!mounted) return;
                           context.read<AuthBloc>().add(const LogoutRequested());
                           Navigator.pushAndRemoveUntil(
                             context,
@@ -673,204 +621,135 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                             (route) => false,
                           );
-                        } else {
-                          // Permanently Delete Account (RA 10173 Compliance)
-                          final user = FirebaseAuth.instance.currentUser;
-                          if (user == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(AppLocalizations.of(context).settingsNoSession),
-                                backgroundColor: AppColors.danger,
-                                behavior: SnackBarBehavior.floating,
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context).settingsAccountErased,
                               ),
-                            );
-                            return;
-                          }
-
-                          try {
-                            final uid = user.uid;
-                            // 1. Delete resident profile in Firestore
-                            await FirebaseFirestore.instance
-                                .collection('users')
-                                .doc(uid)
-                                .delete();
-
-                            // 2. Delete user account in Firebase Auth
-                            await user.delete();
-
-                            if (!mounted) return;
-                            context.read<AuthBloc>().add(const LogoutRequested());
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const WelcomePage(),
-                              ),
-                              (route) => false,
-                            );
-
+                              backgroundColor: AppColors.solved,
+                              behavior: SnackBarBehavior.floating,
+                              duration: Duration(seconds: 4),
+                            ),
+                          );
+                        } on FirebaseAuthException catch (e) {
+                          if (!mounted) return;
+                          if (e.code == 'requires-recent-login') {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  AppLocalizations.of(context).settingsAccountErased,
+                                  AppLocalizations.of(context).settingsRecentLoginRequired,
                                 ),
-                                backgroundColor: AppColors.solved,
+                                backgroundColor: AppColors.warning,
                                 behavior: SnackBarBehavior.floating,
-                                duration: Duration(seconds: 4),
+                                duration: Duration(seconds: 5),
                               ),
                             );
-                          } on FirebaseAuthException catch (e) {
-                            if (!mounted) return;
-                            if (e.code == 'requires-recent-login') {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    AppLocalizations.of(context).settingsRecentLoginRequired,
-                                  ),
-                                  backgroundColor: AppColors.warning,
-                                  behavior: SnackBarBehavior.floating,
-                                  duration: Duration(seconds: 5),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    AppLocalizations.of(context).settingsDeleteFailed(LocalizedLabels.authError(
-                                      context,
-                                      code: e.code,
-                                      message: e.message ?? e.code,
-                                    )),
-                                  ),
-                                  backgroundColor: AppColors.danger,
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (!mounted) return;
+                          } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(AppLocalizations.of(context).settingsDeleteError('$e')),
+                                content: Text(
+                                  AppLocalizations.of(context).settingsDeleteFailed(LocalizedLabels.authError(
+                                    context,
+                                    code: e.code,
+                                    message: e.message ?? e.code,
+                                  )),
+                                ),
                                 backgroundColor: AppColors.danger,
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
                           }
-                        }
-                      },
-                      child: Container(
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: actionColor.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: actionColor.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            isSevereDestructive ? AppLocalizations.of(context).commonDelete : AppLocalizations.of(context).commonConfirm,
-                            style: TextStyle(
-                              color: actionColor,
-                              fontWeight: FontWeight.w800,
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).settingsDeleteError('$e')),
+                              backgroundColor: AppColors.danger,
+                              behavior: SnackBarBehavior.floating,
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
+                          );
+                        }
+                      }
+                    },
                   ),
-                ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A sheet heading: a tinted icon tile and the title.
+  Widget _buildSheetHeader(IconData icon, String title, {String? subtitle}) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: AppColors.isDarkMode ? 0.22 : 0.12),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: Icon(icon, color: AppColors.primaryText, size: 20),
+        ),
+        SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textDark,
+                ),
               ),
+              if (subtitle != null) ...[
+                SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textLight,
+                  ),
+                ),
+              ],
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 
   void _showModalInformation(BuildContext ctx, String head, String paragraph) {
     showModalBottomSheet(
       context: ctx,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        side: BorderSide(color: AppColors.border),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+      backgroundColor: Colors.transparent,
+      builder: (context) => NeoSheet(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.info_outline,
-                    color: AppColors.primary,
-                    size: 18,
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    head,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            _buildSheetHeader(Icons.info_outline_rounded, head),
             SizedBox(height: 14),
             Text(
               paragraph,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 13.5,
                 height: 1.6,
                 color: AppColors.textLight,
               ),
             ),
-            SizedBox(height: 24),
-            GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: double.infinity,
-                height: 48,
-                decoration: BoxDecoration(
-                  gradient: AppColors.primaryGradient,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: AppColors.primaryGlowShadow,
-                ),
-                child: Center(
-                  child: Text(
-                    AppLocalizations.of(context).commonClose,
-                    style: TextStyle(
-                      color: AppColors.textDark,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
+            SizedBox(height: 22),
+            NeoButton(
+              label: AppLocalizations.of(context).commonClose,
+              expand: true,
+              height: 50,
+              onPressed: () => Navigator.pop(context),
             ),
           ],
         ),
@@ -881,169 +760,95 @@ class _SettingsPageState extends State<SettingsPage> {
   void _showBarangayHelpDesk(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        side: BorderSide(color: AppColors.border),
-      ),
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: AppColors.border,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              SizedBox(height: 18),
-              Row(
+      backgroundColor: Colors.transparent,
+      builder: (context) => NeoSheet(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSheetHeader(
+              Icons.account_balance_rounded,
+              AppLocalizations.of(context).settingsHelpDeskTitle,
+              subtitle: "Barangay Moonwalk, Parañaque City",
+            ),
+            SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: NeoSurface.inset(radius: 18),
+              child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.account_balance_rounded,
-                      color: AppColors.primary,
-                      size: 22,
-                    ),
+                  _buildHelpDeskRow(
+                    Icons.location_on_rounded,
+                    AppLocalizations.of(context).settingsOfficeAddress,
+                    "Armstrong Ave., Moonwalk, Parañaque City",
                   ),
-                  SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context).settingsHelpDeskTitle,
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.textDark,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          "Barangay Moonwalk, Parañaque City",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                      ],
-                    ),
+                  Divider(color: AppColors.border.withValues(alpha: 0.7), height: 20),
+                  _buildHelpDeskRow(
+                    Icons.access_time_rounded,
+                    AppLocalizations.of(context).settingsServiceHours,
+                    AppLocalizations.of(context).settingsServiceHoursValue,
                   ),
                 ],
               ),
-              SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
+            ),
+            SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: NeoButton(
+                    label: AppLocalizations.of(context).settingsCallOffice,
+                    icon: Icons.phone_rounded,
+                    variant: NeoButtonVariant.standard,
+                    height: 48,
+                    expand: true,
+                    onPressed: () async {
+                      final uri = Uri(scheme: 'tel', path: '0288288041');
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    _buildHelpDeskRow(
-                      Icons.location_on_rounded,
-                      AppLocalizations.of(context).settingsOfficeAddress,
-                      "Armstrong Ave., Moonwalk, Parañaque City",
-                    ),
-                    Divider(color: AppColors.border, height: 20),
-                    _buildHelpDeskRow(
-                      Icons.access_time_rounded,
-                      AppLocalizations.of(context).settingsServiceHours,
-                      AppLocalizations.of(context).settingsServiceHoursValue,
-                    ),
-                  ],
+                SizedBox(width: 12),
+                Expanded(
+                  child: NeoButton(
+                    label: AppLocalizations.of(context).settingsSendEmail,
+                    icon: Icons.email_outlined,
+                    height: 48,
+                    expand: true,
+                    onPressed: () async {
+                      final uri = Uri(
+                        scheme: 'mailto',
+                        path: 'admin@moonwalk.resq.ph',
+                        query: 'subject=Barangay%20Moonwalk%20Citizen%20Inquiry',
+                      );
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                  ),
                 ),
-              ),
-              SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: const BorderSide(color: AppColors.primary),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () async {
-                        final uri = Uri(scheme: 'tel', path: '0288288041');
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        }
-                      },
-                      icon: Icon(Icons.phone, size: 18),
-                      label: Text(
-                        AppLocalizations.of(context).settingsCallOffice,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
+              ],
+            ),
+            SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline, size: 14, color: AppColors.warning),
+                SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context).settingsHelpDeskNote,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: AppColors.textLight,
+                      height: 1.35,
                     ),
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.textDark,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () async {
-                        final uri = Uri(
-                          scheme: 'mailto',
-                          path: 'admin@moonwalk.resq.ph',
-                          query: 'subject=Barangay%20Moonwalk%20Citizen%20Inquiry',
-                        );
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri);
-                        }
-                      },
-                      icon: Icon(Icons.email_outlined, size: 18),
-                      label: Text(
-                        AppLocalizations.of(context).settingsSendEmail,
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 14),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline, size: 14, color: AppColors.warning),
-                  SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context).settingsHelpDeskNote,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textLight,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -1053,7 +858,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: AppColors.textLight),
+        Icon(icon, size: 18, color: AppColors.primaryText),
         SizedBox(width: 10),
         Expanded(
           child: Column(
@@ -1062,8 +867,8 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textLight,
                 ),
               ),
@@ -1071,7 +876,7 @@ class _SettingsPageState extends State<SettingsPage> {
               Text(
                 value,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textDark,
                 ),
@@ -1106,53 +911,28 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: AppColors.border),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.rate_review_rounded,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              SizedBox(width: 12),
-              Text(
-                AppLocalizations.of(context).settingsFeedbackTitle,
-                style: TextStyle(
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textDark,
-                  fontSize: 17,
-                ),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
+        builder: (ctx, setDialogState) => NeoDialog(
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildSheetHeader(
+                  Icons.rate_review_rounded,
+                  AppLocalizations.of(context).settingsFeedbackTitle,
+                ),
+                SizedBox(height: 12),
                 Text(
                   AppLocalizations.of(context).settingsFeedbackIntro,
-                  style: TextStyle(fontSize: 12.5, color: AppColors.textLight, height: 1.4),
+                  style: TextStyle(fontSize: 13, color: AppColors.textLight, height: 1.4),
                 ),
-                SizedBox(height: 14),
+                SizedBox(height: 16),
                 Text(
                   AppLocalizations.of(context).settingsFeedbackCategory,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
+                    letterSpacing: 0.6,
                     color: AppColors.textLight,
                   ),
                 ),
@@ -1165,134 +945,99 @@ class _SettingsPageState extends State<SettingsPage> {
                     "Bug Report",
                     "Feature Suggestion",
                   ].map((cat) {
-                    final isSelected = selectedCategory == cat;
-                    return ChoiceChip(
-                      label: Text(
-                        _feedbackCategoryLabel(context, cat),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? Colors.white : AppColors.textLight,
-                        ),
-                      ),
-                      selected: isSelected,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: AppColors.background,
-                      side: BorderSide(
-                        color: isSelected ? AppColors.primary : AppColors.border,
-                      ),
-                      onSelected: (val) {
-                        if (val) {
-                          setDialogState(() => selectedCategory = cat);
-                        }
+                    return NeoChip(
+                      label: _feedbackCategoryLabel(context, cat),
+                      selected: selectedCategory == cat,
+                      onPressed: () {
+                        setDialogState(() => selectedCategory = cat);
                       },
                     );
                   }).toList(),
                 ),
-                SizedBox(height: 14),
+                SizedBox(height: 16),
                 TextField(
                   controller: feedbackCtrl,
                   maxLines: 4,
-                  style: TextStyle(color: AppColors.textDark, fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context).settingsFeedbackHint,
-                    hintStyle: TextStyle(fontSize: 12.5, color: AppColors.textLight),
-                    filled: true,
-                    fillColor: AppColors.background,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
+                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  decoration: _insetDecoration(
+                    hint: AppLocalizations.of(context).settingsFeedbackHint,
                   ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: NeoButton(
+                        label: AppLocalizations.of(context).commonCancel,
+                        variant: NeoButtonVariant.standard,
+                        height: 48,
+                        expand: true,
+                        onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: _PillProgressButton(
+                        label: AppLocalizations.of(context).commonSubmit,
+                        busy: isSubmitting,
+                        height: 48,
+                        onPressed: () async {
+                          final text = feedbackCtrl.text.trim();
+                          if (text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(AppLocalizations.of(context).settingsFeedbackEmpty),
+                                backgroundColor: AppColors.warning,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          setDialogState(() => isSubmitting = true);
+                          final messenger = ScaffoldMessenger.of(context);
+                          final l10n = AppLocalizations.of(context);
+
+                          try {
+                            final currentUser = FirebaseAuth.instance.currentUser;
+                            await FirebaseFirestore.instance.collection('app_feedback').add({
+                              'userId': _lastKnownUser?.id ?? currentUser?.uid ?? 'anonymous',
+                              'userName': _lastKnownUser?.displayName ?? currentUser?.displayName ?? 'Resident',
+                              'userEmail': _lastKnownUser?.email ?? currentUser?.email ?? '',
+                              'category': selectedCategory,
+                              'message': text,
+                              'createdAt': FieldValue.serverTimestamp(),
+                              'appVersion': '1.0.0',
+                            });
+
+                            if (ctx.mounted) {
+                              Navigator.pop(ctx);
+                            }
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.settingsFeedbackThanks),
+                                backgroundColor: AppColors.solved,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } catch (e) {
+                            setDialogState(() => isSubmitting = false);
+                            messenger.showSnackBar(
+                              SnackBar(
+                                content: Text(l10n.settingsFeedbackFailed('$e')),
+                                backgroundColor: AppColors.danger,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: isSubmitting ? null : () => Navigator.pop(ctx),
-              child: Text(AppLocalizations.of(context).commonCancel, style: TextStyle(color: AppColors.textLight)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: AppColors.textDark,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: isSubmitting
-                  ? null
-                  : () async {
-                      final text = feedbackCtrl.text.trim();
-                      if (text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(AppLocalizations.of(context).settingsFeedbackEmpty),
-                            backgroundColor: AppColors.warning,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        return;
-                      }
-
-                      setDialogState(() => isSubmitting = true);
-                      final messenger = ScaffoldMessenger.of(context);
-                      final l10n = AppLocalizations.of(context);
-
-                      try {
-                        final currentUser = FirebaseAuth.instance.currentUser;
-                        await FirebaseFirestore.instance.collection('app_feedback').add({
-                          'userId': _lastKnownUser?.id ?? currentUser?.uid ?? 'anonymous',
-                          'userName': _lastKnownUser?.displayName ?? currentUser?.displayName ?? 'Resident',
-                          'userEmail': _lastKnownUser?.email ?? currentUser?.email ?? '',
-                          'category': selectedCategory,
-                          'message': text,
-                          'createdAt': FieldValue.serverTimestamp(),
-                          'appVersion': '1.0.0',
-                        });
-
-                        if (ctx.mounted) {
-                          Navigator.pop(ctx);
-                        }
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.settingsFeedbackThanks),
-                            backgroundColor: AppColors.solved,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      } catch (e) {
-                        setDialogState(() => isSubmitting = false);
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.settingsFeedbackFailed('$e')),
-                            backgroundColor: AppColors.danger,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-              child: isSubmitting
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        color: AppColors.textDark,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : Text(AppLocalizations.of(context).commonSubmit),
-            ),
-          ],
         ),
       ),
     );
@@ -1302,37 +1047,34 @@ class _SettingsPageState extends State<SettingsPage> {
     final current = LocaleController.locale;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        side: BorderSide(color: AppColors.border),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => NeoSheet(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            _buildSheetHeader(
+              Icons.translate_rounded,
               AppLocalizations.of(ctx).languageSettingTitle,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 12),
             for (final locale in AppLocalizations.supportedLocales)
               ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 leading: Icon(
                   locale == current
                       ? Icons.radio_button_checked_rounded
                       : Icons.radio_button_off_rounded,
-                  color: AppColors.primary,
+                  color: AppColors.primaryText,
                 ),
                 title: Text(
                   LocaleController.displayName(locale),
-                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 15,
+                    fontWeight: locale == current ? FontWeight.w800 : FontWeight.w600,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -1353,67 +1095,227 @@ class _SettingsPageState extends State<SettingsPage> {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    final effectiveColor = iconColor ?? AppColors.primary;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: effectiveColor.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 20, color: effectiveColor),
+    final isDark = AppColors.isDarkMode;
+    // Emergency rows get a red tile; the rest a sunken one with a blue icon.
+    final emergency = iconColor != null;
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: emergency
+                    ? BoxDecoration(
+                        gradient: AppColors.emergencyGradient,
+                        borderRadius: BorderRadius.circular(13),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.danger.withValues(alpha: 0.35),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      )
+                    : NeoSurface.inset(radius: 13),
+                child: Icon(
+                  icon,
+                  size: 19,
+                  color: emergency ? Colors.white : AppColors.primaryText,
                 ),
-                SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
+              ),
+              ?trailing,
+              if (onTap != null && trailing == null)
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: isDark ? AppColors.textLight : const Color(0xFF475569),
+                  size: 20,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Sunken text-field decoration shared by the Settings forms.
+InputDecoration _insetDecoration({
+  String? label,
+  String? hint,
+  String? helper,
+  IconData? icon,
+  Widget? suffix,
+}) {
+  final isDark = AppColors.isDarkMode;
+  final radius = BorderRadius.circular(16);
+  final edge = isDark ? AppColors.glassBorder : const Color(0xFFE2E8F0);
+  return InputDecoration(
+    labelText: label,
+    hintText: hint,
+    helperText: helper,
+    labelStyle: TextStyle(color: AppColors.textLight),
+    hintStyle: TextStyle(color: AppColors.textLight, fontSize: 13),
+    helperStyle: TextStyle(color: AppColors.textLight, fontSize: 11),
+    prefixIcon: icon == null
+        ? null
+        : Icon(icon, color: AppColors.primaryText, size: 20),
+    suffixIcon: suffix,
+    filled: true,
+    fillColor: isDark ? const Color(0xFF0F1830) : const Color(0xFFEEF2F7),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    border: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: edge)),
+    enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: edge)),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: const BorderSide(color: AppColors.danger),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: radius,
+      borderSide: const BorderSide(color: AppColors.danger, width: 1.5),
+    ),
+    errorStyle: TextStyle(color: AppColors.danger, fontWeight: FontWeight.w600),
+  );
+}
+
+/// The blue pill action that shows a spinner while [busy].
+class _PillProgressButton extends StatelessWidget {
+  final String label;
+  final bool busy;
+  final VoidCallback onPressed;
+  final double height;
+
+  const _PillProgressButton({
+    required this.label,
+    required this.busy,
+    required this.onPressed,
+    this.height = 52,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: height,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: AppColors.primaryGlowShadow,
+        ),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            foregroundColor: Colors.white,
+            disabledForegroundColor: Colors.white70,
+            shape: const StadiumBorder(),
+          ),
+          onPressed: busy ? null : onPressed,
+          child: busy
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.5,
+                  ),
+                )
+              : Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A Settings sub-page: the aurora, a header with Back and the title, then
+/// [child] below.
+class _NeoSubPage extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _NeoSubPage({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AuroraBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+                child: Row(
+                  children: [
+                    NeoIconButton(
+                      icon: Icons.arrow_back_rounded,
+                      tooltip: AppLocalizations.of(context).commonBack,
+                      onPressed: () => Navigator.maybePop(context),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
                         title,
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
                           color: AppColors.textDark,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                      SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          color: AppColors.textLight,
-                          fontSize: 11.5,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                ?trailing,
-                if (onTap != null && trailing == null)
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: AppColors.textLight,
-                    size: 13,
-                  ),
-              ],
-            ),
+              ),
+              Expanded(child: child),
+            ],
           ),
         ),
       ),
@@ -1497,13 +1399,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Future<void> _pickAvatarImage() async {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        side: BorderSide(color: AppColors.border),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => NeoSheet(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1511,18 +1408,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
             Text(
               AppLocalizations.of(context).profilePhotoTitle,
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
                 color: AppColors.textDark,
               ),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 12),
             ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               leading: Icon(Icons.camera_alt_rounded,
-                  color: AppColors.primary),
+                  color: AppColors.primaryText),
               title: Text(
                 AppLocalizations.of(context).profileTakePhoto,
-                style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               onTap: () async {
                 Navigator.pop(ctx);
@@ -1534,11 +1436,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
               },
             ),
             ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               leading:
-                  Icon(Icons.photo_library_rounded, color: AppColors.primary),
+                  Icon(Icons.photo_library_rounded, color: AppColors.primaryText),
               title: Text(
                 AppLocalizations.of(context).profileChooseGallery,
-                style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               onTap: () async {
                 Navigator.pop(ctx);
@@ -1619,26 +1526,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final UserEntity? user =
         authState is Authenticated ? authState.user : null;
     final existingPhoto = user?.photoUrl;
+    final fallbackAvatar = Icon(Icons.person, size: 54, color: AppColors.primaryText);
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: AppColors.textDark,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          AppLocalizations.of(context).profileTitle,
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-        ),
-      ),
-      body: SingleChildScrollView(
+    return _NeoSubPage(
+      title: AppLocalizations.of(context).profileTitle,
+      child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 24 + MediaQuery.paddingOf(context).bottom),
         child: Form(
           key: _profileFormKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               /// AVATAR INTERFACE BLOCK
               Center(
@@ -1649,11 +1547,12 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       height: 104,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.border, width: 3),
+                        color: AppColors.surfaceLight,
+                        border: Border.all(color: Colors.white, width: 3),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.2),
-                            blurRadius: 16,
+                            color: AppColors.primary.withValues(alpha: 0.25),
+                            blurRadius: 18,
                             spreadRadius: 2,
                           ),
                         ],
@@ -1667,23 +1566,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                         existingPhoto,
                                         fit: BoxFit.cover,
                                         errorBuilder: (ctx, err, stack) =>
-                                            Icon(Icons.person,
-                                                size: 54,
-                                                color: AppColors.primary),
+                                            fallbackAvatar,
                                       )
                                     : Image.file(
                                         File(existingPhoto),
                                         fit: BoxFit.cover,
                                         errorBuilder: (ctx, err, stack) =>
-                                            Icon(Icons.person,
-                                                size: 54,
-                                                color: AppColors.primary),
+                                            fallbackAvatar,
                                       ))
-                                : Icon(
-                                    Icons.person,
-                                    size: 54,
-                                    color: AppColors.primary,
-                                  )),
+                                : fallbackAvatar),
                       ),
                     ),
                     Positioned(
@@ -1692,19 +1583,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       child: GestureDetector(
                         onTap: _pickAvatarImage,
                         child: Container(
-                          width: 34,
-                          height: 34,
+                          width: 36,
+                          height: 36,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: AppColors.primaryGradient,
-                            border: Border.all(
-                                color: AppColors.background, width: 2),
+                            border: Border.all(color: Colors.white, width: 2),
                             boxShadow: AppColors.primaryGlowShadow,
                           ),
                           child: Icon(
                             Icons.camera_alt_rounded,
-                            size: 16,
-                            color: AppColors.textDark,
+                            size: 17,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -1712,189 +1602,135 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   ],
                 ),
               ),
-              SizedBox(height: 28),
+              SizedBox(height: 24),
 
               _buildSectionSubHeader(AppLocalizations.of(context).profileCredentials),
-              SizedBox(height: 12),
-              _buildValidatedField(
-                controller: _nameController,
-                label: AppLocalizations.of(context).signUpNameLabel,
-                icon: Icons.person_outline_rounded,
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? AppLocalizations.of(context).profileNameRequired
-                    : null,
-              ),
-              SizedBox(height: 14),
+              GlassCard(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildValidatedField(
+                      controller: _nameController,
+                      label: AppLocalizations.of(context).signUpNameLabel,
+                      icon: Icons.person_outline_rounded,
+                      validator: (val) => val == null || val.trim().isEmpty
+                          ? AppLocalizations.of(context).profileNameRequired
+                          : null,
+                    ),
+                    SizedBox(height: 14),
 
-              // Email (Read-only credential)
-              TextFormField(
-                controller: _emailController,
-                readOnly: true,
-                style: TextStyle(color: AppColors.textLight),
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).profileEmailLabel,
-                  labelStyle: TextStyle(color: AppColors.textLight),
-                  prefixIcon:
-                      Icon(Icons.email_outlined, color: AppColors.textLight),
-                  suffixIcon:
-                      Icon(Icons.lock_outline, color: AppColors.textLight, size: 16),
-                  helperText: AppLocalizations.of(context).profileEmailHelper,
-                  helperStyle:
-                      TextStyle(color: AppColors.textLight, fontSize: 11),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.border),
-                  ),
-                  filled: true,
-                  fillColor: AppColors.surface.withValues(alpha: 0.6),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-              ),
-              SizedBox(height: 14),
-
-              _buildValidatedField(
-                controller: _phoneController,
-                label: AppLocalizations.of(context).profilePhoneLabel,
-                icon: Icons.phone_android_rounded,
-                keyboardType: TextInputType.phone,
-                validator: (val) => val == null || val.trim().length < 7
-                    ? AppLocalizations.of(context).profilePhoneInvalid
-                    : null,
-              ),
-
-              SizedBox(height: 24),
-              _buildSectionSubHeader(AppLocalizations.of(context).profileJurisdiction),
-              SizedBox(height: 12),
-
-              /// BARANGAY SECTOR DROPDOWN
-              DropdownButtonFormField<String>(
-                initialValue: _selectedBarangay,
-                dropdownColor: AppColors.surface,
-                isExpanded: true,
-                style: TextStyle(color: AppColors.textDark,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).profileAreaLabel,
-                  labelStyle: TextStyle(color: AppColors.textLight),
-                  prefixIcon: Icon(
-                    Icons.holiday_village_outlined,
-                    color: AppColors.primary,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.border),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.border),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.primary),
-                  ),
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                ),
-                items: _barangayList
-                    .map((b) => DropdownMenuItem(
-                          value: b,
-                          child: Text(
-                            b,
-                            style: TextStyle(color: AppColors.textDark),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedBarangay = val);
-                },
-              ),
-              SizedBox(height: 14),
-
-              _buildValidatedField(
-                controller: _savedAddressController,
-                label: AppLocalizations.of(context).profileAddressLabel,
-                icon: Icons.home_work_outlined,
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? AppLocalizations.of(context).profileAddressRequired
-                    : null,
-              ),
-
-              SizedBox(height: 24),
-              _buildSectionSubHeader(AppLocalizations.of(context).profileEmergencyContact),
-              SizedBox(height: 12),
-
-              _buildValidatedField(
-                controller: _emergencyContactNameController,
-                label: AppLocalizations.of(context).profileContactName,
-                icon: Icons.contact_emergency_outlined,
-                validator: (val) => val == null || val.trim().isEmpty
-                    ? AppLocalizations.of(context).profileContactNameRequired
-                    : null,
-              ),
-              SizedBox(height: 14),
-
-              _buildValidatedField(
-                controller: _emergencyContactNumberController,
-                label: AppLocalizations.of(context).profileContactNumber,
-                icon: Icons.phone_in_talk_outlined,
-                keyboardType: TextInputType.phone,
-                validator: (val) => val == null || val.trim().length < 7
-                    ? AppLocalizations.of(context).profileContactNumberInvalid
-                    : null,
-              ),
-
-              SizedBox(height: 36),
-
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: AppColors.primaryGlowShadow,
-                  ),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      foregroundColor: AppColors.textDark,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                    // Email (Read-only credential)
+                    TextFormField(
+                      controller: _emailController,
+                      readOnly: true,
+                      style: TextStyle(color: AppColors.textLight, fontSize: 14),
+                      decoration: _insetDecoration(
+                        label: AppLocalizations.of(context).profileEmailLabel,
+                        icon: Icons.email_outlined,
+                        suffix: Icon(Icons.lock_outline, color: AppColors.textLight, size: 16),
+                        helper: AppLocalizations.of(context).profileEmailHelper,
                       ),
                     ),
-                    onPressed: _isSaving ? null : _saveProfileChanges,
-                    child: _isSaving
-                        ? SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              color: AppColors.textDark,
-                              strokeWidth: 2.5,
-                            ),
-                          )
-                        : Text(
-                            AppLocalizations.of(context).profileSave,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                  ),
+                    SizedBox(height: 14),
+
+                    _buildValidatedField(
+                      controller: _phoneController,
+                      label: AppLocalizations.of(context).profilePhoneLabel,
+                      icon: Icons.phone_android_rounded,
+                      keyboardType: TextInputType.phone,
+                      validator: (val) => val == null || val.trim().length < 7
+                          ? AppLocalizations.of(context).profilePhoneInvalid
+                          : null,
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: 20),
+
+              SizedBox(height: 22),
+              _buildSectionSubHeader(AppLocalizations.of(context).profileJurisdiction),
+              GlassCard(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    /// BARANGAY SECTOR DROPDOWN
+                    DropdownButtonFormField<String>(
+                      initialValue: _selectedBarangay,
+                      dropdownColor: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      isExpanded: true,
+                      style: TextStyle(color: AppColors.textDark,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      decoration: _insetDecoration(
+                        label: AppLocalizations.of(context).profileAreaLabel,
+                        icon: Icons.holiday_village_outlined,
+                      ),
+                      items: _barangayList
+                          .map((b) => DropdownMenuItem(
+                                value: b,
+                                child: Text(
+                                  b,
+                                  style: TextStyle(color: AppColors.textDark),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) setState(() => _selectedBarangay = val);
+                      },
+                    ),
+                    SizedBox(height: 14),
+
+                    _buildValidatedField(
+                      controller: _savedAddressController,
+                      label: AppLocalizations.of(context).profileAddressLabel,
+                      icon: Icons.home_work_outlined,
+                      validator: (val) => val == null || val.trim().isEmpty
+                          ? AppLocalizations.of(context).profileAddressRequired
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 22),
+              _buildSectionSubHeader(AppLocalizations.of(context).profileEmergencyContact),
+              GlassCard(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildValidatedField(
+                      controller: _emergencyContactNameController,
+                      label: AppLocalizations.of(context).profileContactName,
+                      icon: Icons.contact_emergency_outlined,
+                      validator: (val) => val == null || val.trim().isEmpty
+                          ? AppLocalizations.of(context).profileContactNameRequired
+                          : null,
+                    ),
+                    SizedBox(height: 14),
+
+                    _buildValidatedField(
+                      controller: _emergencyContactNumberController,
+                      label: AppLocalizations.of(context).profileContactNumber,
+                      icon: Icons.phone_in_talk_outlined,
+                      keyboardType: TextInputType.phone,
+                      validator: (val) => val == null || val.trim().length < 7
+                          ? AppLocalizations.of(context).profileContactNumberInvalid
+                          : null,
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 28),
+
+              _PillProgressButton(
+                label: AppLocalizations.of(context).profileSave,
+                busy: _isSaving,
+                onPressed: _saveProfileChanges,
+              ),
+              SizedBox(height: 12),
             ],
           ),
         ),
@@ -1903,12 +1739,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Widget _buildSectionSubHeader(String label) {
-    return Text(
-      label,
-      style: TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.bold,
-        color: AppColors.textLight,
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
+          color: AppColors.textLight,
+        ),
       ),
     );
   }
@@ -1925,30 +1765,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       keyboardType: keyboardType,
       validator: validator,
       style: TextStyle(color: AppColors.textDark, fontSize: 14),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: AppColors.textLight),
-        prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary),
-        ),
-        filled: true,
-        fillColor: AppColors.surface,
-        errorStyle: TextStyle(color: AppColors.danger,
-          fontWeight: FontWeight.w600,
-        ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
+      decoration: _insetDecoration(label: label, icon: icon),
     );
   }
 }
@@ -1987,105 +1804,103 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: AppColors.textDark,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          AppLocalizations.of(context).privacyTitle,
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      child: Text(
+        label.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
+          color: AppColors.textLight,
         ),
       ),
-      body: ListView(
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppColors.isDarkMode;
+    return _NeoSubPage(
+      title: AppLocalizations.of(context).privacyTitle,
+      child: ListView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.fromLTRB(20, 12, 20, 24 + MediaQuery.paddingOf(context).bottom),
         children: [
-          Text(
-            AppLocalizations.of(context).privacyCredentials,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textLight,
+          _buildSectionLabel(AppLocalizations.of(context).privacyCredentials),
+          GlassCard(
+            padding: EdgeInsets.zero,
+            borderRadius: 22,
+            onTap: () => _displayChangePasswordSheet(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: NeoSurface.inset(radius: 13),
+                    child: Icon(
+                      Icons.lock_reset_rounded,
+                      color: AppColors.primaryText,
+                      size: 19,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context).privacyChangePassword,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textDark,
+                            fontSize: 15,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          AppLocalizations.of(context).privacyChangePasswordSubtitle,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    size: 20,
+                    color: isDark ? AppColors.textLight : const Color(0xFF475569),
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 12),
 
-          Container(
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: ListTile(
-              leading: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.lock_reset_rounded,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              title: Text(
-                AppLocalizations.of(context).privacyChangePassword,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark,
-                  fontSize: 14,
-                ),
-              ),
-              subtitle: Text(
-                AppLocalizations.of(context).privacyChangePasswordSubtitle,
-                style: TextStyle(fontSize: 12, color: AppColors.textLight),
-              ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 13,
-                color: AppColors.textLight,
-              ),
-              onTap: () => _displayChangePasswordSheet(context),
-            ),
-          ),
+          SizedBox(height: 24),
+          _buildSectionLabel(AppLocalizations.of(context).privacyPolicyTitle),
 
-          SizedBox(height: 28),
-          Text(
-            AppLocalizations.of(context).privacyPolicyTitle,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textLight,
-            ),
-          ),
-          SizedBox(height: 12),
-
-          Container(
+          GlassCard(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
-            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
-                    color: AppColors.solved.withValues(alpha: 0.15),
+                    color: AppColors.solved.withValues(alpha: isDark ? 0.22 : 0.13),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.verified_user_rounded,
-                    color: AppColors.solved,
-                    size: 22,
+                    color: isDark ? Color.lerp(AppColors.solved, Colors.white, 0.35) : AppColors.solved,
+                    size: 21,
                   ),
                 ),
                 SizedBox(width: 14),
@@ -2093,32 +1908,22 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(
                             AppLocalizations.of(context).privacyBiometric,
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
                               color: AppColors.textDark,
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.solved.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context).privacyEnforced,
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                                color: AppColors.solved,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
+                          NeoStatusPill(
+                            label: AppLocalizations.of(context).privacyEnforced,
+                            color: AppColors.solved,
                           ),
                         ],
                       ),
@@ -2128,7 +1933,7 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
                             ? AppLocalizations.of(context).privacyBiometricOn
                             : AppLocalizations.of(context).privacyBiometricOff,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 12.5,
                           color: AppColors.textLight,
                           height: 1.45,
                         ),
@@ -2155,292 +1960,208 @@ class _PrivacySecurityPageState extends State<PrivacySecurityPage> {
     bool obscureConfirm = true;
     bool isSubmitting = false;
 
+    Widget visibilityToggle(bool obscure, VoidCallback onPressed) {
+      return IconButton(
+        icon: Icon(
+          obscure ? Icons.visibility_off : Icons.visibility,
+          color: AppColors.textLight,
+          size: 20,
+        ),
+        onPressed: onPressed,
+      );
+    }
+
     showModalBottomSheet(
       context: ctx,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        side: BorderSide(color: AppColors.border),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Padding(
           padding: EdgeInsets.only(
-            left: 24,
-            right: 24,
-            top: 24,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: Form(
-            key: passFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).passwordDialogTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.textDark,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  AppLocalizations.of(context).passwordDialogIntro,
-                  style: TextStyle(fontSize: 12, color: AppColors.textLight),
-                ),
-                SizedBox(height: 20),
-
-                TextFormField(
-                  controller: currentPassCtrl,
-                  obscureText: obscureCurrent,
-                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
-                  validator: (val) => val == null || val.isEmpty
-                      ? AppLocalizations.of(context).passwordCurrentRequired
-                      : null,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context).passwordCurrentLabel,
-                    labelStyle: TextStyle(color: AppColors.textLight),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureCurrent
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: AppColors.textLight,
-                        size: 20,
-                      ),
-                      onPressed: () => setModalState(
-                        () => obscureCurrent = !obscureCurrent,
-                      ),
+          child: NeoSheet(
+            child: Form(
+              key: passFormKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    AppLocalizations.of(context).passwordDialogTitle,
+                    style: TextStyle(
+                      fontSize: 19,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textDark,
                     ),
                   ),
-                ),
-                SizedBox(height: 14),
-
-                TextFormField(
-                  controller: newPassCtrl,
-                  obscureText: obscureNew,
-                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
-                  validator: (val) => val == null || val.length < 6
-                      ? AppLocalizations.of(context).passwordMinLength
-                      : null,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context).passwordNewLabel,
-                    labelStyle: TextStyle(color: AppColors.textLight),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureNew ? Icons.visibility_off : Icons.visibility,
-                        color: AppColors.textLight,
-                        size: 20,
-                      ),
-                      onPressed: () =>
-                          setModalState(() => obscureNew = !obscureNew),
-                    ),
+                  SizedBox(height: 6),
+                  Text(
+                    AppLocalizations.of(context).passwordDialogIntro,
+                    style: TextStyle(fontSize: 12.5, color: AppColors.textLight, height: 1.4),
                   ),
-                ),
-                SizedBox(height: 14),
+                  SizedBox(height: 18),
 
-                TextFormField(
-                  controller: confirmPassCtrl,
-                  obscureText: obscureConfirm,
-                  style: TextStyle(color: AppColors.textDark, fontSize: 14),
-                  validator: (val) => val != newPassCtrl.text
-                      ? AppLocalizations.of(context).passwordMismatchShort
-                      : null,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context).passwordConfirmLabel,
-                    labelStyle: TextStyle(color: AppColors.textLight),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.primary),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureConfirm
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: AppColors.textLight,
-                        size: 20,
-                      ),
-                      onPressed: () => setModalState(
-                        () => obscureConfirm = !obscureConfirm,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 8),
-
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton.icon(
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    onPressed: () async {
-                      final email = widget.user?.email ?? FirebaseAuth.instance.currentUser?.email;
-                      if (email == null || email.isEmpty) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                          SnackBar(
-                            content: Text(AppLocalizations.of(context).passwordNoEmail),
-                            backgroundColor: AppColors.danger,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        return;
-                      }
-
-                      try {
-                        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-                        if (!ctx.mounted) return;
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              AppLocalizations.of(context).passwordResetSent(email),
-                            ),
-                            backgroundColor: AppColors.solved,
-                            behavior: SnackBarBehavior.floating,
-                            duration: const Duration(seconds: 5),
-                          ),
-                        );
-                      } catch (e) {
-                        ScaffoldMessenger.of(ctx).showSnackBar(
-                          SnackBar(
-                            content: Text(AppLocalizations.of(context).passwordResetFailed('$e')),
-                            backgroundColor: AppColors.danger,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      }
-                    },
-                    icon: Icon(Icons.mail_outline_rounded, size: 14, color: AppColors.primary),
-                    label: Text(
-                      AppLocalizations.of(context).passwordForgot,
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 18),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppColors.primaryGlowShadow,
-                    ),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        foregroundColor: AppColors.textDark,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                  TextFormField(
+                    controller: currentPassCtrl,
+                    obscureText: obscureCurrent,
+                    style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                    validator: (val) => val == null || val.isEmpty
+                        ? AppLocalizations.of(context).passwordCurrentRequired
+                        : null,
+                    decoration: _insetDecoration(
+                      label: AppLocalizations.of(context).passwordCurrentLabel,
+                      suffix: visibilityToggle(
+                        obscureCurrent,
+                        () => setModalState(
+                          () => obscureCurrent = !obscureCurrent,
                         ),
                       ),
-                      onPressed: isSubmitting
-                          ? null
-                          : () async {
-                              if (!passFormKey.currentState!.validate()) return;
-                              setModalState(() => isSubmitting = true);
-
-                              final result = await sl<AuthRepository>()
-                                  .changePassword(
-                                currentPassCtrl.text,
-                                newPassCtrl.text,
-                              );
-
-                              if (!context.mounted) return;
-
-                              result.fold(
-                                (failure) {
-                                  setModalState(() => isSubmitting = false);
-                                  ScaffoldMessenger.of(ctx).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          AppLocalizations.of(context).passwordChangeFailed(LocalizedLabels.authError(
-                                            context,
-                                            code: failure.code,
-                                            message: failure.message,
-                                          ))),
-                                      backgroundColor: AppColors.danger,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                },
-                                (_) {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(ctx).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          AppLocalizations.of(context).passwordUpdated),
-                                      backgroundColor: AppColors.solved,
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                      child: isSubmitting
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                color: AppColors.textDark,
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : Text(
-                              AppLocalizations.of(context).passwordUpdateButton,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 14),
+
+                  TextFormField(
+                    controller: newPassCtrl,
+                    obscureText: obscureNew,
+                    style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                    validator: (val) => val == null || val.length < 6
+                        ? AppLocalizations.of(context).passwordMinLength
+                        : null,
+                    decoration: _insetDecoration(
+                      label: AppLocalizations.of(context).passwordNewLabel,
+                      suffix: visibilityToggle(
+                        obscureNew,
+                        () => setModalState(() => obscureNew = !obscureNew),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 14),
+
+                  TextFormField(
+                    controller: confirmPassCtrl,
+                    obscureText: obscureConfirm,
+                    style: TextStyle(color: AppColors.textDark, fontSize: 14),
+                    validator: (val) => val != newPassCtrl.text
+                        ? AppLocalizations.of(context).passwordMismatchShort
+                        : null,
+                    decoration: _insetDecoration(
+                      label: AppLocalizations.of(context).passwordConfirmLabel,
+                      suffix: visibilityToggle(
+                        obscureConfirm,
+                        () => setModalState(
+                          () => obscureConfirm = !obscureConfirm,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      onPressed: () async {
+                        final email = widget.user?.email ?? FirebaseAuth.instance.currentUser?.email;
+                        if (email == null || email.isEmpty) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).passwordNoEmail),
+                              backgroundColor: AppColors.danger,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                          return;
+                        }
+
+                        try {
+                          await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+                          if (!ctx.mounted) return;
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context).passwordResetSent(email),
+                              ),
+                              backgroundColor: AppColors.solved,
+                              behavior: SnackBarBehavior.floating,
+                              duration: const Duration(seconds: 5),
+                            ),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text(AppLocalizations.of(context).passwordResetFailed('$e')),
+                              backgroundColor: AppColors.danger,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      },
+                      icon: Icon(Icons.mail_outline_rounded, size: 15, color: AppColors.primaryText),
+                      label: Text(
+                        AppLocalizations.of(context).passwordForgot,
+                        style: TextStyle(
+                          color: AppColors.primaryText,
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+                  _PillProgressButton(
+                    label: AppLocalizations.of(context).passwordUpdateButton,
+                    busy: isSubmitting,
+                    height: 50,
+                    onPressed: () async {
+                      if (!passFormKey.currentState!.validate()) return;
+                      setModalState(() => isSubmitting = true);
+
+                      final result = await sl<AuthRepository>()
+                          .changePassword(
+                        currentPassCtrl.text,
+                        newPassCtrl.text,
+                      );
+
+                      if (!context.mounted) return;
+
+                      result.fold(
+                        (failure) {
+                          setModalState(() => isSubmitting = false);
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  AppLocalizations.of(context).passwordChangeFailed(LocalizedLabels.authError(
+                                    context,
+                                    code: failure.code,
+                                    message: failure.message,
+                                  ))),
+                              backgroundColor: AppColors.danger,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        (_) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  AppLocalizations.of(context).passwordUpdated),
+                              backgroundColor: AppColors.solved,
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

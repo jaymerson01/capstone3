@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/map_styles.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/location_service.dart';
 import 'package:community_safety_app/core/services/camera_service.dart';
@@ -75,27 +76,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     {"name": "Simplicio Cruz", "lat": 14.4862, "lng": 121.0142},
   ];
   */
-
-  static const String _miniMapDarkStyle = '''
-[
-  {"elementType": "geometry", "stylers": [{"color": "#0d1627"}]},
-  {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
-  {"elementType": "labels.text.stroke", "stylers": [{"color": "#060d1a"}]},
-  {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{"color": "#64779e"}]},
-  {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "landscape.natural", "elementType": "geometry", "stylers": [{"color": "#08101e"}]},
-  {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#0f1c32"}]},
-  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
-  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#18263e"}]},
-  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#111c2f"}]},
-  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#98a6be"}]},
-  {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#182740"}]},
-  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#061324"}]},
-  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#3d648f"}]}
-]
-''';
 
   String? _resolvedAddress;
   String? _resolvedSector;
@@ -1885,7 +1865,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                       zoom: 15.5,
                     ),
-                    style: _miniMapDarkStyle,
+                    style: MapStyles.current,
                     onMapCreated: (controller) {
                       _miniMapController = controller;
                     },

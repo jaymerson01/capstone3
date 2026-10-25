@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:community_safety_app/core/presentation/neo/aurora_background.dart';
 import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
 import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_sheet.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
@@ -94,6 +95,37 @@ void main() {
         tester.element(find.text('Emergency hotlines')),
       ).style;
       expect(style.color, const Color(0xFFF8FAFC), reason: 'live: $live');
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('NeoSheet shows its content in a bottom sheet, day and night',
+      (tester) async {
+    for (final dark in [false, true]) {
+      AppColors.isDarkMode = dark;
+      await tester.pumpWidget(
+        MaterialApp(
+          key: ValueKey(dark), // a fresh navigator each round
+          theme: AppTheme.resident(),
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showModalBottomSheet(
+                  context: context,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => const NeoSheet(child: Text('Language')),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.text('Language'), findsOneWidget, reason: 'dark: $dark');
       expect(tester.takeException(), isNull);
     }
   });

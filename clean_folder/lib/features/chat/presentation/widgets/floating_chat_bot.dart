@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/neo_tokens.dart';
+import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_chip.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
 import 'package:community_safety_app/features/incident/data/datasources/incident_ai_remote_data_source.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
@@ -279,67 +287,57 @@ class _FloatingChatBotState extends State<FloatingChatBot>
   Future<void> _confirmResetChat() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.border),
-        ),
-        title: Row(
+      builder: (ctx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.refresh_rounded, color: AppColors.primary, size: 20),
-            ),
-            const SizedBox(width: 10),
+            NeoDialogIcon(icon: Icons.refresh_rounded, color: AppColors.primary),
+            const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context).chatResetTitle,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textDark,
                 fontWeight: FontWeight.w800,
-                fontSize: 16,
+                fontSize: 18,
               ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context).chatResetMessage,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textLight,
+                fontSize: 13.5,
+                height: 1.45,
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: NeoButton(
+                    label: AppLocalizations.of(context).commonCancel,
+                    variant: NeoButtonVariant.standard,
+                    height: 48,
+                    expand: true,
+                    onPressed: () => Navigator.pop(ctx, false),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: NeoButton(
+                    label: AppLocalizations.of(context).chatReset,
+                    variant: NeoButtonVariant.emergency,
+                    height: 48,
+                    expand: true,
+                    onPressed: () => Navigator.pop(ctx, true),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        content: Text(
-          AppLocalizations.of(context).chatResetMessage,
-          style: TextStyle(
-            color: AppColors.textLight,
-            fontSize: 13,
-            height: 1.45,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              AppLocalizations.of(context).commonCancel,
-              style: TextStyle(
-                color: AppColors.textLight,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              AppLocalizations.of(context).chatReset,
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
       ),
     );
 
@@ -384,6 +382,7 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     final double bottomOffset = keyboardHeight > 0
         ? keyboardHeight + 10.0
         : 16.0;
+    final isDark = AppColors.isDarkMode;
 
     return Positioned(
       right: 16.0,
@@ -394,20 +393,23 @@ class _FloatingChatBotState extends State<FloatingChatBot>
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          color: _isOpen ? AppColors.surface : Colors.transparent,
-          borderRadius: BorderRadius.circular(_isOpen ? 24 : 30),
-          border: _isOpen ? Border.all(color: AppColors.border) : null,
+          gradient: _isOpen
+              ? LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: isDark
+                      ? const [Color(0xFF1C2742), Color(0xFF111A2E)]
+                      : const [Color(0xFFF8FAFD), Color(0xFFE9EEF7)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(_isOpen ? NeoRadii.panel - 2 : 30),
+          border: _isOpen ? Border.all(color: AppColors.glassBorder) : null,
           boxShadow: _isOpen
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.25),
-                    blurRadius: 28,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    blurRadius: 18,
-                    offset: const Offset(0, 6),
+                    color: AppColors.ink.withValues(alpha: isDark ? 0.55 : 0.3),
+                    blurRadius: 40,
+                    offset: const Offset(0, 18),
                   ),
                 ]
               : [],
@@ -432,10 +434,11 @@ class _FloatingChatBotState extends State<FloatingChatBot>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: AppColors.primaryGradient,
+              border: Border.all(color: Colors.white, width: 2),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withValues(
-                    alpha: 0.4 + 0.25 * _fabPulse.value,
+                    alpha: 0.35 + 0.25 * _fabPulse.value,
                   ),
                   blurRadius: 16 + 8 * _fabPulse.value,
                   spreadRadius: 1 + _fabPulse.value,
@@ -469,156 +472,105 @@ class _FloatingChatBotState extends State<FloatingChatBot>
   }
 
   Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-      decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.2),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.35),
-                width: 1.5,
-              ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+      child: NeoTray(
+        padding: const EdgeInsets.fromLTRB(10, 10, 8, 10),
+        borderRadius: 22,
+        child: Row(
+          children: [
+            const LiveIndicator.ring(
+              size: 42,
+              child: Icon(Icons.auto_awesome_rounded),
             ),
-            child: Icon(
-              Icons.shield_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).chatTitle,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                    letterSpacing: 0.2,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context).chatTitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
                   ),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFF00E676),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const LiveIndicator(size: 7),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.of(context).chatStatus,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: NeoTray.soft,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      AppLocalizations.of(context).chatStatus,
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: _confirmResetChat,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.15),
-              ),
-              child: Icon(
-                Icons.refresh_rounded,
-                color: Colors.white,
-                size: 16,
+                    ],
+                  ),
+                ],
               ),
             ),
-          ),
-          SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => setState(() => _isOpen = false),
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.15),
-              ),
-              child: Icon(Icons.close, color: Colors.white, size: 16),
+            NeoIconButton(
+              icon: Icons.refresh_rounded,
+              tooltip: AppLocalizations.of(context).chatReset,
+              tone: NeoIconButtonTone.slate,
+              size: 38,
+              onPressed: _confirmResetChat,
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            NeoIconButton(
+              icon: Icons.close_rounded,
+              tooltip: AppLocalizations.of(context).commonClose,
+              tone: NeoIconButtonTone.slate,
+              size: 38,
+              onPressed: () => setState(() => _isOpen = false),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildQuickChips() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-      color: AppColors.surface,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 12, 0, 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context).chatQuickGuides,
+            AppLocalizations.of(context).chatQuickGuides.toUpperCase(),
             style: TextStyle(
               color: AppColors.textLight,
               fontSize: 10.5,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.4,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1,
             ),
           ),
-          SizedBox(height: 7),
+          const SizedBox(height: 6),
           SizedBox(
-            height: 32,
+            height: 46,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              padding: const EdgeInsets.only(right: 14, bottom: 8),
               itemCount: _suggestedQuestions.length,
-              separatorBuilder: (_, _) => SizedBox(width: 7),
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
               itemBuilder: (context, i) {
-                return GestureDetector(
-                  onTap: () =>
-                      _sendMessage(selectedQuestion: _suggestedQuestions[i]),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.28),
-                      ),
-                    ),
-                    child: Text(
-                      _suggestedQuestions[i],
-                      style: TextStyle(color: AppColors.primary,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                return Center(
+                  child: NeoChip(
+                    label: _suggestedQuestions[i],
+                    selected: false,
+                    onPressed: () =>
+                        _sendMessage(selectedQuestion: _suggestedQuestions[i]),
                   ),
                 );
               },
@@ -630,30 +582,53 @@ class _FloatingChatBotState extends State<FloatingChatBot>
   }
 
   Widget _buildMessages() {
-    return Container(
-      color: AppColors.background,
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(12),
-        itemCount: _messages.length + (_isBotTyping ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (_isBotTyping && index == _messages.length) {
-            return _typingBubble();
-          }
-          final msg = _messages[index];
-          final hotlines = (msg['hotlines'] as List<dynamic>?)
-                  ?.map((e) => Map<String, String>.from(e as Map))
-                  .toList() ??
-              <Map<String, String>>[];
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      itemCount: _messages.length + (_isBotTyping ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (_isBotTyping && index == _messages.length) {
+          return _typingBubble();
+        }
+        final msg = _messages[index];
+        final hotlines = (msg['hotlines'] as List<dynamic>?)
+                ?.map((e) => Map<String, String>.from(e as Map))
+                .toList() ??
+            <Map<String, String>>[];
 
-          return _messageBubble(
-            text: msg['text'] as String,
-            isUser: msg['isUser'] as bool,
-            isAi: msg['isAi'] == true,
-            hotlines: hotlines,
-          );
-        },
+        return _messageBubble(
+          text: msg['text'] as String,
+          isUser: msg['isUser'] as bool,
+          isAi: msg['isAi'] == true,
+          hotlines: hotlines,
+        );
+      },
+    );
+  }
+
+  /// A frosted bubble for the assistant; AI answers get a cyan ring.
+  BoxDecoration _botBubbleDecoration({required bool isAi}) {
+    final isDark = AppColors.isDarkMode;
+    return BoxDecoration(
+      color: isDark ? Colors.white.withValues(alpha: 0.06) : Colors.white.withValues(alpha: 0.75),
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+        bottomRight: Radius.circular(20),
+        bottomLeft: Radius.circular(6),
       ),
+      border: Border.all(
+        color: isAi
+            ? AppColors.secondary.withValues(alpha: 0.4)
+            : AppColors.glassBorder,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.ink.withValues(alpha: isDark ? 0.3 : 0.08),
+          blurRadius: 16,
+          offset: const Offset(0, 6),
+        ),
+      ],
     );
   }
 
@@ -663,30 +638,32 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     required bool isAi,
     required List<Map<String, String>> hotlines,
   }) {
+    final aiAccent =
+        AppColors.isDarkMode ? AppColors.secondaryLight : const Color(0xFF0E7490);
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         constraints: const BoxConstraints(maxWidth: 280),
-        decoration: BoxDecoration(
-          gradient: isUser ? AppColors.primaryGradient : null,
-          color: isUser ? null : AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16).copyWith(
-            bottomRight: isUser ? Radius.zero : const Radius.circular(16),
-            topLeft: isUser ? const Radius.circular(16) : Radius.zero,
-          ),
-          border: isUser ? null : Border.all(color: AppColors.border),
-          boxShadow: [
-            BoxShadow(
-              color: isUser
-                  ? AppColors.primary.withValues(alpha: 0.2)
-                  : Colors.black.withValues(alpha: 0.12),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        decoration: isUser
+            ? BoxDecoration(
+                gradient: AppColors.primaryGradient,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(6),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withValues(alpha: 0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              )
+            : _botBubbleDecoration(isAi: isAi),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -694,45 +671,45 @@ class _FloatingChatBotState extends State<FloatingChatBot>
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    isAi ? Icons.auto_awesome : Icons.security,
-                    size: 12,
-                    color: isAi ? AppColors.primary : AppColors.textLight,
-                  ),
-                  SizedBox(width: 4),
+                  if (isAi)
+                    const LiveIndicator(size: 7)
+                  else
+                    Icon(Icons.security_rounded, size: 12, color: AppColors.textLight),
+                  const SizedBox(width: 6),
                   Text(
                     isAi ? AppLocalizations.of(context).chatSenderAi : AppLocalizations.of(context).chatSenderOfficer,
                     style: TextStyle(
-                      color: isAi ? AppColors.primary : AppColors.textLight,
-                      fontSize: 9.5,
+                      color: isAi ? aiAccent : AppColors.textLight,
+                      fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5,
+                      letterSpacing: 0.8,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
             ],
             _FormattedMessageText(
               text: text,
               isUser: isUser,
             ),
             if (!isUser && hotlines.isNotEmpty) ...[
-              SizedBox(height: 10),
-              Divider(color: AppColors.border, height: 1),
-              SizedBox(height: 8),
+              const SizedBox(height: 10),
+              Divider(color: AppColors.border.withValues(alpha: 0.7), height: 1),
+              const SizedBox(height: 8),
               Text(
                 AppLocalizations.of(context).chatHotlineDialers,
                 style: TextStyle(
                   color: AppColors.textLight,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 8),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ...hotlines.map((h) => _buildHotlinePill(h)),
                   _buildAllHotlinesPill(),
@@ -750,30 +727,26 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     final number = hotline['number'] ?? '911';
     final type = hotline['type'] ?? '';
 
-    Color btnColor = AppColors.primary;
-    if (type == 'fire' || type == 'medical' || number == '911') {
-      btnColor = AppColors.danger;
-    }
+    // Life-threatening lines are red; the rest are raised white.
+    final urgent = type == 'fire' || type == 'medical' || number == '911';
+    final fill = urgent ? NeoFill.emergency : NeoFill.raised;
 
     return GestureDetector(
       onTap: () => DirectCallerHelper.makeDirectCall(context, number, label: title),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-        decoration: BoxDecoration(
-          color: btnColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: btnColor.withValues(alpha: 0.35)),
-        ),
+        height: 34,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: NeoSurface.decoration(fill, const {}),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.call, size: 11, color: btnColor),
-            SizedBox(width: 4),
+            Icon(Icons.call_rounded, size: 13, color: NeoSurface.foreground(fill)),
+            const SizedBox(width: 5),
             Text(
               title,
               style: TextStyle(
-                color: btnColor,
-                fontSize: 10.5,
+                color: NeoSurface.foreground(fill),
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -793,25 +766,20 @@ class _FloatingChatBotState extends State<FloatingChatBot>
           ),
         );
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.contact_phone_outlined,
-                size: 11, color: AppColors.textLight),
-            SizedBox(width: 4),
+                size: 13, color: AppColors.primaryText),
+            const SizedBox(width: 4),
             Text(
               AppLocalizations.of(context).chatAllHotlines,
               style: TextStyle(
-                color: AppColors.textDark,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w700,
+                color: AppColors.primaryText,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
@@ -825,19 +793,15 @@ class _FloatingChatBotState extends State<FloatingChatBot>
       alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceLight,
-          borderRadius: BorderRadius.circular(16).copyWith(topLeft: Radius.zero),
-          border: Border.all(color: AppColors.border),
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: _botBubbleDecoration(isAi: true),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             _TypingDot(delay: 0),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             _TypingDot(delay: 200),
-            SizedBox(width: 4),
+            const SizedBox(width: 4),
             _TypingDot(delay: 400),
           ],
         ),
@@ -846,65 +810,55 @@ class _FloatingChatBotState extends State<FloatingChatBot>
   }
 
   Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.surfaceLight,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: AppColors.border),
-              ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 4, 10, 10),
+      child: Container(
+        height: 52,
+        padding: const EdgeInsets.only(left: 16, right: 5),
+        decoration: NeoSurface.inset(),
+        child: Row(
+          children: [
+            Expanded(
               child: TextField(
                 controller: _messageController,
-                style: TextStyle(fontSize: 13, color: AppColors.textDark),
+                style: TextStyle(fontSize: 14, color: AppColors.textDark),
+                cursorColor: AppColors.primary,
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context).chatHint,
                   hintStyle: TextStyle(
                     color: AppColors.textLight,
-                    fontSize: 12,
+                    fontSize: 13,
                   ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 9,
-                  ),
+                  isDense: true,
+                  filled: false,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                 ),
                 onSubmitted: (_) => _sendMessage(),
               ),
             ),
-          ),
-          SizedBox(width: 8),
-          GestureDetector(
-            onTap: _sendMessage,
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: AppColors.primaryGradient,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.35),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Icon(
-                Icons.send_rounded,
-                color: Colors.white,
-                size: 18,
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _sendMessage,
+              child: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: AppColors.primaryGradient,
+                  boxShadow: AppColors.primaryGlowShadow,
+                ),
+                child: const Icon(
+                  Icons.send_rounded,
+                  color: Colors.white,
+                  size: 18,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -961,7 +915,7 @@ class _TypingDotState extends State<_TypingDot>
         height: 7,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: AppColors.primary.withValues(alpha: 0.6),
+          color: AppColors.secondary.withValues(alpha: 0.8),
         ),
       ),
     );
@@ -983,12 +937,12 @@ class _FormattedMessageText extends StatelessWidget {
     final baseColor = isUser ? Colors.white : AppColors.textDark;
     final spans = _parseMarkdown(text, baseColor);
 
-    return RichText(
-      text: TextSpan(
+    return Text.rich(
+      TextSpan(
         style: TextStyle(
           color: baseColor,
-          fontSize: 12.5,
-          height: 1.45,
+          fontSize: 13.5,
+          height: 1.5,
           fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
         ),
         children: spans,
@@ -1031,9 +985,9 @@ class _FormattedMessageText extends StatelessWidget {
           TextSpan(
             text: part,
             style: TextStyle(
-              fontWeight: isBold ? FontWeight.w800 : FontWeight.w400,
-              fontSize: isHeading ? 13.0 : 12.5,
-              color: isHeading ? AppColors.primary : baseColor,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w500,
+              fontSize: isHeading ? 14.0 : 13.5,
+              color: isHeading ? AppColors.primaryText : baseColor,
             ),
           ),
         );
