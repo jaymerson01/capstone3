@@ -34,17 +34,18 @@ class _SideMenuState extends State<SideMenu> {
       builder: (context, isDark, _) {
         return Drawer(
           backgroundColor: Colors.transparent,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.horizontal(right: Radius.circular(30)),
+          ),
+          clipBehavior: Clip.antiAlias,
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
                 colors: isDark
-                    ? [const Color(0xFF060D1A), const Color(0xFF0A1628)]
-                    : [const Color(0xFFFFFFFF), const Color(0xFFF8FAFC)],
-              ),
-              border: Border(
-                right: BorderSide(color: AppColors.border, width: 1),
+                    ? const [Color(0xFF1C2742), Color(0xFF141E36)]
+                    : const [Color(0xFFF8FAFC), Color(0xFFE9EEF5)],
               ),
             ),
             child: SafeArea(
@@ -57,24 +58,18 @@ class _SideMenuState extends State<SideMenu> {
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.12)
-                                : AppColors.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.18)
-                                  : AppColors.primary.withValues(alpha: 0.2),
-                              width: 1.5,
-                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: AppColors.raisedShadow,
                           ),
-                          child: Image.asset(
-                            'assets/images/logo.png',
-                            height: 38,
-                            width: 38,
-                            fit: BoxFit.contain,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(14),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              height: 48,
+                              width: 48,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -86,17 +81,17 @@ class _SideMenuState extends State<SideMenu> {
                                 "RESQ",
                                 style: TextStyle(
                                   color: AppColors.textDark,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.8,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 2,
                                 ),
                               ),
                               Text(
                                 l10n.menuCitizenPortal,
                                 style: TextStyle(
                                   color: AppColors.textLight,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -105,7 +100,7 @@ class _SideMenuState extends State<SideMenu> {
                       ],
                     ),
                   ),
-                  Divider(color: AppColors.border, height: 1),
+                  Divider(color: AppColors.surfaceLight, height: 1),
                   const SizedBox(height: 20),
 
                   menuItem(context, Icons.home_outlined, l10n.menuDashboard, _MenuDestination.dashboard, currentRoute == null || currentRoute == '/', isDark),
@@ -115,7 +110,7 @@ class _SideMenuState extends State<SideMenu> {
                   menuItem(context, Icons.settings_outlined, l10n.menuSettings, _MenuDestination.settings, false, isDark),
 
                   const Spacer(),
-                  Divider(color: AppColors.border, height: 1),
+                  Divider(color: AppColors.surfaceLight, height: 1),
                   const SizedBox(height: 16),
                   menuItem(context, Icons.logout_rounded, l10n.menuLogout, _MenuDestination.logout, false, isDark),
                   const SizedBox(height: 16),
@@ -134,35 +129,30 @@ class _SideMenuState extends State<SideMenu> {
 
     // Build the visual state colors
     Color tileBgColor = Colors.transparent;
-    Color iconColor = isDark ? Colors.white70 : AppColors.textLight;
-    Color textColor = isDark ? Colors.white70 : AppColors.textDark;
+    Color iconColor = AppColors.textLight;
+    Color textColor = AppColors.textDark;
     Border border = Border.all(color: Colors.transparent);
 
     if (isLogout) {
-      tileBgColor = isHovered
-          ? AppColors.danger.withValues(alpha: 0.25)
-          : AppColors.danger.withValues(alpha: 0.12);
+      tileBgColor = AppColors.danger.withValues(alpha: isHovered ? 0.18 : 0.1);
       iconColor = AppColors.danger;
       textColor = AppColors.danger;
       border = Border.all(
-        color: isHovered
-            ? AppColors.danger.withValues(alpha: 0.5)
-            : AppColors.danger.withValues(alpha: 0.25),
+        color: AppColors.danger.withValues(alpha: isHovered ? 0.4 : 0.2),
       );
     } else {
       if (isSelected) {
-        tileBgColor = AppColors.primary.withValues(alpha: isDark ? 0.15 : 0.1);
-        iconColor = AppColors.primary;
-        textColor = AppColors.primary;
-        border = Border.all(
-          color: AppColors.primary.withValues(alpha: 0.35),
-        );
+        tileBgColor = isDark
+            ? AppColors.primary.withValues(alpha: 0.2)
+            : AppColors.lightGreen;
+        iconColor = AppColors.primaryText;
+        textColor = AppColors.primaryText;
+        border = Border.all(color: AppColors.primary.withValues(alpha: 0.3));
       } else if (isHovered) {
         tileBgColor = isDark
             ? Colors.white.withValues(alpha: 0.06)
-            : Colors.black.withValues(alpha: 0.04);
-        iconColor = isDark ? Colors.white : AppColors.textDark;
-        textColor = isDark ? Colors.white : AppColors.textDark;
+            : Colors.white.withValues(alpha: 0.7);
+        iconColor = AppColors.textDark;
       }
     }
 
@@ -183,7 +173,7 @@ class _SideMenuState extends State<SideMenu> {
           duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
             color: tileBgColor,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: border,
           ),
           child: Material(
@@ -191,7 +181,7 @@ class _SideMenuState extends State<SideMenu> {
             child: ListTile(
               dense: true,
               visualDensity: VisualDensity.compact,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
               leading: Icon(
                 icon,
@@ -201,8 +191,8 @@ class _SideMenuState extends State<SideMenu> {
               title: Text(
                 title,
                 style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: (isSelected || isHovered) ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 14.5,
+                  fontWeight: (isSelected || isHovered) ? FontWeight.w800 : FontWeight.w600,
                   color: textColor,
                 ),
               ),
