@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 
-/// The app logo as a rounded tile above the sign-in cards.
+/// The round app logo above the sign-in cards.
 class AuthBrandLogo extends StatelessWidget {
   final double size;
 
@@ -9,12 +9,11 @@ class AuthBrandLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(size * 0.28);
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        borderRadius: radius,
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0F172A).withValues(alpha: 0.4),
@@ -23,8 +22,7 @@ class AuthBrandLogo extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: radius,
+      child: ClipOval(
         child: Image.asset(
           'assets/images/logo.png',
           fit: BoxFit.cover,

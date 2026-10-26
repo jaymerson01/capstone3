@@ -71,7 +71,7 @@ class HomeHeroHeader extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: AppColors.ink.withValues(alpha: 0.35),
@@ -80,8 +80,7 @@ class HomeHeroHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+              child: ClipOval(
                 child: Image.asset(
                   'assets/images/logo.png',
                   fit: BoxFit.cover,

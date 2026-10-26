@@ -569,19 +569,18 @@ class _Orb extends StatelessWidget {
   }
 }
 
-/// The app logo as a rounded tile above the sign-in card. Falls back to the
+/// The round app logo above the sign-in card. Falls back to the
 /// admin shield if the image can't load.
 class _LogoTile extends StatelessWidget {
   const _LogoTile();
 
   @override
   Widget build(BuildContext context) {
-    final BorderRadius radius = BorderRadius.circular(18);
     return Container(
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        borderRadius: radius,
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.45),
@@ -590,8 +589,7 @@ class _LogoTile extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: radius,
+      child: ClipOval(
         child: Image.asset(
           'assets/images/logo.png',
           fit: BoxFit.cover,

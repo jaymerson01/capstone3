@@ -402,7 +402,7 @@ class _LogoRings extends StatelessWidget {
             width: 84,
             height: 84,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFF0F172A).withValues(alpha: 0.45),
@@ -411,8 +411,7 @@ class _LogoRings extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
+            child: ClipOval(
               child: Image.asset(
                 'assets/images/logo.png',
                 fit: BoxFit.cover,

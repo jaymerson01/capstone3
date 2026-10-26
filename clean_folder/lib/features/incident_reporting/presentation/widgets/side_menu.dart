@@ -59,11 +59,10 @@ class _SideMenuState extends State<SideMenu> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
+                            shape: BoxShape.circle,
                             boxShadow: AppColors.raisedShadow,
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(14),
+                          child: ClipOval(
                             child: Image.asset(
                               'assets/images/logo.png',
                               height: 48,

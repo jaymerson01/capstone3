@@ -109,13 +109,12 @@ class _SidebarBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The logo is a full-bleed square; the tile rounds its corners.
+    // The logo is round.
     final logo = Container(
       width: 42,
       height: 42,
       decoration: BoxDecoration(
-        color: AdminColors.primary,
-        borderRadius: BorderRadius.circular(13),
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
@@ -124,8 +123,7 @@ class _SidebarBrand extends StatelessWidget {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(13),
+      child: ClipOval(
         child: Image.asset(
           'assets/images/logo.png',
           fit: BoxFit.cover,
