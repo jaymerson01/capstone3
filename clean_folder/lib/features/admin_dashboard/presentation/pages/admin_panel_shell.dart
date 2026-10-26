@@ -17,6 +17,8 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/pages
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:community_safety_app/features/notifications/data/models/notification_model.dart';
 import 'package:community_safety_app/core/services/station_audio_service.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 
 class AdminPanelShell extends StatefulWidget {
   const AdminPanelShell({super.key});
@@ -37,6 +39,9 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
   @override
   void initState() {
     super.initState();
+    // The admin desk needs every report with its reporter's contact details,
+    // whichever app entry point opened it.
+    context.read<IncidentBloc>().add(const StreamAllIncidentsRequested());
     _adminNotifSubscription = NotificationService()
         .streamAdminNotifications()
         .listen((notifications) {
