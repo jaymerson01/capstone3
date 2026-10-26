@@ -31,6 +31,7 @@ void main() {
     bool synced = true,
     String? onBehalf,
     String? eta,
+    String? blotter,
     VoidCallback? onTap,
     String category = 'Fire Incident',
     String location = 'E. Rodriguez Ave, Barangay Moonwalk, Parañaque City',
@@ -48,6 +49,7 @@ void main() {
         syncLabel: synced ? 'Live' : 'Local',
         onBehalfLabel: onBehalf,
         etaLabel: eta,
+        blotterLabel: blotter,
         viewDetailsLabel: viewDetails,
         highlight: true,
         onTap: onTap ?? () {},
@@ -97,6 +99,11 @@ void main() {
     await pumpCard(tester, card(onBehalf: 'For: Maria', eta: 'ETA: 5 min'));
     expect(find.text('For: Maria'), findsOneWidget);
     expect(find.text('ETA: 5 min'), findsOneWidget);
+    expect(find.byIcon(Icons.gavel_rounded), findsNothing);
+
+    await pumpCard(tester, card(blotter: 'Blotter Entry'));
+    expect(find.text('Blotter Entry'), findsOneWidget);
+    expect(find.byIcon(Icons.gavel_rounded), findsOneWidget);
   });
 
   testWidgets('long Filipino text fits a small phone, day and night',

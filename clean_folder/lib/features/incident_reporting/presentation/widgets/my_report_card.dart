@@ -22,6 +22,7 @@ class MyReportCard extends StatelessWidget {
   final String syncLabel;
   final String? onBehalfLabel;
   final String? etaLabel;
+  final String? blotterLabel;
   final String viewDetailsLabel;
 
   /// Rings the card in blue, for reports the responders are working on.
@@ -40,6 +41,7 @@ class MyReportCard extends StatelessWidget {
     required this.syncLabel,
     this.onBehalfLabel,
     this.etaLabel,
+    this.blotterLabel,
     required this.viewDetailsLabel,
     this.highlight = false,
     required this.onTap,
@@ -49,6 +51,7 @@ class MyReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final onBehalf = onBehalfLabel;
     final eta = etaLabel;
+    final blotter = blotterLabel;
     // With large text the status pill joins the tags under the header, so
     // the category, place and time keep the card's width.
     final pillBelow = MediaQuery.textScalerOf(context).scale(15) > 15 * 1.15;
@@ -92,7 +95,7 @@ class MyReportCard extends StatelessWidget {
               ],
             ],
           ),
-          if (pillBelow || onBehalf != null || eta != null) ...[
+          if (pillBelow || onBehalf != null || eta != null || blotter != null) ...[
             const SizedBox(height: 12),
             Wrap(
               spacing: 6,
@@ -111,6 +114,12 @@ class MyReportCard extends StatelessWidget {
                     icon: Icons.timer_outlined,
                     label: eta,
                     color: AppColors.secondary,
+                  ),
+                if (blotter != null)
+                  NeoTag(
+                    icon: Icons.gavel_rounded,
+                    label: blotter,
+                    color: AppColors.blotter,
                   ),
               ],
             ),

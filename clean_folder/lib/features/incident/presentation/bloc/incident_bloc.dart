@@ -166,6 +166,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
             reporterEmail: inc.reporterEmail,
             isSynced: true,
             isReportingOnBehalf: inc.isReportingOnBehalf,
+            isBlotter: inc.isBlotter,
             victimName: inc.victimName,
             victimPhone: inc.victimPhone,
             estimatedResponseTime: event.estimatedResponseTime ?? inc.estimatedResponseTime,
@@ -217,6 +218,7 @@ class IncidentBloc extends Bloc<IncidentEvent, IncidentState> {
             reporterName: inc.reporterName,
             reporterEmail: inc.reporterEmail,
             isSynced: true,
+            isBlotter: inc.isBlotter,
           );
         }
         return inc;

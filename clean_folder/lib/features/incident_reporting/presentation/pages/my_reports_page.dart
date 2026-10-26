@@ -556,6 +556,7 @@ class _AnimatedReportCardState extends State<_AnimatedReportCard>
                 incident.isSynced ? l10n.myReportsLive : l10n.myReportsLocal,
             onBehalfLabel: onBehalfLabel,
             etaLabel: etaLabel,
+            blotterLabel: incident.isBlotter ? l10n.commonBlotterEntry : null,
             viewDetailsLabel: l10n.mapsViewDetails,
             highlight: incident.isInProgress,
             onTap: widget.onTap,

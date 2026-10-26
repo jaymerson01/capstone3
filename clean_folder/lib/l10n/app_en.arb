@@ -535,6 +535,18 @@
   "@reportForSomeoneHelp": {
     "description": "Help text of the on-behalf section."
   },
+  "reportBlotterTitle": "Record in the Barangay Blotter",
+  "@reportBlotterTitle": {
+    "description": "Toggle on the report form, shown only for dispute and complaint categories (violence, theft, noise, suspicious activity, lost item / missing person)."
+  },
+  "reportBlotterHelp": "The barangay will log this report in its official blotter, for disputes or complaints you may need to settle or follow up on later.",
+  "@reportBlotterHelp": {
+    "description": "Help text under the blotter toggle."
+  },
+  "commonBlotterEntry": "Blotter Entry",
+  "@commonBlotterEntry": {
+    "description": "Tag on a report that the resident asked to record in the barangay blotter."
+  },
   "reportVictimNameLabel": "Affected Person's Full Name *",
   "@reportVictimNameLabel": {
     "description": "Field label (required)."

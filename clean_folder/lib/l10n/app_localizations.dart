@@ -746,6 +746,24 @@ abstract class AppLocalizations {
   /// **'Enter the affected person\'s details and adjust the map pin below to their exact location in Barangay Moonwalk so responders can locate and assist them.'**
   String get reportForSomeoneHelp;
 
+  /// Toggle on the report form, shown only for dispute and complaint categories (violence, theft, noise, suspicious activity, lost item / missing person).
+  ///
+  /// In en, this message translates to:
+  /// **'Record in the Barangay Blotter'**
+  String get reportBlotterTitle;
+
+  /// Help text under the blotter toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'The barangay will log this report in its official blotter, for disputes or complaints you may need to settle or follow up on later.'**
+  String get reportBlotterHelp;
+
+  /// Tag on a report that the resident asked to record in the barangay blotter.
+  ///
+  /// In en, this message translates to:
+  /// **'Blotter Entry'**
+  String get commonBlotterEntry;
+
   /// Field label (required).
   ///
   /// In en, this message translates to:

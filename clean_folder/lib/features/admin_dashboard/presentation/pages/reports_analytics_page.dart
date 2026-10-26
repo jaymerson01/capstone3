@@ -29,6 +29,7 @@ class ReportsAnalyticsPage extends StatefulWidget {
 class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
   ReportTimeframe _selectedTimeframe = ReportTimeframe.allTime;
   String _searchQuery = "";
+  bool _blotterOnly = false;
   bool _isExporting = false;
 
   @override
@@ -44,6 +45,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
         final List<IncidentEntity> searchedIncidents = filteredIncidents.where((
           inc,
         ) {
+          if (_blotterOnly && !inc.isBlotter) return false;
           final q = _searchQuery.toLowerCase();
           return inc.id.toLowerCase().contains(q) ||
               inc.category.toLowerCase().contains(q) ||
@@ -529,12 +531,26 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               );
             },
           ),
+          const SizedBox(height: 14),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: AdminSegmented<bool>(
+              segments: const [
+                (false, "All Reports"),
+                (true, "Blotter Entries"),
+              ],
+              value: _blotterOnly,
+              onChanged: (v) => setState(() => _blotterOnly = v),
+            ),
+          ),
           const SizedBox(height: 16),
 
           if (incidents.isEmpty)
-            const AdminEmptyState(
+            AdminEmptyState(
               icon: Icons.folder_open_rounded,
-              title: "No matching incident ledger records in this timeframe.",
+              title: _blotterOnly
+                  ? "No blotter entries match in this timeframe."
+                  : "No matching incident ledger records in this timeframe.",
             )
           else
             _buildLedgerTable(incidents),
@@ -595,7 +611,22 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         ),
                       ),
                       DataCell(Text(dateStr, style: AdminTable.cellMuted)),
-                      DataCell(Text(inc.category, style: AdminTable.cell)),
+                      DataCell(
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(inc.category, style: AdminTable.cell),
+                            if (inc.isBlotter) ...[
+                              const SizedBox(width: 8),
+                              const AdminPill(
+                                label: "BLOTTER",
+                                tone: AdminTone.violet,
+                                icon: Icons.gavel_rounded,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                       DataCell(
                         SizedBox(
                           width: 160,
@@ -674,6 +705,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
           "Longitude",
           "Complainant Name",
           "Is Anonymous",
+          "Blotter Entry",
           "Corroboration Upvotes",
           "Dispatcher Remarks",
         ],
@@ -695,6 +727,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
           inc.longitude,
           inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? ''),
           inc.isAnonymous ? 'YES' : 'NO',
+          inc.isBlotter ? 'YES' : 'NO',
           inc.upvoteCount,
           inc.dispatcherNotes ?? '',
         ]);
@@ -886,7 +919,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   return [
                     inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
                     dStr,
-                    inc.category,
+                    inc.isBlotter ? "${inc.category} (Blotter)" : inc.category,
                     inc.resolvedAddress ?? inc.areaSector ?? 'Barangay Moonwalk',
                     inc.isAnonymous
                         ? "Anonymous"

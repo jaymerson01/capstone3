@@ -354,13 +354,28 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               dimmed: isSpam,
             ),
             _cell(
-              Text(
-                report.category,
-                style: const TextStyle(
-                  color: AdminColors.textBody,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    report.category,
+                    style: const TextStyle(
+                      color: AdminColors.textBody,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (report.isBlotter)
+                    const Text(
+                      "Blotter Entry",
+                      style: TextStyle(
+                        color: AdminColors.violetText,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                ],
               ),
               dimmed: isSpam,
             ),
@@ -892,9 +907,18 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: AdminPill(label: statusLabel, tone: statusTone),
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  AdminPill(label: statusLabel, tone: statusTone),
+                  if (report.isBlotter)
+                    const AdminPill(
+                      label: "Blotter Entry",
+                      tone: AdminTone.violet,
+                      icon: Icons.gavel_rounded,
+                    ),
+                ],
               ),
               const SizedBox(height: 16),
 

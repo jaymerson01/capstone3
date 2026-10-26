@@ -395,6 +395,16 @@ class AppLocalizationsFil extends AppLocalizations {
       'Ilagay ang detalye ng apektadong tao at iayos ang pin sa mapa sa ibaba sa eksaktong lokasyon nila sa Barangay Moonwalk para mahanap at matulungan sila ng mga responder.';
 
   @override
+  String get reportBlotterTitle => 'Itala sa Blotter ng Barangay';
+
+  @override
+  String get reportBlotterHelp =>
+      'Itatala ng barangay ang ulat na ito sa opisyal na blotter nito, para sa away o reklamong maaaring kailangan mong ayusin o subaybayan.';
+
+  @override
+  String get commonBlotterEntry => 'Nakatala sa Blotter';
+
+  @override
   String get reportVictimNameLabel => 'Buong Pangalan ng Apektadong Tao *';
 
   @override

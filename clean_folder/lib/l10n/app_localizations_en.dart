@@ -416,6 +416,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the affected person\'s details and adjust the map pin below to their exact location in Barangay Moonwalk so responders can locate and assist them.';
 
   @override
+  String get reportBlotterTitle => 'Record in the Barangay Blotter';
+
+  @override
+  String get reportBlotterHelp =>
+      'The barangay will log this report in its official blotter, for disputes or complaints you may need to settle or follow up on later.';
+
+  @override
+  String get commonBlotterEntry => 'Blotter Entry';
+
+  @override
   String get reportVictimNameLabel => 'Affected Person\'s Full Name *';
 
   @override

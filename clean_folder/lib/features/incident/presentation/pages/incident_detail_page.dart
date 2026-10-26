@@ -225,7 +225,7 @@ class IncidentDetailPage extends StatelessWidget {
     );
   }
 
-  // ── Fact Tags: sector, on-behalf, ETA, who filed ─────────────────────────────
+  // ── Fact Tags: sector, on-behalf, ETA, blotter, who filed ────────────────────
   Widget _buildFactTags(BuildContext context, IncidentEntity incident) {
     final l10n = AppLocalizations.of(context);
     return Wrap(
@@ -260,6 +260,12 @@ class IncidentDetailPage extends StatelessWidget {
             icon: Icons.timer_outlined,
             label: l10n.commonEta(incident.estimatedResponseTime!),
             color: AppColors.secondary,
+          ),
+        if (incident.isBlotter)
+          NeoTag(
+            icon: Icons.gavel_rounded,
+            label: l10n.commonBlotterEntry,
+            color: AppColors.blotter,
           ),
         NeoTag(
           icon: incident.isAnonymous

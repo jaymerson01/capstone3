@@ -61,6 +61,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   final TextEditingController _victimPhoneController = TextEditingController();
 
   bool _isReportingOnBehalf = false;
+  bool _isBlotter = false;
   GoogleMapController? _miniMapController;
   bool _isReverseGeocoding = false;
 
@@ -730,6 +731,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       reporterName: currentUserName,
       reporterEmail: currentUserEmail,
       isReportingOnBehalf: _isReportingOnBehalf,
+      isBlotter: _isBlotter &&
+          IncidentEntity.isBlotterCategory(_selectedIncidentCategory),
       victimName:
           _isReportingOnBehalf ? _victimNameController.text.trim() : null,
       victimPhone: _isReportingOnBehalf &&
@@ -1636,6 +1639,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           _buildCategoryGrid(),
           SizedBox(height: 16),
 
+          // Blotter entry: only for disputes and complaints the barangay records
+          if (IncidentEntity.isBlotterCategory(_selectedIncidentCategory)) ...[
+            _buildBlotterToggle(),
+            SizedBox(height: 16),
+          ],
+
           if (_selectedIncidentCategory == 'Other Emergency')
             Custom3dTextField(
               controller: _otherCategoryController,
@@ -1716,6 +1725,66 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
+  Widget _buildBlotterToggle() {
+    final isDark = AppColors.isDarkMode;
+    final accent = isDark
+        ? Color.lerp(AppColors.blotter, Colors.white, 0.4)!
+        : AppColors.blotter;
+    // One control for screen readers: the title, help text and switch.
+    return MergeSemantics(
+      child: GestureDetector(
+        onTap: () => setState(() => _isBlotter = !_isBlotter),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+          decoration: BoxDecoration(
+            color: AppColors.blotter.withValues(alpha: isDark ? 0.14 : 0.07),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: AppColors.blotter.withValues(alpha: _isBlotter ? 0.7 : 0.35),
+              width: _isBlotter ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.gavel_rounded, size: 18, color: accent),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    WordSafeText(
+                      _l10n.reportBlotterTitle,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: accent,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      _l10n.reportBlotterHelp,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textLight,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                key: const Key('reportBlotterSwitch'),
+                value: _isBlotter,
+                activeThumbColor: AppColors.blotter,
+                onChanged: (value) => setState(() => _isBlotter = value),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // Two categories per row; both tiles in a row share the taller height.
   Widget _buildCategoryGrid() {
     final rows = <Widget>[];
@@ -1750,6 +1819,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       onTap: () {
         setState(() {
           _selectedIncidentCategory = category;
+          if (!IncidentEntity.isBlotterCategory(category)) _isBlotter = false;
         });
       },
     );
