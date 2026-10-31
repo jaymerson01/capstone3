@@ -17,6 +17,8 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/pages
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:community_safety_app/features/notifications/data/models/notification_model.dart';
 import 'package:community_safety_app/core/services/station_audio_service.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 
 class AdminPanelShell extends StatefulWidget {
   const AdminPanelShell({super.key});
@@ -37,6 +39,9 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
   @override
   void initState() {
     super.initState();
+    // The admin desk needs every report with its reporter's contact details,
+    // whichever app entry point opened it.
+    context.read<IncidentBloc>().add(const StreamAllIncidentsRequested());
     _adminNotifSubscription = NotificationService()
         .streamAdminNotifications()
         .listen((notifications) {
@@ -58,12 +63,12 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  backgroundColor: const Color(0xFF0D1627),
+                  backgroundColor: AdminColors.cardBackground,
                   behavior: SnackBarBehavior.floating,
                   margin: const EdgeInsets.all(16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
-                    side: const BorderSide(color: Color(0xFFFF3B30), width: 1.5),
+                    side: const BorderSide(color: AdminColors.danger, width: 1.5),
                   ),
                   duration: const Duration(seconds: 8),
                   content: Row(
@@ -71,12 +76,12 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF3B30).withValues(alpha: 0.2),
+                          color: AdminColors.danger.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.emergency_rounded,
-                          color: Color(0xFFFF3B30),
+                          color: AdminColors.danger,
                           size: 24,
                         ),
                       ),
@@ -98,7 +103,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                             Text(
                               n.message,
                               style: const TextStyle(
-                                color: Color(0xFF7B8DB0),
+                                color: AdminColors.textLight,
                                 fontSize: 12,
                               ),
                               maxLines: 2,
@@ -115,7 +120,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                         child: Text(
                           "VIEW",
                           style: TextStyle(
-                            color: Color(0xFF0A84FF),
+                            color: AdminColors.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -189,11 +194,11 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
               CurvedAnimation(parent: anim1, curve: Curves.easeOutBack),
             ),
             child: Dialog(
-              backgroundColor: const Color(0xFF0D1627),
+              backgroundColor: AdminColors.cardBackground,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
                 side: BorderSide(
-                  color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
+                  color: AdminColors.danger.withValues(alpha: 0.3),
                 ),
               ),
               child: Padding(
@@ -206,23 +211,23 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                       height: 64,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFFFF3B30).withValues(alpha: 0.12),
+                        color: AdminColors.danger.withValues(alpha: 0.12),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
+                            color: AdminColors.danger.withValues(alpha: 0.3),
                             blurRadius: 20,
                             spreadRadius: 3,
                           ),
                         ],
                       ),
                       child: Icon(Icons.logout_rounded,
-                          color: Color(0xFFFF3B30), size: 30),
+                          color: AdminColors.danger, size: 30),
                     ),
                     SizedBox(height: 18),
                     Text(
                       "Confirm Logout",
                       style: TextStyle(
-                        color: Color(0xFFE8F0FE),
+                        color: AdminColors.textDark,
                         fontSize: 18,
                         fontWeight: FontWeight.w900,
                       ),
@@ -231,7 +236,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                     Text(
                       "Are you sure you want to log out of the Admin Command Center?",
                       style: TextStyle(
-                        color: Color(0xFF7B8DB0),
+                        color: AdminColors.textLight,
                         fontSize: 13,
                         height: 1.5,
                       ),
@@ -255,7 +260,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                                 child: Text(
                                   "Cancel",
                                   style: TextStyle(
-                                    color: Color(0xFF7B8DB0),
+                                    color: AdminColors.textLight,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
                                   ),
@@ -276,15 +281,15 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFF3B30)
+                                color: AdminColors.danger
                                     .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                    color: const Color(0xFFFF3B30)
+                                    color: AdminColors.danger
                                         .withValues(alpha: 0.4)),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFFFF3B30)
+                                    color: AdminColors.danger
                                         .withValues(alpha: 0.2),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
@@ -295,7 +300,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                                 child: Text(
                                   "Logout",
                                   style: TextStyle(
-                                    color: Color(0xFFFF3B30),
+                                    color: AdminColors.danger,
                                     fontWeight: FontWeight.w800,
                                     fontSize: 14,
                                   ),
@@ -326,6 +331,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       backgroundColor: AdminColors.background,
       drawer: isMobile
           ? Drawer(
+              backgroundColor: AdminColors.surfaceDeep,
               child: AdminSidebar(
                 selectedIndex: _selectedIndex,
                 onItemSelected: (index) {
@@ -340,65 +346,68 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
               ),
             )
           : null,
-      body: Row(
-        children: [
-          if (!isMobile)
-            AdminSidebar(
-              selectedIndex: _selectedIndex,
-              onItemSelected: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-              isCollapsed: _isSidebarCollapsed,
-              onLogout: _handleLogout,
-            ),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AdminColors.pageGradient),
+        child: Row(
+          children: [
+            if (!isMobile)
+              AdminSidebar(
+                selectedIndex: _selectedIndex,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                isCollapsed: _isSidebarCollapsed,
+                onLogout: _handleLogout,
+              ),
 
-          Expanded(
-            child: Column(
-              children: [
-                AdminHeader(
-                  title: _pageTitles[_selectedIndex],
-                  isMobile: isMobile,
-                  onNavigate: (index) {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  onLogout: _handleLogout,
-                  onMenuPressed: () {
-                    if (isMobile) {
-                      _scaffoldKey.currentState?.openDrawer();
-                    } else {
+            Expanded(
+              child: Column(
+                children: [
+                  AdminHeader(
+                    title: _pageTitles[_selectedIndex],
+                    isMobile: isMobile,
+                    onNavigate: (index) {
                       setState(() {
-                        _isSidebarCollapsed = !_isSidebarCollapsed;
+                        _selectedIndex = index;
                       });
-                    }
-                  },
-                ),
-
-                Expanded(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 250),
-                    transitionBuilder: (
-                      Widget child,
-                      Animation<double> animation,
-                    ) {
-                      return FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      );
                     },
-                    child: KeyedSubtree(
-                      key: ValueKey<int>(_selectedIndex),
-                      child: _getSelectedPage(),
+                    onLogout: _handleLogout,
+                    onMenuPressed: () {
+                      if (isMobile) {
+                        _scaffoldKey.currentState?.openDrawer();
+                      } else {
+                        setState(() {
+                          _isSidebarCollapsed = !_isSidebarCollapsed;
+                        });
+                      }
+                    },
+                  ),
+
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: (
+                        Widget child,
+                        Animation<double> animation,
+                      ) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                      child: KeyedSubtree(
+                        key: ValueKey<int>(_selectedIndex),
+                        child: _getSelectedPage(),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

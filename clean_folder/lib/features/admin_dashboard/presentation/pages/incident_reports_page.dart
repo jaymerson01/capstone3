@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
@@ -11,6 +10,9 @@ import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_player_dialog.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 class IncidentReportsPage extends StatefulWidget {
   const IncidentReportsPage({super.key});
@@ -41,189 +43,38 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Incident Reports",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFFE8F0FE),
-                ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    showArchivedReports ? "Archived" : "Active",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                      color: Color(0xFF7B8DB0),
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  Switch(
-                    value: showArchivedReports,
-                    activeTrackColor: const Color(0xFF0A84FF),
-                    activeThumbColor: Colors.white,
-                    onChanged: (val) {
-                      setState(() {
-                        showArchivedReports = val;
-                      });
-                    },
-                  ),
-                ],
+          AdminPageTitle(
+            title: "Incident Reports",
+            trailing: [
+              AdminSegmented<bool>(
+                segments: const [(false, "Active"), (true, "Archived")],
+                value: showArchivedReports,
+                onChanged: (val) {
+                  setState(() {
+                    showArchivedReports = val;
+                  });
+                },
               ),
             ],
           ),
-          SizedBox(height: 18),
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0D1627),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E2D4A)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    style: const TextStyle(
-                        color: Color(0xFFE8F0FE), fontSize: 13),
-                    decoration: InputDecoration(
-                      hintText: "Search by ID, type, reporter, location...",
-                      hintStyle: const TextStyle(
-                          color: Color(0xFF4A5568), fontSize: 12.5),
-                      prefixIcon: Icon(Icons.search,
-                          color: Color(0xFF7B8DB0), size: 20),
-                      filled: true,
-                      fillColor: const Color(0xFF0D1627),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide:
-                            const BorderSide(color: Color(0xFF1E2D4A)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide:
-                            const BorderSide(color: Color(0xFF1E2D4A)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(
-                            color: Color(0xFF0A84FF), width: 2),
-                      ),
-                    ),
-                    onChanged: (value) =>
-                        setState(() => searchQuery = value),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: statusFilter,
-                    dropdownColor: const Color(0xFF0D1627),
-                    style: const TextStyle(
-                        color: Color(0xFFE8F0FE), fontSize: 13),
-                    icon: Icon(Icons.keyboard_arrow_down_rounded,
-                        color: Color(0xFF0A84FF)),
-                    items: const [
-                      DropdownMenuItem(
-                          value: "All", child: Text("All Statuses")),
-                      DropdownMenuItem(
-                          value: "Pending", child: Text("Pending")),
-                      DropdownMenuItem(
-                          value: "In Progress", child: Text("In Progress")),
-                      DropdownMenuItem(
-                          value: "Solved", child: Text("Solved")),
-                      DropdownMenuItem(
-                          value: "Spam", child: Text("Spam")),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => statusFilter = value);
-                      }
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 14),
-          // Priority Triage Hierarchy Toolbar
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                Text(
-                  "PRIORITY QUEUE:",
-                  style: TextStyle(
-                    color: Color(0xFF7B8DB0),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-                SizedBox(width: 10),
-                _buildSortChip(
-                  key: "latest",
-                  label: "Latest First",
-                  icon: Icons.access_time_rounded,
-                  activeColor: const Color(0xFF0A84FF),
-                ),
-                SizedBox(width: 8),
-                _buildSortChip(
-                  key: "urgency",
-                  label: "Critical & Urgent First",
-                  icon: Icons.warning_amber_rounded,
-                  activeColor: const Color(0xFFFF3B30),
-                ),
-                SizedBox(width: 8),
-                _buildSortChip(
-                  key: "corroborated",
-                  label: "Most Corroborated / Affected",
-                  icon: Icons.people_alt_outlined,
-                  activeColor: const Color(0xFF00E5FF),
-                ),
-                SizedBox(width: 8),
-                _buildSortChip(
-                  key: "oldest_pending",
-                  label: "Oldest Pending Backlog",
-                  icon: Icons.hourglass_top_rounded,
-                  activeColor: const Color(0xFFFF9500),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
+          const SizedBox(height: 18),
+          _buildToolbar(),
+          const SizedBox(height: 16),
           Expanded(
             child: BlocBuilder<IncidentBloc, IncidentState>(
               builder: (context, state) {
                 if (state is IncidentLoading) {
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (state is IncidentError) {
                   return Center(
                     child: Text(
                       'Error: ${state.message}',
-                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AdminColors.dangerText,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   );
                 } else if (state is IncidentLoaded) {
@@ -311,543 +162,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     }
                   }
 
-                  return Custom3dCard(
-                    padding: const EdgeInsets.all(12),
-                    borderRadius: 22,
-                    child: filteredReports.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.inbox_outlined,
-                                    color: const Color(0xFF2A3F60),
-                                    size: 56),
-                                SizedBox(height: 14),
-                                Text(
-                                  "No incident reports found",
-                                  style: TextStyle(
-                                    color: Color(0xFF7B8DB0),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Horizontally scrollable metadata columns
-                                Expanded(
-                                  child: Scrollbar(
-                                    controller: _horizontalScrollController,
-                                    thumbVisibility: true,
-                                    child: SingleChildScrollView(
-                                      controller: _horizontalScrollController,
-                                      scrollDirection: Axis.horizontal,
-                                      child: DataTable(
-                                        headingRowHeight: 50,
-                                        dataRowMinHeight: 60,
-                                        dataRowMaxHeight: 60,
-                                        headingRowColor:
-                                            WidgetStateProperty.all(
-                                                const Color(0xFF060D1A)),
-                                        dataRowColor:
-                                            WidgetStateProperty.resolveWith(
-                                                (states) => states.contains(
-                                                        WidgetState.hovered)
-                                                    ? const Color(0xFF0D1627)
-                                                        .withValues(alpha: 0.8)
-                                                    : Colors.transparent),
-                                        dividerThickness: 0.5,
-                                        sortColumnIndex: _sortColumnIndex,
-                                        sortAscending: _sortAscending,
-                                        columns: [
-                                          const DataColumn(
-                                              label: Text("Report ID",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12))),
-                                          const DataColumn(
-                                              label: Text("Category",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12))),
-                                          DataColumn(
-                                              label: Text("Urgency",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12)),
-                                              onSort:
-                                                  (columnIndex, ascending) {
-                                                setState(() {
-                                                  _sortColumnIndex =
-                                                      columnIndex;
-                                                  _sortAscending = ascending;
-                                                });
-                                              }),
-                                          DataColumn(
-                                              label: Text(
-                                                  "Corroborated / Affected",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12)),
-                                              onSort:
-                                                  (columnIndex, ascending) {
-                                                setState(() {
-                                                  _sortColumnIndex =
-                                                      columnIndex;
-                                                  _sortAscending = ascending;
-                                                });
-                                              }),
-                                          const DataColumn(
-                                              label: Text("Reporter",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12))),
-                                          const DataColumn(
-                                              label: Text("Location",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12))),
-                                          DataColumn(
-                                              label: Text("Date",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12)),
-                                              onSort:
-                                                  (columnIndex, ascending) {
-                                                setState(() {
-                                                  _sortColumnIndex =
-                                                      columnIndex;
-                                                  _sortAscending = ascending;
-                                                });
-                                              }),
-                                          const DataColumn(
-                                              label: Text("Status",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12))),
-                                        ],
-                                        rows: filteredReports.map((report) {
-                                          final statusColor =
-                                              _getStatusColor(report.status);
-                                          final statusLabel =
-                                              _getStatusLabel(report.status);
-
-                                          final urgency = report
-                                                  .urgencyStatus
-                                                  ?.toUpperCase() ??
-                                              "PENDING";
-                                          final urgencyColor =
-                                              _getUrgencyColor(urgency);
-
-                                          final reporterDisplayName =
-                                              (report.reporterName != null &&
-                                                      report.reporterName!
-                                                          .isNotEmpty)
-                                                  ? report.reporterName!
-                                                  : (report.reporterId.length > 8
-                                                      ? report.reporterId
-                                                          .substring(0, 8)
-                                                      : report.reporterId);
-
-                                          final locationDisplay =
-                                              BarangaySectorHelper.formatReadableAddress(
-                                            resolvedAddress: report.resolvedAddress,
-                                            areaSector: report.areaSector,
-                                            latitude: report.latitude,
-                                            longitude: report.longitude,
-                                          );
-
-                                          return DataRow(
-                                            cells: [
-                                              DataCell(Text(
-                                                  report.id.length > 8
-                                                      ? report.id.substring(0, 8)
-                                                      : report.id,
-                                                  style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Color(0xFFE8F0FE),
-                                                      fontSize: 12))),
-                                              DataCell(Text(report.category,
-                                                  style: const TextStyle(
-                                                      color: Color(0xFFE8F0FE),
-                                                      fontSize: 12))),
-                                              DataCell(
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: urgencyColor
-                                                        .withValues(
-                                                            alpha: 0.12),
-                                                    borderRadius:
-                                                        BorderRadius.circular(8),
-                                                    border: Border.all(
-                                                        color: urgencyColor
-                                                            .withValues(
-                                                                alpha: 0.35)),
-                                                  ),
-                                                  child: Text(
-                                                    urgency,
-                                                    style: TextStyle(
-                                                      color: urgencyColor,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      fontSize: 10.5,
-                                                      letterSpacing: 0.3,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Container(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 3),
-                                                  decoration: BoxDecoration(
-                                                    color: const Color(0xFF00E5FF)
-                                                        .withValues(alpha: 0.1),
-                                                    borderRadius:
-                                                        BorderRadius.circular(8),
-                                                    border: Border.all(
-                                                      color: (report.upvoteCount + 1) >= 5
-                                                          ? const Color(0xFFFF3B30).withValues(alpha: 0.5)
-                                                          : ((report.upvoteCount + 1) >= 3
-                                                              ? const Color(0xFFFF9500).withValues(alpha: 0.5)
-                                                              : const Color(0xFF00E5FF).withValues(alpha: 0.35)),
-                                                    ),
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Icon(
-                                                        Icons
-                                                            .people_alt_outlined,
-                                                        size: 13,
-                                                        color: (report.upvoteCount + 1) >= 5
-                                                            ? const Color(0xFFFF3B30)
-                                                            : ((report.upvoteCount + 1) >= 3
-                                                                ? const Color(0xFFFF9500)
-                                                                : const Color(0xFF00E5FF)),
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      Text(
-                                                        "${report.upvoteCount + 1} Affected",
-                                                        style: TextStyle(
-                                                          color: (report.upvoteCount + 1) >= 5
-                                                              ? const Color(0xFFFF3B30)
-                                                              : ((report.upvoteCount + 1) >= 3
-                                                                  ? const Color(0xFFFF9500)
-                                                                  : const Color(0xFF00E5FF)),
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                          fontSize: 11,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      reporterDisplayName,
-                                                      style: const TextStyle(
-                                                        color:
-                                                            Color(0xFFE8F0FE),
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        fontSize: 12,
-                                                      ),
-                                                    ),
-                                                    if (report
-                                                        .isReportingOnBehalf)
-                                                      Text(
-                                                        "👥 For: ${report.victimName ?? 'Relative'}",
-                                                        style: const TextStyle(
-                                                          color:
-                                                              Color(0xFFFF9500),
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                        ),
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      )
-                                                    else if (report.isAnonymous)
-                                                      Text(
-                                                        "Anon to Public",
-                                                        style: TextStyle(
-                                                          color:
-                                                              Color(0xFFFF9500),
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                        ),
-                                                      ),
-                                                  ],
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Tooltip(
-                                                  message: locationDisplay,
-                                                  child: SizedBox(
-                                                    width: 140,
-                                                    child: Text(
-                                                      locationDisplay,
-                                                      style: const TextStyle(
-                                                          color:
-                                                              Color(0xFF7B8DB0),
-                                                          fontSize: 12),
-                                                      maxLines: 1,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              DataCell(Text(
-                                                  _formatDate(report.timestamp),
-                                                  style: const TextStyle(
-                                                      color: Color(0xFF7B8DB0),
-                                                      fontSize: 12))),
-                                              DataCell(
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 4),
-                                                      decoration: BoxDecoration(
-                                                        color: statusColor
-                                                            .withValues(
-                                                                alpha: 0.12),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                                20),
-                                                        border: Border.all(
-                                                            color: statusColor
-                                                                .withValues(
-                                                                    alpha:
-                                                                        0.3)),
-                                                      ),
-                                                      child: Text(
-                                                        statusLabel,
-                                                        style: TextStyle(
-                                                          color: statusColor,
-                                                          fontWeight:
-                                                              FontWeight.w700,
-                                                          fontSize: 11,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    if (report.isInProgress &&
-                                                        report.estimatedResponseTime !=
-                                                            null &&
-                                                        report
-                                                            .estimatedResponseTime!
-                                                            .isNotEmpty) ...[
-                                                      SizedBox(height: 3),
-                                                      Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          Icon(
-                                                              Icons.timer_outlined,
-                                                              size: 11,
-                                                              color: Color(
-                                                                  0xFF00E5FF)),
-                                                          SizedBox(
-                                                              width: 3),
-                                                          Text(
-                                                            "ETA: ${report.estimatedResponseTime!}",
-                                                            style:
-                                                                const TextStyle(
-                                                              color: Color(
-                                                                  0xFF00E5FF),
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ],
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                // Sticky / Frozen Actions Column on the far right
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFF060D1A),
-                                    border: Border(
-                                      left: BorderSide(
-                                        color: Color(0xFF1E293B),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black38,
-                                        blurRadius: 6,
-                                        offset: Offset(-2, 0),
-                                      ),
-                                    ],
-                                  ),
-                                  child: DataTable(
-                                    headingRowHeight: 50,
-                                    dataRowMinHeight: 60,
-                                    dataRowMaxHeight: 60,
-                                    headingRowColor: WidgetStateProperty.all(
-                                        const Color(0xFF060D1A)),
-                                    dataRowColor:
-                                        WidgetStateProperty.resolveWith(
-                                            (states) => states.contains(
-                                                    WidgetState.hovered)
-                                                ? const Color(0xFF0D1627)
-                                                    .withValues(alpha: 0.8)
-                                                : Colors.transparent),
-                                    dividerThickness: 0.5,
-                                    horizontalMargin: 8,
-                                    columnSpacing: 0,
-                                    columns: const [
-                                      DataColumn(
-                                        label: Text(
-                                          "Actions",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            color: Color(0xFF7B8DB0),
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                    rows: filteredReports.map((report) {
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(
-                                            Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.visibility,
-                                                    color: Color(0xFF0A84FF),
-                                                    size: 19,
-                                                  ),
-                                                  tooltip: "View Details",
-                                                  splashRadius: 18,
-                                                  onPressed: () {
-                                                    _showReportDetails(
-                                                        context, report);
-                                                  },
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.edit,
-                                                    color: Colors.blue,
-                                                    size: 19,
-                                                  ),
-                                                  tooltip: "Edit Status",
-                                                  splashRadius: 18,
-                                                  onPressed: () {
-                                                    _showEditReportDialog(
-                                                        context, report);
-                                                  },
-                                                ),
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.report_gmailerrorred,
-                                                    color: Colors.orange,
-                                                    size: 19,
-                                                  ),
-                                                  tooltip: "Mark as Spam",
-                                                  splashRadius: 18,
-                                                  onPressed: () {
-                                                    context
-                                                        .read<IncidentBloc>()
-                                                        .add(
-                                                          UpdateIncidentStatusRequested(
-                                                              report.id, 'spam'),
-                                                        );
-                                                    ScaffoldMessenger.of(context)
-                                                        .showSnackBar(
-                                                      SnackBar(
-                                                        backgroundColor:
-                                                            const Color(
-                                                                0xFF0D1627),
-                                                        content: Text(
-                                                          "Report #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} marked as Spam",
-                                                          style: const TextStyle(
-                                                              color: Color(
-                                                                  0xFFFF9500),
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                        ),
-                                                        behavior:
-                                                            SnackBarBehavior
-                                                                .floating,
-                                                      ),
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                  );
+                  return _buildReportsTable(context, filteredReports);
                 }
                 return const SizedBox.shrink();
               },
@@ -856,6 +171,471 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         ],
       ),
     );
+  }
+
+  /// Search, status filter and the priority queue. One row on wide
+  /// screens; the filters drop under the search bar on narrow ones.
+  Widget _buildToolbar() {
+    final Widget search = AdminSearchField(
+      hint: "Search by ID, type, reporter, location...",
+      onChanged: (value) => setState(() => searchQuery = value),
+    );
+
+    final Widget filters = Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        AdminSelect<String>(
+          value: statusFilter,
+          items: const [
+            ("All", "All Statuses"),
+            ("Pending", "Pending"),
+            ("In Progress", "In Progress"),
+            ("Solved", "Solved"),
+            ("Spam", "Spam"),
+          ],
+          onChanged: (value) {
+            setState(() => statusFilter = value);
+          },
+        ),
+        // Priority Triage Hierarchy Toolbar
+        const Text(
+          "PRIORITY QUEUE:",
+          style: TextStyle(
+            color: AdminColors.textHint,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1,
+          ),
+        ),
+        AdminSelect<String>(
+          value: sortBy,
+          // Cyan while the queue order applies; a column sort replaces it.
+          accent: _sortColumnIndex == null,
+          items: const [
+            ("latest", "Latest First"),
+            ("urgency", "Critical & Urgent First"),
+            ("corroborated", "Most Corroborated / Affected"),
+            ("oldest_pending", "Oldest Pending Backlog"),
+          ],
+          onChanged: (key) {
+            setState(() {
+              sortBy = key;
+              _sortColumnIndex = null;
+            });
+          },
+        ),
+      ],
+    );
+
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        if (constraints.maxWidth < 860) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [search, const SizedBox(height: 12), filters],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: search),
+            const SizedBox(width: 12),
+            filters,
+          ],
+        );
+      },
+    );
+  }
+
+  /// The reports table: the data columns scroll sideways and the actions
+  /// column stays pinned on the right.
+  Widget _buildReportsTable(
+    BuildContext context,
+    List<IncidentEntity> filteredReports,
+  ) {
+    if (filteredReports.isEmpty) {
+      return const AdminPanel(
+        padding: EdgeInsets.zero,
+        child: Center(
+          child: SingleChildScrollView(
+            child: AdminEmptyState(
+              icon: Icons.inbox_outlined,
+              title: "No incident reports found",
+            ),
+          ),
+        ),
+      );
+    }
+
+    final Widget reportColumns = DataTable(
+      headingRowHeight: 50,
+      dataRowMinHeight: 60,
+      dataRowMaxHeight: 60,
+      dataRowColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.hovered)
+            ? AdminTable.hoverRow
+            : Colors.transparent,
+      ),
+      dividerThickness: 1,
+      horizontalMargin: 16,
+      columnSpacing: 20,
+      sortColumnIndex: _sortColumnIndex,
+      sortAscending: _sortAscending,
+      columns: [
+        const DataColumn(label: _ColumnLabel("Report ID")),
+        const DataColumn(label: _ColumnLabel("Category")),
+        DataColumn(
+          label: const _ColumnLabel("Urgency"),
+          onSort: (columnIndex, ascending) {
+            setState(() {
+              _sortColumnIndex = columnIndex;
+              _sortAscending = ascending;
+            });
+          },
+        ),
+        DataColumn(
+          label: const _ColumnLabel("Corroborated / Affected"),
+          onSort: (columnIndex, ascending) {
+            setState(() {
+              _sortColumnIndex = columnIndex;
+              _sortAscending = ascending;
+            });
+          },
+        ),
+        const DataColumn(label: _ColumnLabel("Reporter")),
+        const DataColumn(label: _ColumnLabel("Location")),
+        DataColumn(
+          label: const _ColumnLabel("Date"),
+          onSort: (columnIndex, ascending) {
+            setState(() {
+              _sortColumnIndex = columnIndex;
+              _sortAscending = ascending;
+            });
+          },
+        ),
+        const DataColumn(label: _ColumnLabel("Status")),
+      ],
+      rows: filteredReports.map((report) {
+        final statusTone = _getStatusTone(report.status);
+        final statusLabel = _getStatusLabel(report.status);
+        final isSpam = statusLabel == "Spam";
+
+        final urgency = report.urgencyStatus?.toUpperCase() ?? "PENDING";
+        final urgencyTone = _getUrgencyTone(urgency);
+
+        final affectedTone = (report.upvoteCount + 1) >= 5
+            ? AdminTone.red
+            : ((report.upvoteCount + 1) >= 3
+                  ? AdminTone.orange
+                  : AdminTone.cyan);
+
+        final reporterDisplayName =
+            (report.reporterName != null && report.reporterName!.isNotEmpty)
+            ? report.reporterName!
+            : (report.reporterId.length > 8
+                  ? report.reporterId.substring(0, 8)
+                  : report.reporterId);
+
+        final locationDisplay = BarangaySectorHelper.formatReadableAddress(
+          resolvedAddress: report.resolvedAddress,
+          areaSector: report.areaSector,
+          latitude: report.latitude,
+          longitude: report.longitude,
+        );
+
+        return DataRow(
+          cells: [
+            _cell(
+              Text(
+                report.id.length > 8 ? report.id.substring(0, 8) : report.id,
+                style: AdminTable.cellStrong,
+              ),
+              dimmed: isSpam,
+            ),
+            _cell(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    report.category,
+                    style: const TextStyle(
+                      color: AdminColors.textBody,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  if (report.isBlotter)
+                    const Text(
+                      "Blotter Entry",
+                      style: TextStyle(
+                        color: AdminColors.violetText,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                ],
+              ),
+              dimmed: isSpam,
+            ),
+            _cell(
+              AdminPill(
+                label: urgency,
+                tone: urgencyTone,
+                solid: urgencyTone == AdminTone.red,
+              ),
+              dimmed: isSpam,
+            ),
+            _cell(
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.people_alt_outlined,
+                    size: 14,
+                    color: affectedTone.text,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    "${report.upvoteCount + 1} Affected",
+                    style: TextStyle(
+                      color: affectedTone.text,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              dimmed: isSpam,
+            ),
+            _cell(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(reporterDisplayName, style: AdminTable.cell),
+                  if (report.isReportingOnBehalf)
+                    Text(
+                      "👥 For: ${report.victimName ?? 'Relative'}",
+                      style: const TextStyle(
+                        color: AdminColors.orangeLight,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  else if (report.isAnonymous)
+                    const Text(
+                      "Anon to Public",
+                      style: TextStyle(
+                        color: AdminColors.orangeLight,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                ],
+              ),
+              dimmed: isSpam,
+            ),
+            _cell(
+              Tooltip(
+                message: locationDisplay,
+                child: SizedBox(
+                  width: 120,
+                  child: Text(
+                    locationDisplay,
+                    style: AdminTable.cellMuted,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              dimmed: isSpam,
+            ),
+            _cell(
+              Text(_formatDate(report.timestamp), style: AdminTable.cellMuted),
+              dimmed: isSpam,
+            ),
+            _cell(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AdminPill(
+                    label: statusLabel.toUpperCase(),
+                    tone: statusTone,
+                  ),
+                  if (report.isInProgress &&
+                      report.estimatedResponseTime != null &&
+                      report.estimatedResponseTime!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.timer_outlined,
+                          size: 11,
+                          color: AdminColors.cyanSoft,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          "ETA: ${report.estimatedResponseTime!}",
+                          style: const TextStyle(
+                            color: AdminColors.cyanSoft,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+              dimmed: isSpam,
+            ),
+          ],
+        );
+      }).toList(),
+    );
+
+    final Widget actionsColumn = DataTable(
+      headingRowHeight: 50,
+      dataRowMinHeight: 60,
+      dataRowMaxHeight: 60,
+      dataRowColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.hovered)
+            ? AdminTable.hoverRow
+            : Colors.transparent,
+      ),
+      dividerThickness: 1,
+      horizontalMargin: 14,
+      columnSpacing: 0,
+      columns: const [DataColumn(label: _ColumnLabel("Actions"))],
+      rows: filteredReports.map((report) {
+        return DataRow(
+          cells: [
+            _cell(
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AdminIconAction(
+                    icon: Icons.visibility_outlined,
+                    tooltip: "View Details",
+                    onPressed: () {
+                      _showReportDetails(context, report);
+                    },
+                  ),
+                  const SizedBox(width: 6),
+                  AdminIconAction(
+                    icon: Icons.edit_outlined,
+                    tooltip: "Edit Status",
+                    tone: AdminTone.cyan,
+                    onPressed: () {
+                      _showEditReportDialog(context, report);
+                    },
+                  ),
+                  const SizedBox(width: 6),
+                  AdminIconAction(
+                    icon: Icons.report_gmailerrorred,
+                    tooltip: "Mark as Spam",
+                    tone: AdminTone.red,
+                    onPressed: () {
+                      context.read<IncidentBloc>().add(
+                        UpdateIncidentStatusRequested(report.id, 'spam'),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: AdminColors.surfaceDeep,
+                          content: Text(
+                            "Report #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} marked as Spam",
+                            style: const TextStyle(
+                              color: AdminColors.amber,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              dimmed: _getStatusLabel(report.status) == "Spam",
+            ),
+          ],
+        );
+      }).toList(),
+    );
+
+    return AdminPanel(
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(21),
+        child: DividerTheme(
+          data: const DividerThemeData(color: AdminTable.divider),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Horizontally scrollable metadata columns
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (_, constraints) => Scrollbar(
+                      controller: _horizontalScrollController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: _horizontalScrollController,
+                        scrollDirection: Axis.horizontal,
+                        // Stretches the columns to fill wide panels.
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: constraints.maxWidth,
+                          ),
+                          // Tints the arrow on the sorted column.
+                          child: IconTheme.merge(
+                            data: const IconThemeData(
+                              color: AdminColors.cyanText,
+                            ),
+                            child: reportColumns,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                // Sticky / Frozen Actions Column on the far right
+                Container(
+                  decoration: BoxDecoration(
+                    color: AdminColors.cardBackground,
+                    border: Border(
+                      left: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.22),
+                        blurRadius: 10,
+                        offset: const Offset(-3, 0),
+                      ),
+                    ],
+                  ),
+                  child: actionsColumn,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A table cell. Spam rows are dimmed.
+  DataCell _cell(Widget child, {bool dimmed = false}) {
+    return DataCell(dimmed ? Opacity(opacity: 0.75, child: child) : child);
   }
 
   String _formatDate(DateTime date) {
@@ -889,88 +669,38 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     }
   }
 
-  Color _getStatusColor(String status) {
+  AdminTone _getStatusTone(String status) {
     switch (
         status.toLowerCase().replaceAll(' ', '').replaceAll('_', '').trim()) {
       case 'pending':
-        return const Color(0xFFFFCC00);
+        return AdminTone.yellow;
       case 'inprogress':
-        return const Color(0xFF0A84FF);
+        return AdminTone.blue;
       case 'solved':
       case 'resolved':
-        return const Color(0xFF30D158);
+        return AdminTone.green;
       case 'spam':
-        return const Color(0xFFFF3B30);
+        return AdminTone.slate;
       case 'archived':
-        return const Color(0xFF8E8E93);
+        return AdminTone.slate;
       default:
-        return const Color(0xFF7B8DB0);
+        return AdminTone.slate;
     }
   }
 
-  Color _getUrgencyColor(String urgency) {
+  AdminTone _getUrgencyTone(String urgency) {
     switch (urgency.toUpperCase().trim()) {
       case 'CRITICAL':
-        return const Color(0xFFFF3B30); // Crimson Red
+        return AdminTone.red; // Crimson Red, shown solid
       case 'HIGH':
-        return const Color(0xFFFF9500); // Amber Orange
+        return AdminTone.orange; // Amber Orange
       case 'MEDIUM':
-        return const Color(0xFF00E5FF); // Electric Cyan
+        return AdminTone.yellow;
       case 'LOW':
-        return const Color(0xFF8E8E93); // Slate Gray
+        return AdminTone.slate; // Slate Gray
       default:
-        return const Color(0xFF7B8DB0);
+        return AdminTone.slate;
     }
-  }
-
-  Widget _buildSortChip({
-    required String key,
-    required String label,
-    required IconData icon,
-    Color? activeColor,
-  }) {
-    final isSelected = sortBy == key && _sortColumnIndex == null;
-    final color = activeColor ?? const Color(0xFF0A84FF);
-    return InkWell(
-      onTap: () {
-        setState(() {
-          sortBy = key;
-          _sortColumnIndex = null;
-        });
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? color.withValues(alpha: 0.16)
-              : const Color(0xFF0D1627),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : const Color(0xFF1E2D4A),
-            width: isSelected ? 1.5 : 1.0,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                size: 14,
-                color: isSelected ? color : const Color(0xFF7B8DB0)),
-            SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   void _showEditReportDialog(BuildContext context, IncidentEntity report) {
@@ -985,263 +715,21 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
       builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF0D1627),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: const BorderSide(color: Color(0xFF1E2D4A))),
-              title: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.edit_note,
-                        color: Color(0xFF0A84FF), size: 20),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "Dispatch Actions • #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 16),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              content: SizedBox(
-                width: 440,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "RESOLUTION STAGE",
-                        style: TextStyle(
-                            color: Color(0xFF7B8DB0),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5),
-                      ),
-                      SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedStatus,
-                        dropdownColor: const Color(0xFF0D1627),
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w600),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: const Color(0xFF060D1A),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 14),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                              value: "Pending",
-                              child: Text("Pending (Awaiting Review)")),
-                          DropdownMenuItem(
-                              value: "In Progress",
-                              child: Text("In Progress (Unit Dispatched)")),
-                          DropdownMenuItem(
-                              value: "Solved",
-                              child: Text("Solved (Incident Resolved)")),
-                          DropdownMenuItem(
-                              value: "Spam", child: Text("Spam / False Alarm")),
-                          DropdownMenuItem(
-                              value: "Archived",
-                              child: Text("Archived / Closed")),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            setDialogState(() {
-                              selectedStatus = value;
-                            });
-                          }
-                        },
-                      ),
-                      if (selectedStatus == "In Progress") ...[
-                        SizedBox(height: 18),
-                        Row(
-                          children: [
-                            Text(
-                              "ESTIMATED TIME OF ARRIVAL (ETA)",
-                              style: TextStyle(
-                                  color: Color(0xFF00E5FF),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5),
-                            ),
-                            SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00E5FF)
-                                    .withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                "CITIZEN VISIBLE",
-                                style: TextStyle(
-                                  color: Color(0xFF00E5FF),
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: [
-                            "5-10 mins",
-                            "10-15 mins",
-                            "15-20 mins",
-                            "20-30 mins",
-                            "30-45 mins",
-                          ].map((chip) {
-                            final isSelected = etaController.text == chip;
-                            return InkWell(
-                              onTap: () {
-                                setDialogState(() {
-                                  etaController.text = chip;
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(16),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? const Color(0xFF00E5FF)
-                                          .withValues(alpha: 0.25)
-                                      : const Color(0xFF060D1A),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? const Color(0xFF00E5FF)
-                                        : const Color(0xFF1E2D4A),
-                                  ),
-                                ),
-                                child: Text(
-                                  chip,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w800
-                                        : FontWeight.w600,
-                                    color: isSelected
-                                        ? const Color(0xFF00E5FF)
-                                        : const Color(0xFF7B8DB0),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        SizedBox(height: 10),
-                        TextField(
-                          controller: etaController,
-                          style: const TextStyle(
-                              color: Color(0xFFE8F0FE), fontSize: 13),
-                          decoration: InputDecoration(
-                            hintText:
-                                "Or type custom ETA (e.g. 8 mins, On scene)...",
-                            hintStyle: const TextStyle(
-                                color: Color(0xFF4A5568), fontSize: 12),
-                            prefixIcon: Icon(Icons.timer_outlined,
-                                color: Color(0xFF00E5FF), size: 18),
-                            filled: true,
-                            fillColor: const Color(0xFF060D1A),
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 12),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide:
-                                    const BorderSide(color: Color(0xFF1E2D4A))),
-                            enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide:
-                                    const BorderSide(color: Color(0xFF1E2D4A))),
-                            focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                borderSide:
-                                    const BorderSide(color: Color(0xFF00E5FF))),
-                          ),
-                        ),
-                      ],
-                      SizedBox(height: 18),
-                      Text(
-                        "DISPATCHER & OPERATIONAL NOTES",
-                        style: TextStyle(
-                            color: Color(0xFF7B8DB0),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5),
-                      ),
-                      SizedBox(height: 8),
-                      TextField(
-                        controller: notesController,
-                        maxLines: 4,
-                        style: const TextStyle(
-                            color: Color(0xFFE8F0FE), fontSize: 13),
-                        decoration: InputDecoration(
-                          hintText:
-                              "Log responder dispatch units, field actions, or resident advisory...",
-                          hintStyle: const TextStyle(
-                              color: Color(0xFF4A5568), fontSize: 12),
-                          filled: true,
-                          fillColor: const Color(0xFF060D1A),
-                          contentPadding: const EdgeInsets.all(14),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF1E2D4A))),
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(14),
-                              borderSide:
-                                  const BorderSide(color: Color(0xFF0A84FF))),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            return AdminDialog(
+              tone: AdminTone.cyan,
+              icon: Icons.edit_note,
+              title:
+                  "Dispatch Actions • #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+              subtitle: report.category,
+              maxWidth: 480,
               actions: [
-                TextButton(
+                AdminButton(
+                  label: "Cancel",
+                  style: AdminButtonStyle.ghost,
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: Text("Cancel",
-                      style: TextStyle(color: Color(0xFF7B8DB0))),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0A84FF),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
+                AdminButton(
+                  label: "Save & Broadcast Status",
                   onPressed: () {
                     final notes = notesController.text.trim();
                     final eta = etaController.text.trim();
@@ -1264,21 +752,99 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        backgroundColor: const Color(0xFF0D1627),
+                        backgroundColor: AdminColors.cardBackground,
                         content: Text(
                           "Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} status updated to '$selectedStatus'!",
                           style: const TextStyle(
-                              color: Color(0xFF30D158),
+                              color: AdminColors.success,
                               fontWeight: FontWeight.bold),
                         ),
                         behavior: SnackBarBehavior.floating,
                       ),
                     );
                   },
-                  child: Text("Save & Broadcast Status",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const AdminFieldLabel("RESOLUTION STAGE"),
+                  Column(
+                    spacing: 8,
+                    children: [
+                      for (final (String value, String label) in const [
+                        ("Pending", "Pending (Awaiting Review)"),
+                        ("In Progress", "In Progress (Unit Dispatched)"),
+                        ("Solved", "Solved (Incident Resolved)"),
+                        ("Spam", "Spam / False Alarm"),
+                        ("Archived", "Archived / Closed"),
+                      ])
+                        AdminChoiceTile(
+                          label: label,
+                          selected: selectedStatus == value,
+                          onTap: () {
+                            setDialogState(() {
+                              selectedStatus = value;
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                  if (selectedStatus == "In Progress") ...[
+                    const SizedBox(height: 18),
+                    const AdminFieldLabel(
+                      "ESTIMATED TIME OF ARRIVAL (ETA)",
+                      trailing: AdminPill(
+                        label: "CITIZEN VISIBLE",
+                        tone: AdminTone.cyan,
+                      ),
+                    ),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        "5-10 mins",
+                        "10-15 mins",
+                        "15-20 mins",
+                        "20-30 mins",
+                        "30-45 mins",
+                      ].map((chip) {
+                        final isSelected = etaController.text == chip;
+                        return AdminChoiceChip(
+                          label: chip,
+                          selected: isSelected,
+                          onTap: () {
+                            setDialogState(() {
+                              etaController.text = chip;
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: etaController,
+                      style: adminInputText,
+                      decoration: adminInputDecoration(
+                        hint: "Or type custom ETA (e.g. 8 mins, On scene)...",
+                        icon: Icons.timer_outlined,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 18),
+                  const AdminFieldLabel("DISPATCHER & OPERATIONAL NOTES"),
+                  TextField(
+                    controller: notesController,
+                    maxLines: 4,
+                    style: adminInputText,
+                    decoration: adminInputDecoration(
+                      hint:
+                          "Log responder dispatch units, field actions, or resident advisory...",
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -1287,10 +853,10 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
   }
 
   void _showReportDetails(BuildContext context, IncidentEntity report) {
-    final statusColor = _getStatusColor(report.status);
+    final statusTone = _getStatusTone(report.status);
     final statusLabel = _getStatusLabel(report.status);
     final urgency = report.urgencyStatus?.toUpperCase() ?? "PENDING";
-    final urgencyColor = _getUrgencyColor(urgency);
+    final urgencyTone = _getUrgencyTone(urgency);
 
     final fullAddress = BarangaySectorHelper.formatReadableAddress(
       resolvedAddress: report.resolvedAddress,
@@ -1317,374 +883,230 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     showDialog(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF0D1627),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
-          ),
-          titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          actionsPadding: const EdgeInsets.fromLTRB(24, 16, 24, 20),
-          title: Row(
+        return AdminDialog(
+          icon: Icons.shield_outlined,
+          title:
+              "Incident Dossier #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+          subtitle: _formatDateTime(report.timestamp),
+          maxWidth: 660,
+          actions: [
+            AdminButton(
+              label: "Close",
+              style: AdminButtonStyle.ghost,
+              onPressed: () => Navigator.pop(dialogContext),
+            ),
+            AdminButton(
+              label: "Update Status / Notes",
+              icon: Icons.edit,
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _showEditReportDialog(context, report);
+              },
+            ),
+          ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.shield_outlined,
-                    color: Color(0xFF0A84FF), size: 22),
-              ),
-              SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Incident Dossier #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 18,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      _formatDateTime(report.timestamp),
-                      style: const TextStyle(
-                          color: Color(0xFF7B8DB0), fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.4)),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: 600,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
                 children: [
-                  // Prominent On-Behalf Alert Callout (if filed for someone else)
-                  if (report.isReportingOnBehalf) ...[
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 14),
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF9500).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: const Color(0xFFFF9500).withValues(alpha: 0.5),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF9500).withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.people_alt,
-                                color: Color(0xFFFF9500), size: 22),
-                          ),
-                          SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      "REPORTED ON BEHALF (OFF-SITE FILING)",
-                                      style: TextStyle(
-                                        color: Color(0xFFFF9500),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.6,
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFF9500)
-                                            .withValues(alpha: 0.25),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        "ACTION REQUIRED",
-                                        style: TextStyle(
-                                          color: Color(0xFFFF9500),
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "On-Scene Victim: ${report.victimName?.isNotEmpty == true ? report.victimName! : 'Unspecified'}",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                                if (report.victimPhone != null &&
-                                    report.victimPhone!.trim().isNotEmpty) ...[
-                                  SizedBox(height: 2),
-                                  Text(
-                                    "Victim Phone: ${report.victimPhone!}",
-                                    style: const TextStyle(
-                                      color: Color(0xFF00E5FF),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                          if (report.victimPhone != null &&
-                              report.victimPhone!.trim().isNotEmpty)
-                            IconButton(
-                              onPressed: () async {
-                                final uri = Uri.parse(
-                                    "tel:${report.victimPhone!.replaceAll(' ', '').trim()}");
-                                if (await canLaunchUrl(uri)) {
-                                  await launchUrl(uri);
-                                }
-                              },
-                              icon: Icon(Icons.phone_in_talk,
-                                  color: Color(0xFF00E5FF), size: 20),
-                              style: IconButton.styleFrom(
-                                backgroundColor: const Color(0xFF00E5FF)
-                                    .withValues(alpha: 0.15),
-                              ),
-                              tooltip: "Call Victim Directly",
-                            ),
-                        ],
-                      ),
+                  AdminPill(label: statusLabel, tone: statusTone),
+                  if (report.isBlotter)
+                    const AdminPill(
+                      label: "Blotter Entry",
+                      tone: AdminTone.violet,
+                      icon: Icons.gavel_rounded,
                     ),
-                  ],
+                ],
+              ),
+              const SizedBox(height: 16),
 
-                  // Urgency & Category Banner
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "CATEGORY",
-                                style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                report.category,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 32,
-                          width: 1,
-                          color: const Color(0xFF1E2D4A),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "TRIAGE URGENCY LEVEL",
-                                style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: BoxDecoration(
-                                      color: urgencyColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    urgency,
-                                    style: TextStyle(
-                                      color: urgencyColor,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 32,
-                          width: 1,
-                          color: const Color(0xFF1E2D4A),
-                        ),
-                        SizedBox(width: 16),
-                        Column(
+              // Prominent On-Behalf Alert Callout (if filed for someone else)
+              if (report.isReportingOnBehalf) ...[
+                AdminInset(
+                  tone: AdminTone.orange,
+                  child: Row(
+                    children: [
+                      const AdminIconTile(
+                        icon: Icons.people_alt,
+                        tone: AdminTone.orange,
+                        size: 42,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            const Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  "REPORTED ON BEHALF (OFF-SITE FILING)",
+                                  style: TextStyle(
+                                    color: AdminColors.orangeLight,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.6,
+                                  ),
+                                ),
+                                AdminPill(
+                                  label: "ACTION REQUIRED",
+                                  tone: AdminTone.orange,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
                             Text(
-                              "COMMUNITY CONFIRMED",
-                              style: TextStyle(
-                                color: Color(0xFF7B8DB0),
-                                fontSize: 10,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.5,
+                              "On-Scene Victim: ${report.victimName?.isNotEmpty == true ? report.victimName! : 'Unspecified'}",
+                              style: const TextStyle(
+                                color: AdminColors.textStrong,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
-                            SizedBox(height: 2),
-                            Text(
-                              "${report.upvoteCount} citizen${report.upvoteCount == 1 ? '' : 's'}",
-                              style: const TextStyle(
-                                color: Color(0xFF30D158),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
+                            if (report.victimPhone != null &&
+                                report.victimPhone!.trim().isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                "Victim Phone: ${report.victimPhone!}",
+                                style: const TextStyle(
+                                  color: AdminColors.cyanText,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      if (report.victimPhone != null &&
+                          report.victimPhone!.trim().isNotEmpty) ...[
+                        const SizedBox(width: 10),
+                        AdminIconAction(
+                          icon: Icons.phone_in_talk,
+                          tooltip: "Call Victim Directly",
+                          tone: AdminTone.cyan,
+                          size: 40,
+                          onPressed: () async {
+                            final uri = Uri.parse(
+                                "tel:${report.victimPhone!.replaceAll(' ', '').trim()}");
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri);
+                            }
+                          },
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
+
+              // Urgency & Category Banner
+              AdminInset(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                child: Wrap(
+                  spacing: 28,
+                  runSpacing: 14,
+                  children: [
+                    _DossierStat(
+                      label: "CATEGORY",
+                      child: Text(
+                        report.category,
+                        style: const TextStyle(
+                          color: AdminColors.textStrong,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                    _DossierStat(
+                      label: "TRIAGE URGENCY LEVEL",
+                      child: AdminPill(
+                        label: urgency,
+                        tone: urgencyTone,
+                        solid: urgencyTone == AdminTone.red,
+                      ),
+                    ),
+                    _DossierStat(
+                      label: "COMMUNITY CONFIRMED",
+                      child: Text(
+                        "${report.upvoteCount} citizen${report.upvoteCount == 1 ? '' : 's'}",
+                        style: const TextStyle(
+                          color: AdminColors.successText,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    if (report.estimatedResponseTime != null &&
+                        report.estimatedResponseTime!.isNotEmpty)
+                      _DossierStat(
+                        label: "DISPATCH ETA",
+                        labelColor: AdminColors.cyanSoft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.timer_outlined,
+                              size: 13,
+                              color: AdminColors.cyanText,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                report.estimatedResponseTime!,
+                                style: const TextStyle(
+                                  color: AdminColors.cyanText,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                ),
                               ),
                             ),
                           ],
                         ),
-                        if (report.estimatedResponseTime != null &&
-                            report.estimatedResponseTime!.isNotEmpty) ...[
-                          Container(
-                            height: 32,
-                            width: 1,
-                            color: const Color(0xFF1E2D4A),
-                          ),
-                          SizedBox(width: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "DISPATCH ETA",
-                                style: TextStyle(
-                                  color: Color(0xFF00E5FF),
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  Icon(Icons.timer_outlined,
-                                      size: 13, color: Color(0xFF00E5FF)),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    report.estimatedResponseTime!,
-                                    style: const TextStyle(
-                                      color: Color(0xFF00E5FF),
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 16),
-
-                  // Reporter Identity Box
-                  _buildSectionHeader(
-                      Icons.person_pin, "REPORTER IDENTITY (LGU COMMAND VIEW)"),
-                  SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: report.isAnonymous
-                            ? const Color(0xFFFF9500).withValues(alpha: 0.4)
-                            : const Color(0xFF1E2D4A),
                       ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Reporter Identity Box
+              _buildSectionHeader(
+                  Icons.person_pin, "REPORTER IDENTITY (LGU COMMAND VIEW)"),
+              const SizedBox(height: 8),
+              AdminInset(
+                tone: report.isAnonymous ? AdminTone.orange : null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 10,
+                      runSpacing: 10,
                       children: [
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: const Color(0xFF1E2D4A),
-                              child: Text(
-                                (report.reporterName != null &&
-                                        report.reporterName!.isNotEmpty)
-                                    ? report.reporterName![0].toUpperCase()
-                                    : "R",
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                            AdminAvatar(
+                              initial: (report.reporterName != null &&
+                                      report.reporterName!.isNotEmpty)
+                                  ? report.reporterName![0].toUpperCase()
+                                  : "R",
                             ),
-                            SizedBox(width: 12),
-                            Expanded(
+                            const SizedBox(width: 12),
+                            Flexible(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
                                     (report.reporterName != null &&
@@ -1692,8 +1114,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         ? report.reporterName!
                                         : "Verified Resident",
                                     style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                                      color: AdminColors.textStrong,
+                                      fontWeight: FontWeight.w800,
                                       fontSize: 14,
                                     ),
                                   ),
@@ -1702,665 +1124,565 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     Text(
                                       report.reporterEmail!,
                                       style: const TextStyle(
-                                          color: Color(0xFF7B8DB0),
-                                          fontSize: 12),
+                                        color: AdminColors.textLight,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                 ],
                               ),
                             ),
-                            if (report.isAnonymous)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF9500)
-                                      .withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                      color: const Color(0xFFFF9500)
-                                          .withValues(alpha: 0.4)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.lock_outline,
-                                        size: 12, color: Color(0xFFFF9500)),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      "Anonymous to Public",
-                                      style: TextStyle(
-                                        color: Color(0xFFFF9500),
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                           ],
                         ),
-                        if (report.isAnonymous) ...[
-                          SizedBox(height: 8),
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF9500)
-                                  .withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(8),
+                        if (report.isAnonymous)
+                          const AdminPill(
+                            label: "Anonymous to Public",
+                            tone: AdminTone.orange,
+                            icon: Icons.lock_outline,
+                          ),
+                      ],
+                    ),
+                    if (report.isAnonymous) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              size: 14,
+                              color: AdminColors.orangeLight,
                             ),
-                            child: Row(
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "Citizen requested public anonymity. Identity is only visible to Command Center Dispatchers for verification and emergency response.",
+                                style: TextStyle(
+                                  color: AdminColors.amberLight,
+                                  fontSize: 11.5,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
+                    Text(
+                      "Account UID: ${report.reporterId}",
+                      style: const TextStyle(
+                        color: AdminColors.textHint,
+                        fontSize: 10.5,
+                        fontFamily: 'monospace',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (report.isReportingOnBehalf) ...[
+                const SizedBox(height: 16),
+                _buildSectionHeader(Icons.people_alt,
+                    "ON-SCENE AFFECTED PERSON (REPORTED ON BEHALF)"),
+                const SizedBox(height: 8),
+                AdminInset(
+                  tone: AdminTone.orange,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.person_pin_circle,
+                            color: AdminColors.orangeLight,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              report.victimName?.isNotEmpty == true
+                                  ? report.victimName!
+                                  : "Unspecified Name",
+                              style: const TextStyle(
+                                color: AdminColors.textStrong,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const AdminPill(
+                            label: "OFF-SITE FILING",
+                            tone: AdminTone.orange,
+                          ),
+                        ],
+                      ),
+                      if (report.victimPhone != null &&
+                          report.victimPhone!.trim().isNotEmpty) ...[
+                        const SizedBox(height: 10),
+                        Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          runSpacing: 8,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.info_outline,
-                                    size: 14, color: Color(0xFFFF9500)),
-                                SizedBox(width: 8),
-                                Expanded(
+                                const Icon(
+                                  Icons.phone,
+                                  color: AdminColors.cyanText,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
                                   child: Text(
-                                    "Citizen requested public anonymity. Identity is only visible to Command Center Dispatchers for verification and emergency response.",
-                                    style: TextStyle(
-                                        color: Color(0xFFFFB340), fontSize: 11),
+                                    "Contact: ${report.victimPhone!}",
+                                    style: const TextStyle(
+                                      color: AdminColors.cyanText,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
+                            AdminButton(
+                              label: "Call Victim",
+                              icon: Icons.phone_in_talk,
+                              style: AdminButtonStyle.cyan,
+                              height: 36,
+                              onPressed: () async {
+                                final uri = Uri.parse(
+                                    "tel:${report.victimPhone!.replaceAll(' ', '').trim()}");
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // Location Information Box
+              _buildSectionHeader(Icons.location_on,
+                  "GEOLOCATION & REVERSE-GEOCODED STREET"),
+              const SizedBox(height: 8),
+              AdminInset(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.place,
+                          color: AdminColors.primaryText,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            fullAddress,
+                            style: const TextStyle(
+                              color: AdminColors.textDark,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              height: 1.35,
+                            ),
                           ),
-                        ],
-                        SizedBox(height: 6),
-                        Text(
-                          "Account UID: ${report.reporterId}",
-                          style: const TextStyle(
-                              color: Color(0xFF4A5568),
-                              fontSize: 10,
-                              fontFamily: 'monospace'),
                         ),
                       ],
                     ),
-                  ),
-
-                  if (report.isReportingOnBehalf) ...[
-                    SizedBox(height: 16),
-                    _buildSectionHeader(Icons.people_alt,
-                        "ON-SCENE AFFECTED PERSON (REPORTED ON BEHALF)"),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF9500).withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: const Color(0xFFFF9500).withValues(alpha: 0.4)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    if (hasCoords) ...[
+                      const SizedBox(height: 12),
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 10,
+                        runSpacing: 10,
                         children: [
-                          Row(
-                            children: [
-                              Icon(Icons.person_pin_circle,
-                                  color: Color(0xFFFF9500), size: 18),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  report.victimName?.isNotEmpty == true
-                                      ? report.victimName!
-                                      : "Unspecified Name",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFF9500).withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  "OFF-SITE FILING",
-                                  style: TextStyle(
-                                    color: Color(0xFFFF9500),
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            "GPS: ${report.latitude.toStringAsFixed(6)}, ${report.longitude.toStringAsFixed(6)}",
+                            style: const TextStyle(
+                              color: AdminColors.textLight,
+                              fontSize: 11,
+                              fontFamily: 'monospace',
+                            ),
                           ),
-                          if (report.victimPhone != null &&
-                              report.victimPhone!.trim().isNotEmpty) ...[
-                            SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.phone,
-                                        color: Color(0xFF00E5FF), size: 14),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      "Contact: ${report.victimPhone!}",
-                                      style: const TextStyle(
-                                        color: Color(0xFF00E5FF),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                          AdminButton(
+                            label: "Open in Google Maps",
+                            icon: Icons.map_outlined,
+                            style: AdminButtonStyle.slate,
+                            height: 36,
+                            onPressed: () {
+                              launchUrl(
+                                Uri.parse(
+                                    "https://www.google.com/maps/search/?api=1&query=${report.latitude},${report.longitude}"),
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Description
+              _buildSectionHeader(Icons.description, "INCIDENT DESCRIPTION"),
+              const SizedBox(height: 8),
+              AdminInset(
+                child: Text(
+                  report.description.isNotEmpty
+                      ? report.description
+                      : "No description provided.",
+                  style: const TextStyle(
+                    color: AdminColors.textBody,
+                    fontSize: 13,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Multimedia Evidence (Photo & Video)
+              _buildSectionHeader(Icons.perm_media, "MULTIMEDIA EVIDENCE"),
+              const SizedBox(height: 8),
+              if (!hasPhoto && !hasVideo)
+                const AdminInset(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.attachment,
+                        color: AdminColors.textHint,
+                        size: 16,
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "No photo or video attachments submitted.",
+                          style: TextStyle(
+                            color: AdminColors.textLight,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              // Photo preview
+              if (isRemotePhoto) ...[
+                AdminInset(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          InAppImageViewerDialog.show(
+                            context,
+                            imageUrl: report.photoUrl!,
+                            title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                          );
+                        },
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Tooltip(
+                            message: "Click to open full resolution viewer",
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(15),
+                              ),
+                              child: Image.network(
+                                report.photoUrl!,
+                                height: 220,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    height: 220,
+                                    color: AdminColors.well,
+                                    child: const Center(
+                                      child: CircularProgressIndicator(),
                                     ),
-                                  ],
-                                ),
-                                InkWell(
-                                  onTap: () async {
-                                    final uri = Uri.parse(
-                                        "tel:${report.victimPhone!.replaceAll(' ', '').trim()}");
-                                    if (await canLaunchUrl(uri)) {
-                                      await launchUrl(uri);
-                                    }
-                                  },
-                                  borderRadius: BorderRadius.circular(6),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF00E5FF)
-                                          .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                          color: const Color(0xFF00E5FF)
-                                              .withValues(alpha: 0.4)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                  );
+                                },
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                  height: 140,
+                                  color: AdminColors.well,
+                                  padding: const EdgeInsets.all(12),
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.phone_in_talk,
-                                            color: Color(0xFF00E5FF), size: 12),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          "Call Victim",
+                                        const Icon(
+                                          Icons.broken_image_outlined,
+                                          color: AdminColors.textLight,
+                                          size: 32,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        const Text(
+                                          "Image preview blocked by browser security.",
+                                          textAlign: TextAlign.center,
                                           style: TextStyle(
-                                            color: Color(0xFF00E5FF),
+                                            color: AdminColors.textLight,
                                             fontSize: 11,
-                                            fontWeight: FontWeight.w700,
                                           ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        TextButton.icon(
+                                          icon: const Icon(
+                                            Icons.open_in_new,
+                                            size: 14,
+                                          ),
+                                          label: const Text(
+                                            "Open in Cloud Viewer",
+                                            style: TextStyle(fontSize: 11),
+                                          ),
+                                          onPressed: () => launchUrl(
+                                              Uri.parse(report.photoUrl!),
+                                              mode: LaunchMode.externalApplication),
                                         ),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  SizedBox(height: 16),
-
-                  // Location Information Box
-                  _buildSectionHeader(Icons.location_on,
-                      "GEOLOCATION & REVERSE-GEOCODED STREET"),
-                  SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.place,
-                                color: Color(0xFF0A84FF), size: 18),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                fullAddress,
-                                style: const TextStyle(
-                                  color: Color(0xFFE8F0FE),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.3,
-                                ),
                               ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          runSpacing: 8,
+                          children: [
+                            const Text(
+                              "Citizen Attached Photo",
+                              style: TextStyle(
+                                color: AdminColors.textLight,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            AdminButton(
+                              label: "View Full Resolution",
+                              icon: Icons.fullscreen_rounded,
+                              style: AdminButtonStyle.ghost,
+                              height: 36,
+                              onPressed: () {
+                                InAppImageViewerDialog.show(
+                                  context,
+                                  imageUrl: report.photoUrl!,
+                                  title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                                );
+                              },
                             ),
                           ],
                         ),
-                        if (hasCoords) ...[
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "GPS: ${report.latitude.toStringAsFixed(6)}, ${report.longitude.toStringAsFixed(6)}",
-                                style: const TextStyle(
-                                  color: Color(0xFF7B8DB0),
-                                  fontSize: 11,
-                                  fontFamily: 'monospace',
-                                ),
-                              ),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF1E2D4A),
-                                  foregroundColor: const Color(0xFF0A84FF),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                ),
-                                icon: Icon(Icons.map, size: 14),
-                                label: Text("Open in Google Maps",
-                                    style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold)),
-                                onPressed: () {
-                                  launchUrl(
-                                    Uri.parse(
-                                        "https://www.google.com/maps/search/?api=1&query=${report.latitude},${report.longitude}"),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-
-                  SizedBox(height: 16),
-
-                  // Description
-                  _buildSectionHeader(
-                      Icons.description, "INCIDENT DESCRIPTION"),
-                  SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
-                    ),
-                    child: Text(
-                      report.description.isNotEmpty
-                          ? report.description
-                          : "No description provided.",
-                      style: const TextStyle(
-                          color: Color(0xFFE8F0FE), fontSize: 13, height: 1.4),
-                    ),
-                  ),
-
-                  SizedBox(height: 16),
-
-                  // Multimedia Evidence (Photo & Video)
-                  _buildSectionHeader(Icons.perm_media, "MULTIMEDIA EVIDENCE"),
-                  SizedBox(height: 8),
-                  if (!hasPhoto && !hasVideo)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF1E2D4A)),
+                ),
+                const SizedBox(height: 12),
+              ] else if (isLocalPhoto) ...[
+                AdminInset(
+                  tone: AdminTone.orange,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AdminIconTile(
+                        icon: Icons.phonelink_erase_rounded,
+                        tone: AdminTone.orange,
+                        size: 40,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.attachment,
-                              color: Color(0xFF4A5568), size: 16),
-                          SizedBox(width: 10),
-                          Text(
-                            "No photo or video attachments submitted.",
-                            style: TextStyle(
-                                color: Color(0xFF7B8DB0), fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Photo preview
-                  if (isRemotePhoto) ...[
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color(0xFF1E2D4A)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              InAppImageViewerDialog.show(
-                                context,
-                                imageUrl: report.photoUrl!,
-                                title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
-                              );
-                            },
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: Tooltip(
-                                message: "Click to open full resolution viewer",
-                                child: ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                      top: Radius.circular(14)),
-                                  child: Image.network(
-                                    report.photoUrl!,
-                                    height: 220,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    loadingBuilder:
-                                        (context, child, loadingProgress) {
-                                      if (loadingProgress == null) return child;
-                                      return Container(
-                                        height: 220,
-                                        color: const Color(0xFF060D1A),
-                                        child: Center(
-                                            child: CircularProgressIndicator()),
-                                      );
-                                    },
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        Container(
-                                      height: 140,
-                                      color: const Color(0xFF060D1A),
-                                      padding: const EdgeInsets.all(12),
-                                      child: Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.broken_image_outlined,
-                                                color: Color(0xFF7B8DB0), size: 32),
-                                            SizedBox(height: 6),
-                                            Text(
-                                              "Image preview blocked by browser security.",
-                                              style: TextStyle(
-                                                  color: Color(0xFF7B8DB0),
-                                                  fontSize: 11),
-                                            ),
-                                            SizedBox(height: 6),
-                                            TextButton.icon(
-                                              icon: Icon(Icons.open_in_new, size: 14),
-                                              label: Text("Open in Cloud Viewer",
-                                                  style: TextStyle(fontSize: 11)),
-                                              onPressed: () => launchUrl(
-                                                  Uri.parse(report.photoUrl!),
-                                                  mode: LaunchMode.externalApplication),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              "Evidence Stored Locally on Citizen Device",
+                              style: TextStyle(
+                                color: AdminColors.textStrong,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13,
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text("Citizen Attached Photo",
-                                    style: TextStyle(
-                                        color: Color(0xFF7B8DB0), fontSize: 12)),
-                                TextButton.icon(
-                                  icon: Icon(Icons.fullscreen_rounded, size: 16),
-                                  label: Text("View Full Resolution",
-                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-                                  onPressed: () {
-                                    InAppImageViewerDialog.show(
-                                      context,
-                                      imageUrl: report.photoUrl!,
-                                      title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
-                                    );
-                                  },
-                                ),
-                              ],
+                            const SizedBox(height: 4),
+                            const Text(
+                              "This report was saved while the citizen was offline or before cloud upload finished. The photo was cached on the reporting phone.",
+                              style: TextStyle(
+                                color: AdminColors.textLight,
+                                fontSize: 11.5,
+                                height: 1.35,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                  ] else if (isLocalPhoto) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: const Color(0xFFFF9500)
-                                .withValues(alpha: 0.4)),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF9500)
-                                  .withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
+                            const SizedBox(height: 6),
+                            Text(
+                              "Path: ${report.photoUrl}",
+                              style: const TextStyle(
+                                color: AdminColors.textHint,
+                                fontSize: 10,
+                                fontFamily: 'monospace',
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            child: Icon(Icons.phonelink_erase_rounded,
-                                color: Color(0xFFFF9500), size: 20),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Evidence Stored Locally on Citizen Device",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  "This report was saved while the citizen was offline or before cloud upload finished. The photo was cached on the reporting phone.",
-                                  style: TextStyle(
-                                    color: Color(0xFF7B8DB0),
-                                    fontSize: 11.5,
-                                    height: 1.35,
-                                  ),
-                                ),
-                                SizedBox(height: 6),
-                                Text(
-                                  "Path: ${report.photoUrl}",
-                                  style: const TextStyle(
-                                    color: Color(0xFF4A5568),
-                                    fontSize: 10,
-                                    fontFamily: 'monospace',
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 12),
-                  ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
 
-                  // Video preview / action
-                  if (isRemoteVideo) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: const Color(0xFF0A84FF)
-                                .withValues(alpha: 0.4)),
-                      ),
-                      child: Row(
+              // Video preview / action
+              if (isRemoteVideo) ...[
+                AdminInset(
+                  tone: AdminTone.blue,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 14,
+                    runSpacing: 12,
+                    children: [
+                      const Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0A84FF)
-                                  .withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(Icons.videocam,
-                                color: Color(0xFF0A84FF), size: 24),
+                          AdminIconTile(
+                            icon: Icons.videocam,
+                            tone: AdminTone.blue,
+                            size: 44,
                           ),
                           SizedBox(width: 14),
-                          const Expanded(
+                          Flexible(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   "Video Evidence Attached",
                                   style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13),
+                                    color: AdminColors.textStrong,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13,
+                                  ),
                                 ),
                                 SizedBox(height: 2),
                                 Text(
                                   "High-definition video recording captured at scene",
                                   style: TextStyle(
-                                      color: Color(0xFF7B8DB0), fontSize: 11),
+                                    color: AdminColors.textLight,
+                                    fontSize: 11,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0A84FF),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 10),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
-                                icon: Icon(Icons.play_circle_fill_rounded, size: 18),
-                                label: Text("Play In-App",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold, fontSize: 12)),
-                                onPressed: () {
-                                  InAppEvidencePlayerDialog.show(
-                                    context,
-                                    videoUrl: report.videoUrl!,
-                                    title: "Video Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
-                                  );
-                                },
-                              ),
-                              SizedBox(width: 8),
-                              IconButton(
-                                icon: Icon(Icons.open_in_new_rounded,
-                                    color: Color(0xFF7B8DB0), size: 18),
-                                tooltip: "Open in External Tab",
-                                onPressed: () => launchUrl(
-                                    Uri.parse(InAppEvidencePlayerDialog.formatPlayableVideoUrl(report.videoUrl!)),
-                                    mode: LaunchMode.externalApplication),
-                              ),
-                            ],
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AdminButton(
+                            label: "Play In-App",
+                            icon: Icons.play_circle_fill_rounded,
+                            height: 40,
+                            onPressed: () {
+                              InAppEvidencePlayerDialog.show(
+                                context,
+                                videoUrl: report.videoUrl!,
+                                title: "Video Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          AdminIconAction(
+                            icon: Icons.open_in_new_rounded,
+                            tooltip: "Open in External Tab",
+                            size: 40,
+                            onPressed: () => launchUrl(
+                                Uri.parse(InAppEvidencePlayerDialog.formatPlayableVideoUrl(report.videoUrl!)),
+                                mode: LaunchMode.externalApplication),
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(height: 12),
-                  ] else if (isLocalVideo) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF060D1A),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: const Color(0xFFFF9500)
-                                .withValues(alpha: 0.4)),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ] else if (isLocalVideo) ...[
+                const AdminInset(
+                  tone: AdminTone.orange,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.videocam_off_rounded,
+                        color: AdminColors.orangeLight,
+                        size: 20,
                       ),
-                      child: Row(
-                        children: const [
-                          Icon(Icons.videocam_off_rounded,
-                              color: Color(0xFFFF9500), size: 20),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "Video evidence was cached locally on citizen device and not uploaded to cloud.",
-                              style: TextStyle(
-                                  color: Color(0xFF7B8DB0), fontSize: 11.5),
-                            ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "Video evidence was cached locally on citizen device and not uploaded to cloud.",
+                          style: TextStyle(
+                            color: AdminColors.textLight,
+                            fontSize: 11.5,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 12),
-                  ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
 
-                  // Dispatcher Notes
-                  if (report.dispatcherNotes != null &&
-                      report.dispatcherNotes!.isNotEmpty) ...[
-                    SizedBox(height: 8),
-                    _buildSectionHeader(
-                        Icons.speaker_notes, "DISPATCHER & OPERATIONAL LOGS"),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color:
-                            const Color(0xFF0A84FF).withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                            color: const Color(0xFF0A84FF)
-                                .withValues(alpha: 0.3)),
-                      ),
-                      child: Text(
-                        report.dispatcherNotes!,
-                        style: const TextStyle(
-                            color: Color(0xFFE8F0FE), height: 1.4, fontSize: 13),
-                      ),
+              // Dispatcher Notes
+              if (report.dispatcherNotes != null &&
+                  report.dispatcherNotes!.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _buildSectionHeader(
+                    Icons.speaker_notes, "DISPATCHER & OPERATIONAL LOGS"),
+                const SizedBox(height: 8),
+                AdminInset(
+                  tone: AdminTone.blue,
+                  child: Text(
+                    report.dispatcherNotes!,
+                    style: const TextStyle(
+                      color: AdminColors.textDark,
+                      height: 1.4,
+                      fontSize: 13,
                     ),
-                  ],
-                ],
-              ),
-            ),
+                  ),
+                ),
+              ],
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text("Close",
-                  style: TextStyle(color: Color(0xFF7B8DB0))),
-            ),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A84FF),
-                foregroundColor: Colors.white,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)),
-              ),
-              icon: Icon(Icons.edit, size: 16),
-              label: Text("Update Status / Notes",
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                _showEditReportDialog(context, report);
-              },
-            ),
-          ],
         );
       },
     );
@@ -2369,17 +1691,74 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
   Widget _buildSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF7B8DB0)),
-        SizedBox(width: 6),
-        Text(
-          title,
-          style: const TextStyle(
-            color: Color(0xFF7B8DB0),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 0.5,
+        Icon(icon, size: 15, color: AdminColors.textHint),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: AdminColors.textHint,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1,
+            ),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// An uppercase table heading.
+class _ColumnLabel extends StatelessWidget {
+  const _ColumnLabel(this.label);
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    // Long headings wrap onto a second line, so every column fits at 1440px.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 112),
+      child: Text(
+        label.toUpperCase(),
+        maxLines: 2,
+        softWrap: true, // DataTable turns wrapping off for headings
+        style: AdminTable.header.copyWith(height: 1.3),
+      ),
+    );
+  }
+}
+
+/// A small labelled value in the dossier summary strip.
+class _DossierStat extends StatelessWidget {
+  const _DossierStat({
+    required this.label,
+    required this.child,
+    this.labelColor = AdminColors.textHint,
+  });
+
+  final String label;
+  final Widget child;
+  final Color labelColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: labelColor,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 6),
+        child,
       ],
     );
   }

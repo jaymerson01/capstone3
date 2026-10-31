@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/welcome_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
@@ -24,6 +25,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,11 +67,12 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ResQ',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF49769F)),
-          scaffoldBackgroundColor: const Color(0xFF060D1A),
-          useMaterial3: true,
-        ),
+        // Legacy combined entry: stays in English. The language setting is
+        // wired up in main_resident.dart.
+        locale: const Locale('en'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        theme: AppTheme.resident(),
         home: const AuthWrapper(),
         routes: {
           '/welcome': (context) => const WelcomePage(),

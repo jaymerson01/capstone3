@@ -10,11 +10,28 @@ class CameraServiceImpl implements CameraService {
   final ImagePicker _picker;
   final http.Client _httpClient;
 
+  /// Upload the file's bytes instead of streaming it from disk. Browsers have
+  /// no file paths (a picked file is only a blob: URL), so this is on for web.
+  final bool uploadFromBytes;
+
+  /// On web, what the picker returned for each blob: URL, so uploads and size
+  /// checks can still read the file's name, bytes and size.
+  final Map<String, ({XFile file, int size})> _webPicks = {};
+
   CameraServiceImpl({
     ImagePicker? picker,
     http.Client? httpClient,
+    this.uploadFromBytes = kIsWeb,
   })  : _picker = picker ?? ImagePicker(),
         _httpClient = httpClient ?? http.Client();
+
+  Future<File?> _keep(XFile? picked) async {
+    if (picked == null) return null;
+    if (kIsWeb) {
+      _webPicks[picked.path] = (file: picked, size: await picked.length());
+    }
+    return File(picked.path);
+  }
 
   @override
   Future<File?> pickImageFromGallery() async {
@@ -24,8 +41,7 @@ class CameraServiceImpl implements CameraService {
       maxHeight: 1280,
       imageQuality: 80,
     );
-    if (pickedFile == null) return null;
-    return File(pickedFile.path);
+    return _keep(pickedFile);
   }
 
   @override
@@ -36,8 +52,7 @@ class CameraServiceImpl implements CameraService {
       maxHeight: 1280,
       imageQuality: 80,
     );
-    if (pickedFile == null) return null;
-    return File(pickedFile.path);
+    return _keep(pickedFile);
   }
 
   @override
@@ -46,8 +61,7 @@ class CameraServiceImpl implements CameraService {
       source: ImageSource.gallery,
       maxDuration: const Duration(seconds: 30),
     );
-    if (pickedFile == null) return null;
-    return File(pickedFile.path);
+    return _keep(pickedFile);
   }
 
   @override
@@ -58,14 +72,13 @@ class CameraServiceImpl implements CameraService {
       source: ImageSource.camera,
       maxDuration: maxDuration,
     );
-    if (pickedFile == null) return null;
-    return File(pickedFile.path);
+    return _keep(pickedFile);
   }
 
   @override
   double getFileSizeInMB(File file) {
     try {
-      final bytes = file.lengthSync();
+      final bytes = kIsWeb ? _webPicks[file.path]?.size ?? 0 : file.lengthSync();
       return bytes / (1024 * 1024);
     } catch (_) {
       return 0.0;
@@ -89,7 +102,8 @@ class CameraServiceImpl implements CameraService {
     const maxRetries = 3;
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        final fileSizeKB = (file.lengthSync() / 1024).toStringAsFixed(1);
+        final part = await _filePart(file);
+        final fileSizeKB = (part.length / 1024).toStringAsFixed(1);
         debugPrint(
             "Uploading ${isVideo ? 'video' : 'image'} ($fileSizeKB KB) to Cloudinary ($cloudName) [Attempt $attempt/$maxRetries]...");
 
@@ -100,7 +114,7 @@ class CameraServiceImpl implements CameraService {
         final request = http.MultipartRequest('POST', uri)
           ..fields['upload_preset'] = uploadPreset
           ..fields['folder'] = isVideo ? 'resq_videos' : 'resq_photos'
-          ..files.add(await http.MultipartFile.fromPath('file', file.path));
+          ..files.add(part);
 
         final streamedResponse = await _httpClient.send(request).timeout(
               Duration(seconds: isVideo ? 120 : 60),
@@ -139,5 +153,19 @@ class CameraServiceImpl implements CameraService {
       }
     }
     return file.uri.toString();
+  }
+
+  Future<http.MultipartFile> _filePart(File file) async {
+    if (!uploadFromBytes) {
+      return http.MultipartFile.fromPath('file', file.path);
+    }
+    final picked = _webPicks[file.path]?.file ?? XFile(file.path);
+    final bytes = await picked.readAsBytes();
+    // Cloudinary only treats the part as an upload when it has a filename.
+    return http.MultipartFile.fromBytes(
+      'file',
+      bytes,
+      filename: picked.name.isNotEmpty ? picked.name : 'evidence',
+    );
   }
 }

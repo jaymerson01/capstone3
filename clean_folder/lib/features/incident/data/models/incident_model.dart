@@ -143,6 +143,10 @@ class IncidentModel extends IncidentEntity {
   @override
   final String? estimatedResponseTime;
 
+  @HiveField(23)
+  @override
+  final bool isBlotter;
+
   @override
   final bool isSynced;
 
@@ -172,6 +176,7 @@ class IncidentModel extends IncidentEntity {
     String? victimName,
     String? victimPhone,
     String? estimatedResponseTime,
+    bool? isBlotter,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -199,6 +204,7 @@ class IncidentModel extends IncidentEntity {
       victimName: victimName ?? this.victimName,
       victimPhone: victimPhone ?? this.victimPhone,
       estimatedResponseTime: estimatedResponseTime ?? this.estimatedResponseTime,
+      isBlotter: isBlotter ?? this.isBlotter,
     );
   }
 
@@ -228,6 +234,7 @@ class IncidentModel extends IncidentEntity {
     this.victimName,
     this.victimPhone,
     this.estimatedResponseTime,
+    this.isBlotter = false,
   }) : super(
           id: id,
           reporterId: reporterId,
@@ -253,6 +260,7 @@ class IncidentModel extends IncidentEntity {
           victimName: victimName,
           victimPhone: victimPhone,
           estimatedResponseTime: estimatedResponseTime,
+          isBlotter: isBlotter,
         );
 
   factory IncidentModel.fromFirestore(DocumentSnapshot doc) {
@@ -329,6 +337,7 @@ class IncidentModel extends IncidentEntity {
       victimName: data['victimName'] as String?,
       victimPhone: data['victimPhone'] as String?,
       estimatedResponseTime: data['estimatedResponseTime'] as String?,
+      isBlotter: data['isBlotter'] as bool? ?? false,
     );
   }
 
@@ -386,6 +395,7 @@ class IncidentModel extends IncidentEntity {
       victimName: data['victimName'] as String? ?? victimName,
       victimPhone: data['victimPhone'] as String? ?? victimPhone,
       estimatedResponseTime: estimatedResponseTime,
+      isBlotter: isBlotter,
     );
   }
 
@@ -418,6 +428,7 @@ class IncidentModel extends IncidentEntity {
       'dispatcherNotes': dispatcherNotes,
       'isReportingOnBehalf': isReportingOnBehalf,
       'estimatedResponseTime': estimatedResponseTime,
+      'isBlotter': isBlotter,
     };
     if (respondedAt != null) {
       map['respondedAt'] = Timestamp.fromDate(respondedAt!);

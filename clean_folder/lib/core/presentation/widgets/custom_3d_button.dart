@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 
-/// RESQ Premium 3D Button — Spring animation, glow, haptic, glassmorphism
+/// RESQ Premium 3D Button — Neo-Tactile raised gradient, soft colored glow,
+/// press-in, haptic, and a guard against accidental double taps.
 class Custom3dButton extends StatefulWidget {
   final String text;
   final IconData? icon;
@@ -13,6 +14,9 @@ class Custom3dButton extends StatefulWidget {
   final double height;
   final double? width;
   final double borderRadius;
+
+  /// Optional edge, e.g. white on a translucent glass button.
+  final Color? borderColor;
 
   const Custom3dButton({
     super.key,
@@ -25,35 +29,15 @@ class Custom3dButton extends StatefulWidget {
     this.height = 56.0,
     this.width,
     this.borderRadius = 18.0,
+    this.borderColor,
   });
 
   @override
   State<Custom3dButton> createState() => _Custom3dButtonState();
 }
 
-class _Custom3dButtonState extends State<Custom3dButton>
-    with SingleTickerProviderStateMixin {
+class _Custom3dButtonState extends State<Custom3dButton> {
   bool _isPressed = false;
-  late AnimationController _glowController;
-  late Animation<double> _glowAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _glowController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-    _glowAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
-      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _glowController.dispose();
-    super.dispose();
-  }
 
   void _onTapDown(TapDownDetails _) {
     setState(() => _isPressed = true);
@@ -108,111 +92,106 @@ class _Custom3dButtonState extends State<Custom3dButton>
         height: widget.height,
         color: Colors.transparent,
         alignment: Alignment.center,
-        child: AnimatedBuilder(
-          animation: _glowAnimation,
-          builder: (context, child) {
-            final double glowOpacity = isDisabled
-                ? 0.0
-                : (_isPressed ? 0.25 : (0.40 * _glowAnimation.value).clamp(0.0, 1.0));
-
-            return AnimatedScale(
-              scale: _isPressed ? 0.96 : 1.0,
-              duration: const Duration(milliseconds: 120),
-              curve: Curves.easeOutCubic,
-              child: Container(
-                width: widget.width ?? double.infinity,
-                height: widget.height,
-                decoration: BoxDecoration(
-                  color: effectiveGradient == null
-                      ? (isDisabled
-                          ? effectiveBgColor.withValues(alpha: 0.5)
-                          : effectiveBgColor)
-                      : null,
-                  gradient: isDisabled ? null : effectiveGradient,
-                  borderRadius: BorderRadius.circular(widget.borderRadius),
-                  boxShadow: isDisabled
-                      ? const []
-                      : _isPressed
-                          ? [
-                              BoxShadow(
-                                color: glowColor.withValues(alpha: glowOpacity),
-                                offset: const Offset(0, 2),
-                                blurRadius: 8,
+        child: AnimatedScale(
+          scale: _isPressed ? 0.97 : 1.0,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
+            width: widget.width ?? double.infinity,
+            height: widget.height,
+            decoration: BoxDecoration(
+              color: effectiveGradient == null
+                  ? (isDisabled
+                      ? effectiveBgColor.withValues(alpha: 0.5)
+                      : effectiveBgColor)
+                  : (isDisabled ? effectiveBgColor.withValues(alpha: 0.5) : null),
+              gradient: isDisabled ? null : effectiveGradient,
+              borderRadius: BorderRadius.circular(widget.borderRadius),
+              border: widget.borderColor == null
+                  ? null
+                  : Border.all(color: widget.borderColor!, width: 1.5),
+              // Raised: a soft glow in the button's own color. Pressed: it
+              // sinks back towards the surface.
+              boxShadow: isDisabled
+                  ? const []
+                  : [
+                      BoxShadow(
+                        color: glowColor.withValues(alpha: _isPressed ? 0.3 : 0.4),
+                        offset: Offset(0, _isPressed ? 4 : 10),
+                        blurRadius: _isPressed ? 10 : 22,
+                      ),
+                    ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(widget.borderRadius),
+              child: Stack(
+                children: [
+                  // Soft top highlight
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: widget.height * 0.45,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.white
+                                .withValues(alpha: isDisabled ? 0.06 : 0.16),
+                            Colors.white.withValues(alpha: 0.0),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Button content
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.icon != null) ...[
+                            Icon(
+                              widget.icon,
+                              color: isDisabled
+                                  ? effectiveTextColor.withValues(alpha: 0.5)
+                                  : effectiveTextColor,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                          // Long labels (Filipino, large text) shrink to fit
+                          // instead of being cut off.
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                widget.text,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: isDisabled
+                                      ? effectiveTextColor.withValues(alpha: 0.5)
+                                      : effectiveTextColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.6,
+                                ),
                               ),
-                            ]
-                          : [
-                              BoxShadow(
-                                color: glowColor.withValues(alpha: glowOpacity),
-                                offset: const Offset(0, 6),
-                                blurRadius: 20,
-                                spreadRadius: 0,
-                              ),
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                offset: const Offset(0, 3),
-                                blurRadius: 10,
-                              ),
-                            ],
-                ),
-                child: child,
-              ),
-            );
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            child: Stack(
-              children: [
-                // Glossy shine overlay
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: widget.height * 0.45,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white
-                              .withValues(alpha: isDisabled ? 0.06 : 0.18),
-                          Colors.white.withValues(alpha: 0.0),
+                            ),
+                          ),
                         ],
                       ),
                     ),
                   ),
-                ),
-                // Button content
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.icon != null) ...[
-                        Icon(
-                          widget.icon,
-                          color: isDisabled
-                              ? effectiveTextColor.withValues(alpha: 0.5)
-                              : effectiveTextColor,
-                          size: 22,
-                        ),
-                        SizedBox(width: 10),
-                      ],
-                      Text(
-                        widget.text,
-                        style: TextStyle(
-                          color: isDisabled
-                              ? effectiveTextColor.withValues(alpha: 0.5)
-                              : effectiveTextColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

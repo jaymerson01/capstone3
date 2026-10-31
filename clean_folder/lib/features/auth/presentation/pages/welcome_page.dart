@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
+import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/login_page.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/sign_up_page.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -14,14 +19,11 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage>
     with TickerProviderStateMixin {
-  late AnimationController _bgController;
   late AnimationController _logoController;
   late AnimationController _contentController;
   late AnimationController _pulseController;
 
-  late Animation<double> _bgAnimation;
   late Animation<double> _logoScale;
-  late Animation<double> _logoPulse;
   late Animation<double> _contentFade;
   late Animation<Offset> _contentSlide;
   late Animation<double> _btn1Fade;
@@ -30,11 +32,6 @@ class _WelcomePageState extends State<WelcomePage>
   @override
   void initState() {
     super.initState();
-
-    _bgController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 8),
-    )..repeat(reverse: true);
 
     _logoController = AnimationController(
       vsync: this,
@@ -49,18 +46,10 @@ class _WelcomePageState extends State<WelcomePage>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
-
-    _bgAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _bgController, curve: Curves.easeInOut),
     );
 
     _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
-    );
-
-    _logoPulse = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     _contentFade = Tween<double>(begin: 0, end: 1).animate(
@@ -102,8 +91,13 @@ class _WelcomePageState extends State<WelcomePage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseController, context);
+  }
+
+  @override
   void dispose() {
-    _bgController.dispose();
     _logoController.dispose();
     _contentController.dispose();
     _pulseController.dispose();
@@ -120,17 +114,18 @@ class _WelcomePageState extends State<WelcomePage>
       builder: (context) => _PremiumDialog(
         icon: Icons.lock_outline,
         iconColor: AppColors.primary,
-        title: 'Login Required',
-        content:
-            'Please login or create an account first before reporting an incident.',
+        title: AppLocalizations.of(context).welcomeLoginRequiredTitle,
+        content: AppLocalizations.of(context).welcomeLoginRequiredMessage,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel',
-                style: TextStyle(color: AppColors.textLight)),
+            child: Text(AppLocalizations.of(context).commonCancel,
+                style: TextStyle(
+                    color: AppColors.textLight, fontWeight: FontWeight.w700)),
           ),
           _DialogButton(
-            label: 'Login',
+            id: 'Login',
+            label: AppLocalizations.of(context).authLogin,
             onTap: () {
               Navigator.pop(context);
               Navigator.push(context,
@@ -151,354 +146,284 @@ class _WelcomePageState extends State<WelcomePage>
       builder: (context, isDark, _) {
         return Scaffold(
           backgroundColor: AppColors.background,
-          body: AnimatedBuilder(
-            animation: Listenable.merge([_bgAnimation, _logoPulse]),
-            builder: (context, child) {
-              return Stack(
-                children: [
-                  // ── Animated Mesh Gradient Background ──────────────────────────
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: isDark
-                          ? const LinearGradient(
-                              colors: [Color(0xFF060D1A), Color(0xFF0A1628)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            )
-                          : const LinearGradient(
-                              colors: [Color(0xFFF8FAFC), Color(0xFFEDF2F7)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                    ),
-                  ),
-
-                  // ── Ambient Orbs ───────────────────────────────────────────────
-                  Positioned(
-                    top: -80 + (40 * _bgAnimation.value),
-                    left: -60 + (20 * _bgAnimation.value),
-                    child: _Orb(
-                      size: 300,
-                      color: AppColors.primary.withValues(alpha: isDark ? 0.12 : 0.08),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: -100 + (30 * (1 - _bgAnimation.value)),
-                    right: -80,
-                    child: _Orb(
-                      size: 350,
-                      color: AppColors.secondary.withValues(alpha: isDark ? 0.08 : 0.05),
-                    ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height * 0.4,
-                    left: MediaQuery.of(context).size.width * 0.6,
-                    child: _Orb(
-                      size: 200,
-                      color: AppColors.accent.withValues(alpha: isDark ? 0.08 : 0.05),
-                    ),
-                  ),
-
-                  // ── Grid Overlay ───────────────────────────────────────────────
-                  CustomPaint(
-                    size: Size(
-                      MediaQuery.of(context).size.width,
-                      MediaQuery.of(context).size.height,
-                    ),
-                    painter: _GridPainter(isDark: isDark),
-                  ),
-
-              // ── Main Content ────────────────────────────────────────────────
-              SafeArea(
-                child: Column(
-                  children: [
-                    // Top bar with Login / Sign Up
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Semantics(
-                            label: 'nav_login_button',
-                            button: true,
-                            child: _GlassTopButton(
-                              text: 'Login',
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => const LoginPage()),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          _GlassTopButton(
-                            text: 'Sign Up',
-                            filled: true,
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const SignUpPage()),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const Spacer(),
-
-                    // ── Animated Logo ──────────────────────────────────────────
-                    ScaleTransition(
-                      scale: _logoScale,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Outer pulse ring
-                          AnimatedBuilder(
-                            animation: _pulseController,
-                            builder: (context, _) {
-                              return Container(
-                                width: 140 + (20 * _pulseController.value),
-                                height: 140 + (20 * _pulseController.value),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.primary.withValues(
-                                        alpha: 0.3 *
-                                            (1 - _pulseController.value)),
-                                    width: 2,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          // Middle ring
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  AppColors.primary.withValues(alpha: 0.08),
-                              border: Border.all(
-                                color:
-                                    AppColors.primary.withValues(alpha: 0.3),
-                                width: 1.5,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      AppColors.primary.withValues(alpha: 0.3),
-                                  blurRadius: 30,
-                                  spreadRadius: 5,
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Logo
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => Container(
-                                  color: AppColors.primary,
-                                  child: Icon(Icons.shield,
-                                      color: Colors.white, size: 48),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(height: 32),
-
-                    // ── Hero Text ──────────────────────────────────────────────
-                    FadeTransition(
-                      opacity: _contentFade,
-                      child: SlideTransition(
-                        position: _contentSlide,
-                        child: Column(
-                          children: [
-                            // RESQ title with gradient
-                            ShaderMask(
-                              shaderCallback: (bounds) =>
-                                  AppColors.cyanGradient.createShader(bounds),
-                              blendMode: BlendMode.srcIn,
-                              child: Text(
-                                'RESQ',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 52,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 8,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 7),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? AppColors.primary.withValues(alpha: 0.15)
-                                    : AppColors.primary.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                    color: isDark
-                                        ? AppColors.primary.withValues(alpha: 0.3)
-                                        : AppColors.primary.withValues(alpha: 0.25)),
-                              ),
-                              child: Text(
-                                'Smart Barangay Command System',
-                                style: TextStyle(
-                                  color: isDark ? AppColors.secondary : AppColors.primary,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 1.0,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 48),
-                              child: Text(
-                                'Your safety and community trust are our priority',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: AppColors.textLight,
-                                  fontSize: 14,
-                                  height: 1.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 48),
-
-                    // ── Action Buttons (Staggered) ──────────────────────────────
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
+          // ── Dusk landscape (night in dark mode) ─────────────────────────────
+          body: LandscapeBackdrop(
+            time: isDark ? LandscapeTime.night : LandscapeTime.dusk,
+            child: SafeArea(
+              // Spreads out on tall screens and scrolls on short ones.
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
                       child: Column(
                         children: [
-                          FadeTransition(
-                            opacity: _btn1Fade,
-                            child: Custom3dButton(
-                              icon: Icons.warning_amber_rounded,
-                              text: 'Report an Incident',
-                              gradient: AppColors.emergencyGradient,
-                              onPressed: () => _showLoginRequired(context),
+                          // Top bar with Login / Sign Up
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Flexible(
+                                  child: Semantics(
+                                    label: 'nav_login_button',
+                                    button: true,
+                                    child: _GlassTopButton(
+                                      text: AppLocalizations.of(context).authLogin,
+                                      onPressed: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => const LoginPage()),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Flexible(
+                                  child: _GlassTopButton(
+                                    text: AppLocalizations.of(context).authSignUp,
+                                    filled: true,
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => const SignUpPage()),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 14),
-                          FadeTransition(
-                            opacity: _btn2Fade,
-                            child: Custom3dButton(
-                              icon: Icons.call,
-                              text: 'Emergency Hotlines',
-                              gradient: AppColors.cyanGradient,
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) =>
-                                        const EmergencyHotlinesPage()),
+
+                          const Spacer(),
+
+                          // ── Brand Card on Smoked Glass ──────────────────────
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 24),
+                            child: GlassCard(
+                              tone: GlassTone.smoke,
+                              blur: true,
+                              borderRadius: 30,
+                              padding:
+                                  const EdgeInsets.fromLTRB(22, 26, 22, 26),
+                              child: Column(
+                                children: [
+                                  ScaleTransition(
+                                    scale: _logoScale,
+                                    child: _LogoRings(pulse: _pulseController),
+                                  ),
+                                  const SizedBox(height: 14),
+                                  FadeTransition(
+                                    opacity: _contentFade,
+                                    child: SlideTransition(
+                                      position: _contentSlide,
+                                      child: Column(
+                                        children: [
+                                          const Text(
+                                            'RESQ',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 4,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            AppLocalizations.of(context)
+                                                .welcomeTagline
+                                                .toUpperCase(),
+                                            textAlign: TextAlign.center,
+                                            style: const TextStyle(
+                                              color: Color(0xFFA5F3FC),
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w800,
+                                              letterSpacing: 1.4,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Text(
+                                            AppLocalizations.of(context)
+                                                .welcomeSubtitle,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.92),
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                              height: 1.45,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          const Spacer(),
+
+                          // ── Action Buttons (Staggered) ──────────────────────
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              children: [
+                                FadeTransition(
+                                  opacity: _btn1Fade,
+                                  child: Custom3dButton(
+                                    icon: Icons.warning_amber_rounded,
+                                    text: AppLocalizations.of(context)
+                                        .welcomeReportIncident,
+                                    gradient: AppColors.emergencyCtaGradient,
+                                    height: 58,
+                                    borderRadius: 16,
+                                    onPressed: () => _showLoginRequired(context),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                FadeTransition(
+                                  opacity: _btn2Fade,
+                                  child: Custom3dButton(
+                                    icon: Icons.call,
+                                    text: AppLocalizations.of(context)
+                                        .welcomeHotlines,
+                                    backgroundColor: const Color(0xB30F172A),
+                                    borderColor:
+                                        Colors.white.withValues(alpha: 0.5),
+                                    height: 58,
+                                    borderRadius: 16,
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              const EmergencyHotlinesPage()),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // ── Official Municipal Civic Trust Badge ─────────────
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.glassSmoke,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context).welcomeFooter,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.2,
+                                ),
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                    const Spacer(),
-
-                    // ── Official Municipal Civic Trust Badge ────────────────────
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? Colors.white.withValues(alpha: 0.05)
-                              : Colors.white.withValues(alpha: 0.85),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: isDark
-                                ? Colors.white.withValues(alpha: 0.08)
-                                : AppColors.border.withValues(alpha: 0.7),
-                          ),
-                          boxShadow: isDark
-                              ? []
-                              : [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.04),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                        ),
-                        child: Text(
-                          '🛡️ Republic of the Philippines • Barangay Moonwalk, Parañaque City',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: AppColors.textLight,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ),
+        );
+      },
     );
-  },
-);
   }
 }
 
 // ─── Supporting Widgets ───────────────────────────────────────────────────────
 
-class _Orb extends StatelessWidget {
-  final double size;
-  final Color color;
+/// Logo in a cyan ring, with a soft white ring that pulses outwards.
+class _LogoRings extends StatelessWidget {
+  final Animation<double> pulse;
 
-  const _Orb({required this.size, required this.color});
+  const _LogoRings({required this.pulse});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, Colors.transparent],
-        ),
+    return SizedBox(
+      width: 150,
+      height: 150,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          RepaintBoundary(
+            child: AnimatedBuilder(
+              animation: pulse,
+              builder: (context, _) {
+                return Container(
+                  width: 136 + (14 * pulse.value),
+                  height: 136 + (14 * pulse.value),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white
+                          .withValues(alpha: 0.1 + 0.35 * (1 - pulse.value)),
+                      width: 1.5,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Container(
+            width: 114,
+            height: 114,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.secondary.withValues(alpha: 0.7),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.secondary.withValues(alpha: 0.4),
+                  blurRadius: 24,
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: 84,
+            height: 84,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0F172A).withValues(alpha: 0.45),
+                  blurRadius: 30,
+                  offset: const Offset(0, 14),
+                ),
+              ],
+            ),
+            child: ClipOval(
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => Container(
+                  color: AppColors.primary,
+                  child: const Icon(Icons.shield,
+                      color: Colors.white, size: 40),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -534,83 +459,52 @@ class _GlassTopButtonState extends State<_GlassTopButton> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = AppColors.isDarkMode;
     return GestureDetector(
       onTap: _handleTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+        height: 42,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: widget.filled
-              ? AppColors.primary
-              : (isDark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.white.withValues(alpha: 0.9)),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: widget.filled
-                ? AppColors.primary
-                : (isDark
-                    ? Colors.white.withValues(alpha: 0.15)
-                    : AppColors.primary.withValues(alpha: 0.35)),
-          ),
+          // Smoked glass for Login; blue for Sign Up.
+          color: widget.filled ? null : const Color(0x6B0F172A),
+          gradient: widget.filled ? AppColors.ctaGradient : null,
+          borderRadius: BorderRadius.circular(14),
+          border: widget.filled
+              ? null
+              : Border.all(
+                  color: Colors.white.withValues(alpha: 0.55),
+                  width: 1.5,
+                ),
           boxShadow: widget.filled
               ? [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                    color: const Color(0xFF1E40AF).withValues(alpha: 0.4),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
                   ),
                 ]
-              : (isDark
-                  ? []
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ]),
+              : const [],
         ),
-        child: Text(
-          widget.text,
-          style: TextStyle(
-            color: widget.filled
-                ? Colors.white
-                : (isDark ? Colors.white : AppColors.primary),
-            fontWeight: FontWeight.w700,
-            fontSize: 13,
+        // Hug the label (an alignment alone would stretch the button).
+        // Long labels shrink to fit instead of being cut off.
+        child: Align(
+          widthFactor: 1,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              widget.text,
+              maxLines: 1,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
+            ),
           ),
         ),
       ),
     );
   }
-}
-
-class _GridPainter extends CustomPainter {
-  final bool isDark;
-  const _GridPainter({this.isDark = true});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = isDark
-          ? Colors.white.withValues(alpha: 0.025)
-          : const Color(0xFF0F172A).withValues(alpha: 0.035)
-      ..strokeWidth = 0.5
-      ..style = PaintingStyle.stroke;
-
-    const spacing = 50.0;
-    for (double x = 0; x < size.width; x += spacing) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += spacing) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _GridPainter oldDelegate) =>
-      oldDelegate.isDark != isDark;
 }
 
 class _PremiumDialog extends StatelessWidget {
@@ -630,38 +524,25 @@ class _PremiumDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: AppColors.border),
-      ),
+    return NeoDialog(
       child: Semantics(
         container: true,
         explicitChildNodes: true,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: 32),
-            ),
-            SizedBox(height: 16),
+            NeoDialogIcon(icon: icon, color: iconColor),
+            const SizedBox(height: 16),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textDark,
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.w800,
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               content,
               textAlign: TextAlign.center,
@@ -671,7 +552,7 @@ class _PremiumDialog extends StatelessWidget {
                 height: 1.5,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Row(
               children: actions
                   .map((w) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: w)))
@@ -679,7 +560,6 @@ class _PremiumDialog extends StatelessWidget {
             ),
           ],
         ),
-      ),
       ),
     );
   }
@@ -689,16 +569,20 @@ class _DialogButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _DialogButton({required this.label, required this.onTap});
+  /// Fixed id for UI automation, so it doesn't change with the language.
+  final String? id;
+
+  const _DialogButton({required this.label, required this.onTap, this.id});
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'dialog_button_$label',
+      label: 'dialog_button_${id ?? label}',
       child: Custom3dButton(
         text: label,
-        height: 44,
+        height: 48,
+        borderRadius: 24,
         onPressed: onTap,
         gradient: AppColors.primaryGradient,
       ),

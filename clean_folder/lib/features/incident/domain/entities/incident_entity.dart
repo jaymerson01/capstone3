@@ -24,6 +24,7 @@ class IncidentEntity {
   final String? victimName;
   final String? victimPhone;
   final String? estimatedResponseTime;
+  final bool isBlotter;
 
   const IncidentEntity({
     required this.id,
@@ -51,7 +52,20 @@ class IncidentEntity {
     this.victimName,
     this.victimPhone,
     this.estimatedResponseTime,
+    this.isBlotter = false,
   });
+
+  /// Categories a resident may record as a barangay blotter entry.
+  static const List<String> blotterCategories = [
+    'Violence / Physical Fight',
+    'Theft / Robbery',
+    'Noise Complaint',
+    'Suspicious Activity',
+    'Lost Item / Missing Person',
+  ];
+
+  static bool isBlotterCategory(String? category) =>
+      category != null && blotterCategories.contains(category);
 
   bool get isSolved {
     final s = status.toLowerCase().replaceAll('_', '').replaceAll(' ', '').trim();

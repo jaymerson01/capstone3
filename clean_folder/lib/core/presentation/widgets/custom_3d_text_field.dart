@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 
 /// RESQ Premium Text Field — Animated neon focus ring, glass surface, icon glow
@@ -14,6 +15,13 @@ class Custom3dTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final void Function(String)? onChanged;
 
+  /// Light text, a clear fill and a white edge, for fields on smoked glass
+  /// over a landscape (the sign-in screens).
+  final bool onGlass;
+
+  /// A sunken well, for forms on frosted glass (Report Incident).
+  final bool inset;
+
   const Custom3dTextField({
     super.key,
     this.controller,
@@ -26,6 +34,8 @@ class Custom3dTextField extends StatefulWidget {
     this.maxLines = 1,
     this.validator,
     this.onChanged,
+    this.onGlass = false,
+    this.inset = false,
   });
 
   @override
@@ -70,6 +80,13 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
 
   @override
   Widget build(BuildContext context) {
+    final glass = widget.onGlass;
+    final accent = glass ? AppColors.secondaryLight : AppColors.primary;
+    final quiet = glass ? Colors.white.withValues(alpha: 0.78) : AppColors.textLight;
+    final error = glass ? AppColors.dangerLight : AppColors.danger;
+
+    final sunken = widget.inset && !glass;
+
     return AnimatedBuilder(
       animation: _pulseAnimation,
       builder: (context, child) {
@@ -77,37 +94,55 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           margin: const EdgeInsets.only(bottom: 16),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceLight,
+          decoration: sunken
+              ? NeoSurface.inset(radius: 16, focused: _isFocused).copyWith(
+                  boxShadow: _isFocused
+                      ? [
+                          BoxShadow(
+                            color: accent.withValues(
+                                alpha: 0.22 * _pulseAnimation.value),
+                            blurRadius: 18,
+                          ),
+                        ]
+                      : null,
+                )
+              : BoxDecoration(
+            color: glass
+                ? Colors.white.withValues(alpha: 0.08)
+                : AppColors.surfaceLight,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: _isFocused
-                  ? AppColors.primary.withValues(
+                  ? accent.withValues(
                       alpha: 0.6 + (0.4 * _pulseAnimation.value))
-                  : AppColors.border,
-              width: _isFocused ? 2 : 1,
+                  : (glass
+                      ? Colors.white.withValues(alpha: 0.6)
+                      : AppColors.border),
+              width: _isFocused ? 2 : (glass ? 1.5 : 1),
             ),
             boxShadow: _isFocused
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(
+                      color: accent.withValues(
                           alpha: 0.25 * _pulseAnimation.value),
                       offset: const Offset(0, 0),
                       blurRadius: 20,
                       spreadRadius: 1,
                     ),
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      offset: const Offset(0, 4),
-                      blurRadius: 12,
-                    ),
+                    if (!glass)
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        offset: const Offset(0, 4),
+                        blurRadius: 12,
+                      ),
                   ]
                 : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.15),
-                      offset: const Offset(0, 2),
-                      blurRadius: 8,
-                    ),
+                    if (!glass)
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        offset: const Offset(0, 2),
+                        blurRadius: 8,
+                      ),
                   ],
           ),
           child: TextFormField(
@@ -118,26 +153,31 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
             maxLines: widget.maxLines,
             validator: widget.validator,
             onChanged: widget.onChanged,
+            cursorColor: accent,
             style: TextStyle(
-              color: AppColors.textDark,
+              color: glass ? Colors.white : AppColors.textDark,
               fontSize: 15,
               fontWeight: FontWeight.w500,
             ),
             decoration: InputDecoration(
               labelText: widget.labelText,
               labelStyle: TextStyle(
-                color: _isFocused ? AppColors.primary : AppColors.textLight,
+                color: _isFocused ? accent : quiet,
                 fontWeight: _isFocused ? FontWeight.w600 : FontWeight.w400,
                 fontSize: 14,
               ),
               hintText: widget.hintText,
-              hintStyle: TextStyle(color: AppColors.textLight, fontSize: 14),
+              hintStyle: TextStyle(color: quiet, fontSize: 14),
               prefixIcon: widget.prefixIcon != null
                   ? AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       child: Icon(
                         widget.prefixIcon,
-                        color: _isFocused ? AppColors.primary : AppColors.textLight,
+                        color: _isFocused
+                            ? accent
+                            : (glass
+                                ? Colors.white.withValues(alpha: 0.9)
+                                : AppColors.textLight),
                         size: 20,
                       ),
                     )
@@ -152,15 +192,13 @@ class _Custom3dTextFieldState extends State<Custom3dTextField>
               focusedBorder: InputBorder.none,
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide:
-                    const BorderSide(color: AppColors.danger, width: 1.5),
+                borderSide: BorderSide(color: error, width: 1.5),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide:
-                    const BorderSide(color: AppColors.danger, width: 2),
+                borderSide: BorderSide(color: error, width: 2),
               ),
-              errorStyle: TextStyle(color: AppColors.danger,
+              errorStyle: TextStyle(color: error,
                 fontSize: 12,
               ),
             ),

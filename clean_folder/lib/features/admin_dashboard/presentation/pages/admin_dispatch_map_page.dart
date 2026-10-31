@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
@@ -15,6 +14,8 @@ import 'package:community_safety_app/features/admin_dashboard/data/datasources/a
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_player_dialog.dart';
 import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 class AdminDispatchMapPage extends StatefulWidget {
   const AdminDispatchMapPage({super.key});
@@ -178,7 +179,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Case ${inc.id.substring(0, min(8, inc.id.length))} updated to $newStatus!"),
-        backgroundColor: AppColors.solved,
+        backgroundColor: AdminColors.success,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -195,133 +196,72 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (ctx, setDialogState) {
-            return AlertDialog(
-              backgroundColor: const Color(0xFF0D1627),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: const BorderSide(color: Color(0xFF1E2D4A)),
-              ),
-              title: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.timer_outlined, color: Color(0xFF00E5FF), size: 20),
-                  ),
-                  SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      "Dispatch Patrol • Set ETA",
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-              content: SizedBox(
-                width: 380,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Dispatching responders to ${inc.areaSector ?? 'Moonwalk'} for ${inc.category}. The citizen will be notified of this estimated arrival time.",
-                      style: const TextStyle(color: Color(0xFF7B8DB0), fontSize: 12),
-                    ),
-                    SizedBox(height: 14),
-                    Text(
-                      "ESTIMATED ARRIVAL TIME (ETA)",
-                      style: TextStyle(color: Color(0xFF00E5FF), fontSize: 11, fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(height: 8),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 6,
-                      children: [
-                        "5-10 mins",
-                        "10-15 mins",
-                        "15-20 mins",
-                        "20-30 mins",
-                      ].map((chip) {
-                        final isSelected = etaController.text == chip;
-                        return InkWell(
-                          onTap: () {
-                            setDialogState(() {
-                              etaController.text = chip;
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(14),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? const Color(0xFF00E5FF).withValues(alpha: 0.25)
-                                  : const Color(0xFF060D1A),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                  color: isSelected
-                                      ? const Color(0xFF00E5FF)
-                                      : const Color(0xFF1E2D4A)),
-                            ),
-                            child: Text(
-                              chip,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                color: isSelected
-                                    ? const Color(0xFF00E5FF)
-                                    : const Color(0xFF7B8DB0),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: etaController,
-                      style: const TextStyle(color: Color(0xFFE8F0FE), fontSize: 13),
-                      decoration: InputDecoration(
-                        hintText: "Or custom (e.g. 7 mins)...",
-                        hintStyle: const TextStyle(color: Color(0xFF4A5568), fontSize: 12),
-                        filled: true,
-                        fillColor: const Color(0xFF060D1A),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF1E2D4A))),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF1E2D4A))),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Color(0xFF00E5FF))),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            return AdminDialog(
+              title: "Dispatch Patrol • Set ETA",
+              icon: Icons.timer_outlined,
+              tone: AdminTone.cyan,
+              maxWidth: 440,
               actions: [
-                TextButton(
+                AdminButton(
+                  label: "Cancel",
+                  style: AdminButtonStyle.ghost,
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00E5FF),
-                    foregroundColor: const Color(0xFF060D1A),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
+                AdminButton(
+                  label: "Confirm & Dispatch",
                   onPressed: () {
                     final eta = etaController.text.trim();
                     Navigator.pop(dialogCtx);
                     _updateStatus("in_progress", eta: eta.isNotEmpty ? eta : null);
                   },
-                  child: Text("Confirm & Dispatch", style: TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Dispatching responders to ${inc.areaSector ?? 'Moonwalk'} for ${inc.category}. The citizen will be notified of this estimated arrival time.",
+                    style: const TextStyle(
+                      color: AdminColors.textSoft,
+                      fontSize: 13,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  const AdminFieldLabel("ESTIMATED ARRIVAL TIME (ETA)"),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      "5-10 mins",
+                      "10-15 mins",
+                      "15-20 mins",
+                      "20-30 mins",
+                    ].map((chip) {
+                      final isSelected = etaController.text == chip;
+                      return AdminChoiceChip(
+                        label: chip,
+                        selected: isSelected,
+                        onTap: () {
+                          setDialogState(() {
+                            etaController.text = chip;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: etaController,
+                    style: adminInputText,
+                    cursorColor: AdminColors.cyan,
+                    decoration: adminInputDecoration(
+                      hint: "Or custom (e.g. 7 mins)...",
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -352,7 +292,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Dispatcher remarks saved!"),
-        backgroundColor: AppColors.primary,
+        backgroundColor: AdminColors.primary,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -432,126 +372,155 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
         }).toSet();
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0D1627),
-          body: Row(
-            children: [
-              Expanded(
-                child: Stack(
+          backgroundColor: Colors.transparent,
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              // The dispatch desk sits beside the map, or under it on phones.
+              // The map stays the first child of the same Flex either way, so
+              // opening the desk or resizing never rebuilds it.
+              final bool deskBeside = constraints.maxWidth >= 700;
+              final bool compact = constraints.maxWidth < 1000;
+
+              return Padding(
+                padding: compact
+                    ? const EdgeInsets.all(16)
+                    : const EdgeInsets.fromLTRB(28, 22, 28, 28),
+                child: Flex(
+                  direction: deskBeside ? Axis.horizontal : Axis.vertical,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // ── Google Map Basemap ──────────────────────────────────────
-                    StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('broadcasts')
-                          .where('isActive', isEqualTo: true)
-                          .snapshots(),
-                      builder: (context, broadcastSnapshot) {
-                        final Set<Circle> circles = {};
+                    Expanded(
+                      flex: 2,
+                      child: _MapFrame(
+                        child: Stack(
+                          children: [
+                            // ── Google Map Basemap ──────────────────────────────────────
+                            StreamBuilder<QuerySnapshot>(
+                              stream: FirebaseFirestore.instance
+                                  .collection('broadcasts')
+                                  .where('isActive', isEqualTo: true)
+                                  .snapshots(),
+                              builder: (context, broadcastSnapshot) {
+                                final Set<Circle> circles = {};
 
-                        // Draw glowing red circle overlays for active emergency sirens
-                        if (broadcastSnapshot.hasData) {
-                          for (final doc in broadcastSnapshot.data!.docs) {
-                            final data = doc.data() as Map<String, dynamic>;
-                            final targetSector = data['targetSector'] as String? ?? 'All';
+                                // Draw glowing red circle overlays for active emergency sirens
+                                if (broadcastSnapshot.hasData) {
+                                  for (final doc in broadcastSnapshot.data!.docs) {
+                                    final data = doc.data() as Map<String, dynamic>;
+                                    final targetSector = data['targetSector'] as String? ?? 'All';
 
-                            // Find incidents in this sector to center the alert circle
-                            final targetIncidents = allIncidents.where((i) {
-                              if (targetSector == 'All') return true;
-                              final s = BarangaySectorHelper.normalizeSector(i.areaSector, i.resolvedAddress);
-                              return s.toLowerCase().contains(targetSector.toLowerCase());
-                            }).toList();
+                                    // Find incidents in this sector to center the alert circle
+                                    final targetIncidents = allIncidents.where((i) {
+                                      if (targetSector == 'All') return true;
+                                      final s = BarangaySectorHelper.normalizeSector(i.areaSector, i.resolvedAddress);
+                                      return s.toLowerCase().contains(targetSector.toLowerCase());
+                                    }).toList();
 
-                            if (targetIncidents.isNotEmpty) {
-                              circles.add(
-                                Circle(
-                                  circleId: CircleId(doc.id),
-                                  center: LatLng(
-                                    targetIncidents.first.latitude,
-                                    targetIncidents.first.longitude,
+                                    if (targetIncidents.isNotEmpty) {
+                                      circles.add(
+                                        Circle(
+                                          circleId: CircleId(doc.id),
+                                          center: LatLng(
+                                            targetIncidents.first.latitude,
+                                            targetIncidents.first.longitude,
+                                          ),
+                                          radius: 400, // 400 meter siren radius
+                                          fillColor: AdminColors.danger.withValues(alpha: 0.18),
+                                          strokeColor: AdminColors.danger.withValues(alpha: 0.8),
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+
+                                return GoogleMap(
+                                  initialCameraPosition: _initialPosition,
+                                  style: _darkMapStyle,
+                                  markers: markers,
+                                  circles: circles,
+                                  onMapCreated: (controller) {
+                                    _mapController = controller;
+                                  },
+                                  myLocationButtonEnabled: false,
+                                  zoomControlsEnabled: false,
+                                  mapToolbarEnabled: false,
+                                  onTap: (_) {
+                                    if (_selectedIncident != null) _closeDrawer();
+                                  },
+                                );
+                              },
+                            ),
+
+                            // ── Top Bar: Tactical Filters & Dynamic Hotspot Chips ───────
+                            Positioned(
+                              top: 14,
+                              left: 14,
+                              right: 72,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Main Filter Bar Card
+                                  _buildTacticalFilterCard(filteredIncidents.length, allIncidents),
+                                  const SizedBox(height: 10),
+
+                                  // Option A: Dynamic Active Hotspot Chips Row
+                                  if (sortedSectors.isNotEmpty)
+                                    _buildDynamicHotspotChips(sortedSectors, allIncidents),
+                                ],
+                              ),
+                            ),
+
+                            // ── Floating Zoom / Recenter Buttons (Top Right) ────────────
+                            Positioned(
+                              top: 14,
+                              right: 14,
+                              child: Column(
+                                children: [
+                                  _mapControlButton(
+                                    Icons.add,
+                                    () => _mapController?.animateCamera(CameraUpdate.zoomIn()),
+                                    "Zoom In",
                                   ),
-                                  radius: 400, // 400 meter siren radius
-                                  fillColor: const Color(0xFFFF3B30).withValues(alpha: 0.18),
-                                  strokeColor: const Color(0xFFFF3B30).withValues(alpha: 0.8),
-                                  strokeWidth: 2,
-                                ),
-                              );
-                            }
-                          }
-                        }
-
-                        return GoogleMap(
-                          initialCameraPosition: _initialPosition,
-                          style: _darkMapStyle,
-                          markers: markers,
-                          circles: circles,
-                          onMapCreated: (controller) {
-                            _mapController = controller;
-                          },
-                          myLocationButtonEnabled: false,
-                          zoomControlsEnabled: false,
-                          mapToolbarEnabled: false,
-                          onTap: (_) {
-                            if (_selectedIncident != null) _closeDrawer();
-                          },
-                        );
-                      },
-                    ),
-
-                    // ── Top Bar: Tactical Filters & Dynamic Hotspot Chips ───────
-                    Positioned(
-                      top: 18,
-                      left: 18,
-                      right: 18,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Main Filter Bar Card
-                          _buildTacticalFilterCard(filteredIncidents.length, allIncidents),
-                          SizedBox(height: 10),
-
-                          // Option A: Dynamic Active Hotspot Chips Row
-                          if (sortedSectors.isNotEmpty)
-                            _buildDynamicHotspotChips(sortedSectors, allIncidents),
-                        ],
+                                  const SizedBox(height: 8),
+                                  _mapControlButton(
+                                    Icons.remove,
+                                    () => _mapController?.animateCamera(CameraUpdate.zoomOut()),
+                                    "Zoom Out",
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _mapControlButton(
+                                    Icons.my_location_rounded,
+                                    () => _zoomToSector("All", allIncidents),
+                                    "Center Moonwalk",
+                                    tone: AdminTone.cyan,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
-                    // ── Floating Zoom / Recenter Buttons (Bottom Left) ──────────
-                    Positioned(
-                      bottom: 24,
-                      left: 24,
-                      child: Column(
-                        children: [
-                          _mapControlButton(
-                            Icons.add,
-                            () => _mapController?.animateCamera(CameraUpdate.zoomIn()),
-                            "Zoom In",
-                          ),
-                          SizedBox(height: 8),
-                          _mapControlButton(
-                            Icons.remove,
-                            () => _mapController?.animateCamera(CameraUpdate.zoomOut()),
-                            "Zoom Out",
-                          ),
-                          SizedBox(height: 8),
-                          _mapControlButton(
-                            Icons.my_location_rounded,
-                            () => _zoomToSector("All", allIncidents),
-                            "Center Moonwalk",
-                          ),
-                        ],
-                      ),
-                    ),
+                    // ── Dispatcher Action Drawer (Side-by-Side Panel) ───────────
+                    if (_selectedIncident != null) ...[
+                      SizedBox.square(dimension: compact ? 14 : 18),
+                      if (deskBeside)
+                        SizedBox(
+                          width: compact ? 340 : 380,
+                          child: _buildDispatcherDrawer(_selectedIncident!),
+                        )
+                      else
+                        Expanded(
+                          flex: 3,
+                          child: _buildDispatcherDrawer(_selectedIncident!),
+                        ),
+                    ],
                   ],
                 ),
-              ),
-
-              // ── Dispatcher Action Drawer (Side-by-Side Panel) ───────────
-              if (_selectedIncident != null)
-                SizedBox(
-                  width: 380,
-                  child: _buildDispatcherDrawer(_selectedIncident!),
-                ),
-            ],
+              );
+            },
           ),
         );
       },
@@ -560,137 +529,112 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
   // ── Tactical Filter Bar Card ───────────────────────────────────────────
   Widget _buildTacticalFilterCard(int visibleCount, List<IncidentEntity> allIncidents) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D1627).withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFF1E2D4A)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.45),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 10,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          // Live Map Indicator & Count
-          Row(
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        // Live Map Indicator & Count
+        _MapPill(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 10,
-                height: 10,
+                width: 8,
+                height: 8,
                 decoration: BoxDecoration(
-                  color: Color(0xFF30D158),
+                  color: AdminColors.success,
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AdminColors.success.withValues(alpha: 0.8),
+                      blurRadius: 8,
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 "$visibleCount ON MAP",
                 style: const TextStyle(
-                  color: Color(0xFFE8F0FE),
+                  color: AdminColors.textStrong,
                   fontSize: 12,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w800,
                   letterSpacing: 0.8,
                 ),
               ),
             ],
           ),
+        ),
 
-          SizedBox(
-            height: 18,
-            child: VerticalDivider(color: Color(0xFF1E2D4A), thickness: 1.2),
-          ),
+        // Status Filter Chips
+        _statusFilterChip("All"),
+        _statusFilterChip("Pending", AdminColors.orange),
+        _statusFilterChip("In Progress", AdminColors.blue),
+        _statusFilterChip("Solved", AdminColors.success),
 
-          // Status Filter Chips
-          _statusFilterChip("All"),
-          _statusFilterChip("Pending", const Color(0xFFFF9F0A)),
-          _statusFilterChip("In Progress", const Color(0xFF00E5FF)),
-          _statusFilterChip("Solved", const Color(0xFF30D158)),
-
-          SizedBox(
-            height: 18,
-            child: VerticalDivider(color: Color(0xFF1E2D4A), thickness: 1.2),
-          ),
-
-          // 🚨 Critical Only Toggle Button
-          GestureDetector(
-            onTap: () => setState(() => _criticalOnly = !_criticalOnly),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: _criticalOnly
-                    ? const Color(0xFFFF3B30).withValues(alpha: 0.25)
-                    : const Color(0xFF131F37),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _criticalOnly
-                      ? const Color(0xFFFF3B30)
-                      : const Color(0xFF1E2D4A),
+        // 🚨 Critical Only Toggle Button
+        _MapPill(
+          onTap: () => setState(() => _criticalOnly = !_criticalOnly),
+          selected: _criticalOnly,
+          gradient: _criticalOnly ? AdminColors.sirenGradient : null,
+          edge: AdminColors.dangerSoft.withValues(alpha: 0.45),
+          glow: _criticalOnly ? AdminColors.critical : null,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                size: 15,
+                color: _criticalOnly ? Colors.white : AdminColors.dangerSoft,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                "Critical Only",
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: _criticalOnly ? FontWeight.w800 : FontWeight.w700,
+                  color: _criticalOnly ? Colors.white : AdminColors.dangerPale,
                 ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.warning_amber_rounded,
-                    size: 14,
-                    color: _criticalOnly
-                        ? const Color(0xFFFF3B30)
-                        : const Color(0xFF7B8DB0),
-                  ),
-                  SizedBox(width: 6),
-                  Text(
-                    "Critical Only",
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
-                      color: _criticalOnly
-                          ? const Color(0xFFFF3B30)
-                          : const Color(0xFFB0C4DE),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _statusFilterChip(String label, [Color? activeColor]) {
     final isSelected = _selectedStatus == label;
-    final color = activeColor ?? const Color(0xFF0A84FF);
 
-    return GestureDetector(
+    return _MapPill(
       onTap: () => setState(() => _selectedStatus = label),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.2) : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? color : const Color(0xFF1E2D4A),
+      selected: isSelected,
+      gradient: isSelected ? AdminColors.primaryGradient : null,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // A dot in the pin colour for this status, as a map legend.
+          if (activeColor != null) ...[
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.white : activeColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 7),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+              color: isSelected ? Colors.white : AdminColors.textSoft,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? color : const Color(0xFF7B8DB0),
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -738,59 +682,40 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return _MapPill(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF00E5FF).withValues(alpha: 0.22)
-              : const Color(0xFF0D1627).withValues(alpha: 0.92),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? const Color(0xFF00E5FF)
-                : const Color(0xFF1E2D4A),
+      selected: isSelected,
+      edge: isSelected ? AdminColors.cyan.withValues(alpha: 0.55) : null,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w700,
+              color: isSelected ? AdminColors.cyanText : AdminColors.textSoft,
+            ),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AdminColors.cyan.withValues(alpha: 0.25)
+                  : Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(999),
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              title,
+            child: Text(
+              "$count",
               style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                color: isSelected ? const Color(0xFF00E5FF) : const Color(0xFFE8F0FE),
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: isSelected ? AdminColors.textStrong : AdminColors.textLight,
               ),
             ),
-            SizedBox(width: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF00E5FF).withValues(alpha: 0.3)
-                    : const Color(0xFF1E2D4A),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                "$count",
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : const Color(0xFF7B8DB0),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -798,594 +723,673 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
   // ── Dispatcher Action Drawer (Pin Clicked) ─────────────────────────────
   Widget _buildDispatcherDrawer(IncidentEntity inc) {
     final sector = BarangaySectorHelper.normalizeSector(inc.areaSector, inc.resolvedAddress);
+    final urgency = _urgencyTone(inc.urgencyStatus);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
-        border: const Border(
-          left: BorderSide(color: Color(0xFF1E2D4A), width: 1.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.6),
-            blurRadius: 24,
-            offset: const Offset(-6, 0),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // Drawer Header
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFF1E2D4A)),
+    return AdminPanel(
+      raised: true,
+      accent: AdminColors.cyan,
+      glow: true,
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(21),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Drawer Header
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 18, 14, 16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0A84FF).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.radar_rounded,
-                          color: Color(0xFF0A84FF),
-                          size: 18,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      Column(
+                child: Row(
+                  children: [
+                    const AdminIconTile(icon: Icons.radar_rounded, tone: AdminTone.cyan),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
+                          const Text(
                             "TACTICAL DISPATCH DESK",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 12,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFFE8F0FE),
-                              letterSpacing: 0.8,
+                              fontWeight: FontWeight.w800,
+                              color: AdminColors.cyanSoft,
+                              letterSpacing: 1.4,
                             ),
                           ),
+                          const SizedBox(height: 3),
                           Text(
                             "Case #${inc.id.substring(0, min(8, inc.id.length))}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              fontSize: 10.5,
-                              color: Color(0xFF7B8DB0),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AdminColors.textLight,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.close_rounded, color: Color(0xFF7B8DB0)),
-                    onPressed: _closeDrawer,
-                  ),
-                ],
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      style: IconButton.styleFrom(
+                        foregroundColor: AdminColors.textBody,
+                        backgroundColor: Colors.white.withValues(alpha: 0.06),
+                        fixedSize: const Size(36, 36),
+                        minimumSize: const Size(36, 36),
+                        padding: EdgeInsets.zero,
+                        side: BorderSide(color: Colors.white.withValues(alpha: 0.14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: _closeDrawer,
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            // Scrollable Case Details
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Status & Urgency Badges
-                    Row(
-                      children: [
-                        _drawerBadge(
-                          inc.status.toUpperCase(),
-                          inc.isSolved
-                              ? const Color(0xFF30D158)
-                              : (inc.isInProgress
-                                  ? const Color(0xFF00E5FF)
-                                  : const Color(0xFFFF9F0A)),
-                        ),
-                        SizedBox(width: 8),
-                        _drawerBadge(
-                          (inc.urgencyStatus ?? "NORMAL").toUpperCase(),
-                          const Color(0xFFFF3B30),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 14),
-
-                    // Incident Category Title
-                    Text(
-                      inc.category,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFFE8F0FE),
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      inc.description,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFFB0C4DE),
-                        height: 1.45,
-                      ),
-                    ),
-                    SizedBox(height: 18),
-
-                    // ── Location & Address Block ─────────────────────────
-                    _drawerSectionHeader(Icons.location_on_outlined, "Location & Sector"),
-                    SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF131F37),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF1E2D4A)),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              // Scrollable Case Details
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Status & Urgency Badges
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
-                          Text(
-                            inc.resolvedAddress ?? "Barangay Moonwalk",
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFE8F0FE),
-                            ),
+                          _drawerBadge(
+                            inc.status.toUpperCase(),
+                            inc.isSolved
+                                ? AdminTone.green
+                                : (inc.isInProgress
+                                    ? AdminTone.blue
+                                    : AdminTone.yellow),
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            "Sector: $sector",
-                            style: const TextStyle(
-                              fontSize: 11.5,
-                              color: Color(0xFF00E5FF),
-                              fontWeight: FontWeight.w600,
-                            ),
+                          _drawerBadge(
+                            (inc.urgencyStatus ?? "NORMAL").toUpperCase(),
+                            urgency.$1,
+                            solid: urgency.$2,
                           ),
-                          SizedBox(height: 10),
-                          // 1-Tap Google Maps External Directions Link
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // Incident Category Title
+                      Text(
+                        inc.category,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: AdminColors.textStrong,
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        inc.description,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AdminColors.textSoft,
+                          height: 1.45,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      // ── Location & Address Block ─────────────────────────
+                      AdminInset(
+                        padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _drawerSectionHeader(Icons.location_on_outlined, "Location & Sector"),
+                            const SizedBox(height: 10),
+                            Text(
+                              "Sector: $sector",
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AdminColors.textStrong,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              inc.resolvedAddress ?? "Barangay Moonwalk",
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: AdminColors.textSoft,
+                                height: 1.4,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            // 1-Tap Google Maps External Directions Link
+                            TextButton.icon(
                               onPressed: () {
                                 final url = Uri.parse(
                                   "https://www.google.com/maps/search/?api=1&query=${inc.latitude},${inc.longitude}",
                                 );
                                 launchUrl(url, mode: LaunchMode.externalApplication);
                               },
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Color(0xFF0A84FF)),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AdminColors.primaryText,
                                 padding: const EdgeInsets.symmetric(vertical: 8),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                               ),
-                              icon: Icon(Icons.navigation_rounded, size: 15, color: Color(0xFF0A84FF)),
-                              label: Text(
+                              icon: const Icon(Icons.navigation_rounded, size: 15),
+                              label: const Text(
                                 "Navigate in Google Maps",
-                                style: TextStyle(color: Color(0xFF0A84FF), fontSize: 11.5, fontWeight: FontWeight.w700),
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 18),
-
-                    // ── Complainant & Emergency Contact Dossier ──────────
-                    _drawerSectionHeader(Icons.contact_phone_outlined, "Citizen & Emergency Dossier"),
-                    SizedBox(height: 8),
-                    FutureBuilder<DocumentSnapshot>(
-                      future: FirebaseFirestore.instance.collection('users').doc(inc.reporterId).get(),
-                      builder: (context, userSnap) {
-                        final userData = userSnap.data?.data() as Map<String, dynamic>?;
-                        final contactPerson = (userData?['emergencyContactName'] ?? userData?['emergencyContactPerson']) as String?;
-                        final contactPhone = (userData?['emergencyContactNumber'] ?? userData?['emergencyContactPhone']) as String?;
-
-                        return Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF131F37),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFF1E2D4A)),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (inc.isReportingOnBehalf) ...[
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFF9500).withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFFFF9500).withValues(alpha: 0.4)),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.people_alt_rounded, size: 12, color: Color(0xFFFF9500)),
-                                      SizedBox(width: 4),
-                                      Flexible(
-                                        child: Text(
-                                          "REPORTED ON BEHALF: ${inc.victimName ?? 'Relative'}${inc.victimPhone != null && inc.victimPhone!.isNotEmpty ? ' • ${inc.victimPhone}' : ''}",
-                                          style: const TextStyle(
-                                            color: Color(0xFFFF9500),
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w800,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                              if (inc.estimatedResponseTime != null &&
-                                  inc.estimatedResponseTime!.isNotEmpty) ...[
-                                Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(6),
-                                    border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.4)),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.timer_outlined, size: 12, color: Color(0xFF00E5FF)),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        "DISPATCH ETA: ${inc.estimatedResponseTime!}",
-                                        style: const TextStyle(
-                                          color: Color(0xFF00E5FF),
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                              Text(
-                                inc.isAnonymous ? "Anonymous Citizen" : (inc.reporterName ?? "Resident"),
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFE8F0FE),
-                                ),
-                              ),
-                              if (!inc.isAnonymous && inc.reporterEmail != null) ...[
-                                SizedBox(height: 2),
-                                Text(
-                                  inc.reporterEmail!,
-                                  style: const TextStyle(fontSize: 11, color: Color(0xFF7B8DB0)),
-                                ),
-                              ],
-                              Divider(color: Color(0xFF1E2D4A), height: 16),
-                              Row(
-                                children: [
-                                  Icon(Icons.emergency_outlined, size: 15, color: Color(0xFFFF5252)),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    "Emergency Contact: ",
-                                    style: TextStyle(fontSize: 11, color: Color(0xFF7B8DB0), fontWeight: FontWeight.w600),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      contactPerson != null && contactPerson.isNotEmpty
-                                          ? "$contactPerson ($contactPhone)"
-                                          : "Not registered",
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFFFF5252),
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    SizedBox(height: 18),
-
-                    // ── Photo Evidence Preview ───────────────────────────
-                    if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
-                      _drawerSectionHeader(Icons.image_outlined, "Photo Evidence"),
-                      SizedBox(height: 8),
-                      GestureDetector(
-                        onTap: () {
-                          InAppImageViewerDialog.show(
-                            context,
-                            imageUrl: inc.photoUrl!,
-                            title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Photo Evidence",
-                          );
-                        },
-                        child: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: Tooltip(
-                            message: "Click to open full resolution viewer",
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Stack(
-                                children: [
-                                  Image.network(
-                                    inc.photoUrl!,
-                                    height: 160,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                                  ),
-                                  Positioned(
-                                    right: 8,
-                                    bottom: 8,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.black.withValues(alpha: 0.7),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const [
-                                          Icon(Icons.zoom_in, color: Colors.white, size: 14),
-                                          SizedBox(width: 4),
-                                          Text("Zoom", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 18),
-                    ],
-
-                    // ── Video Evidence Preview ───────────────────────────
-                    if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
-                      _drawerSectionHeader(Icons.videocam_outlined, "Video Evidence"),
-                      SizedBox(height: 8),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF060D1A),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFF0A84FF).withValues(alpha: 0.3)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.videocam_rounded, color: Color(0xFF0A84FF), size: 22),
-                            SizedBox(width: 10),
-                            const Expanded(
-                              child: Text(
-                                "Video Recording Attached",
-                                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0A84FF),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                              ),
-                              icon: Icon(Icons.play_arrow_rounded, size: 16),
-                              label: Text("Play In-App", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                              onPressed: () {
-                                InAppEvidencePlayerDialog.show(
-                                  context,
-                                  videoUrl: inc.videoUrl!,
-                                  title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Video Evidence",
-                                );
-                              },
                             ),
                           ],
                         ),
                       ),
-                      SizedBox(height: 18),
-                    ],
+                      const SizedBox(height: 12),
 
-                    // ── Dispatcher Remarks Field ─────────────────────────
-                    _drawerSectionHeader(Icons.note_alt_outlined, "Dispatcher Remarks"),
-                    SizedBox(height: 8),
-                    TextField(
-                      controller: _notesController,
-                      maxLines: 3,
-                      style: const TextStyle(fontSize: 12, color: Color(0xFFE8F0FE)),
-                      decoration: InputDecoration(
-                        hintText: "Enter Tanod patrol remarks, response logs...",
-                        hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF5A6E8C)),
-                        filled: true,
-                        fillColor: const Color(0xFF131F37),
-                        contentPadding: const EdgeInsets.all(12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF1E2D4A)),
+                      // ── Complainant & Emergency Contact Dossier ──────────
+                      FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance.collection('users').doc(inc.reporterId).get(),
+                        builder: (context, userSnap) {
+                          final userData = userSnap.data?.data() as Map<String, dynamic>?;
+                          final contactPerson = (userData?['emergencyContactName'] ?? userData?['emergencyContactPerson']) as String?;
+                          final contactPhone = (userData?['emergencyContactNumber'] ?? userData?['emergencyContactPhone']) as String?;
+
+                          return AdminInset(
+                            padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _drawerSectionHeader(Icons.contact_phone_outlined, "Citizen & Emergency Dossier"),
+                                const SizedBox(height: 10),
+                                if (inc.isReportingOnBehalf) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: AdminPill(
+                                      label: "REPORTED ON BEHALF: ${inc.victimName ?? 'Relative'}${inc.victimPhone != null && inc.victimPhone!.isNotEmpty ? ' • ${inc.victimPhone}' : ''}",
+                                      tone: AdminTone.orange,
+                                      icon: Icons.people_alt_rounded,
+                                    ),
+                                  ),
+                                ],
+                                if (inc.estimatedResponseTime != null &&
+                                    inc.estimatedResponseTime!.isNotEmpty) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8),
+                                    child: AdminPill(
+                                      label: "DISPATCH ETA: ${inc.estimatedResponseTime!}",
+                                      tone: AdminTone.cyan,
+                                      icon: Icons.timer_outlined,
+                                    ),
+                                  ),
+                                ],
+                                Text(
+                                  inc.isAnonymous ? "Anonymous Citizen" : (inc.reporterName ?? "Resident"),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AdminColors.textStrong,
+                                  ),
+                                ),
+                                if (!inc.isAnonymous && inc.reporterEmail != null) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    inc.reporterEmail!,
+                                    style: const TextStyle(fontSize: 12, color: AdminColors.textLight),
+                                  ),
+                                ],
+                                Divider(color: Colors.white.withValues(alpha: 0.08), height: 20),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.emergency_outlined, size: 15, color: AdminColors.dangerSoft),
+                                    const SizedBox(width: 6),
+                                    const Text(
+                                      "Emergency Contact: ",
+                                      style: TextStyle(fontSize: 12, color: AdminColors.textLight, fontWeight: FontWeight.w600),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        contactPerson != null && contactPerson.isNotEmpty
+                                            ? "$contactPerson ($contactPhone)"
+                                            : "Not registered",
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: AdminColors.dangerText,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 18),
+
+                      // ── Photo Evidence Preview ───────────────────────────
+                      if (inc.photoUrl != null && inc.photoUrl!.isNotEmpty) ...[
+                        _drawerSectionHeader(Icons.image_outlined, "Photo Evidence"),
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: () {
+                            InAppImageViewerDialog.show(
+                              context,
+                              imageUrl: inc.photoUrl!,
+                              title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Photo Evidence",
+                            );
+                          },
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: Tooltip(
+                              message: "Click to open full resolution viewer",
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: AdminColors.slate,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Stack(
+                                    children: [
+                                      Image.network(
+                                        inc.photoUrl!,
+                                        height: 160,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                                      ),
+                                      Positioned(
+                                        right: 8,
+                                        bottom: 8,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(alpha: 0.6),
+                                            borderRadius: BorderRadius.circular(999),
+                                            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.zoom_in, color: Colors.white, size: 14),
+                                              SizedBox(width: 4),
+                                              Text("Zoom", style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF1E2D4A)),
+                        const SizedBox(height: 18),
+                      ],
+
+                      // ── Video Evidence Preview ───────────────────────────
+                      if (inc.videoUrl != null && inc.videoUrl!.isNotEmpty) ...[
+                        _drawerSectionHeader(Icons.videocam_outlined, "Video Evidence"),
+                        const SizedBox(height: 8),
+                        AdminInset(
+                          tone: AdminTone.blue,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          child: Row(
+                            children: [
+                              const AdminIconTile(icon: Icons.videocam_rounded, size: 34),
+                              const SizedBox(width: 10),
+                              const Expanded(
+                                child: Text(
+                                  "Video Recording Attached",
+                                  style: TextStyle(color: AdminColors.textStrong, fontSize: 12.5, fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 150),
+                                child: AdminButton(
+                                  label: "Play In-App",
+                                  icon: Icons.play_arrow_rounded,
+                                  height: 36,
+                                  onPressed: () {
+                                    InAppEvidencePlayerDialog.show(
+                                      context,
+                                      videoUrl: inc.videoUrl!,
+                                      title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Video Evidence",
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(color: Color(0xFF00E5FF)),
+                        const SizedBox(height: 18),
+                      ],
+
+                      // ── Dispatcher Remarks Field ─────────────────────────
+                      _drawerSectionHeader(Icons.note_alt_outlined, "Dispatcher Remarks"),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _notesController,
+                        maxLines: 3,
+                        style: adminInputText,
+                        cursorColor: AdminColors.cyan,
+                        decoration: adminInputDecoration(
+                          hint: "Enter Tanod patrol remarks, response logs...",
                         ),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton.icon(
+                      const SizedBox(height: 10),
+                      AdminButton(
+                        label: "Save Remarks",
+                        icon: Icons.check,
+                        style: AdminButtonStyle.ghost,
+                        height: 40,
+                        expand: true,
+                        busy: _isSavingNotes,
                         onPressed: _isSavingNotes ? null : _saveNotesOnly,
-                        icon: _isSavingNotes
-                            ? SizedBox(
-                                width: 12,
-                                height: 12,
-                                child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF00E5FF)),
-                              )
-                            : Icon(Icons.check, size: 14, color: Color(0xFF00E5FF)),
-                        label: Text(
-                          "Save Remarks",
-                          style: TextStyle(color: Color(0xFF00E5FF), fontSize: 11, fontWeight: FontWeight.w700),
-                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── Fixed Bottom Dispatch Action Buttons ─────────────────────
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    if (inc.isPending) ...[
+                      AdminButton(
+                        label: "Dispatch Patrol (In Progress)",
+                        icon: Icons.send_rounded,
+                        height: 48,
+                        expand: true,
+                        onPressed: () => _showDispatchEtaDialog(context, inc),
+                      ),
+                    ] else if (inc.isInProgress) ...[
+                      _SolveButton(
+                        label: "Mark Incident Solved",
+                        icon: Icons.check_circle_outline,
+                        onPressed: () => _updateStatus("resolved"),
+                      ),
+                    ] else ...[
+                      AdminButton(
+                        label: "Re-Open Incident",
+                        icon: Icons.replay_rounded,
+                        style: AdminButtonStyle.slate,
+                        height: 48,
+                        expand: true,
+                        onPressed: () => _showDispatchEtaDialog(context, inc),
+                      ),
+                    ],
                   ],
                 ),
               ),
-            ),
-
-            // ── Fixed Bottom Dispatch Action Buttons ─────────────────────
-            Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: Color(0xFF0D1627),
-                border: Border(top: BorderSide(color: Color(0xFF1E2D4A))),
-              ),
-              child: Column(
-                children: [
-                  if (inc.isPending) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _showDispatchEtaDialog(context, inc),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00E5FF),
-                          foregroundColor: const Color(0xFF060D1A),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 3,
-                        ),
-                        icon: Icon(Icons.send_rounded, size: 16),
-                        label: Text(
-                          "Dispatch Patrol (In Progress)",
-                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                        ),
-                      ),
-                    ),
-                  ] else if (inc.isInProgress) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _updateStatus("resolved"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF30D158),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 3,
-                        ),
-                        icon: Icon(Icons.check_circle_outline, size: 16),
-                        label: Text(
-                          "Mark Incident Solved",
-                          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-                        ),
-                      ),
-                    ),
-                  ] else ...[
-                    SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: OutlinedButton.icon(
-                        onPressed: () => _showDispatchEtaDialog(context, inc),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFFFF9F0A)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        icon: Icon(Icons.replay_rounded, size: 16, color: Color(0xFFFF9F0A)),
-                        label: Text(
-                          "Re-Open Incident",
-                          style: TextStyle(color: Color(0xFFFF9F0A), fontWeight: FontWeight.w800, fontSize: 13),
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _drawerBadge(String text, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontSize: 10,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
+  // Urgency badge: critical is solid red, high orange, medium yellow and
+  // anything else slate.
+  (AdminTone, bool) _urgencyTone(String? urgency) {
+    return switch ((urgency ?? '').toLowerCase()) {
+      'critical' => (AdminTone.red, true),
+      'high' => (AdminTone.orange, false),
+      'medium' => (AdminTone.yellow, false),
+      _ => (AdminTone.slate, false),
+    };
+  }
+
+  Widget _drawerBadge(String text, AdminTone tone, {bool solid = false}) {
+    return AdminPill(label: text, tone: tone, solid: solid);
   }
 
   Widget _drawerSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, size: 15, color: const Color(0xFF00E5FF)),
-        SizedBox(width: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w800,
-            color: Color(0xFFE8F0FE),
+        Icon(icon, size: 14, color: AdminColors.cyanSoft),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            title.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1,
+              color: AdminColors.textHint,
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _mapControlButton(IconData icon, VoidCallback onTap, String tooltip) {
-    return Tooltip(
-      message: tooltip,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color(0xFF0D1627).withValues(alpha: 0.94),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF1E2D4A)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
+  Widget _mapControlButton(
+    IconData icon,
+    VoidCallback onTap,
+    String tooltip, {
+    AdminTone? tone,
+  }) {
+    // Dark glass under the icon action, so it reads over the map.
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AdminColors.surfaceDeep.withValues(alpha: 0.86),
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: AdminColors.buttonShadow,
+      ),
+      child: AdminIconAction(
+        icon: icon,
+        tooltip: tooltip,
+        onPressed: onTap,
+        tone: tone,
+        size: 42,
+      ),
+    );
+  }
+}
+
+/// The rounded, edged card the live map sits in.
+class _MapFrame extends StatelessWidget {
+  const _MapFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(22);
+    return Container(
+      decoration: BoxDecoration(
+        color: AdminColors.surfaceDeep,
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.35),
+            blurRadius: 40,
+            offset: const Offset(0, 18),
+          ),
+        ],
+      ),
+      foregroundDecoration: BoxDecoration(
+        borderRadius: radius,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: ClipRRect(borderRadius: radius, child: child),
+    );
+  }
+}
+
+/// A glass pill floating over the map: the live count, a filter or a
+/// hotspot. A [gradient] fills it (a selected filter) and [glow] gives the
+/// fill a coloured halo; otherwise it is dark glass with an [edge].
+class _MapPill extends StatelessWidget {
+  const _MapPill({
+    required this.child,
+    this.onTap,
+    this.selected = false,
+    this.gradient,
+    this.edge,
+    this.glow,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final bool selected;
+  final Gradient? gradient;
+  final Color? edge;
+  final Color? glow;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(999);
+    final Gradient? fill = gradient;
+    final Color? halo = glow;
+    final Widget content = Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: Center(widthFactor: 1, child: child),
+    );
+
+    final Widget pill = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      height: 36,
+      decoration: BoxDecoration(
+        color: fill == null
+            ? AdminColors.surfaceDeep.withValues(alpha: 0.86)
+            : null,
+        gradient: fill,
+        borderRadius: radius,
+        border: Border.all(
+          color: fill == null
+              ? (edge ?? Colors.white.withValues(alpha: 0.12))
+              : Colors.white.withValues(alpha: 0.14),
+        ),
+        boxShadow: fill == null
+            ? null
+            : [
+                if (halo != null)
+                  BoxShadow(color: halo.withValues(alpha: 0.45), blurRadius: 16),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+      ),
+      child: onTap == null
+          ? content
+          : Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: onTap,
+                borderRadius: radius,
+                child: content,
+              ),
+            ),
+    );
+
+    if (onTap == null) return pill;
+    return Semantics(button: true, selected: selected, child: pill);
+  }
+}
+
+/// The green "solved" action at the foot of the dispatch desk, shaped like
+/// a full-width [AdminButton]. The kit has no green style, so the success
+/// colour is shaded down with black to carry white text.
+class _SolveButton extends StatelessWidget {
+  const _SolveButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(14);
+    return Semantics(
+      button: true,
+      child: Container(
+        height: 48,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.alphaBlend(
+                Colors.black.withValues(alpha: 0.18),
+                AdminColors.success,
+              ),
+              Color.alphaBlend(
+                Colors.black.withValues(alpha: 0.32),
+                AdminColors.success,
               ),
             ],
           ),
-          child: Icon(icon, color: const Color(0xFF00E5FF), size: 18),
+          borderRadius: radius,
+          boxShadow: [
+            BoxShadow(
+              color: AdminColors.success.withValues(alpha: 0.3),
+              blurRadius: 22,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onPressed,
+            borderRadius: radius,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, size: 18, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

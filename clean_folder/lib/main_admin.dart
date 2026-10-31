@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
@@ -14,6 +15,7 @@ import 'package:community_safety_app/features/incident/data/models/incident_mode
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,17 +53,12 @@ class ResQAdminApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ResQ Admin Command Center',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: AdminColors.background,
-          colorScheme: const ColorScheme.dark(
-            primary: AdminColors.primaryRose,
-            secondary: AdminColors.secondaryGreen,
-            surface: AdminColors.surfaceLight,
-          ),
-          fontFamily: 'Inter',
-          useMaterial3: true,
-        ),
+        // The admin portal stays in English; the delegates let shared widgets
+        // look up their (resident-app) strings.
+        locale: const Locale('en'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        theme: AppTheme.admin(),
         home: const AdminAuthWrapper(),
         routes: {
           '/admin/login': (context) => const AdminLoginPage(),

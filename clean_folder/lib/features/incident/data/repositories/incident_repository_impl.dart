@@ -17,6 +17,7 @@ import '../datasources/incident_ai_remote_data_source.dart';
 import 'package:community_safety_app/core/utils/incident_triage_helper.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/models/audit_log_model.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 
 class IncidentRepositoryImpl implements IncidentRepository {
   final FirebaseFirestore firestore;
@@ -178,6 +179,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
                 videoUrl: i.videoUrl,
                 isSynced: false,
                 isReportingOnBehalf: i.isReportingOnBehalf,
+                isBlotter: i.isBlotter,
                 victimName: i.victimName,
                 victimPhone: i.victimPhone,
                 estimatedResponseTime: i.estimatedResponseTime,
@@ -228,6 +230,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
                 videoUrl: i.videoUrl,
                 isSynced: false,
                 isReportingOnBehalf: i.isReportingOnBehalf,
+                isBlotter: i.isBlotter,
                 victimName: i.victimName,
                 victimPhone: i.victimPhone,
                 estimatedResponseTime: i.estimatedResponseTime,
@@ -275,6 +278,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
       reporterName: incident.reporterName,
       reporterEmail: incident.reporterEmail,
       isReportingOnBehalf: incident.isReportingOnBehalf,
+      isBlotter: incident.isBlotter,
       victimName: incident.victimName,
       victimPhone: incident.victimPhone,
       estimatedResponseTime: incident.estimatedResponseTime,
@@ -398,6 +402,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
             videoUrl: existing.videoUrl,
             isSynced: false,
             isReportingOnBehalf: existing.isReportingOnBehalf,
+            isBlotter: existing.isBlotter,
             victimName: existing.victimName,
             victimPhone: existing.victimPhone,
             estimatedResponseTime: existing.estimatedResponseTime,
@@ -431,10 +436,72 @@ class IncidentRepositoryImpl implements IncidentRepository {
     } catch (_) {}
   }
 
+  /// Admin desk: fills in a reporter's name and email from their profile
+  /// when a report's contact details don't carry them (admins may read every
+  /// profile). If profiles can't be read, the reports still flow.
+  Stream<List<IncidentEntity>> _withReporterProfiles(Stream<List<IncidentEntity>> source) {
+    StreamSubscription<List<IncidentEntity>>? incidentSub;
+    StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? profileSub;
+    List<IncidentEntity>? lastIncidents;
+    Map<String, Map<String, dynamic>> profiles = {};
+    late final StreamController<List<IncidentEntity>> controller;
+
+    void emitLatest() {
+      final incidents = lastIncidents;
+      if (incidents != null && !controller.isClosed) {
+        controller.add([
+          for (final incident in incidents) fillReporterFromProfile(incident, profiles[incident.reporterId]),
+        ]);
+      }
+    }
+
+    controller = StreamController<List<IncidentEntity>>.broadcast(
+      onListen: () {
+        incidentSub = source.listen(
+          (incidents) {
+            lastIncidents = incidents;
+            emitLatest();
+          },
+          onError: controller.addError,
+        );
+        profileSub = firestore.collection('users').snapshots().listen(
+          (snapshot) {
+            profiles = {for (final doc in snapshot.docs) doc.id: doc.data()};
+            emitLatest();
+          },
+          onError: (Object error) {
+            debugPrint('[IncidentRepository] Reporter profiles unavailable: $error');
+          },
+        );
+      },
+      onCancel: () async {
+        await incidentSub?.cancel();
+        await profileSub?.cancel();
+      },
+    );
+    return controller.stream;
+  }
+
+  /// [incident] with its reporter's name and email taken from [profile]
+  /// (their `users` document) where the report itself lacks them.
+  @visibleForTesting
+  static IncidentEntity fillReporterFromProfile(IncidentEntity incident, Map<String, dynamic>? profile) {
+    if (profile == null || incident is! IncidentModel) return incident;
+    final hasName = (incident.reporterName ?? '').trim().isNotEmpty;
+    final hasEmail = (incident.reporterEmail ?? '').trim().isNotEmpty;
+    if (hasName && hasEmail) return incident;
+    final name = (profile['displayName'] as String?) ?? (profile['fullName'] as String?);
+    return incident.copyWith(
+      reporterName: hasName || (name ?? '').trim().isEmpty ? null : name,
+      reporterEmail: hasEmail ? null : profile['email'] as String?,
+    );
+  }
+
   @override
   Stream<List<IncidentEntity>> streamAllIncidents() {
-    // Admin desk: every report plus every contact sub-document.
-    return _withConfidential(
+    // Admin desk: every report plus every contact sub-document, with names
+    // filled in from reporters' profiles where those lack them.
+    return _withReporterProfiles(_withConfidential(
         _incidents.snapshots(includeMetadataChanges: true),
         firestore.collectionGroup(IncidentModel.confidentialCollection),
         (snapshot, contacts) {
@@ -469,6 +536,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
                 videoUrl: i.videoUrl,
                 isSynced: false,
                 isReportingOnBehalf: i.isReportingOnBehalf,
+                isBlotter: i.isBlotter,
                 victimName: i.victimName,
                 victimPhone: i.victimPhone,
                 estimatedResponseTime: i.estimatedResponseTime,
@@ -478,7 +546,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
       final combined = [...firestoreIncidents, ...localHiveIncidents];
       combined.sort((a, b) => b.timestamp.compareTo(a.timestamp));
       return combined;
-    });
+    }));
   }
 
   @override
@@ -533,6 +601,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
             reporterEmail: existing.reporterEmail,
             isSynced: false,
             isReportingOnBehalf: existing.isReportingOnBehalf,
+            isBlotter: existing.isBlotter,
             victimName: existing.victimName,
             victimPhone: existing.victimPhone,
             estimatedResponseTime: estimatedResponseTime ?? existing.estimatedResponseTime,
@@ -585,17 +654,14 @@ class IncidentRepositoryImpl implements IncidentRepository {
       final notesSnippet = (dispatcherNotes != null && dispatcherNotes.trim().isNotEmpty)
           ? " | Remarks: $dispatcherNotes"
           : "";
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final adminEmail = currentUser?.email ?? 'dispatch@resq.gov';
-      final adminName = (currentUser?.displayName != null && currentUser!.displayName!.isNotEmpty)
-          ? currentUser.displayName!
-          : 'Duty Dispatch Officer';
+      // The admin who made the change, from their login and profile.
+      final admin = await resolveActingAdmin(firestore: firestore);
 
       final log = AuditLogModel(
         id: '',
         timestamp: DateTime.now(),
-        adminName: adminName,
-        adminEmail: adminEmail,
+        adminName: admin.name,
+        adminEmail: admin.email,
         actionType: 'Status Update',
         details: 'Updated incident #$id status to "${normalizedStatus.toUpperCase()}"$etaSnippet$notesSnippet',
         targetId: id,

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/map_styles.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/location_service.dart';
 import 'package:community_safety_app/core/services/camera_service.dart';
@@ -16,8 +17,19 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/presentation/widgets/hidden_ai_trigger.dart';
+import 'package:community_safety_app/features/incident/presentation/widgets/incident_category_visuals.dart';
+import 'package:community_safety_app/core/presentation/neo/aurora_background.dart';
+import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
+import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_chip.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_segmented.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_surface.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_tag.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_button.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/core/presentation/widgets/custom_3d_text_field.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
@@ -26,6 +38,9 @@ import 'package:community_safety_app/features/incident/data/datasources/incident
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -37,6 +52,8 @@ class ReportIncidentPage extends StatefulWidget {
 class _ReportIncidentPageState extends State<ReportIncidentPage> {
   int currentStep = 2;
 
+  AppLocalizations get _l10n => AppLocalizations.of(context);
+
   final TextEditingController _coordinatesController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _landmarkController = TextEditingController();
@@ -44,6 +61,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   final TextEditingController _victimPhoneController = TextEditingController();
 
   bool _isReportingOnBehalf = false;
+  bool _isBlotter = false;
   GoogleMapController? _miniMapController;
   bool _isReverseGeocoding = false;
 
@@ -60,27 +78,6 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     {"name": "Simplicio Cruz", "lat": 14.4862, "lng": 121.0142},
   ];
   */
-
-  static const String _miniMapDarkStyle = '''
-[
-  {"elementType": "geometry", "stylers": [{"color": "#0d1627"}]},
-  {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
-  {"elementType": "labels.text.stroke", "stylers": [{"color": "#060d1a"}]},
-  {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{"color": "#64779e"}]},
-  {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "landscape.natural", "elementType": "geometry", "stylers": [{"color": "#08101e"}]},
-  {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#0f1c32"}]},
-  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
-  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#18263e"}]},
-  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#111c2f"}]},
-  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#98a6be"}]},
-  {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#182740"}]},
-  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#061324"}]},
-  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#3d648f"}]}
-]
-''';
 
   String? _resolvedAddress;
   String? _resolvedSector;
@@ -157,63 +154,69 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   Future<bool> _showDiscardConfirmationDialog() async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (dialogCtx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.border),
-        ),
-        title: Row(
+      builder: (dialogCtx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: AppColors.warning.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(Icons.warning_amber_rounded,
-                  color: AppColors.warning, size: 22),
+            NeoDialogIcon(
+              icon: Icons.warning_amber_rounded,
+              color: AppColors.warning,
             ),
-            SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                "Discard Report?",
-                style: TextStyle(
-                    color: AppColors.textDark,
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold),
-              ),
+            SizedBox(height: 16),
+            Text(
+              _l10n.reportDiscardTitle,
+              textAlign: TextAlign.center,
+              style: _dialogTitleStyle,
+            ),
+            SizedBox(height: 8),
+            Text(
+              _l10n.reportDiscardMessage,
+              textAlign: TextAlign.center,
+              style: _dialogBodyStyle,
+            ),
+            SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: NeoButton(
+                    label: _l10n.reportKeepEditing,
+                    variant: NeoButtonVariant.standard,
+                    height: 48,
+                    expand: true,
+                    onPressed: () => Navigator.of(dialogCtx).pop(false),
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: NeoButton(
+                    label: _l10n.reportDiscard,
+                    variant: NeoButtonVariant.emergency,
+                    height: 48,
+                    expand: true,
+                    onPressed: () => Navigator.of(dialogCtx).pop(true),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        content: Text(
-          "You have unsaved report details. Are you sure you want to leave? Your emergency report draft will be discarded.",
-          style: TextStyle(
-              color: AppColors.textLight, fontSize: 13, height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogCtx).pop(false),
-            child: Text("Keep Editing",
-                style: TextStyle(
-                    color: AppColors.primary, fontWeight: FontWeight.bold)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.danger,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () => Navigator.of(dialogCtx).pop(true),
-            child: Text("Discard",
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        ],
       ),
     );
     return result ?? false;
   }
+
+  TextStyle get _dialogTitleStyle => TextStyle(
+        color: AppColors.textDark,
+        fontSize: 19,
+        fontWeight: FontWeight.w800,
+      );
+
+  TextStyle get _dialogBodyStyle => TextStyle(
+        color: AppColors.textLight,
+        fontSize: 13.5,
+        height: 1.45,
+        fontWeight: FontWeight.w500,
+      );
 
   Future<void> _getCurrentLocation() async {
     setState(() {
@@ -259,7 +262,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("GPS pinned: ${_resolvedAddress!}"),
+            content: Text(_l10n.reportGpsPinned(_resolvedAddress!)),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.solved,
             duration: const Duration(seconds: 4),
@@ -274,13 +277,15 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMessage),
+          content: Text(e is LocationServiceException
+              ? LocalizedLabels.locationError(context, e.code)
+              : errorMessage),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
           duration: const Duration(seconds: 5),
           action: isGpsOff
               ? SnackBarAction(
-                  label: "Settings",
+                  label: _l10n.commonSettings,
                   textColor: Colors.amber,
                   onPressed: () => sl<LocationService>().openLocationSettings(),
                 )
@@ -383,10 +388,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Evidence photo synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Photo saved locally on device."),
+                ? _l10n.reportEvidencePhotoSynced
+                : _l10n.reportPhotoSavedLocally),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
+            backgroundColor: isCloud ? AppColors.solved : AppColors.warning,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -394,9 +399,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Image saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportImageSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.primary,
           ),
         );
       }
@@ -404,7 +409,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to choose file: $e"),
+          content: Text(_l10n.reportChooseFileFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -436,10 +441,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Photo synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Photo saved locally on device."),
+                ? _l10n.reportPhotoSynced
+                : _l10n.reportPhotoSavedLocally),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
+            backgroundColor: isCloud ? AppColors.solved : AppColors.warning,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -447,9 +452,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Photo saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportPhotoSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.primary,
           ),
         );
       }
@@ -457,7 +462,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to open camera: $e"),
+          content: Text(_l10n.reportOpenCameraFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -472,44 +477,35 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   void _showVideoSizeWarningDialog(double sizeMB) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: AppColors.danger),
-        ),
-        title: Row(
+      builder: (ctx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.danger, size: 24),
-            SizedBox(width: 8),
+            NeoDialogIcon(
+              icon: Icons.video_file_outlined,
+              color: AppColors.danger,
+            ),
+            SizedBox(height: 16),
             Text(
-              "Video Limit Exceeded",
-              style: TextStyle(
-                color: AppColors.textDark,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
+              _l10n.reportVideoLimitTitle,
+              textAlign: TextAlign.center,
+              style: _dialogTitleStyle,
+            ),
+            SizedBox(height: 8),
+            Text(
+              _l10n.reportVideoLimitMessage(sizeMB.toStringAsFixed(1)),
+              textAlign: TextAlign.center,
+              style: _dialogBodyStyle,
+            ),
+            SizedBox(height: 22),
+            NeoButton(
+              label: _l10n.reportUnderstood,
+              expand: true,
+              height: 50,
+              onPressed: () => Navigator.pop(ctx),
             ),
           ],
         ),
-        content: Text(
-          "Selected video is ${sizeMB.toStringAsFixed(1)} MB, which exceeds the emergency limit of 20 MB.\n\nTo prevent network delays during critical emergencies, please trim or record a shorter video clip (under 30 seconds).",
-          style: TextStyle(
-            color: AppColors.textLight,
-            fontSize: 13,
-            height: 1.4,
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-            onPressed: () => Navigator.pop(ctx),
-            child: Text("Understood", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          ),
-        ],
       ),
     );
   }
@@ -542,10 +538,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Video evidence synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Video saved locally on device."),
+                ? _l10n.reportVideoSynced
+                : _l10n.reportVideoSavedLocally),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
+            backgroundColor: isCloud ? AppColors.solved : AppColors.warning,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -553,9 +549,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Video saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportVideoSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.primary,
           ),
         );
       }
@@ -563,7 +559,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to choose video: $e"),
+          content: Text(_l10n.reportChooseVideoFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -605,10 +601,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(isCloud
-                ? "Video evidence synced to ResQ Cloud!"
-                : "Cloud upload skipped or timed out. Video saved locally on device."),
+                ? _l10n.reportVideoSynced
+                : _l10n.reportVideoSavedLocally),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: isCloud ? AppColors.secondary : AppColors.warning,
+            backgroundColor: isCloud ? AppColors.solved : AppColors.warning,
             duration: const Duration(seconds: 2),
           ),
         );
@@ -616,9 +612,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Video saved locally (offline): ${uploadError.toString().split(']').last.trim()}"),
+            content: Text(_l10n.reportVideoSavedOffline(uploadError.toString().split(']').last.trim())),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: AppColors.secondary,
+            backgroundColor: AppColors.primary,
           ),
         );
       }
@@ -626,7 +622,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Unable to record video: $e"),
+          content: Text(_l10n.reportRecordVideoFailed('$e')),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -645,14 +641,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     if (isBiometricAvailable) {
       final verified = await biometricService.verifySubmission(
         reason:
-            "Verify your biometric identity to submit an official emergency report to Barangay Moonwalk responders.",
+            _l10n.reportBiometricReason,
       );
       if (!verified) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                "Submission cancelled: Identity verification is required."),
+          SnackBar(
+            content: Text(_l10n.reportBiometricCancelled),
             backgroundColor: AppColors.warning,
             behavior: SnackBarBehavior.floating,
           ),
@@ -736,6 +731,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       reporterName: currentUserName,
       reporterEmail: currentUserEmail,
       isReportingOnBehalf: _isReportingOnBehalf,
+      isBlotter: _isBlotter &&
+          IncidentEntity.isBlotterCategory(_selectedIncidentCategory),
       victimName:
           _isReportingOnBehalf ? _victimNameController.text.trim() : null,
       victimPhone: _isReportingOnBehalf &&
@@ -744,7 +741,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           : null,
     );
 
-    // Display high-tech OLED submission loading dialog
+    // Display the submitting dialog on a dark command-center tray
     _isSubmittingReport = true;
     showDialog(
       context: context,
@@ -752,40 +749,40 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       builder: (ctx) => PopScope(
         canPop: false,
         child: Dialog(
-          backgroundColor: const Color(0xFF0D1627),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: Color(0xFF1E2D4A)),
-          ),
-          child: Padding(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+          child: NeoTray(
+            live: true,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                SizedBox(
-                  height: 42,
-                  width: 42,
+              children: [
+                const SizedBox(
+                  height: 46,
+                  width: 46,
                   child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    color: Color(0xFF00E5FF),
+                    strokeWidth: 3.5,
+                    color: AppColors.secondary,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
-                  "Submitting Emergency Report",
-                  style: TextStyle(
-                    color: Color(0xFFE8F0FE),
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                  _l10n.reportSubmittingTitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 SizedBox(height: 6),
                 Text(
-                  "Dispatching ticket to Barangay Moonwalk responders...",
+                  _l10n.reportSubmittingMessage,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF7B8DB0),
-                    fontSize: 12,
+                  style: const TextStyle(
+                    color: NeoTray.soft,
+                    fontSize: 13,
+                    height: 1.4,
                   ),
                 ),
               ],
@@ -801,9 +798,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   void _submitReport() {
     if (_isReportingOnBehalf && _victimNameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text("Please enter the name of the person you are reporting for."),
+        SnackBar(
+          content: Text(_l10n.reportVictimNameRequired),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -813,9 +809,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
     if (_selectedIncidentCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text("Please select an incident category before submitting."),
+        SnackBar(
+          content: Text(_l10n.reportCategoryRequired),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -826,9 +821,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     if (_selectedIncidentCategory == 'Other Emergency' &&
         _otherCategoryController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-              "Please specify the emergency type (e.g. Fallen Electric Wire, Gas Leak, Sinkhole)."),
+        SnackBar(
+          content: Text(_l10n.reportOtherTypeRequired),
           backgroundColor: AppColors.danger,
           behavior: SnackBarBehavior.floating,
         ),
@@ -838,8 +832,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     final description = _descriptionController.text.trim();
     if (description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a description of the incident"),
+        SnackBar(
+          content: Text(_l10n.reportDescriptionRequired),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.danger,
         ),
@@ -849,8 +843,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
     if (_isUploadingImage || _isUploadingVideo) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please wait a moment, evidence media is uploading to cloud..."),
+        SnackBar(
+          content: Text(_l10n.reportMediaStillUploading),
           behavior: SnackBarBehavior.floating,
           backgroundColor: AppColors.primary,
         ),
@@ -931,272 +925,234 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         authState is Authenticated ? authState.user.id : "resident_demo_01";
     final isMyOwnReport = duplicate.reporterId == currentUserId;
     final hasVoted = duplicate.validatedUserIds.contains(currentUserId);
-    final minutesAgo = DateTime.now().difference(duplicate.timestamp).inMinutes;
+    final accent = isMyOwnReport ? AppColors.primary : AppColors.pending;
+    final accentText = AppColors.isDarkMode
+        ? Color.lerp(accent, Colors.white, 0.35)!
+        : Color.lerp(accent, AppColors.ink, 0.25)!;
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (dialogCtx) => Dialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(
-            color: (isMyOwnReport ? AppColors.primary : AppColors.pending)
-                .withValues(alpha: 0.4),
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: (isMyOwnReport ? AppColors.primary : AppColors.pending)
-                          .withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: (isMyOwnReport ? AppColors.primary : AppColors.pending)
-                            .withValues(alpha: 0.35),
-                      ),
-                    ),
-                    child: Icon(
-                      isMyOwnReport
-                          ? Icons.check_circle_outline_rounded
-                          : Icons.notifications_active_rounded,
-                      color: isMyOwnReport ? AppColors.primary : AppColors.pending,
-                      size: 22,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isMyOwnReport
-                              ? "You Already Reported This!"
-                              : "Similar Incident Nearby!",
-                          style: TextStyle(
-                            color: AppColors.textDark,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          isMyOwnReport
-                              ? "Your ticket was filed ${minutesAgo == 0 ? 'just now' : '$minutesAgo mins ago'}"
-                              : "Potential duplicate detected within 250m",
-                          style: TextStyle(
-                            color: isMyOwnReport ? AppColors.primary : AppColors.pending,
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
-
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+      builder: (dialogCtx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                NeoDialogIcon(
+                  icon: isMyOwnReport
+                      ? Icons.check_circle_outline_rounded
+                      : Icons.notifications_active_rounded,
+                  color: accent,
+                  size: 52,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.near_me_rounded,
-                            color: AppColors.primary, size: 16),
-                        SizedBox(width: 6),
-                        Text(
-                          "${distanceInMeters.round()} meters from your location",
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        if (isMyOwnReport) ...[
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 7, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              "Your Report",
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      duplicate.category,
-                      style: TextStyle(
-                        color: AppColors.textDark,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      duplicate.description,
-                      style: TextStyle(
-                        color: AppColors.textLight,
-                        fontSize: 12,
-                        height: 1.4,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Icon(Icons.people_alt_rounded,
-                            color: AppColors.textLight, size: 14),
-                        SizedBox(width: 6),
-                        Text(
-                          "${duplicate.upvoteCount + 1} citizen${(duplicate.upvoteCount + 1) == 1 ? '' : 's'} affected",
-                          style: TextStyle(
-                            color: AppColors.textLight,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16),
-
-              Text(
-                isMyOwnReport
-                    ? "Your earlier report is active (Status: ${duplicate.status}). Emergency dispatch and Tanods have already been alerted."
-                    : "Corroborating ('Me Too') the existing report prevents overloading emergency dispatchers and elevates emergency urgency.",
-                style: TextStyle(
-                  color: AppColors.textLight,
-                  fontSize: 12,
-                  height: 1.4,
-                ),
-              ),
-              SizedBox(height: 22),
-
-              // Button 1: Primary Action (View My Report vs Me Too)
-              GestureDetector(
-                onTap: () {
-                  Navigator.pop(dialogCtx);
-                  if (!isMyOwnReport && !hasVoted) {
-                    context.read<IncidentBloc>().add(
-                          UpvoteIncidentRequested(
-                            duplicate.id,
-                            currentUserId,
-                          ),
-                        );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          "You corroborated this incident! Emergency priority escalated.",
-                        ),
-                        backgroundColor: AppColors.solved,
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => IncidentDetailPage(
-                        initialIncident: duplicate,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: AppColors.primaryGlowShadow,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        isMyOwnReport
-                            ? Icons.assignment_turned_in_rounded
-                            : Icons.front_hand_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      SizedBox(width: 8),
                       Text(
                         isMyOwnReport
-                            ? "View My Active Report & Notes"
-                            : "Me Too / Corroborate Incident",
+                            ? _l10n.reportDuplicateMineTitle
+                            : _l10n.reportDuplicateNearbyTitle,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: AppColors.textDark,
+                          fontSize: 17,
                           fontWeight: FontWeight.w800,
-                          fontSize: 13,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        isMyOwnReport
+                            ? _l10n.reportDuplicateFiled(
+                                LocalizedLabels.relativeTime(context, duplicate.timestamp))
+                            : _l10n.reportDuplicateWithin,
+                        style: TextStyle(
+                          color: accentText,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              SizedBox(height: 10),
+              ],
+            ),
+            SizedBox(height: 16),
 
-              // Button 2: "Submit as Separate Incident / Anyway"
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogCtx);
-                    if (isAiTriageEnabled) {
-                      context.read<IncidentBloc>().add(
-                          AnalyzeIncidentNarrativeEvent(
-                              _descriptionController.text.trim()));
-                    } else {
-                      _executeStandardSubmit();
-                    }
-                  },
-                  child: Text(
-                    isMyOwnReport
-                        ? "Submit New Separate Report Anyway"
-                        : "Submit as Separate Incident",
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: NeoSurface.inset(radius: 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      IncidentCategoryTile(
+                        storedCategory: duplicate.category,
+                        size: 38,
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              LocalizedLabels.category(context, duplicate.category),
+                              style: TextStyle(
+                                color: AppColors.textDark,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Row(
+                              children: [
+                                Icon(Icons.near_me_rounded,
+                                    color: AppColors.primaryText, size: 14),
+                                SizedBox(width: 4),
+                                Flexible(
+                                  child: Text(
+                                    _l10n.reportDistanceFromYou(distanceInMeters.round()),
+                                    style: TextStyle(
+                                      color: AppColors.primaryText,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (isMyOwnReport) ...[
+                        SizedBox(width: 8),
+                        NeoTag(
+                          icon: Icons.person_rounded,
+                          label: _l10n.reportYourReport,
+                          color: AppColors.primary,
+                        ),
+                      ],
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    duplicate.description,
                     style: TextStyle(
                       color: AppColors.textLight,
-                      fontWeight: FontWeight.w600,
                       fontSize: 12.5,
+                      height: 1.4,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Icon(Icons.people_alt_rounded,
+                          color: AppColors.textLight, size: 14),
+                      SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          _l10n.reportCitizensAffected(duplicate.upvoteCount + 1),
+                          style: TextStyle(
+                            color: AppColors.textLight,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+
+            Text(
+              isMyOwnReport
+                  ? _l10n.reportDuplicateMineInfo(
+                      LocalizedLabels.status(context, duplicate.status))
+                  : _l10n.reportDuplicateCorroborateInfo,
+              style: TextStyle(
+                color: AppColors.textLight,
+                fontSize: 12.5,
+                height: 1.45,
+              ),
+            ),
+            SizedBox(height: 20),
+
+            // Button 1: Primary Action (View My Report vs Me Too)
+            NeoButton(
+              label: isMyOwnReport
+                  ? _l10n.reportViewMyReport
+                  : _l10n.reportMeToo,
+              icon: isMyOwnReport
+                  ? Icons.assignment_turned_in_rounded
+                  : Icons.front_hand_rounded,
+              expand: true,
+              height: 50,
+              onPressed: () {
+                Navigator.pop(dialogCtx);
+                if (!isMyOwnReport && !hasVoted) {
+                  context.read<IncidentBloc>().add(
+                        UpvoteIncidentRequested(
+                          duplicate.id,
+                          currentUserId,
+                        ),
+                      );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        _l10n.reportCorroborated,
+                      ),
+                      backgroundColor: AppColors.solved,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => IncidentDetailPage(
+                      initialIncident: duplicate,
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 6),
+
+            // Button 2: "Submit as Separate Incident / Anyway"
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogCtx);
+                  if (isAiTriageEnabled) {
+                    context.read<IncidentBloc>().add(
+                        AnalyzeIncidentNarrativeEvent(
+                            _descriptionController.text.trim()));
+                  } else {
+                    _executeStandardSubmit();
+                  }
+                },
+                child: Text(
+                  isMyOwnReport
+                      ? _l10n.reportSubmitAnyway
+                      : _l10n.reportSubmitSeparate,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.textLight,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1204,10 +1160,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   String _getFileDisplayText() {
     if (_isUploadingImage) {
-      return "Uploading image...";
+      return _l10n.reportUploadingImage;
     }
     if (_selectedImageFile == null) {
-      return "No file chosen";
+      return _l10n.reportNoFileChosen;
     }
     return _selectedImageFile!.path.split('/').last.split('\\').last;
   }
@@ -1219,8 +1175,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           isAiTriageEnabled = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("AI Triage Enabled"),
+          SnackBar(
+            content: Text(_l10n.reportAiTriageEnabled),
             behavior: SnackBarBehavior.floating,
             backgroundColor: AppColors.primary,
           ),
@@ -1244,124 +1200,77 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   void _showEmergencyCallConfirmation(String agencyName, String phoneNumber) {
     showDialog(
       context: context,
-      builder: (ctx) => Dialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: BorderSide(color: AppColors.danger.withValues(alpha: 0.3)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.danger.withValues(alpha: 0.12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.danger.withValues(alpha: 0.35),
-                      blurRadius: 20,
-                      spreadRadius: 3,
-                    ),
-                  ],
-                ),
-                child: Icon(Icons.phone_in_talk_rounded,
-                    color: AppColors.danger, size: 30),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'Call $agencyName?',
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Dial the official hotline for $agencyName ($phoneNumber) now?',
-                style: TextStyle(
-                    color: AppColors.textLight, fontSize: 13, height: 1.5),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 22),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        child: Center(
-                          child: Text('Cancel',
-                              style: TextStyle(
-                                  color: AppColors.textLight,
-                                  fontWeight: FontWeight.w700)),
-                        ),
-                      ),
-                    ),
+      builder: (ctx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NeoDialogIcon(
+              icon: Icons.phone_in_talk_rounded,
+              color: AppColors.danger,
+            ),
+            SizedBox(height: 16),
+            Text(
+              _l10n.reportCallAgencyTitle(agencyName),
+              textAlign: TextAlign.center,
+              style: _dialogTitleStyle,
+            ),
+            SizedBox(height: 8),
+            Text(
+              _l10n.reportCallAgencyMessage(agencyName, phoneNumber),
+              style: _dialogBodyStyle,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: NeoButton(
+                    label: _l10n.commonCancel,
+                    variant: NeoButtonVariant.standard,
+                    height: 48,
+                    expand: true,
+                    onPressed: () => Navigator.pop(ctx),
                   ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () async {
-                        Navigator.pop(ctx);
-                        final cleanNumber =
-                            phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
-                        final Uri phoneUri =
-                            Uri(scheme: 'tel', path: cleanNumber);
-                        try {
-                          final launched = await launchUrl(
-                            phoneUri,
-                            mode: LaunchMode.externalApplication,
-                          );
-                          if (!launched) {
-                            throw 'Cannot launch dialer';
-                          }
-                        } catch (_) {
-                          if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  'Could not open dialer for $phoneNumber. Please dial manually.'),
-                              backgroundColor: AppColors.danger,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: NeoButton(
+                    label: _l10n.reportCallNow,
+                    icon: Icons.call_rounded,
+                    variant: NeoButtonVariant.emergency,
+                    height: 48,
+                    expand: true,
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      final cleanNumber =
+                          phoneNumber.replaceAll(RegExp(r'[^0-9+]'), '');
+                      final Uri phoneUri =
+                          Uri(scheme: 'tel', path: cleanNumber);
+                      try {
+                        final launched = await launchUrl(
+                          phoneUri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                        if (!launched) {
+                          throw 'Cannot launch dialer';
                         }
-                      },
-                      child: Container(
-                        height: 46,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.emergencyGradient,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: AppColors.dangerGlowShadow,
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Call Now',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
+                      } catch (_) {
+                        if (!mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                _l10n.reportDialerFailed(phoneNumber)),
+                            backgroundColor: AppColors.danger,
+                            behavior: SnackBarBehavior.floating,
                           ),
-                        ),
-                      ),
-                    ),
+                        );
+                      }
+                    },
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -1389,7 +1298,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text("Failed to submit: ${state.message}"),
+              content: Text(_l10n.reportSubmitFailed(state.message)),
               backgroundColor: AppColors.danger,
               behavior: SnackBarBehavior.floating,
             ),
@@ -1398,27 +1307,30 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => Center(
-              child: Custom3dCard(
-                padding: const EdgeInsets.all(24),
-                borderRadius: 20,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(color: AppColors.primary),
-                    SizedBox(height: 16),
-                    Text("Gemini AI is analyzing incident threat levels...",
-                        style: TextStyle(color: AppColors.textDark, fontWeight: FontWeight.bold)),
-                  ],
-                ),
+            builder: (context) => NeoDialog(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(color: AppColors.secondary),
+                  SizedBox(height: 18),
+                  Text(
+                    _l10n.reportAiAnalyzing,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.textDark,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
         } else if (state is IncidentTriageError) {
           Navigator.of(context).pop(); // dismiss loading
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("AI Evaluation failed. Defaulting to MEDIUM priority."),
+            SnackBar(
+              content: Text(_l10n.reportAiFailed),
               backgroundColor: AppColors.danger,
               behavior: SnackBarBehavior.floating,
             ),
@@ -1426,31 +1338,41 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           _executeStandardSubmit(urgencyStatus: 'MEDIUM');
         } else if (state is IncidentTriageLoaded) {
           Navigator.of(context).pop(); // dismiss loading
-          
+
           showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => Dialog(
-              backgroundColor: AppColors.surface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20), side: BorderSide(color: AppColors.primary)),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text("AI Urgency Assessment", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textDark)),
-                    SizedBox(height: 12),
-                    Text("${state.triageResult.urgency} - ${state.triageResult.justification}", style: TextStyle(fontSize: 14, color: AppColors.textLight)),
-                    SizedBox(height: 20),
-                    Custom3dButton(
-                      text: "Proceed to Submit",
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _executeStandardSubmit(urgencyStatus: state.triageResult.urgency);
-                      },
-                    ),
-                  ],
-                ),
+            builder: (context) => NeoDialog(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  NeoDialogIcon(
+                    icon: Icons.auto_awesome_rounded,
+                    color: AppColors.primary,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    _l10n.reportAiAssessmentTitle,
+                    textAlign: TextAlign.center,
+                    style: _dialogTitleStyle,
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "${LocalizedLabels.urgency(context, state.triageResult.urgency)} - ${state.triageResult.justification}",
+                    textAlign: TextAlign.center,
+                    style: _dialogBodyStyle,
+                  ),
+                  SizedBox(height: 22),
+                  Custom3dButton(
+                    text: _l10n.reportProceedToSubmit,
+                    borderRadius: 999,
+                    height: 52,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _executeStandardSubmit(urgencyStatus: state.triageResult.urgency);
+                    },
+                  ),
+                ],
               ),
             ),
           );
@@ -1466,85 +1388,41 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               Navigator.of(context).pop();
             }
           },
-          child: Scaffold(
-            backgroundColor: AppColors.background,
-            appBar: AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textDark, size: 20),
-                tooltip: "Back",
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-              backgroundColor: AppColors.surface,
-              elevation: 0,
-              bottom: PreferredSize(
-                preferredSize: const Size.fromHeight(1),
-                child: Container(
-                  color: AppColors.border,
-                  height: 1,
+          child: AuroraBackground(
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: SafeArea(
+                bottom: false,
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.fromLTRB(
+                          20,
+                          8,
+                          20,
+                          32 + MediaQuery.paddingOf(context).bottom,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _buildEmergencyHotlinesSection(),
+                            SizedBox(height: 18),
+                            _buildDetailsCard(),
+                            SizedBox(height: 18),
+                            _buildLocationCard(),
+                            SizedBox(height: 18),
+                            _buildEvidenceTray(),
+                            SizedBox(height: 24),
+                            _buildSubmitButton(state),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              iconTheme: IconThemeData(color: AppColors.textDark),
-              titleSpacing: 0,
-              title: Row(
-                children: [
-                  _buildAppLogo(),
-                  SizedBox(width: 12),
-                  Text(
-                    "Report Incident",
-                    style: TextStyle(
-                      color: AppColors.textDark,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.surfaceLight,
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      icon: Icon(Icons.help_outline,
-                          color: AppColors.textLight, size: 20),
-                      tooltip: "Filing Guidelines",
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                "Ensure accurate data for priority responder handling."),
-                            backgroundColor: AppColors.surface,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(color: AppColors.border),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            body: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildEmergencyHotlinesSection(),
-                  SizedBox(height: 20),
-                  _buildPrimaryFormContainer(state),
-                ],
               ),
             ),
           ),
@@ -1553,39 +1431,84 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     );
   }
 
+  TextStyle get _cardTitleStyle => TextStyle(
+        fontSize: 17,
+        fontWeight: FontWeight.w800,
+        color: AppColors.textDark,
+      );
+
+  Widget _fieldLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 12.5,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textLight,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 8),
+      child: Row(
+        children: [
+          NeoIconButton(
+            icon: Icons.arrow_back_rounded,
+            tooltip: _l10n.commonBack,
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+          SizedBox(width: 12),
+          _buildAppLogo(),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              _l10n.reportTitle,
+              maxLines: 2,
+              style: TextStyle(
+                color: AppColors.textDark,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                height: 1.15,
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          NeoIconButton(
+            icon: Icons.info_outline_rounded,
+            tooltip: _l10n.reportGuidelinesTooltip,
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_l10n.reportGuidelinesMessage),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildEmergencyHotlinesSection() {
-    return Custom3dCard(
-      padding: const EdgeInsets.all(18),
-      borderRadius: 20,
+    return NeoTray(
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.danger.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.danger.withValues(alpha: 0.2),
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.flash_on,
-                  color: AppColors.danger,
-                  size: 20,
-                ),
-              ),
-              SizedBox(width: 10),
+              Icon(Icons.flash_on_rounded, color: AppColors.dangerLight, size: 18),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  "Immediate Threat? Emergency Hotlines",
+                  _l10n.reportHotlinesTitle,
                   style: TextStyle(
-                    color: AppColors.textDark,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                   ),
@@ -1593,399 +1516,358 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
             ],
           ),
-          SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _showEmergencyCallConfirmation(
-                      "Emergency Hotline", "911"),
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.emergencyGradient,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppColors.dangerGlowShadow,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.phone, color: Colors.white, size: 16),
-                          SizedBox(width: 6),
-                          Text(
-                            "Call 911",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _showEmergencyCallConfirmation(
-                      "Barangay Desk", "0917-000-0000"),
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                          color: AppColors.primary.withValues(alpha: 0.3)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.shield_outlined,
-                              color: AppColors.primary, size: 16),
-                          SizedBox(width: 6),
-                          Text(
-                            "Barangay Desk",
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final call911 = NeoButton(
+                label: _l10n.reportCall911,
+                icon: Icons.phone_rounded,
+                variant: NeoButtonVariant.emergency,
+                height: 48,
+                expand: true,
+                onPressed: () => _showEmergencyCallConfirmation(
+                    _l10n.reportEmergencyHotline, "911"),
+              );
+              final desk = NeoButton(
+                label: _l10n.reportBarangayDesk,
+                icon: Icons.shield_outlined,
+                variant: NeoButtonVariant.slate,
+                height: 48,
+                expand: true,
+                onPressed: () => _showEmergencyCallConfirmation(
+                    _l10n.reportBarangayDesk, "0917-000-0000"),
+              );
+              // Side by side while both labels fit on one line; stacked on
+              // small phones, with longer Filipino labels or large text.
+              final half = (constraints.maxWidth - 10) / 2;
+              if (call911.fitsOneLine(context, half) &&
+                  desk.fitsOneLine(context, half)) {
+                return Row(
+                  children: [
+                    Expanded(child: call911),
+                    SizedBox(width: 10),
+                    Expanded(child: desk),
+                  ],
+                );
+              }
+              return Column(
+                children: [call911, SizedBox(height: 10), desk],
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPrimaryFormContainer(IncidentState state) {
-    return Custom3dCard(
-      padding: const EdgeInsets.all(22),
-      borderRadius: 22,
+  void _selectReportingMode(bool onBehalf) {
+    setState(() {
+      _isReportingOnBehalf = onBehalf;
+    });
+    if (onBehalf && (_latitude == null || _latitude == 0.0)) {
+      _updatePinnedLocation(
+        _defaultMoonwalkCenter.latitude,
+        _defaultMoonwalkCenter.longitude,
+        animateCamera: true,
+        sectorHint: _selectedBarangay,
+      );
+    }
+  }
+
+  Widget _buildDetailsCard() {
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Incident Details",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: AppColors.textDark,
-            ),
-          ),
-          SizedBox(height: 18),
+          Text(_l10n.reportDetailsTitle, style: _cardTitleStyle),
+          SizedBox(height: 16),
 
           // ── Reporting Mode Selector: Myself (At Scene) vs. On Behalf ───────
-          Text(
-            "Reporting Mode",
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
+          _fieldLabel(_l10n.reportModeLabel),
+          NeoSegmented<bool>(
+            segments: [
+              NeoSegment(value: false, label: _l10n.reportModeMyself),
+              NeoSegment(value: true, label: _l10n.reportModeForSomeone),
+            ],
+            selected: _isReportingOnBehalf,
+            onChanged: _selectReportingMode,
           ),
-          SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 1.2),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isReportingOnBehalf = false;
-                      });
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: !_isReportingOnBehalf ? AppColors.primary : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: !_isReportingOnBehalf
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.primary.withValues(alpha: 0.35),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                )
-                              ]
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.person_pin_circle_rounded,
-                            size: 16,
-                            color: !_isReportingOnBehalf ? Colors.white : AppColors.textLight,
-                          ),
-                          SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              "Myself",
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w800,
-                                color: !_isReportingOnBehalf ? Colors.white : AppColors.textLight,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isReportingOnBehalf = true;
-                      });
-                      if (_latitude == null || _latitude == 0.0) {
-                        _updatePinnedLocation(
-                          _defaultMoonwalkCenter.latitude,
-                          _defaultMoonwalkCenter.longitude,
-                          animateCamera: true,
-                          sectorHint: _selectedBarangay,
-                        );
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: _isReportingOnBehalf ? const Color(0xFFFF9500) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: _isReportingOnBehalf
-                            ? [
-                                BoxShadow(
-                                  color: const Color(0xFFFF9500).withValues(alpha: 0.35),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                )
-                              ]
-                            : null,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.people_alt_rounded,
-                            size: 16,
-                            color: _isReportingOnBehalf ? Colors.black : AppColors.textLight,
-                          ),
-                          SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              "For Someone",
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w800,
-                                color: _isReportingOnBehalf ? Colors.black : AppColors.textLight,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 14),
+          SizedBox(height: 16),
 
           // ── Victim Dossier Form (Active when Reporting on Behalf) ───────────
           if (_isReportingOnBehalf) ...[
-            Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF9500).withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFF9500).withValues(alpha: 0.35)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFF9500).withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.emergency_share_rounded, size: 16, color: Color(0xFFFF9500)),
-                      ),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          "Reporting for Someone Else (Off-Site)",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFFFF9500),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    "Enter the affected person's details and adjust the map pin below to their exact location in Barangay Moonwalk so responders can locate and assist them.",
-                    style: TextStyle(fontSize: 11.5, color: AppColors.textLight, height: 1.4),
-                  ),
-                  SizedBox(height: 12),
-                  Custom3dTextField(
-                    controller: _victimNameController,
-                    labelText: "Affected Person's Full Name *",
-                    hintText: "E.g. Maria Santos / Lola Elena",
-                    prefixIcon: Icons.person_rounded,
-                  ),
-                  SizedBox(height: 10),
-                  Custom3dTextField(
-                    controller: _victimPhoneController,
-                    labelText: "Affected Person's Contact Number (Optional)",
-                    hintText: "E.g. 0917 123 4567 (for responder verification)",
-                    prefixIcon: Icons.phone_rounded,
-                    keyboardType: TextInputType.phone,
-                  ),
-                ],
-              ),
-            ),
+            _buildVictimDossier(),
+            SizedBox(height: 16),
           ],
 
           // Complainant Selection
-          Text(
-            "Complainant Identity",
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
-          ),
-          SizedBox(height: 8),
+          _fieldLabel(_l10n.reportComplainantLabel),
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, authState) {
               final userName = authState is Authenticated
                   ? (authState.user.fullName ??
                       (authState.user.email.isNotEmpty
                           ? authState.user.email.split('@').first
-                          : 'Resident'))
-                  : 'Resident';
-              return DropdownButtonFormField<String>(
-                initialValue: _selectedComplainant,
-                isExpanded: true,
-                dropdownColor: AppColors.surface,
-                style: TextStyle(
-                  color: AppColors.textDark,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-                icon: Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: AppColors.accentBg,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.primary, width: 1.5)),
-                ),
-                items: [
-                  DropdownMenuItem(
-                    value: "self",
-                    child: Text(
-                      "Self: $userName",
-                      style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                          : _l10n.commonResident))
+                  : _l10n.commonResident;
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  NeoChip(
+                    label: _l10n.reportComplainantSelf(userName),
+                    icon: Icons.person_rounded,
+                    selected: _selectedComplainant == "self",
+                    onPressed: () => setState(() => _selectedComplainant = "self"),
                   ),
-                  DropdownMenuItem(
-                    value: "anonymous",
-                    child: Text(
-                      "Anonymous (Identity Shielded)",
-                      style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  NeoChip(
+                    label: _l10n.reportComplainantAnonymous,
+                    icon: Icons.security_rounded,
+                    selected: _selectedComplainant == "anonymous",
+                    onPressed: () =>
+                        setState(() => _selectedComplainant = "anonymous"),
                   ),
                 ],
-                onChanged: (val) => setState(() => _selectedComplainant = val ?? "self"),
               );
             },
           ),
+          SizedBox(height: 18),
 
+          // Incident Category Selection
+          _fieldLabel(_l10n.reportCategoryLabel),
+          _buildCategoryGrid(),
           SizedBox(height: 16),
 
-          // ── Real GPS / Interactive Location Section ────────────────────────
+          // Blotter entry: only for disputes and complaints the barangay records
+          if (IncidentEntity.isBlotterCategory(_selectedIncidentCategory)) ...[
+            _buildBlotterToggle(),
+            SizedBox(height: 16),
+          ],
+
+          if (_selectedIncidentCategory == 'Other Emergency')
+            Custom3dTextField(
+              controller: _otherCategoryController,
+              labelText: _l10n.reportOtherTypeLabel,
+              hintText: _l10n.reportOtherTypeHint,
+              prefixIcon: Icons.emergency_outlined,
+              inset: true,
+            ),
+
+          // Description 3D text field
+          Custom3dTextField(
+            controller: _descriptionController,
+            labelText: _l10n.reportDescriptionLabel,
+            hintText: _l10n.reportDescriptionHint,
+            prefixIcon: Icons.description_outlined,
+            maxLines: 4,
+            inset: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVictimDossier() {
+    final isDark = AppColors.isDarkMode;
+    final accent = isDark
+        ? Color.lerp(AppColors.onBehalf, Colors.white, 0.4)!
+        : AppColors.onBehalf;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 0),
+      decoration: BoxDecoration(
+        color: AppColors.onBehalf.withValues(alpha: isDark ? 0.14 : 0.07),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.onBehalf.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Icon(Icons.emergency_share_rounded, size: 18, color: accent),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  _isReportingOnBehalf ? "Victim / Incident Location" : "Incident Location",
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                  _l10n.reportForSomeoneTitle,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                    color: accent,
+                  ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          SizedBox(height: 6),
+          Text(
+            _l10n.reportForSomeoneHelp,
+            style: TextStyle(fontSize: 12, color: AppColors.textLight, height: 1.4),
+          ),
+          SizedBox(height: 12),
+          Custom3dTextField(
+            controller: _victimNameController,
+            labelText: _l10n.reportVictimNameLabel,
+            hintText: _l10n.reportVictimNameHint,
+            prefixIcon: Icons.person_rounded,
+            inset: true,
+          ),
+          Custom3dTextField(
+            controller: _victimPhoneController,
+            labelText: _l10n.reportVictimPhoneLabel,
+            hintText: _l10n.reportVictimPhoneHint,
+            prefixIcon: Icons.phone_rounded,
+            keyboardType: TextInputType.phone,
+            inset: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBlotterToggle() {
+    final isDark = AppColors.isDarkMode;
+    final accent = isDark
+        ? Color.lerp(AppColors.blotter, Colors.white, 0.4)!
+        : AppColors.blotter;
+    // One control for screen readers: the title, help text and switch.
+    return MergeSemantics(
+      child: GestureDetector(
+        onTap: () => setState(() => _isBlotter = !_isBlotter),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+          decoration: BoxDecoration(
+            color: AppColors.blotter.withValues(alpha: isDark ? 0.14 : 0.07),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: AppColors.blotter.withValues(alpha: _isBlotter ? 0.7 : 0.35),
+              width: _isBlotter ? 2 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.gavel_rounded, size: 18, color: accent),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    WordSafeText(
+                      _l10n.reportBlotterTitle,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                        color: accent,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      _l10n.reportBlotterHelp,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textLight,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                key: const Key('reportBlotterSwitch'),
+                value: _isBlotter,
+                activeThumbColor: AppColors.blotter,
+                onChanged: (value) => setState(() => _isBlotter = value),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Two categories per row; both tiles in a row share the taller height.
+  Widget _buildCategoryGrid() {
+    final rows = <Widget>[];
+    for (var i = 0; i < _incidentCategories.length; i += 2) {
+      final first = _incidentCategories[i];
+      final second =
+          i + 1 < _incidentCategories.length ? _incidentCategories[i + 1] : null;
+      rows.add(Padding(
+        padding: EdgeInsets.only(top: i == 0 ? 0 : 10),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: _buildCategoryTile(first)),
+              SizedBox(width: 10),
+              Expanded(
+                child: second == null ? SizedBox() : _buildCategoryTile(second),
+              ),
+            ],
+          ),
+        ),
+      ));
+    }
+    return Column(children: rows);
+  }
+
+  Widget _buildCategoryTile(String category) {
+    return _CategoryTile(
+      storedCategory: category,
+      label: LocalizedLabels.category(context, category),
+      selected: _selectedIncidentCategory == category,
+      onTap: () {
+        setState(() {
+          _selectedIncidentCategory = category;
+          if (!IncidentEntity.isBlotterCategory(category)) _isBlotter = false;
+        });
+      },
+    );
+  }
+
+  Widget _buildLocationCard() {
+    final pinColor = _latitude != null
+        ? (_isReportingOnBehalf ? AppColors.onBehalf : AppColors.solved)
+        : AppColors.primary;
+    final mapAccent =
+        _isReportingOnBehalf ? AppColors.onBehalf : AppColors.primary;
+    final guideAccent =
+        _isReportingOnBehalf ? const Color(0xFFFDBA74) : AppColors.secondary;
+
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Real GPS / Interactive Location Section ────────────────────────
+          Text(
+            _isReportingOnBehalf ? _l10n.reportLocationVictimTitle : _l10n.reportLocationTitle,
+            style: _cardTitleStyle,
+          ),
+          SizedBox(height: 14),
 
           // Pinned Location Summary Card
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: _latitude != null
-                    ? (_isReportingOnBehalf
-                        ? const Color(0xFFFF9500).withValues(alpha: 0.4)
-                        : AppColors.solved.withValues(alpha: 0.4))
-                    : AppColors.border,
-                width: 1.2,
-              ),
-            ),
+            padding: const EdgeInsets.all(12),
+            decoration: NeoSurface.inset(radius: 18),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: _latitude != null
-                        ? (_isReportingOnBehalf
-                            ? const Color(0xFFFF9500).withValues(alpha: 0.12)
-                            : AppColors.solved.withValues(alpha: 0.12))
-                        : AppColors.primary.withValues(alpha: 0.12),
+                    color: pinColor.withValues(alpha: AppColors.isDarkMode ? 0.22 : 0.13),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     _latitude != null
                         ? Icons.pin_drop_rounded
                         : Icons.location_searching_rounded,
-                    color: _latitude != null
-                        ? (_isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.solved)
-                        : AppColors.primary,
+                    color: AppColors.isDarkMode
+                        ? Color.lerp(pinColor, Colors.white, 0.35)
+                        : pinColor,
                     size: 20,
                   ),
                 ),
@@ -1998,10 +1880,10 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         children: [
                           Expanded(
                             child: Text(
-                              _resolvedAddress ?? "Location not pinned yet",
+                              _resolvedAddress ?? _l10n.reportLocationNotPinned,
                               style: TextStyle(
                                 color: _resolvedAddress != null ? AppColors.textDark : AppColors.textLight,
-                                fontSize: 13,
+                                fontSize: 13.5,
                                 fontWeight: FontWeight.w800,
                                 height: 1.3,
                               ),
@@ -2021,11 +1903,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       SizedBox(height: 4),
                       Text(
                         _latitude != null
-                            ? "Coordinates: ${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}${_resolvedSector != null ? ' • $_resolvedSector' : ''}"
-                            : "Drag pin or tap map below to pin exact house / compound",
+                            ? _l10n.reportCoordinates(
+                                "${_latitude!.toStringAsFixed(6)}, ${_longitude!.toStringAsFixed(6)}${_resolvedSector != null ? ' • $_resolvedSector' : ''}")
+                            : _l10n.reportPinHint,
                         style: TextStyle(
                           color: AppColors.textLight,
-                          fontSize: 11,
+                          fontSize: 11.5,
                         ),
                       ),
                     ],
@@ -2034,20 +1917,18 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ],
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 12),
 
           // ── Interactive Draggable Pin Google Map ───────────────────────────
           ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(22),
             child: Container(
               height: 220,
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(22),
                 border: Border.all(
-                  color: _isReportingOnBehalf
-                      ? const Color(0xFFFF9500).withValues(alpha: 0.5)
-                      : AppColors.primary.withValues(alpha: 0.5),
+                  color: mapAccent.withValues(alpha: 0.5),
                   width: 1.5,
                 ),
               ),
@@ -2066,7 +1947,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                       zoom: 15.5,
                     ),
-                    style: _miniMapDarkStyle,
+                    style: MapStyles.current,
                     onMapCreated: (controller) {
                       _miniMapController = controller;
                     },
@@ -2085,8 +1966,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           _isReportingOnBehalf ? BitmapDescriptor.hueOrange : BitmapDescriptor.hueRed,
                         ),
                         infoWindow: InfoWindow(
-                          title: _isReportingOnBehalf ? "Victim Location" : "Incident Location",
-                          snippet: _resolvedAddress ?? "Drag to refine location",
+                          title: _isReportingOnBehalf ? _l10n.reportVictimLocation : _l10n.reportLocationTitle,
+                          snippet: _resolvedAddress ?? _l10n.reportDragToRefine,
                         ),
                         onDragStart: (LatLng startPos) {
                           setState(() {
@@ -2120,14 +2001,12 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     left: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.82),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppColors.ink.withValues(alpha: 0.82),
+                        borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                          color: _isDraggingPin
-                              ? (_isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.primary)
-                              : Colors.white12,
+                          color: _isDraggingPin ? guideAccent : Colors.white12,
                           width: _isDraggingPin ? 1.5 : 1,
                         ),
                       ),
@@ -2136,21 +2015,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                           Icon(
                             _isDraggingPin ? Icons.open_with_rounded : Icons.touch_app_rounded,
                             size: 14,
-                            color: _isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.primary,
+                            color: guideAccent,
                           ),
                           SizedBox(width: 6),
                           Expanded(
                             child: Text(
                               _isDraggingPin
-                                  ? "Dragging pin: release to drop at exact location"
+                                  ? _l10n.reportDraggingPin
                                   : (_isReverseGeocoding
-                                      ? "Resolving Moonwalk street & sector..."
-                                      : "Touch & drag pin freely, or tap anywhere to place"),
+                                      ? _l10n.reportResolvingSector
+                                      : _l10n.reportMapHint),
                               style: TextStyle(
                                 fontSize: 10.5,
-                                color: _isDraggingPin
-                                    ? (_isReportingOnBehalf ? const Color(0xFFFF9500) : AppColors.primary)
-                                    : Colors.white,
+                                color: _isDraggingPin ? guideAccent : Colors.white,
                                 fontWeight: FontWeight.w600,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -2173,8 +2050,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     child: FloatingActionButton.small(
                       heroTag: 'recenter_pin_btn',
                       backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.primary,
+                      foregroundColor: AppColors.primaryText,
                       elevation: 3,
+                      shape: const CircleBorder(),
                       onPressed: () {
                         if (_miniMapController != null) {
                           _miniMapController!.animateCamera(
@@ -2197,154 +2075,57 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           SizedBox(height: 12),
 
           // Action Button: Pin / Re-Pin with Phone GPS
-          SizedBox(
-            width: double.infinity,
-            height: 44,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _latitude != null ? AppColors.surfaceLight : AppColors.primary,
-                foregroundColor: _latitude != null ? AppColors.primary : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: _latitude != null
-                      ? BorderSide(color: AppColors.primary, width: 1.2)
-                      : BorderSide.none,
-                ),
-                elevation: _latitude != null ? 0 : 2,
-              ),
-              onPressed: _isLocating ? null : _getCurrentLocation,
-              icon: _isLocating
-                  ? SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primary,
-                      ),
-                    )
-                  : Icon(
-                      _latitude != null ? Icons.refresh_rounded : Icons.my_location_rounded,
-                      size: 18,
-                    ),
-              label: Text(
-                _isLocating
-                    ? "Acquiring GPS & Address..."
-                    : (_latitude != null ? "Use My Phone GPS Fix" : "Pin Exact Location with GPS"),
-                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
-              ),
-            ),
+          NeoButton(
+            label: _isLocating
+                ? _l10n.reportAcquiringGps
+                : (_latitude != null ? _l10n.reportUsePhoneGps : _l10n.reportPinWithGps),
+            icon: _latitude != null ? Icons.refresh_rounded : Icons.my_location_rounded,
+            variant: _latitude != null ? NeoButtonVariant.standard : NeoButtonVariant.primary,
+            expand: true,
+            height: 48,
+            onPressed: _isLocating ? null : _getCurrentLocation,
           ),
-          SizedBox(height: 12),
+          SizedBox(height: 16),
 
           // Landmark Note Input
           Custom3dTextField(
             controller: _landmarkController,
-            labelText: "Nearby Landmark / Specific Details (Optional)",
-            hintText: "E.g. Near gate 2, corner store, 3rd floor unit",
+            labelText: _l10n.reportLandmarkLabel,
+            hintText: _l10n.reportLandmarkHint,
             prefixIcon: Icons.add_location_alt_outlined,
+            inset: true,
           ),
-          SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
 
-          // Incident Category Selection
-          Text(
-            "Incident Category",
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textDark),
-          ),
-          SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: _selectedIncidentCategory,
-            isExpanded: true,
-            dropdownColor: AppColors.surface,
-            style: TextStyle(
-              color: AppColors.textDark,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-            icon: Icon(Icons.keyboard_arrow_down, color: AppColors.primary),
-            hint: Text("Select Category", style: TextStyle(color: AppColors.textLight, fontSize: 13)),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: AppColors.accentBg,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.border)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: AppColors.primary, width: 1.5)),
-            ),
-            items: _incidentCategories.map((cat) {
-              return DropdownMenuItem(
-                value: cat,
-                child: Row(
-                  children: [
-                    Icon(_getCategoryIcon(cat), size: 18, color: AppColors.primary),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        cat,
-                        style: TextStyle(color: AppColors.textDark, fontSize: 13, fontWeight: FontWeight.w600),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-            onChanged: (val) {
-              setState(() {
-                _selectedIncidentCategory = val;
-              });
-            },
-          ),
-
-          if (_selectedIncidentCategory == 'Other Emergency') ...[
-            SizedBox(height: 12),
-            Custom3dTextField(
-              controller: _otherCategoryController,
-              labelText: "Specify Emergency Type",
-              hintText:
-                  "e.g., Fallen Electric Wire, Gas Leak, Sinkhole, Oil Spill",
-              prefixIcon: Icons.emergency_outlined,
-            ),
-          ],
-
-          SizedBox(height: 16),
-
-          // Description 3D text field
-          Custom3dTextField(
-            controller: _descriptionController,
-            labelText: "Incident Description",
-            hintText: "Provide details of what happened, people involved, etc.",
-            prefixIcon: Icons.description_outlined,
-            maxLines: 4,
-          ),
-
-          SizedBox(height: 12),
-
-          // Evidence Attachment Button
+  // Photo and video evidence on a dark tray: camera buttons on the left,
+  // pick-a-file buttons beside them.
+  Widget _buildEvidenceTray() {
+    return NeoTray(
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: BorderSide(color: AppColors.primary),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: _isUploadingImage ? null : _chooseEvidenceFile,
-                  icon: Icon(Icons.photo_library_outlined),
-                  label: Text(_getFileDisplayText(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                ),
+              NeoIconButton(
+                icon: Icons.photo_camera_rounded,
+                tooltip: _l10n.reportTakePhoto,
+                tone: NeoIconButtonTone.slate,
+                size: 48,
+                onPressed: _isUploadingImage ? null : _takeEvidencePhoto,
               ),
               SizedBox(width: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.accentBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.camera_alt_outlined, color: AppColors.primary),
-                  onPressed: _isUploadingImage ? null : _takeEvidencePhoto,
+              Expanded(
+                child: NeoButton(
+                  label: _getFileDisplayText(),
+                  icon: Icons.photo_library_rounded,
+                  variant: NeoButtonVariant.slate,
+                  height: 48,
+                  expand: true,
+                  onPressed: _isUploadingImage ? null : _chooseEvidenceFile,
                 ),
               ),
             ],
@@ -2356,12 +2137,20 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    _selectedImageFile!,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  // Image.file can't read files on web; there the path is a blob: URL.
+                  child: kIsWeb
+                      ? Image.network(
+                          _selectedImageFile!.path,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.file(
+                          _selectedImageFile!,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 Positioned(
                   top: 8,
@@ -2376,7 +2165,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.65),
+                        color: AppColors.ink.withValues(alpha: 0.7),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.close, color: Colors.white, size: 18),
@@ -2391,7 +2180,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Center(
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                        child: CircularProgressIndicator(color: AppColors.secondary),
                       ),
                     ),
                   ),
@@ -2399,39 +2188,29 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             ),
           ],
 
-          SizedBox(height: 16),
+          SizedBox(height: 10),
 
           // Video Evidence Section (Low Latency / Max 20MB / 30s)
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.progress,
-                    side: BorderSide(color: AppColors.progress),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  ),
-                  onPressed: _isUploadingVideo ? null : _chooseVideoFile,
-                  icon: Icon(Icons.video_library_outlined),
-                  label: Text(
-                    _isUploadingVideo
-                        ? "Uploading video..."
-                        : (_selectedVideoFile == null ? "Add Video (≤ 20MB)" : "Change Video"),
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  ),
-                ),
+              NeoIconButton(
+                icon: Icons.videocam_rounded,
+                tooltip: _l10n.reportRecordVideo,
+                tone: NeoIconButtonTone.slate,
+                size: 48,
+                onPressed: _isUploadingVideo ? null : _recordEvidenceVideo,
               ),
               SizedBox(width: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.accentBg,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.videocam_outlined, color: AppColors.progress),
-                  onPressed: _isUploadingVideo ? null : _recordEvidenceVideo,
+              Expanded(
+                child: NeoButton(
+                  label: _isUploadingVideo
+                      ? _l10n.reportUploadingVideo
+                      : (_selectedVideoFile == null ? _l10n.reportAddVideo : _l10n.reportChangeVideo),
+                  icon: Icons.video_library_rounded,
+                  variant: NeoButtonVariant.slate,
+                  height: 48,
+                  expand: true,
+                  onPressed: _isUploadingVideo ? null : _chooseVideoFile,
                 ),
               ),
             ],
@@ -2442,19 +2221,19 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surface,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppColors.progress.withValues(alpha: 0.4)),
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               ),
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.progress.withValues(alpha: 0.15),
+                      color: AppColors.secondary.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.videocam_rounded, color: AppColors.progress, size: 20),
+                    child: Icon(Icons.videocam_rounded, color: AppColors.secondary, size: 20),
                   ),
                   SizedBox(width: 10),
                   Expanded(
@@ -2464,8 +2243,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         Text(
                           _selectedVideoFile!.path.split('/').last.split('\\').last,
                           style: TextStyle(
-                            color: AppColors.textDark,
-                            fontSize: 12,
+                            color: Colors.white,
+                            fontSize: 12.5,
                             fontWeight: FontWeight.w700,
                           ),
                           maxLines: 1,
@@ -2473,9 +2252,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          "${_selectedVideoSizeMB.toStringAsFixed(1)} MB • Emergency low-latency verified",
+                          _l10n.reportVideoVerified(_selectedVideoSizeMB.toStringAsFixed(1)),
                           style: TextStyle(
-                            color: AppColors.progress,
+                            color: AppColors.secondaryLight,
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -2487,11 +2266,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.progress),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.secondary),
                     )
                   else
                     IconButton(
-                      icon: Icon(Icons.close, color: AppColors.textLight, size: 18),
+                      icon: Icon(Icons.close, color: NeoTray.soft, size: 18),
                       onPressed: () {
                         setState(() {
                           _selectedVideoFile = null;
@@ -2504,85 +2283,62 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               ),
             ),
           ],
-
-
-          SizedBox(height: 24),
-
-          // 3D Submit Button
-          if (state is IncidentSubmitLoading || state is IncidentTriageLoading)
-            Center(child: CircularProgressIndicator(color: AppColors.primary))
-          else
-            Custom3dButton(
-              icon: Icons.send_rounded,
-              text: "SUBMIT INCIDENT REPORT",
-              onPressed: _submitReport,
-            ),
         ],
       ),
     );
   }
 
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case "Fire Incident":
-        return Icons.local_fire_department;
-      case "Theft / Robbery":
-        return Icons.local_police;
-      case "Medical Emergency":
-        return Icons.medical_services;
-      case "Violence / Physical Fight":
-        return Icons.warning_amber_rounded;
-      case "Road Accident":
-        return Icons.car_crash;
-      case "Suspicious Activity":
-        return Icons.visibility;
-      case "Flood / Calamity":
-        return Icons.flood;
-      case "Lost Item / Missing Person":
-        return Icons.person_search;
-      case "Noise Complaint":
-        return Icons.volume_up;
-      default:
-        return Icons.report_problem;
+  Widget _buildSubmitButton(IncidentState state) {
+    // 3D Submit Button
+    if (state is IncidentSubmitLoading || state is IncidentTriageLoading) {
+      return Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
+    return Custom3dButton(
+      icon: Icons.send_rounded,
+      text: _l10n.reportSubmitButton,
+      gradient: AppColors.emergencyGradient,
+      borderRadius: 999,
+      height: 58,
+      onPressed: _submitReport,
+    );
   }
 
   List<String> _getSafetyGuidelines(String category) {
     switch (category) {
       case "Fire Incident":
         return [
-          "Leave the burning area immediately. Do not try to save belongings.",
-          "Warn nearby people and help children, elderly, or persons with disability if safe.",
-          "Stay low if there is smoke and cover your nose/mouth with cloth.",
-          "Do not use elevators. Use stairs or the safest exit route.",
-          "Call the fire station or emergency hotline immediately.",
-          "Move to an open and safe area away from the fire.",
+          _l10n.reportTipFire1,
+          _l10n.reportTipFire2,
+          _l10n.reportTipFire3,
+          _l10n.reportTipFire4,
+          _l10n.reportTipFire5,
+          _l10n.reportTipFire6,
         ];
       case "Theft / Robbery":
         return [
-          "Do not chase or confront the suspect.",
-          "Move to a safe and crowded area immediately.",
-          "Observe details only if safe: clothing, direction, vehicle plate, or appearance.",
-          "Call police or barangay responders right away.",
+          _l10n.reportTipTheft1,
+          _l10n.reportTipTheft2,
+          _l10n.reportTipTheft3,
+          _l10n.reportTipTheft4,
         ];
       case "Medical Emergency":
         return [
-          "Call an ambulance or emergency hotline immediately.",
-          "Keep the patient calm and do not move them unless the area is unsafe.",
-          "Check if the person is breathing and responsive.",
+          _l10n.reportTipMedical1,
+          _l10n.reportTipMedical2,
+          _l10n.reportTipMedical3,
         ];
       case "Road Accident":
         return [
-          "Move to a safe side of the road if you are not injured.",
-          "Do not move injured persons unless there is immediate danger.",
-          "Call emergency responders or ambulance immediately.",
+          _l10n.reportTipRoad1,
+          _l10n.reportTipRoad2,
+          _l10n.reportTipRoad3,
         ];
       default:
         return [
-          "Move to a safe location first.",
-          "Call the proper emergency hotline if there is immediate danger.",
-          "Avoid touching evidence or confronting involved persons.",
-          "Provide accurate details to responders.",
+          _l10n.reportTipGeneral1,
+          _l10n.reportTipGeneral2,
+          _l10n.reportTipGeneral3,
+          _l10n.reportTipGeneral4,
         ];
     }
   }
@@ -2604,7 +2360,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           urgency: urgency,
           narrative: narrative,
           location: location,
-          categoryIcon: _getCategoryIcon(category),
+          categoryIcon: IncidentCategoryVisual.of(category).icon,
           fallbackGuidelines: guidelines,
           onDismiss: () {
             Navigator.of(dialogContext).pop();
@@ -2646,6 +2402,8 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
   bool _isLoadingAi = true;
   List<String> _aiMeasures = [];
 
+  AppLocalizations get _l10n => AppLocalizations.of(context);
+
   @override
   void initState() {
     super.initState();
@@ -2681,30 +2439,30 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
         return (
           AppColors.danger,
           Icons.warning_amber_rounded,
-          "CRITICAL PRIORITY",
-          "Immediate responder dispatch triggered.",
+          _l10n.reportPriorityCritical,
+          _l10n.reportPriorityCriticalDetail,
         );
       case 'HIGH':
         return (
-          const Color(0xFFFF9F0A),
+          const Color(0xFFEA580C), // Orange · high priority
           Icons.error_outline_rounded,
-          "HIGH PRIORITY",
-          "Active hazard • Priority response queue.",
+          _l10n.reportPriorityHigh,
+          _l10n.reportPriorityHighDetail,
         );
       case 'MEDIUM':
         return (
           AppColors.primary,
           Icons.info_outline_rounded,
-          "MEDIUM PRIORITY",
-          "Patrol unit notified for investigation.",
+          _l10n.reportPriorityMedium,
+          _l10n.reportPriorityMediumDetail,
         );
       case 'LOW':
       default:
         return (
           AppColors.solved,
           Icons.check_circle_outline_rounded,
-          "STANDARD PRIORITY",
-          "Logged for municipal desk review.",
+          _l10n.reportPriorityStandard,
+          _l10n.reportPriorityStandardDetail,
         );
     }
   }
@@ -2713,131 +2471,136 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
   Widget build(BuildContext context) {
     final (urgencyColor, urgencyIcon, urgencyTitle, urgencySubtitle) =
         _getUrgencyVisuals(widget.urgency);
+    final isDark = AppColors.isDarkMode;
+    final urgencyText = isDark
+        ? Color.lerp(urgencyColor, Colors.white, 0.35)!
+        : Color.lerp(urgencyColor, AppColors.ink, 0.3)!;
+    final adviceAccent =
+        isDark ? AppColors.secondaryLight : const Color(0xFF0E7490);
+    final measures =
+        _aiMeasures.isNotEmpty ? _aiMeasures : widget.fallbackGuidelines;
 
-    return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.3)),
-      ),
+    return NeoDialog(
+      padding: EdgeInsets.zero,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.fromLTRB(20, 26, 20, 20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header Row
+              // Header: dispatched, the category and the assessed badge
+              const LiveIndicator.ring(
+                size: 74,
+                child: Icon(Icons.check_rounded),
+              ),
+              SizedBox(height: 16),
+              Text(
+                _l10n.reportDispatchedTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              SizedBox(height: 6),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    height: 48,
-                    width: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      widget.categoryIcon,
-                      color: AppColors.primary,
-                      size: 26,
-                    ),
-                  ),
-                  SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Report Dispatched",
-                          style: TextStyle(
-                            color: AppColors.primary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          widget.category,
-                          style: TextStyle(
-                            color: AppColors.textDark,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                  Icon(widget.categoryIcon, size: 16, color: AppColors.textLight),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      LocalizedLabels.category(context, widget.category),
+                      style: TextStyle(
+                        color: AppColors.textLight,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.ink,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  _l10n.reportAssessedBadge,
+                  style: TextStyle(
+                    color: AppColors.secondaryLight,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+              SizedBox(height: 18),
 
               // Dynamic Assessed Priority Card (Replacing static "Pending Evaluation")
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: urgencyColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
+                  color: urgencyColor.withValues(alpha: isDark ? 0.16 : 0.08),
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                      color: urgencyColor.withValues(alpha: 0.4), width: 1.2),
+                      color: urgencyColor.withValues(alpha: 0.45), width: 1.5),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      width: 42,
+                      height: 42,
                       decoration: BoxDecoration(
-                        color: urgencyColor.withValues(alpha: 0.15),
-                        shape: BoxShape.circle,
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            urgencyColor,
+                            Color.lerp(urgencyColor, AppColors.ink, 0.25)!,
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: urgencyColor.withValues(alpha: 0.35),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                      child: Icon(urgencyIcon, color: urgencyColor, size: 20),
+                      child: Icon(urgencyIcon, color: Colors.white, size: 20),
                     ),
                     SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                urgencyTitle,
-                                style: TextStyle(
-                                  color: urgencyColor,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                              SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 6, vertical: 1.5),
-                                decoration: BoxDecoration(
-                                  color: urgencyColor,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  "ASSESSED",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            ],
+                          Text(
+                            urgencyTitle,
+                            style: TextStyle(
+                              color: urgencyText,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
+                            ),
                           ),
                           SizedBox(height: 2),
                           Text(
                             urgencySubtitle,
                             style: TextStyle(
-                              color: AppColors.textLight.withValues(alpha: 0.8),
-                              fontSize: 11,
+                              color: AppColors.textDark.withValues(alpha: 0.8),
+                              fontSize: 12.5,
+                              height: 1.35,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -2847,19 +2610,27 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                 ),
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 14),
 
               // Gemini AI Precautionary Advisory Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00E5FF).withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(16),
+                  color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
-                    width: 1.2,
+                    color: AppColors.secondary.withValues(alpha: 0.4),
                   ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: const Color(0xFF1E2D50).withValues(alpha: 0.08),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -2867,32 +2638,33 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                     Row(
                       children: [
                         Icon(
-                          Icons.auto_awesome,
-                          color: Color(0xFF00E5FF),
+                          Icons.auto_awesome_rounded,
+                          color: adviceAccent,
                           size: 18,
                         ),
                         SizedBox(width: 8),
-                        Text(
-                          "AI Safety Advice",
-                          style: TextStyle(
-                            color: Color(0xFF00E5FF),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w900,
+                        Expanded(
+                          child: Text(
+                            _l10n.reportAiSafetyAdvice,
+                            style: TextStyle(
+                              color: adviceAccent,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                        const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                              horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                            color: AppColors.secondary.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             "Gemini 3.5",
                             style: TextStyle(
-                              color: Color(0xFF00E5FF),
-                              fontSize: 9,
+                              color: adviceAccent,
+                              fontSize: 9.5,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -2901,97 +2673,66 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                     ),
                     SizedBox(height: 10),
 
-                    if (_isLoadingAi) ...[
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Color(0xFF00E5FF),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              "Generating tailored safety advice for your situation...",
-                              style: TextStyle(
-                                color: AppColors.textLight.withValues(alpha: 0.8),
-                                fontSize: 11.5,
-                                fontStyle: FontStyle.italic,
+                    if (_isLoadingAi)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.secondary,
                               ),
                             ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                _l10n.reportAiGenerating,
+                                style: TextStyle(
+                                  color: AppColors.textLight,
+                                  fontSize: 12,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      for (var i = 0; i < measures.length; i++)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 22,
+                                child: Text(
+                                  '${i + 1}.',
+                                  style: TextStyle(
+                                    color: adviceAccent,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800,
+                                    height: 1.45,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  measures[i],
+                                  style: TextStyle(
+                                    color: AppColors.textDark,
+                                    fontSize: 13.5,
+                                    height: 1.45,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ] else if (_aiMeasures.isNotEmpty) ...[
-                      Column(
-                        children: _aiMeasures.map((measure) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 3),
-                                  child: Icon(
-                                    Icons.shield_outlined,
-                                    size: 13,
-                                    color: Color(0xFF00E5FF),
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    measure,
-                                    style: TextStyle(
-                                      color: AppColors.textDark,
-                                      fontSize: 12,
-                                      height: 1.35,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ] else ...[
-                      Column(
-                        children: widget.fallbackGuidelines.map((guideline) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 3),
-                                  child: Icon(
-                                    Icons.shield_outlined,
-                                    size: 13,
-                                    color: Color(0xFF00E5FF),
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    guideline,
-                                    style: TextStyle(
-                                      color: AppColors.textDark,
-                                      fontSize: 12,
-                                      height: 1.35,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                        ),
                   ],
                 ),
               ),
@@ -2999,32 +2740,108 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
               SizedBox(height: 20),
 
               // Action Button
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: widget.onDismiss,
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: AppColors.primaryGlowShadow,
-                        ),
-                        child: Center(
-                          child: Text(
-                            "I Understand & Done",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+              NeoButton(
+                label: _l10n.reportUnderstoodDone,
+                expand: true,
+                height: 54,
+                onPressed: widget.onDismiss,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One incident category in the Report Incident grid: its icon and name on
+/// a raised tile, ringed in blue when selected.
+class _CategoryTile extends StatelessWidget {
+  final String storedCategory;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _CategoryTile({
+    required this.storedCategory,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = AppColors.isDarkMode;
+    final visual = IncidentCategoryVisual.of(storedCategory);
+    final radius = BorderRadius.circular(18);
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          constraints: const BoxConstraints(minHeight: 54),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            color: selected
+                ? (isDark
+                    ? AppColors.primary.withValues(alpha: 0.24)
+                    : const Color(0xFFEFF4FF))
+                : null,
+            gradient: selected
+                ? null
+                : LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: isDark
+                        ? const [Color(0xFF26334F), Color(0xFF1C2742)]
+                        : const [Color(0xFFFFFFFF), Color(0xFFF1F5F9)],
                   ),
-                ],
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.glassBorder,
+              width: selected ? 2 : 1,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      spreadRadius: 4,
+                    ),
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.18),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ]
+                : [
+                    BoxShadow(
+                      color: isDark
+                          ? Colors.black.withValues(alpha: 0.3)
+                          : const Color(0xFF1E2D50).withValues(alpha: 0.12),
+                      blurRadius: 12,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+          ),
+          child: Row(
+            children: [
+              Icon(visual.icon, size: 19, color: visual.foreground),
+              SizedBox(width: 8),
+              Expanded(
+                child: WordSafeText(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.25,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                    color: selected
+                        ? (isDark ? AppColors.primaryText : AppColors.deepBlue)
+                        : AppColors.textDark,
+                  ),
+                ),
               ),
             ],
           ),

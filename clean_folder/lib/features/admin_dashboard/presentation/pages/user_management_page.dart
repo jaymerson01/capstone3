@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/features/auth/data/models/user_model.dart';
 import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +8,9 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -29,189 +31,85 @@ class _UserManagementPageState extends State<UserManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Title & Header ─────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
+          // On very short screens the title and filters scroll on their
+          // own, so the citizen table always keeps some room.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(context).height * 0.45,
+            ),
+            child: SingleChildScrollView(
+              primary: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF7C4DFF), Color(0xFF651FFF)],
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF7C4DFF).withValues(alpha: 0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.people_alt_rounded,
-                      color: Colors.white,
-                      size: 22,
-                    ),
-                  ),
-                  SizedBox(width: 14),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Citizen Directory & User Management",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFE8F0FE),
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
+                  // ── Title & Header ─────────────────────────────────────
+                  const AdminPageTitle(
+                    title: "Citizen Directory & User Management",
+                    subtitle:
                         "Registered Barangay Moonwalk residents, emergency contact dossiers, and moderation",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF7B8DB0),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // ── Search & Filter Controls ───────────────────────────
+                  // One row on wide screens, stacked on narrow ones. The
+                  // children keep their places, so typed search text
+                  // survives a resize.
+                  LayoutBuilder(
+                    builder: (_, constraints) {
+                      final bool wide = constraints.maxWidth >= 900;
+                      return Flex(
+                        direction: wide ? Axis.horizontal : Axis.vertical,
+                        crossAxisAlignment: wide
+                            ? CrossAxisAlignment.center
+                            : CrossAxisAlignment.start,
+                        children: [
+                          // Status Filter
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: AdminSegmented<String>(
+                              segments: const [
+                                ("All", "All Statuses"),
+                                ("Active", "Active Accounts"),
+                                ("Suspended", "Suspended Accounts"),
+                              ],
+                              value: _statusFilter,
+                              onChanged: (val) =>
+                                  setState(() => _statusFilter = val),
+                            ),
+                          ),
+                          const SizedBox(width: 12, height: 12),
+                          Flexible(
+                            flex: wide ? 1 : 0,
+                            child: AdminSearchField(
+                              hint:
+                                  "Search by citizen name, email, phone, sector...",
+                              onChanged: (val) =>
+                                  setState(() => _searchQuery = val),
+                            ),
+                          ),
+                          const SizedBox(width: 12, height: 12),
+
+                          // Role Filter
+                          AdminSelect<String>(
+                            value: _roleFilter,
+                            accent: _roleFilter != "All",
+                            items: const [
+                              ("All", "All Roles"),
+                              ("resident", "Residents Only"),
+                              ("admin", "Admins Only"),
+                            ],
+                            onChanged: (val) =>
+                                setState(() => _roleFilter = val),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-          SizedBox(height: 20),
-
-          // ── Search & Filter Controls ───────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0D1627),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E2D4A)),
-                  ),
-                  child: TextField(
-                    style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
-                      fontSize: 13,
-                    ),
-                    decoration: InputDecoration(
-                      hintText:
-                          "Search by citizen name, email, phone, sector...",
-                      hintStyle: const TextStyle(
-                        color: Color(0xFF5A6E8C),
-                        fontSize: 12.5,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Color(0xFF7B8DB0),
-                        size: 20,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFF0D1627),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16),
-
-              // Status Filter
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _statusFilter,
-                    dropdownColor: const Color(0xFF0D1627),
-                    style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
-                      fontSize: 13,
-                    ),
-                    icon: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF7C4DFF),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: "All",
-                        child: Text("All Statuses"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Active",
-                        child: Text("Active Accounts"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Suspended",
-                        child: Text("Suspended Accounts"),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) setState(() => _statusFilter = val);
-                    },
-                  ),
-                ),
-              ),
-              SizedBox(width: 12),
-
-              // Role Filter
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _roleFilter,
-                    dropdownColor: const Color(0xFF0D1627),
-                    style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
-                      fontSize: 13,
-                    ),
-                    icon: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF7C4DFF),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: "All", child: Text("All Roles")),
-                      DropdownMenuItem(
-                        value: "resident",
-                        child: Text("Residents Only"),
-                      ),
-                      DropdownMenuItem(
-                        value: "admin",
-                        child: Text("Admins Only"),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) setState(() => _roleFilter = val);
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // ── Realtime Citizen Stream Table ──────────────────────────
           Expanded(
@@ -224,15 +122,20 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   return Center(
                     child: Text(
                       "Error loading users: ${snapshot.error}",
-                      style: const TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AdminColors.dangerText,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   );
                 }
 
                 if (!snapshot.hasData) {
-                  return Center(
+                  return const Center(
                     child: CircularProgressIndicator(
-                      color: Color(0xFF7C4DFF),
+                      color: AdminColors.cyan,
                     ),
                   );
                 }
@@ -263,401 +166,329 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   return matchesSearch && matchesStatus && matchesRole;
                 }).toList();
 
-                return Custom3dCard(
-                  padding: const EdgeInsets.all(12),
-                  borderRadius: 22,
-                  child: filteredUsers.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.person_search_outlined,
-                                color: const Color(0xFF2A3F60),
-                                size: 56,
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: AdminPanel(
+                    padding: EdgeInsets.zero,
+                    child: filteredUsers.isEmpty
+                        ? const SingleChildScrollView(
+                            primary: false,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: AdminEmptyState(
+                                icon: Icons.person_search_outlined,
+                                title: "No citizen accounts match the criteria",
                               ),
-                              SizedBox(height: 14),
-                              Text(
-                                "No citizen accounts match the criteria",
-                                style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                            ),
+                          )
+                        : _ScrollingTable(
                             child: DataTable(
-                              headingRowHeight: 50,
+                              headingRowHeight: 46,
                               headingRowColor: WidgetStateProperty.all(
-                                const Color(0xFF060D1A),
+                                Colors.transparent,
                               ),
                               dataRowColor: WidgetStateProperty.resolveWith(
                                 (states) => states.contains(WidgetState.hovered)
-                                    ? const Color(0xFF0D1627)
-                                        .withValues(alpha: 0.8)
+                                    ? AdminTable.hoverRow
                                     : Colors.transparent,
                               ),
-                              dividerThickness: 0.5,
-                              columns: const [
+                              dataRowMinHeight: 64,
+                              dataRowMaxHeight: 76,
+                              dividerThickness: 1,
+                              horizontalMargin: 18,
+                              columnSpacing: 22,
+                              headingTextStyle: AdminTable.header,
+                              dataTextStyle: AdminTable.cell,
+                              columns: [
                                 DataColumn(
                                   label: Text(
-                                    "Citizen Name",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Citizen Name".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    "Contact Info",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Contact Info".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    "Barangay Sector / Address",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Barangay Sector / Address".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    "Role",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Role".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    "Status",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Status".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    "Verification",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Verification".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                                 DataColumn(
                                   label: Text(
-                                    "Actions",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
+                                    "Actions".toUpperCase(),
+                                    style: AdminTable.header,
                                   ),
                                 ),
                               ],
                               rows: filteredUsers.map((user) {
                                 final bool isActive = user.isActive;
-                                final Color statusColor = isActive
-                                    ? const Color(0xFF30D158)
-                                    : const Color(0xFFFF3B30);
+                                final AdminTone statusTone = isActive
+                                    ? AdminTone.green
+                                    : AdminTone.red;
+
+                                // Suspended accounts read a little dimmer.
+                                Widget dim(Widget cell) => isActive
+                                    ? cell
+                                    : Opacity(opacity: 0.8, child: cell);
 
                                 return DataRow(
                                   cells: [
                                     // Name + Avatar
                                     DataCell(
-                                      Row(
-                                        children: [
-                                          Tooltip(
-                                            message: (user.photoUrl != null &&
-                                                    user.photoUrl!.isNotEmpty)
-                                                ? "Click to view full photo"
-                                                : (user.displayName ?? "Citizen"),
-                                            child: InkWell(
-                                              onTap: (user.photoUrl != null &&
+                                      dim(
+                                        Row(
+                                          children: [
+                                            Tooltip(
+                                              message: (user.photoUrl != null &&
                                                       user.photoUrl!.isNotEmpty)
-                                                  ? () => _showEnlargedPhotoDialog(
-                                                      context, user)
-                                                  : null,
-                                              borderRadius: BorderRadius.circular(16),
-                                              child: CircleAvatar(
-                                                radius: 16,
-                                                backgroundColor: user.isAdmin
-                                                    ? const Color(0xFF7C4DFF)
-                                                        .withValues(alpha: 0.25)
-                                                    : const Color(0xFF00E5FF)
-                                                        .withValues(alpha: 0.2),
-                                                backgroundImage: (user.photoUrl != null &&
+                                                  ? "Click to view full photo"
+                                                  : (user.displayName ?? "Citizen"),
+                                              child: InkWell(
+                                                onTap: (user.photoUrl != null &&
                                                         user.photoUrl!.isNotEmpty)
-                                                    ? NetworkImage(user.photoUrl!)
+                                                    ? () => _showEnlargedPhotoDialog(
+                                                        context, user)
                                                     : null,
-                                                child: (user.photoUrl == null ||
-                                                        user.photoUrl!.isEmpty)
-                                                    ? Text(
-                                                        (user.displayName != null &&
-                                                                user.displayName!
-                                                                    .isNotEmpty)
-                                                            ? user.displayName![0]
-                                                                .toUpperCase()
-                                                            : 'U',
-                                                        style: TextStyle(
-                                                          color: user.isAdmin
-                                                              ? const Color(0xFF7C4DFF)
-                                                              : const Color(0xFF00E5FF),
-                                                          fontWeight: FontWeight.w900,
-                                                          fontSize: 12,
-                                                        ),
-                                                      )
-                                                    : null,
+                                                customBorder:
+                                                    const CircleBorder(),
+                                                child: AdminAvatar(
+                                                  initial: (user.displayName !=
+                                                              null &&
+                                                          user.displayName!
+                                                              .isNotEmpty)
+                                                      ? user.displayName![0]
+                                                          .toUpperCase()
+                                                      : 'U',
+                                                  photoUrl: user.photoUrl,
+                                                  size: 38,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                user.displayName ??
-                                                    "Unnamed Citizen",
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Color(0xFFE8F0FE),
-                                                  fontSize: 12.5,
+                                            const SizedBox(width: 10),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ConstrainedBox(
+                                                  constraints:
+                                                      const BoxConstraints(
+                                                    maxWidth: 190,
+                                                  ),
+                                                  child: Text(
+                                                    user.displayName ??
+                                                        "Unnamed Citizen",
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style:
+                                                        AdminTable.cellStrong,
+                                                  ),
                                                 ),
-                                              ),
-                                              Text(
-                                                "ID: ${user.id.length > 8 ? user.id.substring(0, 8) : user.id}",
-                                                style: const TextStyle(
-                                                  color: Color(0xFF5A6E8C),
-                                                  fontSize: 10,
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  "ID: ${user.id.length > 8 ? user.id.substring(0, 8) : user.id}",
+                                                  style: const TextStyle(
+                                                    color: AdminColors.textHint,
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     // Contact (Email + Phone)
                                     DataCell(
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            user.email,
-                                            style: const TextStyle(
-                                              color: Color(0xFFB0C4DE),
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          if (user.phoneNumber != null &&
-                                              user.phoneNumber!.isNotEmpty)
-                                            Text(
-                                              user.phoneNumber!,
-                                              style: const TextStyle(
-                                                color: Color(0xFF7B8DB0),
-                                                fontSize: 11,
+                                      dim(
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ConstrainedBox(
+                                              constraints:
+                                                  const BoxConstraints(
+                                                maxWidth: 220,
+                                              ),
+                                              child: Text(
+                                                user.email,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: AdminTable.cellMuted,
                                               ),
                                             ),
-                                        ],
+                                            if (user.phoneNumber != null &&
+                                                user.phoneNumber!.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 2,
+                                                ),
+                                                child: Text(
+                                                  user.phoneNumber!,
+                                                  style: const TextStyle(
+                                                    color:
+                                                        AdminColors.textLight,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     // Sector / Address
                                     DataCell(
-                                      SizedBox(
-                                        width: 160,
-                                        child: Text(
-                                          user.barangayArea ??
-                                              user.address ??
-                                              "Barangay Moonwalk",
-                                          style: const TextStyle(
-                                            color: Color(0xFF7B8DB0),
-                                            fontSize: 12,
+                                      dim(
+                                        SizedBox(
+                                          width: 160,
+                                          child: Text(
+                                            user.barangayArea ??
+                                                user.address ??
+                                                "Barangay Moonwalk",
+                                            style: AdminTable.cell,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ),
                                     // Role Badge (Read-Only)
                                     DataCell(
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: user.isAdmin
-                                              ? const Color(0xFF7C4DFF)
-                                                  .withValues(alpha: 0.15)
-                                              : const Color(0xFF00E5FF)
-                                                  .withValues(alpha: 0.12),
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                          border: Border.all(
-                                            color: user.isAdmin
-                                                ? const Color(0xFF7C4DFF)
-                                                    .withValues(alpha: 0.4)
-                                                : const Color(0xFF00E5FF)
-                                                    .withValues(alpha: 0.3),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          user.isAdmin
+                                      dim(
+                                        AdminPill(
+                                          label: user.isAdmin
                                               ? "Barangay Admin"
                                               : "Citizen Resident",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: user.isAdmin
-                                                ? const Color(0xFF9D65FF)
-                                                : const Color(0xFF00E5FF),
-                                          ),
+                                          tone: user.isAdmin
+                                              ? AdminTone.blue
+                                              : AdminTone.slate,
                                         ),
                                       ),
                                     ),
                                     // Status Badge
                                     DataCell(
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: statusColor.withValues(
-                                            alpha: 0.15,
-                                          ),
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                          border: Border.all(
-                                            color: statusColor.withValues(
-                                              alpha: 0.3,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          isActive ? "Active" : "Suspended",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: statusColor,
-                                          ),
+                                      dim(
+                                        AdminPill(
+                                          label: (isActive ? "Active" : "Suspended")
+                                              .toUpperCase(),
+                                          tone: statusTone,
                                         ),
                                       ),
                                     ),
                                     // Verification Badge
                                     DataCell(
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            user.isVerified
-                                                ? Icons.verified_rounded
-                                                : Icons.pending_outlined,
-                                            size: 15,
-                                            color: user.isVerified
-                                                ? const Color(0xFF0A84FF)
-                                                : const Color(0xFF7B8DB0),
-                                          ),
-                                          SizedBox(width: 5),
-                                          Text(
-                                            user.isVerified
-                                                ? "Verified"
-                                                : "Unverified",
-                                            style: TextStyle(
-                                              fontSize: 11,
+                                      dim(
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              user.isVerified
+                                                  ? Icons.verified_rounded
+                                                  : Icons.pending_outlined,
+                                              size: 15,
                                               color: user.isVerified
-                                                  ? const Color(0xFF0A84FF)
-                                                  : const Color(0xFF7B8DB0),
-                                              fontWeight: FontWeight.w600,
+                                                  ? AdminColors.cyanSoft
+                                                  : AdminColors.pendingText,
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(width: 5),
+                                            Text(
+                                              user.isVerified
+                                                  ? "Verified"
+                                                  : "Unverified",
+                                              style: TextStyle(
+                                                fontSize: 12.5,
+                                                color: user.isVerified
+                                                    ? AdminColors.cyanSoft
+                                                    : AdminColors.pendingText,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     // Actions
                                     DataCell(
-                                      Row(
-                                        children: [
-                                          // View Citizen Dossier Modal
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.badge_outlined,
-                                              color: Color(0xFF00E5FF),
-                                              size: 20,
+                                      dim(
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            // View Citizen Dossier Modal
+                                            AdminIconAction(
+                                              icon: Icons.badge_outlined,
+                                              tooltip:
+                                                  "View Citizen Emergency Dossier",
+                                              onPressed: () =>
+                                                  _showCitizenDossier(
+                                                context,
+                                                user,
+                                              ),
                                             ),
-                                            tooltip:
-                                                "View Citizen Emergency Dossier",
-                                            onPressed: () =>
-                                                _showCitizenDossier(
-                                              context,
-                                              user,
-                                            ),
-                                          ),
-                                          // Suspend / Reactivate Account Toggle
-                                          IconButton(
-                                            icon: Icon(
-                                              isActive
+                                            const SizedBox(width: 6),
+                                            // Suspend / Reactivate Account Toggle
+                                            AdminIconAction(
+                                              icon: isActive
                                                   ? Icons.block_flipped
                                                   : Icons.check_circle_outline,
-                                              color: isActive
-                                                  ? const Color(0xFFFF9F0A)
-                                                  : const Color(0xFF30D158),
-                                              size: 20,
+                                              tone: isActive
+                                                  ? AdminTone.red
+                                                  : AdminTone.green,
+                                              tooltip: isActive
+                                                  ? "Suspend Account (Spam / Fake Reports)"
+                                                  : "Reactivate Account",
+                                              onPressed: () =>
+                                                  _toggleUserActiveStatus(
+                                                context,
+                                                user,
+                                              ),
                                             ),
-                                            tooltip: isActive
-                                                ? "Suspend Account (Spam / Fake Reports)"
-                                                : "Reactivate Account",
-                                            onPressed: () =>
-                                                _toggleUserActiveStatus(
-                                              context,
-                                              user,
-                                            ),
-                                          ),
-                                          // Verify Resident Toggle
-                                          IconButton(
-                                            icon: Icon(
-                                              user.isVerified
+                                            const SizedBox(width: 6),
+                                            // Verify Resident Toggle
+                                            AdminIconAction(
+                                              icon: user.isVerified
                                                   ? Icons.verified
                                                   : Icons.verified_outlined,
-                                              color: user.isVerified
-                                                  ? const Color(0xFF0A84FF)
-                                                  : const Color(0xFF7B8DB0),
-                                              size: 20,
+                                              tone: AdminTone.cyan,
+                                              tooltip: user.isVerified
+                                                  ? "Revoke Barangay Residency Verification"
+                                                  : "Verify Barangay Residency",
+                                              onPressed: () =>
+                                                  _toggleUserVerification(
+                                                context,
+                                                user,
+                                              ),
                                             ),
-                                            tooltip: user.isVerified
-                                                ? "Revoke Barangay Residency Verification"
-                                                : "Verify Barangay Residency",
-                                            onPressed: () =>
-                                                _toggleUserVerification(
-                                              context,
-                                              user,
-                                            ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -665,7 +496,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               }).toList(),
                             ),
                           ),
-                        ),
+                  ),
                 );
               },
             ),
@@ -689,388 +520,334 @@ class _UserManagementPageState extends State<UserManagementPage> {
               .length;
         }
 
-        return Dialog(
-          backgroundColor: const Color(0xFF0D1627),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFF1E2D4A)),
-          ),
-          child: Container(
-            width: 520,
-            padding: const EdgeInsets.all(28),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Modal Top Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
-                          children: [
-                            // Interactive Citizen Avatar (Click to enlarge)
-                            Builder(
-                              builder: (avatarCtx) {
-                                final bool hasPhoto = user.photoUrl != null &&
-                                    user.photoUrl!.isNotEmpty;
-                                return Tooltip(
-                                  message: hasPhoto
-                                      ? "Click to view enlarged photo"
-                                      : "No photo uploaded",
-                                  waitDuration:
-                                      const Duration(milliseconds: 300),
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (hasPhoto) {
-                                        _showEnlargedPhotoDialog(context, user);
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              "Citizen has not uploaded a profile picture yet.",
-                                            ),
-                                            backgroundColor: Color(0xFF1E2D4A),
-                                            behavior: SnackBarBehavior.floating,
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    borderRadius: BorderRadius.circular(36),
-                                    child: Stack(
-                                      clipBehavior: Clip.none,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(2.5),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: hasPhoto
-                                                  ? const Color(0xFF00E5FF)
-                                                      .withValues(alpha: 0.6)
-                                                  : const Color(0xFF1E2D4A),
-                                              width: 2,
-                                            ),
-                                            boxShadow: hasPhoto
-                                                ? [
-                                                    BoxShadow(
-                                                      color:
-                                                          const Color(0xFF00E5FF)
-                                                              .withValues(
-                                                                  alpha: 0.25),
-                                                      blurRadius: 10,
-                                                      spreadRadius: 1,
-                                                    ),
-                                                  ]
-                                                : null,
-                                          ),
-                                          child: CircleAvatar(
-                                            radius: 28,
-                                            backgroundColor: user.isAdmin
-                                                ? const Color(0xFF7C4DFF)
-                                                    .withValues(alpha: 0.25)
-                                                : const Color(0xFF00E5FF)
-                                                    .withValues(alpha: 0.2),
-                                            backgroundImage: hasPhoto
-                                                ? NetworkImage(user.photoUrl!)
-                                                : null,
-                                            child: !hasPhoto
-                                                ? Text(
-                                                    (user.displayName != null &&
-                                                            user.displayName!
-                                                                .isNotEmpty)
-                                                        ? user.displayName![0]
-                                                            .toUpperCase()
-                                                        : 'U',
-                                                    style: TextStyle(
-                                                      color: user.isAdmin
-                                                          ? const Color(
-                                                              0xFF7C4DFF)
-                                                          : const Color(
-                                                              0xFF00E5FF),
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize: 20,
-                                                    ),
-                                                  )
-                                                : null,
-                                          ),
-                                        ),
-                                        if (hasPhoto)
-                                          Positioned(
-                                            bottom: 0,
-                                            right: 0,
-                                            child: Container(
-                                              padding: const EdgeInsets.all(4),
-                                              decoration: BoxDecoration(
-                                                color: const Color(0xFF0D1627),
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color:
-                                                      const Color(0xFF00E5FF),
-                                                  width: 1.5,
-                                                ),
-                                              ),
-                                              child: Icon(
-                                                Icons.zoom_in_rounded,
-                                                size: 13,
-                                                color: Color(0xFF00E5FF),
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
+        return AdminDialog(
+          title: user.displayName ?? "Citizen Resident",
+          subtitle: "UID: ${user.id}",
+          maxWidth: 520,
+          onClose: () => Navigator.pop(ctx),
+          actions: [
+            AdminButton(
+              label: "Close Dossier",
+              style: AdminButtonStyle.ghost,
+              onPressed: () => Navigator.pop(ctx),
+            ),
+          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Interactive Citizen Avatar (Click to enlarge)
+              Center(
+                child: Builder(
+                  builder: (avatarCtx) {
+                    final bool hasPhoto = user.photoUrl != null &&
+                        user.photoUrl!.isNotEmpty;
+                    return Tooltip(
+                      message: hasPhoto
+                          ? "Click to view enlarged photo"
+                          : "No photo uploaded",
+                      waitDuration: const Duration(milliseconds: 300),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: InkWell(
+                          onTap: () {
+                            if (hasPhoto) {
+                              _showEnlargedPhotoDialog(context, user);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Citizen has not uploaded a profile picture yet.",
                                   ),
-                                );
-                              },
-                            ),
-                            SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.displayName ?? "Citizen Resident",
-                                    style: const TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w900,
-                                      color: Color(0xFFE8F0FE),
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
+                                  backgroundColor: AdminColors.border,
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            }
+                          },
+                          customBorder: const CircleBorder(),
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: hasPhoto
+                                        ? AdminColors.cyan
+                                            .withValues(alpha: 0.6)
+                                        : Colors.white
+                                            .withValues(alpha: 0.12),
+                                    width: 2,
                                   ),
-                                  SizedBox(height: 2),
-                                  Text(
-                                    "UID: ${user.id}",
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Color(0xFF7B8DB0),
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  if (user.photoUrl != null &&
-                                      user.photoUrl!.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 4),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: const [
-                                          Icon(
-                                            Icons.touch_app_outlined,
-                                            size: 11,
-                                            color: Color(0xFF00E5FF),
+                                  boxShadow: hasPhoto
+                                      ? [
+                                          BoxShadow(
+                                            color: AdminColors.cyan
+                                                .withValues(alpha: 0.25),
+                                            blurRadius: 14,
+                                            spreadRadius: 1,
                                           ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            "Click avatar to enlarge",
-                                            style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w600,
-                                              color: Color(0xFF00E5FF),
-                                            ),
-                                          ),
-                                        ],
+                                        ]
+                                      : null,
+                                ),
+                                child: AdminAvatar(
+                                  initial: (user.displayName != null &&
+                                          user.displayName!.isNotEmpty)
+                                      ? user.displayName![0].toUpperCase()
+                                      : 'U',
+                                  photoUrl: user.photoUrl,
+                                  size: 64,
+                                ),
+                              ),
+                              if (hasPhoto)
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: AdminColors.surfaceDeep,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AdminColors.cyan,
+                                        width: 1.5,
                                       ),
                                     ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                    child: const Icon(
+                                      Icons.zoom_in_rounded,
+                                      size: 13,
+                                      color: AdminColors.cyanText,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
-                        onPressed: () => Navigator.pop(ctx),
+                    );
+                  },
+                ),
+              ),
+              if (user.photoUrl != null &&
+                  user.photoUrl!.isNotEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.touch_app_outlined,
+                        size: 12,
+                        color: AdminColors.cyanSoft,
+                      ),
+                      SizedBox(width: 4),
+                      Flexible(
+                        child: Text(
+                          "Click avatar to enlarge",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: AdminColors.cyanText,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 18),
-                  Divider(color: Color(0xFF1E2D4A)),
-                  SizedBox(height: 14),
+                ),
+              const SizedBox(height: 18),
+              Divider(
+                height: 1,
+                color: Colors.white.withValues(alpha: 0.08),
+              ),
+              const SizedBox(height: 16),
 
-                  // Resident Identity & Account Attributes
-                  _dossierSectionHeader("Citizen Profile & Identification"),
-                  SizedBox(height: 8),
-                  _dossierRow(Icons.email_outlined, "Email Address", user.email),
-                  _dossierRow(
-                    Icons.phone_outlined,
-                    "Mobile Phone",
-                    user.phoneNumber ?? "Not provided",
-                  ),
-                  _dossierRow(
-                    Icons.location_on_outlined,
-                    "Barangay Sector",
-                    user.barangayArea ?? "Barangay Moonwalk",
-                  ),
-                  _dossierRow(
-                    Icons.home_outlined,
-                    "Home Address",
-                    user.address ?? "Not provided",
-                  ),
-                  _dossierRow(
-                    Icons.calendar_today_outlined,
-                    "Registration Date",
-                    user.createdAt != null
-                        ? "${user.createdAt!.day}/${user.createdAt!.month}/${user.createdAt!.year}"
-                        : "Verified Member",
-                  ),
+              // Resident Identity & Account Attributes
+              _dossierSectionHeader("Citizen Profile & Identification"),
+              const SizedBox(height: 6),
+              _dossierRow(Icons.email_outlined, "Email Address", user.email),
+              _dossierRow(
+                Icons.phone_outlined,
+                "Mobile Phone",
+                user.phoneNumber ?? "Not provided",
+              ),
+              _dossierRow(
+                Icons.location_on_outlined,
+                "Barangay Sector",
+                user.barangayArea ?? "Barangay Moonwalk",
+              ),
+              _dossierRow(
+                Icons.home_outlined,
+                "Home Address",
+                user.address ?? "Not provided",
+              ),
+              _dossierRow(
+                Icons.calendar_today_outlined,
+                "Registration Date",
+                user.createdAt != null
+                    ? "${user.createdAt!.day}/${user.createdAt!.month}/${user.createdAt!.year}"
+                    : "Verified Member",
+              ),
 
-                  SizedBox(height: 18),
-                  // EMERGENCY CONTACT DOSSIER (Critical for dispatchers!)
-                  _dossierSectionHeader("Life-Safety Emergency Contacts"),
-                  SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF3B30).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: const Color(0xFFFF3B30).withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 18),
+              // EMERGENCY CONTACT DOSSIER (Critical for dispatchers!)
+              _dossierSectionHeader("Life-Safety Emergency Contacts"),
+              const SizedBox(height: 8),
+              AdminInset(
+                tone: AdminTone.red,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.contact_emergency_rounded,
-                              color: Color(0xFFFF3B30),
-                              size: 18,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              "Designated Emergency Contact",
-                              style: TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFFFF3B30),
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.contact_emergency_rounded,
+                          color: AdminColors.dangerText,
+                          size: 18,
                         ),
-                        SizedBox(height: 10),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Person: ${user.emergencyContactName ?? 'None on file'}",
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFFE8F0FE),
-                              ),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            "Designated Emergency Contact",
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              color: AdminColors.dangerText,
                             ),
-                            Text(
-                              "Phone: ${user.emergencyContactNumber ?? 'None on file'}",
-                              style: const TextStyle(
-                                fontSize: 12.5,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF00E5FF),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
-                  ),
-
-                  SizedBox(height: 18),
-                  // Report Ledger Activity
-                  _dossierSectionHeader("Incident Blotter Activity"),
-                  SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF060D1A),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    const SizedBox(height: 10),
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      spacing: 16,
+                      runSpacing: 6,
                       children: [
-                        Column(
-                          children: [
-                            Text(
+                        Text(
+                          "Person: ${user.emergencyContactName ?? 'None on file'}",
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AdminColors.textStrong,
+                          ),
+                        ),
+                        Text(
+                          "Phone: ${user.emergencyContactNumber ?? 'None on file'}",
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AdminColors.cyanText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 18),
+              // Report Ledger Activity
+              _dossierSectionHeader("Incident Blotter Activity"),
+              const SizedBox(height: 8),
+              AdminInset(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 14,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
                               "$citizenReportsCount",
                               style: const TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w900,
-                                color: Color(0xFF0A84FF),
+                                fontWeight: FontWeight.w800,
+                                color: AdminColors.textStrong,
                               ),
                             ),
-                            Text(
-                              "Submitted Reports",
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF7B8DB0),
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            "Submitted Reports",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AdminColors.textHint,
                             ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
                               user.isVerified ? "YES" : "NO",
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w800,
                                 color: user.isVerified
-                                    ? const Color(0xFF30D158)
-                                    : const Color(0xFF7B8DB0),
+                                    ? AdminColors.successText
+                                    : AdminColors.textHint,
                               ),
                             ),
-                            Text(
-                              "Residency Verified",
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF7B8DB0),
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            "Residency Verified",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AdminColors.textHint,
                             ),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        children: [
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
                               user.isActive ? "ACTIVE" : "SUSPENDED",
                               style: TextStyle(
                                 fontSize: 18,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w800,
                                 color: user.isActive
-                                    ? const Color(0xFF30D158)
-                                    : const Color(0xFFFF3B30),
+                                    ? AdminColors.successText
+                                    : AdminColors.dangerText,
                               ),
                             ),
-                            Text(
-                              "Account Standing",
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF7B8DB0),
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            "Account Standing",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AdminColors.textHint,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 24),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: Text(
-                        "Close Dossier",
-                        style: TextStyle(color: Color(0xFF7B8DB0)),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         );
       },
@@ -1085,236 +862,150 @@ class _UserManagementPageState extends State<UserManagementPage> {
       context: context,
       barrierDismissible: true,
       builder: (ctx) {
-        return Dialog(
-          backgroundColor: const Color(0xFF0A1220),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFF1E2D4A), width: 1.5),
-          ),
-          child: Container(
-            width: 520,
-            constraints: const BoxConstraints(maxHeight: 680),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00E5FF)
-                                  .withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.portrait_rounded,
-                              color: Color(0xFF00E5FF),
-                              size: 20,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  user.displayName ?? "Citizen Resident",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w900,
-                                    color: Color(0xFFE8F0FE),
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  "UID: ${user.id} • ${user.barangayArea ?? 'Barangay Moonwalk'}",
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: Color(0xFF7B8DB0),
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Color(0xFF7B8DB0)),
-                      onPressed: () => Navigator.pop(ctx),
-                      splashRadius: 20,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                Divider(color: Color(0xFF1E2D4A), height: 1),
-                SizedBox(height: 16),
-
-                // High-resolution photo container with InteractiveViewer
-                Flexible(
-                  child: Container(
-                    width: double.infinity,
-                    constraints:
-                        const BoxConstraints(maxHeight: 440, minHeight: 280),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF050B14),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFF1E2D4A)),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        InteractiveViewer(
-                          minScale: 0.8,
-                          maxScale: 4.0,
-                          clipBehavior: Clip.antiAlias,
-                          child: Center(
-                            child: Image.network(
-                              user.photoUrl!,
-                              fit: BoxFit.contain,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) return child;
-                                return Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: const [
-                                      SizedBox(
-                                        width: 32,
-                                        height: 32,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: Color(0xFF00E5FF),
-                                        ),
-                                      ),
-                                      SizedBox(height: 12),
-                                      Text(
-                                        "Loading photo...",
-                                        style: TextStyle(
-                                          color: Color(0xFF7B8DB0),
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(24),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        Icon(
-                                          Icons.broken_image_rounded,
-                                          size: 48,
-                                          color: Color(0xFFFF3B30),
-                                        ),
-                                        SizedBox(height: 12),
-                                        Text(
-                                          "Failed to load image",
-                                          style: TextStyle(
-                                            color: Color(0xFFE8F0FE),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          "The remote image could not be loaded or network is offline.",
-                                          style: TextStyle(
-                                            color: Color(0xFF7B8DB0),
-                                            fontSize: 11,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+        return AdminDialog(
+          title: user.displayName ?? "Citizen Resident",
+          subtitle:
+              "UID: ${user.id} • ${user.barangayArea ?? 'Barangay Moonwalk'}",
+          icon: Icons.portrait_rounded,
+          tone: AdminTone.cyan,
+          maxWidth: 520,
+          onClose: () => Navigator.pop(ctx),
+          actions: [
+            AdminButton(
+              label: "Open Original",
+              icon: Icons.open_in_new,
+              style: AdminButtonStyle.cyan,
+              height: 42,
+              onPressed: () async {
+                final uri = Uri.tryParse(user.photoUrl!);
+                if (uri != null) {
+                  await launchUrl(uri,
+                      mode: LaunchMode.externalApplication);
+                }
+              },
+            ),
+            AdminButton(
+              label: "Close",
+              style: AdminButtonStyle.ghost,
+              height: 42,
+              onPressed: () => Navigator.pop(ctx),
+            ),
+          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // High-resolution photo container with InteractiveViewer
+              Container(
+                width: double.infinity,
+                constraints:
+                    const BoxConstraints(maxHeight: 440, minHeight: 280),
+                decoration: BoxDecoration(
+                  color: AdminColors.well,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.08),
                   ),
                 ),
-
-                SizedBox(height: 14),
-
-                // Controls and footer actions
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                clipBehavior: Clip.antiAlias,
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.zoom_in, size: 14, color: Color(0xFF7B8DB0)),
-                        SizedBox(width: 4),
-                        Text(
-                          "Pinch or scroll to zoom • Drag to pan",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Color(0xFF7B8DB0),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: () async {
-                            final uri = Uri.tryParse(user.photoUrl!);
-                            if (uri != null) {
-                              await launchUrl(uri,
-                                  mode: LaunchMode.externalApplication);
-                            }
+                    InteractiveViewer(
+                      minScale: 0.8,
+                      maxScale: 4.0,
+                      clipBehavior: Clip.antiAlias,
+                      child: Center(
+                        child: Image.network(
+                          user.photoUrl!,
+                          fit: BoxFit.contain,
+                          loadingBuilder:
+                              (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: 32,
+                                    height: 32,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: AdminColors.cyan,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    "Loading photo...",
+                                    style: TextStyle(
+                                      color: AdminColors.textLight,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
-                          icon: Icon(Icons.open_in_new, size: 14),
-                          label: Text("Open Original"),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF00E5FF),
-                            side: const BorderSide(color: Color(0xFF00E5FF)),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 8),
-                            textStyle: const TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w600),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(24),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.broken_image_rounded,
+                                      size: 48,
+                                      color: AdminColors.dangerSoft,
+                                    ),
+                                    SizedBox(height: 12),
+                                    Text(
+                                      "Failed to load image",
+                                      style: TextStyle(
+                                        color: AdminColors.textStrong,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4),
+                                    Text(
+                                      "The remote image could not be loaded or network is offline.",
+                                      style: TextStyle(
+                                        color: AdminColors.textLight,
+                                        fontSize: 11,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                        SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1E2D4A),
-                            foregroundColor: const Color(0xFFE8F0FE),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text("Close",
-                              style: TextStyle(fontSize: 12)),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Zoom hint (the footer actions sit in the dialog's button row)
+              const Row(
+                children: [
+                  Icon(Icons.zoom_in, size: 14, color: AdminColors.textHint),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      "Pinch or scroll to zoom • Drag to pan",
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: AdminColors.textHint,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
@@ -1325,42 +1016,20 @@ class _UserManagementPageState extends State<UserManagementPage> {
     return Text(
       title,
       style: const TextStyle(
-        fontSize: 12,
+        fontSize: 11.5,
         fontWeight: FontWeight.w800,
-        color: Color(0xFF7B8DB0),
-        letterSpacing: 0.2,
+        color: AdminColors.textHint,
+        letterSpacing: 0.8,
       ),
     );
   }
 
   Widget _dossierRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 15, color: const Color(0xFF7B8DB0)),
-          SizedBox(width: 8),
-          Text(
-            "$label: ",
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF7B8DB0),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFFE8F0FE),
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
+    return AdminDetailRow(
+      icon: icon,
+      label: "$label: ",
+      value: value,
+      labelWidth: 140,
     );
   }
 
@@ -1374,46 +1043,35 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
     final confirm = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0D1627),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFF1E2D4A)),
-        ),
-        title: Text(
-          "$actionText Citizen Account?",
-          style: const TextStyle(
-            color: Color(0xFFE8F0FE),
-            fontWeight: FontWeight.bold,
+      builder: (ctx) => AdminDialog(
+        title: "$actionText Citizen Account?",
+        icon: newStatus ? Icons.check_circle_outline : Icons.block_flipped,
+        tone: newStatus ? AdminTone.green : AdminTone.red,
+        maxWidth: 460,
+        actions: [
+          AdminButton(
+            label: "Cancel",
+            style: AdminButtonStyle.ghost,
+            onPressed: () => Navigator.pop(ctx, false),
           ),
-        ),
-        content: Text(
+          AdminButton(
+            label: actionText,
+            style: newStatus
+                ? AdminButtonStyle.primary
+                : AdminButtonStyle.danger,
+            onPressed: () => Navigator.pop(ctx, true),
+          ),
+        ],
+        child: Text(
           newStatus
               ? "Are you sure you want to reactivate ${user.displayName ?? user.email}'s account?"
               : "Suspending ${user.displayName ?? user.email} will immediately prevent them from submitting emergency reports or signing into the civic app (curbing spam / prank calls).",
-          style: const TextStyle(color: Color(0xFF7B8DB0), fontSize: 13),
+          style: const TextStyle(
+            color: AdminColors.textSoft,
+            fontSize: 13.5,
+            height: 1.5,
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text("Cancel", style: TextStyle(color: Color(0xFF7B8DB0))),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: newStatus
-                  ? const Color(0xFF30D158)
-                  : const Color(0xFFFF3B30),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              actionText,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
       ),
     );
 
@@ -1435,8 +1093,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
             SnackBar(
               content: Text("✓ Account successfully ${newStatus ? 'reactivated' : 'suspended'}."),
               backgroundColor: newStatus
-                  ? const Color(0xFF30D158)
-                  : const Color(0xFFFF9F0A),
+                  ? AdminColors.success
+                  : AdminColors.amber,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -1446,7 +1104,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("Failed to update status: $e"),
-              backgroundColor: Colors.red,
+              backgroundColor: AdminColors.critical,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -1481,7 +1139,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   ? "✓ Resident successfully verified against barangay records."
                   : "✓ Resident verification revoked.",
             ),
-            backgroundColor: const Color(0xFF0A84FF),
+            backgroundColor: AdminColors.primary,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -1491,11 +1149,41 @@ class _UserManagementPageState extends State<UserManagementPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to update verification: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: AdminColors.critical,
             behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
+  }
+}
+
+/// Scrolls a wide table both ways inside its panel. The table is never
+/// narrower than the panel and uses the kit's row lines.
+class _ScrollingTable extends StatelessWidget {
+  const _ScrollingTable({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(21),
+      child: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: DividerTheme(
+                data: const DividerThemeData(color: AdminTable.divider),
+                child: child,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

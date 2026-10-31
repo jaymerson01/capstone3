@@ -11,11 +11,16 @@
     <application
         android:label="ResQ"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="resq_emergency_alerts_v3" />
+        <!-- The white R silhouette for status-bar notifications; the adaptive
+             launcher icon can't be used there. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCc-mb70DHY0omGJ44inSl2LzV1jyfZB4k" />
