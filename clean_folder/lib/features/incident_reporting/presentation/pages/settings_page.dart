@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_auth/local_auth.dart';
@@ -1567,7 +1568,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                       child: ClipOval(
                         child: _selectedAvatarFile != null
-                            ? Image.file(_selectedAvatarFile!, fit: BoxFit.cover)
+                            ? (kIsWeb
+                                ? Image.network(_selectedAvatarFile!.path, fit: BoxFit.cover)
+                                : Image.file(_selectedAvatarFile!, fit: BoxFit.cover))
                             : (existingPhoto != null && existingPhoto.isNotEmpty
                                 ? (existingPhoto.startsWith('http')
                                     ? Image.network(

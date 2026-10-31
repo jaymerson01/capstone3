@@ -2137,12 +2137,20 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  child: Image.file(
-                    _selectedImageFile!,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  // Image.file can't read files on web; there the path is a blob: URL.
+                  child: kIsWeb
+                      ? Image.network(
+                          _selectedImageFile!.path,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.file(
+                          _selectedImageFile!,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 Positioned(
                   top: 8,
