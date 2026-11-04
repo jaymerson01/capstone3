@@ -239,6 +239,18 @@ class _FloatingChatBotState extends State<FloatingChatBot>
     final userMessage = selectedQuestion ?? _messageController.text.trim();
     if (userMessage.isEmpty) return;
 
+    // Earlier turns only (the assistant adds this message itself), and only
+    // real AI answers: the greeting and offline canned replies aren't the
+    // model's words, and sending them made the answers drift.
+    final history = _messages
+        .where((m) =>
+            m['text'] is String && (m['isUser'] == true || m['isAi'] == true))
+        .map((m) => {
+              'role': (m['isUser'] == true) ? 'user' : 'model',
+              'text': m['text'] as String,
+            })
+        .toList();
+
     setState(() {
       _messages.add({
         'text': userMessage,
@@ -250,15 +262,6 @@ class _FloatingChatBotState extends State<FloatingChatBot>
       _isBotTyping = true;
     });
     _scrollToBottom();
-
-    // Prepare conversational history for Gemini 1.5 Flash
-    final history = _messages
-        .where((m) => m['text'] is String)
-        .map((m) => {
-              'role': (m['isUser'] == true) ? 'user' : 'model',
-              'text': m['text'] as String,
-            })
-        .toList();
 
     String botAnswer;
     bool isAiResponse = false;

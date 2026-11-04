@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:community_safety_app/features/incident/data/models/triage_response_model.dart';
+import 'package:flutter/foundation.dart';
 
 class ServerException implements Exception {
   final String message;
@@ -101,6 +102,7 @@ class IncidentAiRemoteDataSourceImpl implements IncidentAiRemoteDataSource {
     required List<Map<String, dynamic>> contents,
     String? systemInstruction,
     bool responseJson = false,
+    bool thinking = true,
   }) async {
     final apiKey = _getApiKey();
     final url = Uri.parse(
@@ -112,6 +114,7 @@ class IncidentAiRemoteDataSourceImpl implements IncidentAiRemoteDataSource {
         'temperature': 0.3,
         'maxOutputTokens': 2048,
         if (responseJson) 'responseMimeType': 'application/json',
+        if (!thinking) 'thinkingConfig': {'thinkingBudget': 0},
       },
     };
 
@@ -258,8 +261,7 @@ Rules:
     required String userMessage,
     List<Map<String, String>> history = const [],
   }) async {
-    final recentHistory =
-        history.length > 6 ? history.sublist(history.length - 6) : history;
+    final recentHistory = assistantHistory(history);
 
     try {
       final result = await _callAssist(
@@ -311,13 +313,41 @@ Core Directives:
       ]
     });
 
+    // Same settings as the Cloud Function, so both routes answer alike.
     final reply = await _directGeminiPost(
       contents: contents,
       systemInstruction: systemInstructionText,
+      thinking: false,
     );
     if (reply.isNotEmpty) {
       return reply;
     }
     throw ServerException('The assistant returned an empty answer.');
+  }
+
+  /// The last [maxPairs] complete exchanges (a question, then the assistant's
+  /// answer), oldest first. Unanswered questions and stray assistant turns are
+  /// dropped, so Gemini always gets user/model turns in strict alternation;
+  /// otherwise it may reject the request and the chat falls back to canned
+  /// answers.
+  @visibleForTesting
+  static List<Map<String, String>> assistantHistory(
+    List<Map<String, String>> history, {
+    int maxPairs = 3,
+  }) {
+    final pairs = <List<Map<String, String>>>[];
+    Map<String, String>? question;
+    for (final item in history) {
+      final text = (item['text'] ?? '').trim();
+      if (text.isEmpty) continue;
+      if (item['role'] == 'user') {
+        question = {'role': 'user', 'text': text};
+      } else if (question != null) {
+        pairs.add([question, {'role': 'model', 'text': text}]);
+        question = null;
+      }
+    }
+    final recent = pairs.length > maxPairs ? pairs.sublist(pairs.length - maxPairs) : pairs;
+    return [for (final pair in recent) ...pair];
   }
 }
