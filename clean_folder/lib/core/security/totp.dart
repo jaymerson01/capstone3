@@ -31,9 +31,15 @@ class Totp {
 
   /// The code for [time].
   static String codeAt(String secret, DateTime time) {
-    final counter = time.millisecondsSinceEpoch ~/ step.inMilliseconds;
-    final message = ByteData(8)..setInt64(0, counter);
-    final hash = Hmac(sha1, _base32Decode(secret)).convert(message.buffer.asUint8List()).bytes;
+    // The 30-second step count as 8 big-endian bytes, written by hand:
+    // ByteData.setInt64 isn't supported in web (JavaScript) builds.
+    var counter = time.millisecondsSinceEpoch ~/ step.inMilliseconds;
+    final message = Uint8List(8);
+    for (var i = 7; i >= 0; i--) {
+      message[i] = counter % 256;
+      counter ~/= 256;
+    }
+    final hash = Hmac(sha1, _base32Decode(secret)).convert(message).bytes;
     final offset = hash.last & 0x0f;
     final binary = ((hash[offset] & 0x7f) << 24) |
         (hash[offset + 1] << 16) |

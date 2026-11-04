@@ -104,7 +104,15 @@ class _AdminMfaGateState extends State<AdminMfaGate> {
   Future<void> _submit() async {
     if (_busy) return;
     final secret = _secret!;
-    if (!Totp.verify(secret, _code.text)) {
+    bool correct;
+    try {
+      correct = Totp.verify(secret, _code.text);
+    } catch (e) {
+      debugPrint('[AdminMfa] Code check failed: $e');
+      setState(() => _error = "Couldn't check the code ($e).");
+      return;
+    }
+    if (!correct) {
       _attempts++;
       if (_attempts >= AdminMfaGate.maxAttempts) {
         _signOut();
@@ -137,6 +145,15 @@ class _AdminMfaGateState extends State<AdminMfaGate> {
         setState(() {
           _busy = false;
           _error = "Couldn't save the authenticator link (${e.code}). Try again.";
+        });
+      }
+    } catch (e) {
+      // Never leave the button doing nothing: show what went wrong.
+      debugPrint('[AdminMfa] $e');
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = "Something went wrong ($e). Try again.";
         });
       }
     }
