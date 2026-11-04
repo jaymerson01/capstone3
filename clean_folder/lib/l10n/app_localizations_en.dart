@@ -2117,4 +2117,27 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get termsChangesBody =>
       'The barangay may update these terms. When it does, ResQ asks you to read and accept them again.';
+
+  @override
+  String get timelineStageReceived => 'Report received';
+
+  @override
+  String get timelineStageWaitingSend => 'Waiting for internet to send';
+
+  @override
+  String get timelineStageWaiting => 'Waiting for the barangay';
+
+  @override
+  String get timelineStageResponding => 'Barangay is responding';
+
+  @override
+  String get timelineStageResolved => 'Resolved';
+
+  @override
+  String get timelineStageClosed => 'Closed by the barangay';
+
+  @override
+  String timelineSince(String time) {
+    return 'Since $time';
+  }
 }

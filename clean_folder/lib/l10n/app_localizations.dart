@@ -3691,6 +3691,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The barangay may update these terms. When it does, ResQ asks you to read and accept them again.'**
   String get termsChangesBody;
+
+  /// Timeline: the report reached the barangay.
+  ///
+  /// In en, this message translates to:
+  /// **'Report received'**
+  String get timelineStageReceived;
+
+  /// Timeline: saved offline, not sent yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for internet to send'**
+  String get timelineStageWaitingSend;
+
+  /// Timeline: not picked up yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the barangay'**
+  String get timelineStageWaiting;
+
+  /// Timeline: in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Barangay is responding'**
+  String get timelineStageResponding;
+
+  /// Timeline: resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get timelineStageResolved;
+
+  /// Timeline: marked spam or archived.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed by the barangay'**
+  String get timelineStageClosed;
+
+  /// Timeline: when the response started.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {time}'**
+  String timelineSince(String time);
 }
 
 class _AppLocalizationsDelegate

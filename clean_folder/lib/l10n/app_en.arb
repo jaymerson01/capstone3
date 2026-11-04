@@ -2709,5 +2709,38 @@
   "termsChangesBody": "The barangay may update these terms. When it does, ResQ asks you to read and accept them again.",
   "@termsChangesBody": {
     "description": "Terms section."
+  },
+  "timelineStageReceived": "Report received",
+  "@timelineStageReceived": {
+    "description": "Timeline: the report reached the barangay."
+  },
+  "timelineStageWaitingSend": "Waiting for internet to send",
+  "@timelineStageWaitingSend": {
+    "description": "Timeline: saved offline, not sent yet."
+  },
+  "timelineStageWaiting": "Waiting for the barangay",
+  "@timelineStageWaiting": {
+    "description": "Timeline: not picked up yet."
+  },
+  "timelineStageResponding": "Barangay is responding",
+  "@timelineStageResponding": {
+    "description": "Timeline: in progress."
+  },
+  "timelineStageResolved": "Resolved",
+  "@timelineStageResolved": {
+    "description": "Timeline: resolved."
+  },
+  "timelineStageClosed": "Closed by the barangay",
+  "@timelineStageClosed": {
+    "description": "Timeline: marked spam or archived."
+  },
+  "timelineSince": "Since {time}",
+  "@timelineSince": {
+    "description": "Timeline: when the response started.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
   }
 }

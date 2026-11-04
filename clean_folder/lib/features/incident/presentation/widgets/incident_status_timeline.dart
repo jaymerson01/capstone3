@@ -66,53 +66,79 @@ class IncidentStatusTimeline extends StatelessWidget {
   }
 
   Widget _buildStages(AppLocalizations l10n) {
-    // How many stages are finished, and which one is happening now.
-    final int done;
-    final int? current;
-    if (incident.isSolved) {
-      done = 3;
-      current = null;
-    } else if (incident.isInProgress) {
-      done = 1;
-      current = 1;
-    } else if (incident.isPending) {
-      done = 0;
-      current = 0;
-    } else {
-      done = 0;
-      current = null;
-    }
-
-    final eta = incident.estimatedResponseTime;
-    final stages = [
-      (l10n.statusPending, null),
-      (
-        l10n.statusInProgress,
-        incident.isInProgress && eta != null && eta.isNotEmpty
-            ? l10n.timelineRespondersOnTheWay(eta)
-            : null,
-      ),
-      (l10n.statusResolved, null),
-    ];
+    final stages = stagesFor(incident, l10n);
     final doneColor = incident.isSolved ? AppColors.solved : AppColors.primary;
-    bool reached(int i) => i < done || i == current;
-
     return Column(
       children: [
         for (var i = 0; i < stages.length; i++)
           _StageRow(
-            label: stages[i].$1,
-            detail: stages[i].$2,
-            state: i < done
-                ? _StageState.done
-                : (i == current ? _StageState.current : _StageState.upcoming),
+            label: stages[i].label,
+            detail: stages[i].detail,
+            state: stages[i].state,
             doneColor: doneColor,
             lineColor: i == stages.length - 1
                 ? null
-                : (reached(i + 1) ? doneColor : AppColors.border),
+                : (stages[i + 1].state == TimelineStageState.upcoming
+                    ? AppColors.border
+                    : doneColor),
           ),
       ],
     );
+  }
+
+  /// The report's stages, each with when it happened: received, the
+  /// barangay responding (with any ETA), then resolved, or closed for spam
+  /// and archived reports.
+  @visibleForTesting
+  static List<({String label, String? detail, TimelineStageState state})> stagesFor(
+    IncidentEntity incident,
+    AppLocalizations l10n,
+  ) {
+    const done = TimelineStageState.done;
+    const current = TimelineStageState.current;
+    const upcoming = TimelineStageState.upcoming;
+    String? at(DateTime? time) => time == null ? null : formatTime(time);
+
+    final resolvedNext = (label: l10n.timelineStageResolved, detail: null, state: upcoming);
+    if (!incident.isSynced) {
+      return [
+        (label: l10n.timelineStageWaitingSend, detail: at(incident.timestamp), state: current),
+        (label: l10n.timelineStageWaiting, detail: null, state: upcoming),
+        resolvedNext,
+      ];
+    }
+
+    final received = (label: l10n.timelineStageReceived, detail: at(incident.timestamp), state: done);
+    if (incident.isClosed) {
+      return [received, (label: l10n.timelineStageClosed, detail: at(incident.closedAt), state: done)];
+    }
+    if (incident.isSolved) {
+      return [
+        received,
+        (label: l10n.timelineStageResponding, detail: at(incident.inProgressAt), state: done),
+        (label: l10n.timelineStageResolved, detail: at(incident.resolvedAt ?? incident.respondedAt), state: done),
+      ];
+    }
+    if (incident.isInProgress) {
+      final since = incident.inProgressAt ?? incident.respondedAt;
+      final eta = incident.estimatedResponseTime;
+      final detail = [
+        if (since != null) l10n.timelineSince(formatTime(since)),
+        if (eta != null && eta.isNotEmpty) l10n.timelineRespondersOnTheWay(eta),
+      ].join(' · ');
+      return [
+        received,
+        (label: l10n.timelineStageResponding, detail: detail.isEmpty ? null : detail, state: current),
+        resolvedNext,
+      ];
+    }
+    return [received, (label: l10n.timelineStageWaiting, detail: null, state: current), resolvedNext];
+  }
+
+  /// Day/month/year and 24-hour time, as on the rest of the report page.
+  static String formatTime(DateTime time) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(time.day)}/${two(time.month)}/${time.year} ${two(time.hour)}:${two(time.minute)}';
   }
 
   Widget _buildInstructionRow(int number, String text) {
@@ -213,13 +239,13 @@ class _CardTitle extends StatelessWidget {
   }
 }
 
-enum _StageState { done, current, upcoming }
+enum TimelineStageState { done, current, upcoming }
 
 /// One stage: its node and the line down to the next one, then the label.
 class _StageRow extends StatelessWidget {
   final String label;
   final String? detail;
-  final _StageState state;
+  final TimelineStageState state;
   final Color doneColor;
 
   /// The line to the next stage; null for the last one.
@@ -241,7 +267,7 @@ class _StageRow extends StatelessWidget {
 
     final Widget node;
     switch (state) {
-      case _StageState.done:
+      case TimelineStageState.done:
         node = Container(
           width: 30,
           height: 30,
@@ -262,7 +288,7 @@ class _StageRow extends StatelessWidget {
           ),
           child: const Icon(Icons.check_rounded, size: 17, color: Colors.white),
         );
-      case _StageState.current:
+      case TimelineStageState.current:
         node = _PulsatingNode(
           child: Container(
             width: 30,
@@ -280,7 +306,7 @@ class _StageRow extends StatelessWidget {
             ),
           ),
         );
-      case _StageState.upcoming:
+      case TimelineStageState.upcoming:
         node = Container(
           width: 30,
           height: 30,
@@ -289,10 +315,10 @@ class _StageRow extends StatelessWidget {
     }
 
     final labelColor = switch (state) {
-      _StageState.done => AppColors.textDark,
-      _StageState.current =>
+      TimelineStageState.done => AppColors.textDark,
+      TimelineStageState.current =>
         isDark ? AppColors.secondaryLight : const Color(0xFF0E7490),
-      _StageState.upcoming => AppColors.textLight,
+      TimelineStageState.upcoming => AppColors.textLight,
     };
 
     return IntrinsicHeight(

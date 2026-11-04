@@ -81,7 +81,7 @@ void main() {
     expect(find.text('INAAKSYUNAN'), findsOneWidget); // stored "in_progress"
     expect(find.text('Salaysay ng Insidente'), findsOneWidget);
     expect(find.text('Usok mula sa bahay sa kanto'), findsOneWidget);
-    expect(find.text('Nakabinbin'), findsOneWidget); // timeline node
+    expect(find.text('Natanggap ang ulat'), findsOneWidget); // timeline node
     expect(find.text('Fire Incident'), findsNothing);
   });
 

@@ -484,6 +484,32 @@ class IncidentRepositoryImpl implements IncidentRepository {
 
   /// [incident] with its reporter's name and email taken from [profile]
   /// (their `users` document) where the report itself lacks them.
+  /// The resident's notice when the barangay changes their report's status:
+  /// Filipino first, then English (the admin desk writes it, so it can't follow
+  /// the resident's app language), with the ticket number.
+  @visibleForTesting
+  static ({String title, String message}) statusNotice({
+    required String status,
+    required String ticket,
+    required String category,
+    String? eta,
+    String? notes,
+  }) {
+    final title = switch (status) {
+      'in_progress' => 'Inaaksyunan na ang ulat mo · Your report is being handled',
+      'resolved' => 'Nalutas na ang ulat mo · Your report is resolved',
+      'spam' || 'archived' => 'Isinara ang ulat mo · Your report was closed',
+      _ => 'Natanggap ang ulat mo · Your report is pending',
+    };
+    final parts = [
+      if (ticket.isNotEmpty) 'Ticket $ticket',
+      category,
+      if (eta != null && eta.trim().isNotEmpty) 'ETA: ${eta.trim()}',
+      if (notes != null && notes.trim().isNotEmpty) 'Komento / Comment: ${notes.trim()}',
+    ];
+    return (title: title, message: parts.join(' · '));
+  }
+
   @visibleForTesting
   static IncidentEntity fillReporterFromProfile(IncidentEntity incident, Map<String, dynamic>? profile) {
     if (profile == null || incident is! IncidentModel) return incident;
@@ -559,8 +585,15 @@ class IncidentRepositoryImpl implements IncidentRepository {
     if (normalizedStatus == 'in_progress' || normalizedStatus == 'resolved') {
       updateData['respondedAt'] = FieldValue.serverTimestamp();
     }
+    // One time per stage, for the resident's report timeline.
+    if (normalizedStatus == 'in_progress') {
+      updateData['inProgressAt'] = FieldValue.serverTimestamp();
+    }
     if (normalizedStatus == 'resolved') {
       updateData['resolvedAt'] = FieldValue.serverTimestamp();
+    }
+    if (normalizedStatus == 'spam' || normalizedStatus == 'archived') {
+      updateData['closedAt'] = FieldValue.serverTimestamp();
     }
     if (dispatcherNotes != null && dispatcherNotes.isNotEmpty) {
       updateData['dispatcherNotes'] = dispatcherNotes;
@@ -625,19 +658,17 @@ class IncidentRepositoryImpl implements IncidentRepository {
             : (data?['userId'] as String? ?? '');
         final category = data?['category'] as String? ?? 'Incident';
         if (reporterId.isNotEmpty) {
-          final displayStatus =
-              normalizedStatus.toUpperCase().replaceAll('_', ' ');
-          String msg = 'Your $category report is now $displayStatus.';
-          if (estimatedResponseTime != null && estimatedResponseTime.trim().isNotEmpty) {
-            msg += ' Estimated arrival: $estimatedResponseTime.';
-          }
-          if (dispatcherNotes != null && dispatcherNotes.trim().isNotEmpty) {
-            msg += ' Note: $dispatcherNotes';
-          }
+          final notice = statusNotice(
+            status: normalizedStatus,
+            ticket: IncidentModel.fromFirestore(docSnap).ticketNumber,
+            category: category,
+            eta: estimatedResponseTime,
+            notes: dispatcherNotes,
+          );
           await NotificationService().sendNotification(
             recipientId: reporterId,
-            title: 'Report Status: $displayStatus',
-            message: msg,
+            title: notice.title,
+            message: notice.message,
             type: 'status_change',
             incidentId: id,
           );

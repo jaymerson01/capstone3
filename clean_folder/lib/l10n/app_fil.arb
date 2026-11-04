@@ -598,5 +598,12 @@
   "termsConductTitle": "Igalang ang kapwa",
   "termsConductBody": "Huwag gamitin ang ResQ para manligalig, manakot, o manghiya ng iba, o para mag-post ng bastos na nilalaman. Maaari itong alisin ng mga admin at i-suspend ang account.",
   "termsChangesTitle": "Mga pagbabago sa tuntunin",
-  "termsChangesBody": "Maaaring baguhin ng barangay ang mga tuntuning ito. Kapag nangyari iyon, hihilingin ng ResQ na basahin at tanggapin mo itong muli."
+  "termsChangesBody": "Maaaring baguhin ng barangay ang mga tuntuning ito. Kapag nangyari iyon, hihilingin ng ResQ na basahin at tanggapin mo itong muli.",
+  "timelineStageReceived": "Natanggap ang ulat",
+  "timelineStageWaitingSend": "Naghihintay ng internet para maipadala",
+  "timelineStageWaiting": "Hinihintay ang barangay",
+  "timelineStageResponding": "Inaaksyunan ng barangay",
+  "timelineStageResolved": "Nalutas",
+  "timelineStageClosed": "Isinara ng barangay",
+  "timelineSince": "Mula {time}"
 }

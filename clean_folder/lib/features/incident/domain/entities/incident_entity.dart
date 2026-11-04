@@ -34,6 +34,13 @@ class IncidentEntity {
   /// When the report was marked resolved.
   final DateTime? resolvedAt;
 
+  /// When an admin last moved the report to In progress.
+  final DateTime? inProgressAt;
+
+  /// When the barangay closed the report without resolving it (spam or
+  /// archived).
+  final DateTime? closedAt;
+
   /// Whether an admin has verified the reporter's residency (admin desk only;
   /// null when the reporter's profile isn't loaded).
   final bool? reporterVerified;
@@ -68,6 +75,8 @@ class IncidentEntity {
     this.dispatcherNotesAt,
     this.resolvedAt,
     this.reporterVerified,
+    this.inProgressAt,
+    this.closedAt,
   });
 
   /// The reference residents and the desk quote for this report, e.g.
@@ -121,6 +130,12 @@ class IncidentEntity {
   bool get isInProgress {
     final s = status.toLowerCase().replaceAll('_', '').replaceAll(' ', '').trim();
     return s == 'inprogress';
+  }
+
+  /// Spam or archived: closed by the barangay without a resolution.
+  bool get isClosed {
+    final s = status.toLowerCase().replaceAll('_', '').replaceAll(' ', '').trim();
+    return s == 'spam' || s == 'archived';
   }
 
   bool get isPending {

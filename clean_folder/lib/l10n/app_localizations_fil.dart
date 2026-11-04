@@ -2097,4 +2097,28 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get termsChangesBody =>
       'Maaaring baguhin ng barangay ang mga tuntuning ito. Kapag nangyari iyon, hihilingin ng ResQ na basahin at tanggapin mo itong muli.';
+
+  @override
+  String get timelineStageReceived => 'Natanggap ang ulat';
+
+  @override
+  String get timelineStageWaitingSend =>
+      'Naghihintay ng internet para maipadala';
+
+  @override
+  String get timelineStageWaiting => 'Hinihintay ang barangay';
+
+  @override
+  String get timelineStageResponding => 'Inaaksyunan ng barangay';
+
+  @override
+  String get timelineStageResolved => 'Nalutas';
+
+  @override
+  String get timelineStageClosed => 'Isinara ng barangay';
+
+  @override
+  String timelineSince(String time) {
+    return 'Mula $time';
+  }
 }

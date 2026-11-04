@@ -180,6 +180,8 @@ class IncidentModel extends IncidentEntity {
     DateTime? dispatcherNotesAt,
     DateTime? resolvedAt,
     bool? reporterVerified,
+    DateTime? inProgressAt,
+    DateTime? closedAt,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -211,6 +213,8 @@ class IncidentModel extends IncidentEntity {
       dispatcherNotesAt: dispatcherNotesAt ?? this.dispatcherNotesAt,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       reporterVerified: reporterVerified ?? this.reporterVerified,
+      inProgressAt: inProgressAt ?? this.inProgressAt,
+      closedAt: closedAt ?? this.closedAt,
     );
   }
 
@@ -239,6 +243,8 @@ class IncidentModel extends IncidentEntity {
     super.dispatcherNotesAt,
     super.resolvedAt,
     super.reporterVerified,
+    super.inProgressAt,
+    super.closedAt,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
@@ -356,6 +362,8 @@ class IncidentModel extends IncidentEntity {
       isBlotter: data['isBlotter'] as bool? ?? false,
       dispatcherNotesAt: readTime('dispatcherNotesAt'),
       resolvedAt: readTime('resolvedAt'),
+      inProgressAt: readTime('inProgressAt'),
+      closedAt: readTime('closedAt'),
     );
   }
 
@@ -416,6 +424,8 @@ class IncidentModel extends IncidentEntity {
       isBlotter: isBlotter,
       dispatcherNotesAt: dispatcherNotesAt,
       resolvedAt: resolvedAt,
+      inProgressAt: inProgressAt,
+      closedAt: closedAt,
     );
   }
 
@@ -458,6 +468,12 @@ class IncidentModel extends IncidentEntity {
     }
     if (resolvedAt != null) {
       map['resolvedAt'] = Timestamp.fromDate(resolvedAt!);
+    }
+    if (inProgressAt != null) {
+      map['inProgressAt'] = Timestamp.fromDate(inProgressAt!);
+    }
+    if (closedAt != null) {
+      map['closedAt'] = Timestamp.fromDate(closedAt!);
     }
     return map;
   }
