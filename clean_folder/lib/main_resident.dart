@@ -33,6 +33,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/terms_page.dart';
 
 
 final GlobalKey<NavigatorState> residentNavigatorKey =
@@ -213,7 +214,7 @@ class ResidentAuthWrapper extends StatelessWidget {
               );
             },
           );
-          return const ResidentNavShell();
+          return TermsGate(user: state.user, child: const ResidentNavShell());
         }
 
         return const WelcomePage();

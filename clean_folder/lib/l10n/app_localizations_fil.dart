@@ -1963,4 +1963,138 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get reportRecordVideo => 'Mag-record ng video';
+
+  @override
+  String get settingsPendingVerification => 'Hinihintay ang beripikasyon';
+
+  @override
+  String get settingsTerms => 'Mga Tuntunin at Kundisyon';
+
+  @override
+  String get settingsTermsSubtitle =>
+      'Paano gamitin ang ResQ at paano inaalagaan ang iyong datos';
+
+  @override
+  String get reportAreaLabel => 'Lugar (area)';
+
+  @override
+  String get reportAreaHint => 'Piliin kung saang lugar nangyari';
+
+  @override
+  String get reportVoiceStart => 'Magsalita para mag-type';
+
+  @override
+  String get reportVoiceListening => 'Nakikinig… pindutin para huminto';
+
+  @override
+  String get reportVoiceUnavailable =>
+      'Hindi magamit ang voice typing dito. Payagan ang mikropono, o mag-type na lang.';
+
+  @override
+  String get reportEvidenceRequiredHint =>
+      'Kailangan ng litrato o video sa ganitong insidente.';
+
+  @override
+  String reportEvidenceRequired(String category) {
+    return 'Maglagay muna ng litrato o video: kailangan ng ebidensya sa ulat na $category.';
+  }
+
+  @override
+  String get reportLocationRequired =>
+      'I-pin kung saan nangyari: pindutin ang mapa, gamitin ang GPS, o piliin ang lugar.';
+
+  @override
+  String get reportOutsideMoonwalk =>
+      'Para lang sa loob ng Barangay Moonwalk ang mga ulat sa ResQ. Ilipat ang pin kung saan ito nangyari.';
+
+  @override
+  String reportTicketNumber(String ticket) {
+    return 'Ticket blg. $ticket';
+  }
+
+  @override
+  String detailCommentedAt(String time) {
+    return 'Nagkomento: $time';
+  }
+
+  @override
+  String detailResolvedAt(String time) {
+    return 'Nalutas: $time';
+  }
+
+  @override
+  String get termsTitle => 'Mga Tuntunin at Kundisyon';
+
+  @override
+  String get termsIntro =>
+      'Pakibasa ang mga tuntuning ito bago gamitin ang ResQ.';
+
+  @override
+  String get termsUpdated => 'Huling binago: Nobyembre 2026';
+
+  @override
+  String get termsAgreeCheckbox =>
+      'Nabasa ko at sumasang-ayon ako sa Mga Tuntunin at Kundisyon.';
+
+  @override
+  String get termsAccept => 'Tanggapin at magpatuloy';
+
+  @override
+  String get termsDecline => 'Tanggihan at mag-sign out';
+
+  @override
+  String get termsUseTitle => 'Paggamit ng ResQ';
+
+  @override
+  String get termsUseBody =>
+      'Ang ResQ ay ang app pangkaligtasan ng Barangay Moonwalk. Gamitin ito para mag-ulat ng mga insidente sa loob ng Barangay Moonwalk, Parañaque City, subaybayan ang iyong mga ulat, at makatanggap ng mga abiso ng barangay.';
+
+  @override
+  String get termsAccountTitle => 'Ang iyong account';
+
+  @override
+  String get termsAccountBody =>
+      'Ilagay ang tunay mong pangalan at tamang contact details, at huwag ibahagi ang iyong password. Isang tao lang bawat account. Susuriin muna ng admin ng barangay ang iyong paninirahan bago lumabas na Beripikadong Residente ang iyong account.';
+
+  @override
+  String get termsReportsTitle => 'Mag-ulat nang tapat';
+
+  @override
+  String get termsReportsBody =>
+      'Mag-ulat lamang ng totoong insidente, nang tama hangga\'t maaari. Nailalayo ng mga peke, pabiro, o dobleng ulat ang mga rumeresponde sa totoong emerhensiya; maaaring i-suspend ng barangay ang mga account na nagpapadala nito at idulog ang mabibigat na kaso sa kinauukulan.';
+
+  @override
+  String get termsEmergencyTitle => 'Kapag buhay ang nakataya';
+
+  @override
+  String get termsEmergencyBody =>
+      'Tumawag din sa 911 o sa hotline ng barangay. Tinutulungan ng ResQ na mas mabilis rumesponde ang barangay, pero hindi nito magagarantiya kung kailan darating ang tulong, at kailangan nito ng koneksyon sa internet para makapagpadala ng ulat.';
+
+  @override
+  String get termsEvidenceTitle => 'Litrato, video at lokasyon';
+
+  @override
+  String get termsEvidenceBody =>
+      'Kasama sa ulat ang naka-pin mong lokasyon at anumang litrato, video, o tekstong idinikta mo. May mga uri ng insidente na nangangailangan ng litrato o video. Huwag ipakita ang mga tao nang higit sa kailangan para sa insidente.';
+
+  @override
+  String get termsPrivacyTitle => 'Ang iyong datos at privacy';
+
+  @override
+  String get termsPrivacyBody =>
+      'Ginagamit lamang ng barangay ang iyong impormasyon para asikasuhin ang mga ulat at panatilihing ligtas ang komunidad, alinsunod sa Data Privacy Act of 2012 (RA 10173). Ang mga admin ng barangay lang ang nakakakita ng iyong pangalan at contact details, hindi ang ibang residente; kapag nag-ulat ka nang anonymous, nakatago ang iyong pangalan sa community feed. Maaari mong tingnan at itama ang iyong impormasyon sa Settings, at doon din burahin ang iyong account.';
+
+  @override
+  String get termsConductTitle => 'Igalang ang kapwa';
+
+  @override
+  String get termsConductBody =>
+      'Huwag gamitin ang ResQ para manligalig, manakot, o manghiya ng iba, o para mag-post ng bastos na nilalaman. Maaari itong alisin ng mga admin at i-suspend ang account.';
+
+  @override
+  String get termsChangesTitle => 'Mga pagbabago sa tuntunin';
+
+  @override
+  String get termsChangesBody =>
+      'Maaaring baguhin ng barangay ang mga tuntuning ito. Kapag nangyari iyon, hihilingin ng ResQ na basahin at tanggapin mo itong muli.';
 }

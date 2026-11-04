@@ -7,6 +7,10 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_accounts_remote_data_source.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
@@ -24,8 +28,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
   String _statusFilter = "All"; // "All", "Active", "Suspended"
   String _roleFilter = "All"; // "All", "resident", "admin"
 
+  /// Super admins create admin accounts and reset two-step verification.
+  bool _isSuperAdmin(BuildContext context) {
+    final state = context.watch<AuthBloc>().state;
+    return state is Authenticated && state.user.isSuperAdmin;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bool iAmSuperAdmin = _isSuperAdmin(context);
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -101,6 +112,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             onChanged: (val) =>
                                 setState(() => _roleFilter = val),
                           ),
+                          if (iAmSuperAdmin) ...[
+                            const SizedBox(width: 12, height: 12),
+                            AdminButton(
+                              label: "Add admin",
+                              icon: Icons.person_add_alt_1_rounded,
+                              onPressed: () => _showAddAdminDialog(context),
+                            ),
+                          ],
                         ],
                       );
                     },
@@ -384,13 +403,42 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                     // Role Badge (Read-Only)
                                     DataCell(
                                       dim(
-                                        AdminPill(
-                                          label: user.isAdmin
-                                              ? "Barangay Admin"
-                                              : "Citizen Resident",
-                                          tone: user.isAdmin
-                                              ? AdminTone.blue
-                                              : AdminTone.slate,
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            AdminPill(
+                                              label: user.isSuperAdmin
+                                                  ? "Super Admin"
+                                                  : user.isAdmin
+                                                      ? "Barangay Admin"
+                                                      : "Citizen Resident",
+                                              tone: user.isSuperAdmin
+                                                  ? AdminTone.violet
+                                                  : user.isAdmin
+                                                      ? AdminTone.blue
+                                                      : AdminTone.slate,
+                                            ),
+                                            // Two-step sign-in (MFA) status.
+                                            if (user.isAdmin)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 4),
+                                                child: Text(
+                                                  user.mfaEnabled
+                                                      ? "2-step: On"
+                                                      : "2-step: Not set up",
+                                                  style: TextStyle(
+                                                    fontSize: 11.5,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: user.mfaEnabled
+                                                        ? AdminColors.cyanSoft
+                                                        : AdminColors.pendingText,
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                       ),
                                     ),
@@ -487,6 +535,19 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                 user,
                                               ),
                                             ),
+                                            if (iAmSuperAdmin &&
+                                                user.isAdmin &&
+                                                user.mfaEnabled) ...[
+                                              const SizedBox(width: 6),
+                                              AdminIconAction(
+                                                icon: Icons.phonelink_erase_rounded,
+                                                tone: AdminTone.orange,
+                                                tooltip:
+                                                    "Reset two-step verification (lost phone)",
+                                                onPressed: () =>
+                                                    _resetAdminMfa(context, user),
+                                              ),
+                                            ],
                                           ],
                                         ),
                                       ),
@@ -1155,6 +1216,206 @@ class _UserManagementPageState extends State<UserManagementPage> {
         );
       }
     }
+  }
+
+  // ── Super admin: create admin accounts ─────────────────────────────────
+  Future<void> _showAddAdminDialog(BuildContext context) async {
+    final created = await showDialog<String>(
+      context: context,
+      builder: (_) => const _AddAdminDialog(),
+    );
+    if (created != null && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "✓ Admin account created. $created will get an email to set a password, then link an authenticator app at first sign-in.",
+          ),
+          backgroundColor: AdminColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  // ── Super admin: unlink a lost authenticator ───────────────────────────
+  Future<void> _resetAdminMfa(BuildContext context, UserEntity user) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AdminDialog(
+        title: "Reset two-step verification?",
+        icon: Icons.phonelink_erase_rounded,
+        tone: AdminTone.orange,
+        maxWidth: 460,
+        actions: [
+          AdminButton(
+            label: "Cancel",
+            style: AdminButtonStyle.ghost,
+            onPressed: () => Navigator.pop(ctx, false),
+          ),
+          AdminButton(
+            label: "Reset",
+            style: AdminButtonStyle.danger,
+            onPressed: () => Navigator.pop(ctx, true),
+          ),
+        ],
+        child: Text(
+          "${user.displayName ?? user.email}'s authenticator app will stop working for ResQ. They'll scan a new QR code the next time they sign in. Only do this if they lost their phone.",
+          style: const TextStyle(
+            color: AdminColors.textSoft,
+            fontSize: 13.5,
+            height: 1.5,
+          ),
+        ),
+      ),
+    );
+    if (confirm != true) return;
+    try {
+      await sl<AdminAccountsRemoteDataSource>().resetMfa(user.id);
+      await sl<AuditLogRemoteDataSource>().recordLog(
+        actionType: 'Security',
+        details: 'Reset two-step verification for admin ${user.displayName ?? user.email} (UID: ${user.id})',
+        targetId: user.id,
+      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("✓ Two-step verification reset."),
+            backgroundColor: AdminColors.primary,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to reset two-step verification: $e"),
+            backgroundColor: AdminColors.critical,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+}
+
+/// Name and email for a new admin account. Pops with the email once the
+/// account exists.
+class _AddAdminDialog extends StatefulWidget {
+  const _AddAdminDialog();
+
+  @override
+  State<_AddAdminDialog> createState() => _AddAdminDialogState();
+}
+
+class _AddAdminDialogState extends State<_AddAdminDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final _name = TextEditingController();
+  final _email = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    _email.dispose();
+    super.dispose();
+  }
+
+  Future<void> _create() async {
+    if (_busy || !_formKey.currentState!.validate()) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    final name = _name.text.trim();
+    final email = _email.text.trim();
+    try {
+      final uid = await sl<AdminAccountsRemoteDataSource>().createAdmin(email: email, displayName: name);
+      await sl<AuditLogRemoteDataSource>().recordLog(
+        actionType: 'Admin Accounts',
+        details: 'Created admin account for $name <$email> (UID: $uid)',
+        targetId: uid,
+      );
+      if (mounted) Navigator.pop(context, email);
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _busy = false;
+        _error = switch (e.code) {
+          'email-already-in-use' => "That email already has a ResQ account.",
+          'invalid-email' => "That email address isn't valid.",
+          _ => "Couldn't create the account (${e.code}).",
+        };
+      });
+    } catch (e) {
+      setState(() {
+        _busy = false;
+        _error = "Couldn't create the account: $e";
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AdminDialog(
+      title: "Add an admin",
+      subtitle: "Super admin only",
+      icon: Icons.person_add_alt_1_rounded,
+      tone: AdminTone.violet,
+      maxWidth: 480,
+      actions: [
+        AdminButton(
+          label: "Cancel",
+          style: AdminButtonStyle.ghost,
+          onPressed: _busy ? null : () => Navigator.pop(context),
+        ),
+        AdminButton(
+          label: "Create admin",
+          icon: Icons.check_rounded,
+          busy: _busy,
+          onPressed: _create,
+        ),
+      ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              "They'll get an email to set their own password. At their first sign-in they'll link an authenticator app for two-step verification.",
+              style: TextStyle(color: AdminColors.textSoft, fontSize: 13, height: 1.5),
+            ),
+            const SizedBox(height: 16),
+            const AdminFieldLabel("Full name"),
+            const SizedBox(height: 6),
+            TextFormField(
+              controller: _name,
+              style: const TextStyle(color: AdminColors.textStrong),
+              decoration: adminInputDecoration(hint: "e.g. Juan Dela Cruz", icon: Icons.person_outline),
+              validator: (v) => (v ?? '').trim().length < 2 ? "Enter their name" : null,
+            ),
+            const SizedBox(height: 12),
+            const AdminFieldLabel("Email"),
+            const SizedBox(height: 6),
+            TextFormField(
+              controller: _email,
+              keyboardType: TextInputType.emailAddress,
+              style: const TextStyle(color: AdminColors.textStrong),
+              decoration: adminInputDecoration(hint: "name@example.com", icon: Icons.mail_outline),
+              validator: (v) => RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch((v ?? '').trim())
+                  ? null
+                  : "Enter a valid email",
+              onFieldSubmitted: (_) => _create(),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: AdminColors.dangerText, fontSize: 13)),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }
 

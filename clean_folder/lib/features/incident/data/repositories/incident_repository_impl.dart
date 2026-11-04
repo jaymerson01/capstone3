@@ -489,11 +489,11 @@ class IncidentRepositoryImpl implements IncidentRepository {
     if (profile == null || incident is! IncidentModel) return incident;
     final hasName = (incident.reporterName ?? '').trim().isNotEmpty;
     final hasEmail = (incident.reporterEmail ?? '').trim().isNotEmpty;
-    if (hasName && hasEmail) return incident;
     final name = (profile['displayName'] as String?) ?? (profile['fullName'] as String?);
     return incident.copyWith(
       reporterName: hasName || (name ?? '').trim().isEmpty ? null : name,
       reporterEmail: hasEmail ? null : profile['email'] as String?,
+      reporterVerified: profile['isVerified'] == true,
     );
   }
 
@@ -559,8 +559,12 @@ class IncidentRepositoryImpl implements IncidentRepository {
     if (normalizedStatus == 'in_progress' || normalizedStatus == 'resolved') {
       updateData['respondedAt'] = FieldValue.serverTimestamp();
     }
+    if (normalizedStatus == 'resolved') {
+      updateData['resolvedAt'] = FieldValue.serverTimestamp();
+    }
     if (dispatcherNotes != null && dispatcherNotes.isNotEmpty) {
       updateData['dispatcherNotes'] = dispatcherNotes;
+      updateData['dispatcherNotesAt'] = FieldValue.serverTimestamp();
     }
     if (estimatedResponseTime != null && estimatedResponseTime.isNotEmpty) {
       updateData['estimatedResponseTime'] = estimatedResponseTime;

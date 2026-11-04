@@ -41,6 +41,9 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
+import 'package:community_safety_app/core/utils/moonwalk_area.dart';
+import 'package:community_safety_app/core/services/voice_input_service.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -56,6 +59,11 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   final TextEditingController _coordinatesController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+
+  // Voice typing for the description.
+  final VoiceInputService _voice = VoiceInputService();
+  bool _isListening = false;
+  String _voiceBase = '';
   final TextEditingController _landmarkController = TextEditingController();
   final TextEditingController _victimNameController = TextEditingController();
   final TextEditingController _victimPhoneController = TextEditingController();
@@ -88,6 +96,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   bool isAiTriageEnabled = false;
   bool _isSubmittingReport = false;
   String _lastSubmittedCategory = "Other Emergency";
+  String _lastSubmittedTicket = '';
   String _lastSubmittedUrgency = "MEDIUM";
   String _lastSubmittedNarrative = "";
   String _lastSubmittedLocation = "Barangay Moonwalk";
@@ -130,6 +139,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   @override
   void dispose() {
+    _voice.stop();
     _coordinatesController.dispose();
     _descriptionController.dispose();
     _landmarkController.dispose();
@@ -217,6 +227,67 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         height: 1.45,
         fontWeight: FontWeight.w500,
       );
+
+  void _showFormError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.danger,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  /// Moves the pin to the chosen area, so a report can be placed without GPS.
+  void _chooseArea(String area) {
+    final centroid = BarangaySectorHelper.sectorCentroids
+        .where((c) => c['sector'] == area)
+        .firstOrNull;
+    if (centroid == null) {
+      setState(() {
+        _selectedBarangay = area;
+        _resolvedSector = area;
+      });
+      return;
+    }
+    _updatePinnedLocation(
+      (centroid['lat'] as num).toDouble(),
+      (centroid['lng'] as num).toDouble(),
+      animateCamera: true,
+      sectorHint: area,
+    );
+  }
+
+  /// Dictation into the description, in the app's language.
+  Future<void> _toggleVoiceTyping() async {
+    if (_isListening) {
+      await _voice.stop();
+      return;
+    }
+    _voiceBase = _descriptionController.text.trim();
+    final localeId =
+        Localizations.localeOf(context).languageCode == 'fil' ? 'fil_PH' : 'en_PH';
+    final started = await _voice.start(
+      localeId: localeId,
+      onWords: (words) {
+        if (!mounted) return;
+        final text = _voiceBase.isEmpty ? words : '$_voiceBase $words';
+        _descriptionController.value = TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        );
+      },
+      onStopped: () {
+        if (mounted) setState(() => _isListening = false);
+      },
+    );
+    if (!mounted) return;
+    if (started) {
+      setState(() => _isListening = true);
+    } else {
+      _showFormError(_l10n.reportVoiceUnavailable);
+    }
+  }
 
   Future<void> _getCurrentLocation() async {
     setState(() {
@@ -714,7 +785,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     _lastSubmittedLocation = locationAddress;
 
     final incident = IncidentEntity(
-      id: '',
+      id: IncidentEntity.newId(),
       reporterId: currentUserId,
       category: finalCategory,
       description: _descriptionController.text.trim(),
@@ -740,6 +811,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ? _victimPhoneController.text.trim()
           : null,
     );
+    _lastSubmittedTicket = incident.ticketNumber;
 
     // Display the submitting dialog on a dark command-center tray
     _isSubmittingReport = true;
@@ -838,6 +910,23 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           backgroundColor: AppColors.danger,
         ),
       );
+      return;
+    }
+
+    if (IncidentEntity.requiresEvidence(_selectedIncidentCategory) &&
+        _selectedImageFile == null &&
+        _selectedVideoFile == null) {
+      _showFormError(_l10n.reportEvidenceRequired(
+          LocalizedLabels.category(context, _selectedIncidentCategory!)));
+      return;
+    }
+
+    if (_latitude == null && !_isReportingOnBehalf) {
+      _showFormError(_l10n.reportLocationRequired);
+      return;
+    }
+    if (_latitude != null && _longitude != null && !MoonwalkArea.contains(_latitude!, _longitude!)) {
+      _showFormError(_l10n.reportOutsideMoonwalk);
       return;
     }
 
@@ -1286,6 +1375,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             _isSubmittingReport = false;
           }
           _showPostSubmitSafetyWindow(
+            ticketNumber: _lastSubmittedTicket,
             category: _lastSubmittedCategory,
             urgency: _lastSubmittedUrgency,
             narrative: _lastSubmittedNarrative,
@@ -1663,6 +1753,13 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             maxLines: 4,
             inset: true,
           ),
+          SizedBox(height: 10),
+          NeoChip(
+            label: _isListening ? _l10n.reportVoiceListening : _l10n.reportVoiceStart,
+            icon: _isListening ? Icons.stop_circle_outlined : Icons.mic_rounded,
+            selected: _isListening,
+            onPressed: _toggleVoiceTyping,
+          ),
         ],
       ),
     );
@@ -1919,6 +2016,41 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
           SizedBox(height: 12),
 
+          // ── Area (lugar): pick it, or let the pin fill it in ─────────────────
+          DropdownButtonFormField<String>(
+            key: ValueKey(_selectedBarangay),
+            initialValue: BarangaySectorHelper.recognizedSectors.contains(_selectedBarangay)
+                ? _selectedBarangay
+                : null,
+            dropdownColor: AppColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            isExpanded: true,
+            style: TextStyle(
+              color: AppColors.textDark,
+              fontFamily: AppTheme.fontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+            ),
+            decoration: InputDecoration(
+              labelText: _l10n.reportAreaLabel,
+              hintText: _l10n.reportAreaHint,
+              prefixIcon: const Icon(Icons.holiday_village_outlined, size: 20),
+              filled: true,
+              fillColor: AppColors.surface.withValues(alpha: 0.6),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            ),
+            items: BarangaySectorHelper.recognizedSectors
+                .map((area) => DropdownMenuItem(
+                      value: area,
+                      child: Text(area, overflow: TextOverflow.ellipsis),
+                    ))
+                .toList(),
+            onChanged: (area) {
+              if (area != null) _chooseArea(area);
+            },
+          ),
+          SizedBox(height: 12),
+
           // ── Interactive Draggable Pin Google Map ───────────────────────────
           ClipRRect(
             borderRadius: BorderRadius.circular(22),
@@ -1947,6 +2079,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                       zoom: 15.5,
                     ),
+                    cameraTargetBounds: MoonwalkArea.cameraBounds,
+                    minMaxZoomPreference: MoonwalkArea.zoomRange,
                     style: MapStyles.current,
                     onMapCreated: (controller) {
                       _miniMapController = controller;
@@ -2108,6 +2242,21 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (IncidentEntity.requiresEvidence(_selectedIncidentCategory)) ...[
+            Row(
+              children: [
+                Icon(Icons.priority_high_rounded, size: 16, color: AppColors.warning),
+                SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    _l10n.reportEvidenceRequiredHint,
+                    style: TextStyle(color: AppColors.warning, fontSize: 12.5, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+          ],
           Row(
             children: [
               NeoIconButton(
@@ -2344,6 +2493,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   }
 
   void _showPostSubmitSafetyWindow({
+    required String ticketNumber,
     required String category,
     required String urgency,
     required String narrative,
@@ -2356,6 +2506,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       barrierDismissible: false,
       builder: (BuildContext dialogContext) {
         return _PostSubmitSafetyDialog(
+          ticketNumber: ticketNumber,
           category: category,
           urgency: urgency,
           narrative: narrative,
@@ -2375,6 +2526,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 // ─── Post-Submit Safety Dialog with Gemini AI Precautions ────────────────────
 
 class _PostSubmitSafetyDialog extends StatefulWidget {
+  final String ticketNumber;
   final String category;
   final String urgency;
   final String narrative;
@@ -2384,6 +2536,7 @@ class _PostSubmitSafetyDialog extends StatefulWidget {
   final VoidCallback onDismiss;
 
   const _PostSubmitSafetyDialog({
+    required this.ticketNumber,
     required this.category,
     required this.urgency,
     required this.narrative,
@@ -2542,6 +2695,19 @@ class _PostSubmitSafetyDialogState extends State<_PostSubmitSafetyDialog> {
                   ),
                 ),
               ),
+              if (widget.ticketNumber.isNotEmpty) ...[
+                SizedBox(height: 10),
+                SelectableText(
+                  _l10n.reportTicketNumber(widget.ticketNumber),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.textDark,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+              ],
               SizedBox(height: 18),
 
               // Dynamic Assessed Priority Card (Replacing static "Pending Evaluation")

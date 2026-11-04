@@ -3469,6 +3469,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Record a video'**
   String get reportRecordVideo;
+
+  /// Badge until an admin verifies the resident.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending verification'**
+  String get settingsPendingVerification;
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get settingsTerms;
+
+  /// Settings row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How ResQ may be used and how your data is handled'**
+  String get settingsTermsSubtitle;
+
+  /// Area dropdown on the report form.
+  ///
+  /// In en, this message translates to:
+  /// **'Area (lugar)'**
+  String get reportAreaLabel;
+
+  /// Area dropdown hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where it happened'**
+  String get reportAreaHint;
+
+  /// Voice typing button.
+  ///
+  /// In en, this message translates to:
+  /// **'Speak to type'**
+  String get reportVoiceStart;
+
+  /// Voice typing button while listening.
+  ///
+  /// In en, this message translates to:
+  /// **'Listening… tap to stop'**
+  String get reportVoiceListening;
+
+  /// Voice typing could not start.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice typing isn\'t available here. Allow the microphone, or type instead.'**
+  String get reportVoiceUnavailable;
+
+  /// Shown above the evidence buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'This incident type needs a photo or video.'**
+  String get reportEvidenceRequiredHint;
+
+  /// Submit blocked without evidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo or video first: {category} reports need evidence.'**
+  String reportEvidenceRequired(String category);
+
+  /// Submit blocked without a location.
+  ///
+  /// In en, this message translates to:
+  /// **'Pin where it happened: tap the map, use GPS, or choose the area.'**
+  String get reportLocationRequired;
+
+  /// Submit blocked: pin outside Moonwalk.
+  ///
+  /// In en, this message translates to:
+  /// **'ResQ only takes reports inside Barangay Moonwalk. Move the pin to where it happened.'**
+  String get reportOutsideMoonwalk;
+
+  /// A report's ticket number.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket no. {ticket}'**
+  String reportTicketNumber(String ticket);
+
+  /// When the barangay wrote its comment.
+  ///
+  /// In en, this message translates to:
+  /// **'Commented {time}'**
+  String detailCommentedAt(String time);
+
+  /// When the report was resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved {time}'**
+  String detailResolvedAt(String time);
+
+  /// Terms page title.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get termsTitle;
+
+  /// Terms intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Please read these terms before using ResQ.'**
+  String get termsIntro;
+
+  /// Terms version date.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: November 2026'**
+  String get termsUpdated;
+
+  /// Acceptance checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and agree to the Terms and Conditions.'**
+  String get termsAgreeCheckbox;
+
+  /// Accept button.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept and continue'**
+  String get termsAccept;
+
+  /// Decline button.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline and sign out'**
+  String get termsDecline;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Using ResQ'**
+  String get termsUseTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'ResQ is Barangay Moonwalk\'s community safety app. Use it to report incidents inside Barangay Moonwalk, Parañaque City, follow up on your reports, and receive barangay alerts.'**
+  String get termsUseBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get termsAccountTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'Give your real name and correct contact details, and keep your password private. One account is for one person. A barangay admin checks your residency before your account shows as Verified Resident.'**
+  String get termsAccountBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Report truthfully'**
+  String get termsReportsTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'Only report real incidents, as accurately as you can. False, prank or duplicate reports take responders away from real emergencies; the barangay may suspend accounts that send them and refer serious cases to the proper authorities.'**
+  String get termsReportsBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'In a life-threatening emergency'**
+  String get termsEmergencyTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'Call 911 or the barangay hotline as well. ResQ helps the barangay respond faster, but it can\'t guarantee how soon help arrives, and it needs an internet connection to send reports.'**
+  String get termsEmergencyBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos, videos and location'**
+  String get termsEvidenceTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'A report includes your pinned location and any photos, videos or voice-typed text you add. Some incident types need a photo or video. Don\'t show people in them more than the incident requires.'**
+  String get termsEvidenceBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data and privacy'**
+  String get termsPrivacyTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'The barangay uses your details only to handle reports and keep the community safe, under the Data Privacy Act of 2012 (RA 10173). Barangay admins see your name and contact details; other residents don\'t, and reporting anonymously hides your name from the community feed. You can view and correct your details in Settings, and delete your account there.'**
+  String get termsPrivacyBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Respect others'**
+  String get termsConductTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t use ResQ to harass, threaten or shame anyone, or to post offensive content. Admins may remove such content and suspend the account.'**
+  String get termsConductBody;
+
+  /// Terms section title.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes to these terms'**
+  String get termsChangesTitle;
+
+  /// Terms section.
+  ///
+  /// In en, this message translates to:
+  /// **'The barangay may update these terms. When it does, ResQ asks you to read and accept them again.'**
+  String get termsChangesBody;
 }
 
 class _AppLocalizationsDelegate

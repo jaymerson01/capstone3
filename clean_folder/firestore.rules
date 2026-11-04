@@ -20,6 +20,12 @@ service cloud.firestore {
         get(userDoc()).data.get('role', 'resident') == 'admin';
     }
 
+    // Super admin = an admin whose profile has isSuperAdmin: true. Only a
+    // super admin can make or unmake admins and reset two-step verification.
+    function isSuperAdmin() {
+      return isAdmin() && get(userDoc()).data.get('isSuperAdmin', false) == true;
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
@@ -37,7 +43,7 @@ service cloud.firestore {
 
     // Fields only an admin may change on a user profile.
     function protectedUserFields() {
-      return ['role', 'status', 'isActive', 'isVerified'];
+      return ['role', 'status', 'isActive', 'isVerified', 'isSuperAdmin'];
     }
 
     // Contact details that must never sit in the public incident document.
@@ -50,20 +56,34 @@ service cloud.firestore {
       // Only the owner and admins can see a profile (phone, address, tokens).
       allow read: if isOwner(userId) || isAdmin();
 
-      // Self-registration: always a normal, active resident.
-      // isVerified may only be true when the sign-in email is verified (e.g. Google).
+      // Self-registration: always a normal, active, not-yet-verified resident.
+      // An admin verifies residency later in User Management.
       allow create: if isOwner(userId) &&
         request.resource.data.get('role', 'resident') == 'resident' &&
         request.resource.data.get('isActive', true) == true &&
-        (request.resource.data.get('isVerified', false) == false ||
-         request.auth.token.email_verified == true);
+        request.resource.data.get('isVerified', false) == false &&
+        request.resource.data.get('isSuperAdmin', false) == false;
 
       // Owners edit their own details but never role / suspension / verification.
-      allow update: if isAdmin() ||
+      // Admins moderate accounts; only a super admin changes who is an admin.
+      allow update: if (isAdmin() && !changedKeys().hasAny(['role', 'isSuperAdmin'])) ||
+        isSuperAdmin() ||
         (isOwner(userId) && !changedKeys().hasAny(protectedUserFields()));
 
       // Right to erasure (RA 10173): owners may delete their own profile.
       allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // ── 1b. Admin two-step verification keys ──────────────────────────
+    // Each admin's authenticator key is readable only by that admin. It is
+    // set once; a super admin deletes it if the admin loses their phone.
+    match /admin_mfa/{userId} {
+      allow read: if isOwner(userId) && isAdmin();
+      allow create: if isOwner(userId) && isAdmin() &&
+        request.resource.data.keys().hasOnly(['secret', 'email', 'enabledAt']) &&
+        request.resource.data.secret is string;
+      allow update: if false;
+      allow delete: if isSuperAdmin();
     }
 
     // ── 2. Incidents (public part) ────────────────────────────────────

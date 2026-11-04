@@ -177,6 +177,9 @@ class IncidentModel extends IncidentEntity {
     String? victimPhone,
     String? estimatedResponseTime,
     bool? isBlotter,
+    DateTime? dispatcherNotesAt,
+    DateTime? resolvedAt,
+    bool? reporterVerified,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -205,6 +208,9 @@ class IncidentModel extends IncidentEntity {
       victimPhone: victimPhone ?? this.victimPhone,
       estimatedResponseTime: estimatedResponseTime ?? this.estimatedResponseTime,
       isBlotter: isBlotter ?? this.isBlotter,
+      dispatcherNotesAt: dispatcherNotesAt ?? this.dispatcherNotesAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+      reporterVerified: reporterVerified ?? this.reporterVerified,
     );
   }
 
@@ -230,6 +236,9 @@ class IncidentModel extends IncidentEntity {
     this.reporterEmail,
     this.isSynced = true,
     super.respondedAt,
+    super.dispatcherNotesAt,
+    super.resolvedAt,
+    super.reporterVerified,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
@@ -290,6 +299,13 @@ class IncidentModel extends IncidentEntity {
       parsedRespondedAt = DateTime.tryParse(rawRespondedAt);
     }
 
+    DateTime? readTime(String key) {
+      final raw = data[key];
+      if (raw is Timestamp) return raw.toDate();
+      if (raw is String) return DateTime.tryParse(raw);
+      return null;
+    }
+
     // Urgency shown = the higher of the stored level (set at filing / by admin)
     // and the level reached through neighbour "Me Too" upvotes. Residents can
     // no longer write urgencyStatus directly, so escalation is computed here.
@@ -338,6 +354,8 @@ class IncidentModel extends IncidentEntity {
       victimPhone: data['victimPhone'] as String?,
       estimatedResponseTime: data['estimatedResponseTime'] as String?,
       isBlotter: data['isBlotter'] as bool? ?? false,
+      dispatcherNotesAt: readTime('dispatcherNotesAt'),
+      resolvedAt: readTime('resolvedAt'),
     );
   }
 
@@ -396,6 +414,8 @@ class IncidentModel extends IncidentEntity {
       victimPhone: data['victimPhone'] as String? ?? victimPhone,
       estimatedResponseTime: estimatedResponseTime,
       isBlotter: isBlotter,
+      dispatcherNotesAt: dispatcherNotesAt,
+      resolvedAt: resolvedAt,
     );
   }
 
@@ -432,6 +452,12 @@ class IncidentModel extends IncidentEntity {
     };
     if (respondedAt != null) {
       map['respondedAt'] = Timestamp.fromDate(respondedAt!);
+    }
+    if (dispatcherNotesAt != null) {
+      map['dispatcherNotesAt'] = Timestamp.fromDate(dispatcherNotesAt!);
+    }
+    if (resolvedAt != null) {
+      map['resolvedAt'] = Timestamp.fromDate(resolvedAt!);
     }
     return map;
   }

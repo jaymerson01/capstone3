@@ -16,6 +16,7 @@ import 'package:community_safety_app/core/presentation/widgets/in_app_evidence_p
 import 'package:community_safety_app/core/presentation/widgets/in_app_image_viewer_dialog.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
+import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 
 class AdminDispatchMapPage extends StatefulWidget {
   const AdminDispatchMapPage({super.key});
@@ -436,6 +437,8 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
                                 return GoogleMap(
                                   initialCameraPosition: _initialPosition,
+                                  cameraTargetBounds: MoonwalkArea.cameraBounds,
+                                  minMaxZoomPreference: MoonwalkArea.zoomRange,
                                   style: _darkMapStyle,
                                   markers: markers,
                                   circles: circles,

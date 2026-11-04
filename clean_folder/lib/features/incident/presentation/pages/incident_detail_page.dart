@@ -206,7 +206,7 @@ class IncidentDetailPage extends StatelessWidget {
               ),
               SizedBox(height: 2),
               Text(
-                '${l10n.detailIncidentId(shortId)} · ${_formatTimestamp(incident.timestamp)}',
+                '${incident.ticketNumber.isNotEmpty ? l10n.reportTicketNumber(incident.ticketNumber) : l10n.detailIncidentId(shortId)} · ${_formatTimestamp(incident.timestamp)}',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -419,6 +419,13 @@ class IncidentDetailPage extends StatelessWidget {
                           color: const Color(0xFFF1F5F9),
                         ),
                       ),
+                      if (incident.dispatcherNotesAt != null) ...[
+                        SizedBox(height: 4),
+                        Text(
+                          l10n.detailCommentedAt(_formatTimestamp(incident.dispatcherNotesAt!)),
+                          style: TextStyle(fontSize: 11.5, color: NeoTray.soft),
+                        ),
+                      ],
                     ] else if (!hasEta)
                       Text(
                         l10n.detailAwaitingDispatcher,
@@ -433,6 +440,21 @@ class IncidentDetailPage extends StatelessWidget {
               ),
             ],
           ),
+          if (incident.isSolved && (incident.resolvedAt ?? incident.respondedAt) != null) ...[
+            SizedBox(height: 14),
+            Row(
+              children: [
+                Icon(Icons.task_alt_rounded, size: 18, color: AppColors.solved),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    l10n.detailResolvedAt(_formatTimestamp((incident.resolvedAt ?? incident.respondedAt)!)),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.solved),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

@@ -14,6 +14,7 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_mfa_gate.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 
@@ -62,7 +63,7 @@ class ResQAdminApp extends StatelessWidget {
         home: const AdminAuthWrapper(),
         routes: {
           '/admin/login': (context) => const AdminLoginPage(),
-          '/admin/dashboard': (context) => const AdminPanelShell(),
+          '/admin/dashboard': (context) => const AdminMfaGate(child: AdminPanelShell()),
         },
       ),
     );
@@ -76,6 +77,7 @@ class AdminAuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (state is Unauthenticated) AdminMfaGate.endSession();
         if (state is Authenticated && !state.user.isAdmin) {
           // Immediately log out non-admin users attempting web portal access
           context.read<AuthBloc>().add(const LogoutRequested());
@@ -95,7 +97,7 @@ class AdminAuthWrapper extends StatelessWidget {
 
         if (state is Authenticated) {
           if (state.user.isAdmin) {
-            return const AdminPanelShell();
+            return const AdminMfaGate(child: AdminPanelShell());
           } else {
             return const AdminLoginPage(
               initialErrorMessage:

@@ -2541,5 +2541,173 @@
   "reportRecordVideo": "Record a video",
   "@reportRecordVideo": {
     "description": "Tooltip on the camera button that records an evidence video."
+  },
+  "settingsPendingVerification": "Pending verification",
+  "@settingsPendingVerification": {
+    "description": "Badge until an admin verifies the resident."
+  },
+  "settingsTerms": "Terms and Conditions",
+  "@settingsTerms": {
+    "description": "Settings row."
+  },
+  "settingsTermsSubtitle": "How ResQ may be used and how your data is handled",
+  "@settingsTermsSubtitle": {
+    "description": "Settings row subtitle."
+  },
+  "reportAreaLabel": "Area (lugar)",
+  "@reportAreaLabel": {
+    "description": "Area dropdown on the report form."
+  },
+  "reportAreaHint": "Choose where it happened",
+  "@reportAreaHint": {
+    "description": "Area dropdown hint."
+  },
+  "reportVoiceStart": "Speak to type",
+  "@reportVoiceStart": {
+    "description": "Voice typing button."
+  },
+  "reportVoiceListening": "Listening… tap to stop",
+  "@reportVoiceListening": {
+    "description": "Voice typing button while listening."
+  },
+  "reportVoiceUnavailable": "Voice typing isn't available here. Allow the microphone, or type instead.",
+  "@reportVoiceUnavailable": {
+    "description": "Voice typing could not start."
+  },
+  "reportEvidenceRequiredHint": "This incident type needs a photo or video.",
+  "@reportEvidenceRequiredHint": {
+    "description": "Shown above the evidence buttons."
+  },
+  "reportEvidenceRequired": "Add a photo or video first: {category} reports need evidence.",
+  "@reportEvidenceRequired": {
+    "description": "Submit blocked without evidence.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "reportLocationRequired": "Pin where it happened: tap the map, use GPS, or choose the area.",
+  "@reportLocationRequired": {
+    "description": "Submit blocked without a location."
+  },
+  "reportOutsideMoonwalk": "ResQ only takes reports inside Barangay Moonwalk. Move the pin to where it happened.",
+  "@reportOutsideMoonwalk": {
+    "description": "Submit blocked: pin outside Moonwalk."
+  },
+  "reportTicketNumber": "Ticket no. {ticket}",
+  "@reportTicketNumber": {
+    "description": "A report's ticket number.",
+    "placeholders": {
+      "ticket": {
+        "type": "String"
+      }
+    }
+  },
+  "detailCommentedAt": "Commented {time}",
+  "@detailCommentedAt": {
+    "description": "When the barangay wrote its comment.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "detailResolvedAt": "Resolved {time}",
+  "@detailResolvedAt": {
+    "description": "When the report was resolved.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "termsTitle": "Terms and Conditions",
+  "@termsTitle": {
+    "description": "Terms page title."
+  },
+  "termsIntro": "Please read these terms before using ResQ.",
+  "@termsIntro": {
+    "description": "Terms intro."
+  },
+  "termsUpdated": "Last updated: November 2026",
+  "@termsUpdated": {
+    "description": "Terms version date."
+  },
+  "termsAgreeCheckbox": "I have read and agree to the Terms and Conditions.",
+  "@termsAgreeCheckbox": {
+    "description": "Acceptance checkbox."
+  },
+  "termsAccept": "Accept and continue",
+  "@termsAccept": {
+    "description": "Accept button."
+  },
+  "termsDecline": "Decline and sign out",
+  "@termsDecline": {
+    "description": "Decline button."
+  },
+  "termsUseTitle": "Using ResQ",
+  "@termsUseTitle": {
+    "description": "Terms section title."
+  },
+  "termsUseBody": "ResQ is Barangay Moonwalk's community safety app. Use it to report incidents inside Barangay Moonwalk, Parañaque City, follow up on your reports, and receive barangay alerts.",
+  "@termsUseBody": {
+    "description": "Terms section."
+  },
+  "termsAccountTitle": "Your account",
+  "@termsAccountTitle": {
+    "description": "Terms section title."
+  },
+  "termsAccountBody": "Give your real name and correct contact details, and keep your password private. One account is for one person. A barangay admin checks your residency before your account shows as Verified Resident.",
+  "@termsAccountBody": {
+    "description": "Terms section."
+  },
+  "termsReportsTitle": "Report truthfully",
+  "@termsReportsTitle": {
+    "description": "Terms section title."
+  },
+  "termsReportsBody": "Only report real incidents, as accurately as you can. False, prank or duplicate reports take responders away from real emergencies; the barangay may suspend accounts that send them and refer serious cases to the proper authorities.",
+  "@termsReportsBody": {
+    "description": "Terms section."
+  },
+  "termsEmergencyTitle": "In a life-threatening emergency",
+  "@termsEmergencyTitle": {
+    "description": "Terms section title."
+  },
+  "termsEmergencyBody": "Call 911 or the barangay hotline as well. ResQ helps the barangay respond faster, but it can't guarantee how soon help arrives, and it needs an internet connection to send reports.",
+  "@termsEmergencyBody": {
+    "description": "Terms section."
+  },
+  "termsEvidenceTitle": "Photos, videos and location",
+  "@termsEvidenceTitle": {
+    "description": "Terms section title."
+  },
+  "termsEvidenceBody": "A report includes your pinned location and any photos, videos or voice-typed text you add. Some incident types need a photo or video. Don't show people in them more than the incident requires.",
+  "@termsEvidenceBody": {
+    "description": "Terms section."
+  },
+  "termsPrivacyTitle": "Your data and privacy",
+  "@termsPrivacyTitle": {
+    "description": "Terms section title."
+  },
+  "termsPrivacyBody": "The barangay uses your details only to handle reports and keep the community safe, under the Data Privacy Act of 2012 (RA 10173). Barangay admins see your name and contact details; other residents don't, and reporting anonymously hides your name from the community feed. You can view and correct your details in Settings, and delete your account there.",
+  "@termsPrivacyBody": {
+    "description": "Terms section."
+  },
+  "termsConductTitle": "Respect others",
+  "@termsConductTitle": {
+    "description": "Terms section title."
+  },
+  "termsConductBody": "Don't use ResQ to harass, threaten or shame anyone, or to post offensive content. Admins may remove such content and suspend the account.",
+  "@termsConductBody": {
+    "description": "Terms section."
+  },
+  "termsChangesTitle": "Changes to these terms",
+  "@termsChangesTitle": {
+    "description": "Terms section title."
+  },
+  "termsChangesBody": "The barangay may update these terms. When it does, ResQ asks you to read and accept them again.",
+  "@termsChangesBody": {
+    "description": "Terms section."
   }
 }

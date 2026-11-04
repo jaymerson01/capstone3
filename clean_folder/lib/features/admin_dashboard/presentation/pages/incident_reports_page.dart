@@ -1112,7 +1112,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                     (report.reporterName != null &&
                                             report.reporterName!.isNotEmpty)
                                         ? report.reporterName!
-                                        : "Verified Resident",
+                                        : "Resident",
                                     style: const TextStyle(
                                       color: AdminColors.textStrong,
                                       fontWeight: FontWeight.w800,
@@ -1126,6 +1126,21 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                       style: const TextStyle(
                                         color: AdminColors.textLight,
                                         fontSize: 12,
+                                      ),
+                                    ),
+                                  if (report.reporterVerified != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 6),
+                                      child: AdminPill(
+                                        label: report.reporterVerified!
+                                            ? "Verified resident"
+                                            : "Unverified resident",
+                                        tone: report.reporterVerified!
+                                            ? AdminTone.cyan
+                                            : AdminTone.yellow,
+                                        icon: report.reporterVerified!
+                                            ? Icons.verified_rounded
+                                            : Icons.pending_outlined,
                                       ),
                                     ),
                                 ],

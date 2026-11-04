@@ -16,6 +16,9 @@ class UserModel extends UserEntity {
     super.isVerified = false,
     super.isActive = true,
     super.createdAt,
+    super.isSuperAdmin = false,
+    super.mfaEnabled = false,
+    super.acceptedTermsVersion,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String id) {
@@ -42,6 +45,10 @@ class UserModel extends UserEntity {
       isVerified: data['isVerified'] as bool? ?? false,
       isActive: data['isActive'] as bool? ?? true,
       createdAt: parsedCreatedAt,
+      // Read only: toMap never writes these, so a profile save can't change them.
+      isSuperAdmin: data['isSuperAdmin'] as bool? ?? false,
+      mfaEnabled: data['mfaEnabledAt'] != null,
+      acceptedTermsVersion: data['termsVersion'] as String?,
     );
   }
 
@@ -83,6 +90,9 @@ class UserModel extends UserEntity {
     bool? isVerified,
     bool? isActive,
     DateTime? createdAt,
+    bool? isSuperAdmin,
+    bool? mfaEnabled,
+    String? acceptedTermsVersion,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -98,6 +108,9 @@ class UserModel extends UserEntity {
       isVerified: isVerified ?? this.isVerified,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
+      mfaEnabled: mfaEnabled ?? this.mfaEnabled,
+      acceptedTermsVersion: acceptedTermsVersion ?? this.acceptedTermsVersion,
     );
   }
 }

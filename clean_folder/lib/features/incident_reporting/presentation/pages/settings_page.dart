@@ -30,6 +30,7 @@ import 'package:community_safety_app/features/auth/presentation/pages/welcome_pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/emergency_hotlines_page.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
+import 'package:community_safety_app/features/auth/presentation/pages/terms_page.dart';
 
 
 class SettingsPage extends StatefulWidget {
@@ -186,6 +187,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       context,
                       l10n.settingsAbout,
                       l10n.settingsAboutBody,
+                    ),
+                  ),
+                  _buildSettingTile(
+                    icon: Icons.gavel_rounded,
+                    title: l10n.settingsTerms,
+                    subtitle: l10n.settingsTermsSubtitle,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TermsPage()),
                     ),
                   ),
                   _buildSettingTile(
@@ -432,7 +442,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                           Flexible(
                             child: Text(
-                              isVerified ? AppLocalizations.of(context).settingsVerifiedResident : AppLocalizations.of(context).settingsResidentCitizen,
+                              isVerified ? AppLocalizations.of(context).settingsVerifiedResident : AppLocalizations.of(context).settingsPendingVerification,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(

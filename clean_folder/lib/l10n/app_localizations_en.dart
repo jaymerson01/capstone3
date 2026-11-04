@@ -1984,4 +1984,137 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportRecordVideo => 'Record a video';
+
+  @override
+  String get settingsPendingVerification => 'Pending verification';
+
+  @override
+  String get settingsTerms => 'Terms and Conditions';
+
+  @override
+  String get settingsTermsSubtitle =>
+      'How ResQ may be used and how your data is handled';
+
+  @override
+  String get reportAreaLabel => 'Area (lugar)';
+
+  @override
+  String get reportAreaHint => 'Choose where it happened';
+
+  @override
+  String get reportVoiceStart => 'Speak to type';
+
+  @override
+  String get reportVoiceListening => 'Listening… tap to stop';
+
+  @override
+  String get reportVoiceUnavailable =>
+      'Voice typing isn\'t available here. Allow the microphone, or type instead.';
+
+  @override
+  String get reportEvidenceRequiredHint =>
+      'This incident type needs a photo or video.';
+
+  @override
+  String reportEvidenceRequired(String category) {
+    return 'Add a photo or video first: $category reports need evidence.';
+  }
+
+  @override
+  String get reportLocationRequired =>
+      'Pin where it happened: tap the map, use GPS, or choose the area.';
+
+  @override
+  String get reportOutsideMoonwalk =>
+      'ResQ only takes reports inside Barangay Moonwalk. Move the pin to where it happened.';
+
+  @override
+  String reportTicketNumber(String ticket) {
+    return 'Ticket no. $ticket';
+  }
+
+  @override
+  String detailCommentedAt(String time) {
+    return 'Commented $time';
+  }
+
+  @override
+  String detailResolvedAt(String time) {
+    return 'Resolved $time';
+  }
+
+  @override
+  String get termsTitle => 'Terms and Conditions';
+
+  @override
+  String get termsIntro => 'Please read these terms before using ResQ.';
+
+  @override
+  String get termsUpdated => 'Last updated: November 2026';
+
+  @override
+  String get termsAgreeCheckbox =>
+      'I have read and agree to the Terms and Conditions.';
+
+  @override
+  String get termsAccept => 'Accept and continue';
+
+  @override
+  String get termsDecline => 'Decline and sign out';
+
+  @override
+  String get termsUseTitle => 'Using ResQ';
+
+  @override
+  String get termsUseBody =>
+      'ResQ is Barangay Moonwalk\'s community safety app. Use it to report incidents inside Barangay Moonwalk, Parañaque City, follow up on your reports, and receive barangay alerts.';
+
+  @override
+  String get termsAccountTitle => 'Your account';
+
+  @override
+  String get termsAccountBody =>
+      'Give your real name and correct contact details, and keep your password private. One account is for one person. A barangay admin checks your residency before your account shows as Verified Resident.';
+
+  @override
+  String get termsReportsTitle => 'Report truthfully';
+
+  @override
+  String get termsReportsBody =>
+      'Only report real incidents, as accurately as you can. False, prank or duplicate reports take responders away from real emergencies; the barangay may suspend accounts that send them and refer serious cases to the proper authorities.';
+
+  @override
+  String get termsEmergencyTitle => 'In a life-threatening emergency';
+
+  @override
+  String get termsEmergencyBody =>
+      'Call 911 or the barangay hotline as well. ResQ helps the barangay respond faster, but it can\'t guarantee how soon help arrives, and it needs an internet connection to send reports.';
+
+  @override
+  String get termsEvidenceTitle => 'Photos, videos and location';
+
+  @override
+  String get termsEvidenceBody =>
+      'A report includes your pinned location and any photos, videos or voice-typed text you add. Some incident types need a photo or video. Don\'t show people in them more than the incident requires.';
+
+  @override
+  String get termsPrivacyTitle => 'Your data and privacy';
+
+  @override
+  String get termsPrivacyBody =>
+      'The barangay uses your details only to handle reports and keep the community safe, under the Data Privacy Act of 2012 (RA 10173). Barangay admins see your name and contact details; other residents don\'t, and reporting anonymously hides your name from the community feed. You can view and correct your details in Settings, and delete your account there.';
+
+  @override
+  String get termsConductTitle => 'Respect others';
+
+  @override
+  String get termsConductBody =>
+      'Don\'t use ResQ to harass, threaten or shame anyone, or to post offensive content. Admins may remove such content and suspend the account.';
+
+  @override
+  String get termsChangesTitle => 'Changes to these terms';
+
+  @override
+  String get termsChangesBody =>
+      'The barangay may update these terms. When it does, ResQ asks you to read and accept them again.';
 }

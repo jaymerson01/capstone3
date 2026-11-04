@@ -19,6 +19,9 @@ import 'package:community_safety_app/features/notifications/data/models/notifica
 import 'package:community_safety_app/core/services/station_audio_service.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
+import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
+import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/critical_incident_alert.dart';
 
 class AdminPanelShell extends StatefulWidget {
   const AdminPanelShell({super.key});
@@ -36,12 +39,23 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
   final Set<String> _seenAdminNotifIds = {};
   bool _isInitialSnapshot = true;
 
+  // Critical reports pop up over whatever page is open, one at a time.
+  StreamSubscription<IncidentState>? _incidentSubscription;
+  final CriticalAlertTracker _criticalAlerts = CriticalAlertTracker();
+  final List<IncidentEntity> _criticalQueue = [];
+  bool _criticalAlertShowing = false;
+
   @override
   void initState() {
     super.initState();
     // The admin desk needs every report with its reporter's contact details,
     // whichever app entry point opened it.
-    context.read<IncidentBloc>().add(const StreamAllIncidentsRequested());
+    final incidentBloc = context.read<IncidentBloc>()
+      ..add(const StreamAllIncidentsRequested());
+    _incidentSubscription = incidentBloc.stream.listen(_queueCriticalAlerts);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _queueCriticalAlerts(incidentBloc.state),
+    );
     _adminNotifSubscription = NotificationService()
         .streamAdminNotifications()
         .listen((notifications) {
@@ -139,7 +153,26 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
   @override
   void dispose() {
     _adminNotifSubscription?.cancel();
+    _incidentSubscription?.cancel();
     super.dispose();
+  }
+
+  void _queueCriticalAlerts(IncidentState state) {
+    if (state is! IncidentLoaded) return;
+    _criticalQueue.addAll(_criticalAlerts.take(state.incidents));
+    _showNextCriticalAlert();
+  }
+
+  Future<void> _showNextCriticalAlert() async {
+    if (_criticalAlertShowing || _criticalQueue.isEmpty || !mounted) return;
+    _criticalAlertShowing = true;
+    final incident = _criticalQueue.removeAt(0);
+    StationAudioService.playAlertSound();
+    final openReports = await showCriticalIncidentAlert(context, incident);
+    _criticalAlertShowing = false;
+    if (!mounted) return;
+    if (openReports) setState(() => _selectedIndex = 2);
+    _showNextCriticalAlert();
   }
 
 

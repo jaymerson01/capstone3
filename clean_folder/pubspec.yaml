@@ -66,6 +66,9 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.2
   flutter_phone_direct_caller: ^2.1.1
+  crypto: ^3.0.8
+  qr_flutter: ^4.1.0
+  speech_to_text: ^7.5.0
 
 dev_dependencies:
   flutter_test:

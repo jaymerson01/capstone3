@@ -24,6 +24,7 @@ import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
+import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 
 class MapsPage extends StatefulWidget {
   final IncidentEntity? focusedIncident;
@@ -420,6 +421,8 @@ class _MapsPageState extends State<MapsPage> {
                   Positioned.fill(
                     child: GoogleMap(
                       initialCameraPosition: _initialPosition,
+                      cameraTargetBounds: MoonwalkArea.cameraBounds,
+                      minMaxZoomPreference: MoonwalkArea.zoomRange,
                       style: MapStyles.current,
                       // Keeps Google's logo and attribution above the legend bar.
                       padding: const EdgeInsets.only(bottom: 76),

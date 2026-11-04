@@ -60,7 +60,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: firebaseUser.email ?? email.trim(),
         displayName: firebaseUser.displayName ?? 'Resident Citizen',
         role: 'resident',
-        isVerified: firebaseUser.emailVerified,
+        isVerified: false,
         isActive: true,
         createdAt: DateTime.now(),
       );
@@ -69,14 +69,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return newModel;
     }
 
-    var model = UserModel.fromFirestore(docSnapshot);
+    // isVerified means an admin checked the resident's residency; confirming
+    // an email address doesn't change it.
+    final model = UserModel.fromFirestore(docSnapshot);
     await _ensureAccountActive(model);
-    if (firebaseUser.emailVerified && !model.isVerified) {
-      try {
-        await docRef.update({'isVerified': true});
-      } catch (_) {}
-      model = model.copyWith(isVerified: true);
-    }
     return model;
   }
 
@@ -194,7 +190,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         displayName: firebaseUser.displayName ?? (googleUser?.displayName ?? 'Resident Citizen'),
         photoUrl: firebaseUser.photoURL ?? googleUser?.photoUrl,
         role: 'resident',
-        isVerified: true,
+        // Residency is verified by an admin, not by signing in with Google.
+        isVerified: false,
         isActive: true,
         createdAt: DateTime.now(),
       );
@@ -234,7 +231,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           email: firebaseUser.email ?? '',
           displayName: firebaseUser.displayName ?? 'Resident Citizen',
           role: 'resident',
-          isVerified: firebaseUser.emailVerified,
+          isVerified: false,
           isActive: true,
           createdAt: DateTime.now(),
         );
@@ -246,14 +243,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return fallbackModel;
       }
 
-      var model = UserModel.fromFirestore(docSnapshot);
-      if (firebaseUser.emailVerified && !model.isVerified) {
-        try {
-          await docRef.update({'isVerified': true});
-        } catch (_) {}
-        model = model.copyWith(isVerified: true);
-      }
-      onlineUser = model;
+      onlineUser = UserModel.fromFirestore(docSnapshot);
     } catch (_) {
       // Offline fallback: Use Hive cache or fallback to firebaseUser credentials
       String cachedRole = 'resident';
@@ -270,7 +260,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: firebaseUser.email ?? '',
         displayName: firebaseUser.displayName ?? 'Resident Citizen',
         role: cachedRole,
-        isVerified: firebaseUser.emailVerified,
+        isVerified: false,
         isActive: true,
         createdAt: DateTime.now(),
       );
