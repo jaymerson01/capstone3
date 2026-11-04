@@ -53,3 +53,8 @@ app.*.map.json
 .env
 .env.*
 !.env.example
+
+# Vercel project link and packed output (scripts/deploy_vercel.sh)
+.vercel/
+.vercel
+.env*
