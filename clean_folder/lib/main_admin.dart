@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
@@ -13,7 +14,9 @@ import 'package:community_safety_app/features/incident/presentation/bloc/inciden
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_login_page.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_panel_shell.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_mfa_gate.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,21 +54,16 @@ class ResQAdminApp extends StatelessWidget {
       child: MaterialApp(
         title: 'ResQ Admin Command Center',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          scaffoldBackgroundColor: AdminColors.background,
-          colorScheme: const ColorScheme.dark(
-            primary: AdminColors.primaryRose,
-            secondary: AdminColors.secondaryGreen,
-            surface: AdminColors.surfaceLight,
-          ),
-          fontFamily: 'Inter',
-          useMaterial3: true,
-        ),
+        // The admin portal stays in English; the delegates let shared widgets
+        // look up their (resident-app) strings.
+        locale: const Locale('en'),
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        theme: AppTheme.admin(),
         home: const AdminAuthWrapper(),
         routes: {
           '/admin/login': (context) => const AdminLoginPage(),
-          '/admin/dashboard': (context) => const AdminPanelShell(),
+          '/admin/dashboard': (context) => const AdminMfaGate(child: AdminPanelShell()),
         },
       ),
     );
@@ -79,6 +77,7 @@ class AdminAuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (state is Unauthenticated) AdminMfaGate.endSession();
         if (state is Authenticated && !state.user.isAdmin) {
           // Immediately log out non-admin users attempting web portal access
           context.read<AuthBloc>().add(const LogoutRequested());
@@ -98,7 +97,7 @@ class AdminAuthWrapper extends StatelessWidget {
 
         if (state is Authenticated) {
           if (state.user.isAdmin) {
-            return const AdminPanelShell();
+            return const AdminMfaGate(child: AdminPanelShell());
           } else {
             return const AdminLoginPage(
               initialErrorMessage:

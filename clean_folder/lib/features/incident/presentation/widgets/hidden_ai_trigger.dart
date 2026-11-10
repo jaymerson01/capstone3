@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class HiddenAiTrigger extends StatefulWidget {
   final Widget child;
@@ -34,8 +35,8 @@ class _HiddenAiTriggerState extends State<HiddenAiTrigger> {
       
       // Provide immediate feedback via SnackBar
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Intelligent Triage Engine Activated: Handshake Sequence Engaged."),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).aiTriggerActivated),
           duration: Duration(seconds: 3),
         ),
       );

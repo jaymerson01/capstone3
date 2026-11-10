@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -63,6 +66,9 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.2
   flutter_phone_direct_caller: ^2.1.1
+  crypto: ^3.0.8
+  qr_flutter: ^4.1.0
+  speech_to_text: ^7.5.0
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +89,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # Generates AppLocalizations from lib/l10n/*.arb (settings in l10n.yaml).
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -92,7 +100,23 @@ flutter:
   assets:
     - assets/images/logo.png
     - assets/sounds/
+    - assets/videos/
     - .env
+    - assets/fonts/PlusJakartaSans/OFL.txt
+
+  # Plus Jakarta Sans, the Neo-Tactile UI font (SIL Open Font License 1.1).
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Regular.ttf
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

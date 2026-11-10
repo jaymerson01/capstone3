@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive/hive.dart';
@@ -59,7 +60,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: firebaseUser.email ?? email.trim(),
         displayName: firebaseUser.displayName ?? 'Resident Citizen',
         role: 'resident',
-        isVerified: firebaseUser.emailVerified,
+        isVerified: false,
         isActive: true,
         createdAt: DateTime.now(),
       );
@@ -68,14 +69,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return newModel;
     }
 
-    var model = UserModel.fromFirestore(docSnapshot);
+    // isVerified means an admin checked the resident's residency; confirming
+    // an email address doesn't change it.
+    final model = UserModel.fromFirestore(docSnapshot);
     await _ensureAccountActive(model);
-    if (firebaseUser.emailVerified && !model.isVerified) {
-      try {
-        await docRef.update({'isVerified': true});
-      } catch (_) {}
-      model = model.copyWith(isVerified: true);
-    }
     return model;
   }
 
@@ -140,22 +137,41 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw FirebaseAuthException(
-        code: 'sign-in-canceled',
-        message: 'Google Sign-In was cancelled by the user.',
+    GoogleSignInAccount? googleUser;
+    final UserCredential userCredential;
+    if (kIsWeb) {
+      // On the web, Firebase's own Google popup signs in. The google_sign_in
+      // plugin would need a separate web client ID.
+      try {
+        userCredential = await _firebaseAuth.signInWithPopup(GoogleAuthProvider());
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'popup-closed-by-user' || e.code == 'cancelled-popup-request') {
+          throw FirebaseAuthException(
+            code: 'sign-in-canceled',
+            message: 'Google Sign-In was cancelled by the user.',
+          );
+        }
+        rethrow;
+      }
+    } else {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw FirebaseAuthException(
+          code: 'sign-in-canceled',
+          message: 'Google Sign-In was cancelled by the user.',
+        );
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
       );
+
+      userCredential = await _firebaseAuth.signInWithCredential(credential);
     }
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
     final User? firebaseUser = userCredential.user;
     if (firebaseUser == null) {
       throw FirebaseAuthException(
@@ -171,10 +187,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final newModel = UserModel(
         id: firebaseUser.uid,
         email: firebaseUser.email ?? '',
-        displayName: firebaseUser.displayName ?? (googleUser.displayName ?? 'Resident Citizen'),
-        photoUrl: firebaseUser.photoURL ?? googleUser.photoUrl,
+        displayName: firebaseUser.displayName ?? (googleUser?.displayName ?? 'Resident Citizen'),
+        photoUrl: firebaseUser.photoURL ?? googleUser?.photoUrl,
         role: 'resident',
-        isVerified: true,
+        // Residency is verified by an admin, not by signing in with Google.
+        isVerified: false,
         isActive: true,
         createdAt: DateTime.now(),
       );
@@ -190,6 +207,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
+    if (kIsWeb) return;
     try {
       await GoogleSignIn().signOut();
     } catch (_) {}
@@ -213,7 +231,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           email: firebaseUser.email ?? '',
           displayName: firebaseUser.displayName ?? 'Resident Citizen',
           role: 'resident',
-          isVerified: firebaseUser.emailVerified,
+          isVerified: false,
           isActive: true,
           createdAt: DateTime.now(),
         );
@@ -225,14 +243,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         return fallbackModel;
       }
 
-      var model = UserModel.fromFirestore(docSnapshot);
-      if (firebaseUser.emailVerified && !model.isVerified) {
-        try {
-          await docRef.update({'isVerified': true});
-        } catch (_) {}
-        model = model.copyWith(isVerified: true);
-      }
-      onlineUser = model;
+      onlineUser = UserModel.fromFirestore(docSnapshot);
     } catch (_) {
       // Offline fallback: Use Hive cache or fallback to firebaseUser credentials
       String cachedRole = 'resident';
@@ -249,7 +260,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: firebaseUser.email ?? '',
         displayName: firebaseUser.displayName ?? 'Resident Citizen',
         role: cachedRole,
-        isVerified: firebaseUser.emailVerified,
+        isVerified: false,
         isActive: true,
         createdAt: DateTime.now(),
       );

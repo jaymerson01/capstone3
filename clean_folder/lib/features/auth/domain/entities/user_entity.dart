@@ -13,6 +13,16 @@ class UserEntity {
   final bool isActive;
   final DateTime? createdAt;
 
+  /// An admin who may create other admin accounts and reset their
+  /// two-step verification. Set by another super admin, never by the user.
+  final bool isSuperAdmin;
+
+  /// Whether this admin has linked an authenticator app for sign-in.
+  final bool mfaEnabled;
+
+  /// The Terms and Conditions version this resident accepted, if any.
+  final String? acceptedTermsVersion;
+
   const UserEntity({
     required this.id,
     required this.email,
@@ -27,6 +37,9 @@ class UserEntity {
     this.isVerified = false,
     this.isActive = true,
     this.createdAt,
+    this.isSuperAdmin = false,
+    this.mfaEnabled = false,
+    this.acceptedTermsVersion,
   });
 
   bool get isAdmin => role == 'admin';
@@ -47,6 +60,9 @@ class UserEntity {
     bool? isVerified,
     bool? isActive,
     DateTime? createdAt,
+    bool? isSuperAdmin,
+    bool? mfaEnabled,
+    String? acceptedTermsVersion,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -63,6 +79,9 @@ class UserEntity {
       isVerified: isVerified ?? this.isVerified,
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
+      isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
+      mfaEnabled: mfaEnabled ?? this.mfaEnabled,
+      acceptedTermsVersion: acceptedTermsVersion ?? this.acceptedTermsVersion,
     );
   }
 }

@@ -43,7 +43,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await signInWithEmailUseCase(event.email, event.password);
     await result.fold(
       (failure) async {
-        emit(AuthError(failure.message));
+        emit(AuthError(failure.message, code: failure.code));
       },
       (user) async {
         await Hive.box('auth').put('isLoggedIn', true);
@@ -66,7 +66,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             failure.message.toLowerCase().contains('cancelled')) {
           emit(Unauthenticated());
         } else {
-          emit(AuthError(failure.message));
+          emit(AuthError(failure.message, code: failure.code));
         }
       },
       (user) async {
@@ -90,7 +90,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     await result.fold(
       (failure) async {
-        emit(AuthError(failure.message));
+        emit(AuthError(failure.message, code: failure.code));
       },
       (user) async {
         await Hive.box('auth').put('isLoggedIn', true);
@@ -135,7 +135,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final result = await signOutUseCase();
     await result.fold(
       (failure) async {
-        emit(AuthError(failure.message));
+        emit(AuthError(failure.message, code: failure.code));
       },
       (_) async {
         await Hive.box('auth').put('isLoggedIn', false);
@@ -154,7 +154,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(Authenticated(event.user));
     final result = await updateUserProfileUseCase!(event.user);
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
+      (failure) => emit(AuthError(failure.message, code: failure.code)),
       (updatedUser) => emit(Authenticated(updatedUser)),
     );
   }

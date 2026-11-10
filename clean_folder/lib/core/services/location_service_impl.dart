@@ -34,7 +34,8 @@ class LocationServiceImpl implements LocationService {
 
     if (!serviceEnabled) {
       debugPrint('[LocationService] Location service (GPS) is OFF.');
-      throw Exception('GPS is turned off. Please swipe down from the top of your screen and turn on Location.');
+      throw const LocationServiceException('gps-off',
+          'GPS is turned off. Please swipe down from the top of your screen and turn on Location.');
     }
 
     // 2. Check and request app permissions
@@ -45,12 +46,14 @@ class LocationServiceImpl implements LocationService {
       permission = await Geolocator.requestPermission();
       debugPrint('[LocationService] Requested permission result: $permission');
       if (permission == LocationPermission.denied) {
-        throw Exception('Location permission was denied. Please allow location access.');
+        throw const LocationServiceException('permission-denied',
+            'Location permission was denied. Please allow location access.');
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      throw Exception('Location permission is permanently denied. Please enable it in your phone App Settings.');
+      throw const LocationServiceException('permission-denied-forever',
+          'Location permission is permanently denied. Please enable it in your phone App Settings.');
     }
 
     // 3. Acquire REAL GPS Position
@@ -96,7 +99,8 @@ class LocationServiceImpl implements LocationService {
     }
 
     if (position == null) {
-      throw Exception('Could not acquire GPS fix. Please ensure you have GPS turned on and a clear signal.');
+      throw const LocationServiceException('no-gps-fix',
+          'Could not acquire GPS fix. Please ensure you have GPS turned on and a clear signal.');
     }
 
     final lat = position.latitude;

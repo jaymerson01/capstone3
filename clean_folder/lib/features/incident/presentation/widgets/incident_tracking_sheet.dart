@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
+import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/core/theme/neo_tokens.dart';
 import '../../domain/entities/incident_entity.dart';
 import '../bloc/incident_bloc.dart';
 import '../bloc/incident_state.dart';
 import 'incident_status_timeline.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class IncidentTrackingSheet extends StatelessWidget {
   final IncidentEntity initialIncident;
@@ -29,6 +33,7 @@ class IncidentTrackingSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = AppColors.isDarkMode;
     // DraggableScrollableSheet handles scaling nicely and provides seamless swipe-down dismissal gestures.
     return DraggableScrollableSheet(
       initialChildSize: 0.65,
@@ -37,8 +42,18 @@ class IncidentTrackingSheet extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: isDark
+                  ? const [Color(0xFF1C2742), Color(0xFF0E1A33)]
+                  : const [Color(0xFFFFFFFF), AppColors.frost],
+            ),
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(NeoRadii.panel),
+            ),
+            border: Border(top: BorderSide(color: AppColors.glassBorder)),
+            boxShadow: AppColors.soft3dShadow,
           ),
           child: Column(
             children: [
@@ -49,38 +64,40 @@ class IncidentTrackingSheet extends StatelessWidget {
                   width: 48,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColors.textMuted.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
               ),
               // Header with Exit Icon Button
               Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 12.0, bottom: 8.0),
+                padding: const EdgeInsets.only(left: 20.0, right: 14.0, bottom: 4.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Live Incident Tracking',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context).trackingTitle,
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textDark,
+                        ),
+                      ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close_rounded, size: 28, color: Colors.black54),
+                    NeoIconButton(
+                      icon: Icons.close_rounded,
+                      tooltip: AppLocalizations.of(context).trackingClose,
+                      size: 40,
                       onPressed: () => Navigator.of(context).pop(),
-                      tooltip: 'Close tracking panel',
                     ),
                   ],
                 ),
               ),
-              Divider(height: 1, thickness: 1),
               // Scrollable Dynamic Content Body
               Expanded(
                 child: SingleChildScrollView(
                   controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   child: BlocBuilder<IncidentBloc, IncidentState>(
                     builder: (context, state) {
                       // Default to the initially submitted incident

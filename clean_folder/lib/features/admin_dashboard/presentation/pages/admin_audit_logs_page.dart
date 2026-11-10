@@ -3,10 +3,11 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'package:printing/printing.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/admin_dashboard/domain/entities/audit_log_entity.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 class AdminAuditLogsPage extends StatefulWidget {
   const AdminAuditLogsPage({super.key});
@@ -25,193 +26,60 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ── Header Bar ─────────────────────────────────────────────
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF3A4B6B), Color(0xFF1E2D4A)],
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.history_edu_rounded,
-                      color: Color(0xFF00E5FF),
-                      size: 22,
-                    ),
-                  ),
-                  SizedBox(width: 14),
-                  const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Administrative System Audit Logs",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFFE8F0FE),
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      SizedBox(height: 3),
-                      Text(
-                        "Immutable ledger of dispatch status updates, sirens, moderation, and blotter exports",
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF7B8DB0),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+          AdminPageTitle(
+            title: "Administrative System Audit Logs",
+            subtitle:
+                "Immutable ledger of dispatch status updates, sirens, moderation, and blotter exports",
+            trailing: [
               // Stream snapshot for CSV download button
               StreamBuilder<List<AuditLogEntity>>(
                 stream: sl<AuditLogRemoteDataSource>().streamAuditLogs(),
                 builder: (context, snapshot) {
                   final logs = snapshot.data ?? [];
-                  return OutlinedButton.icon(
+                  return AdminButton(
+                    label: "Export Audit CSV",
+                    icon: Icons.download_rounded,
+                    style: AdminButtonStyle.ghost,
                     onPressed: (_isExporting || logs.isEmpty)
                         ? null
                         : () => _exportAuditLogsCsv(logs),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFF00E5FF), width: 1.4),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      backgroundColor:
-                          const Color(0xFF00E5FF).withValues(alpha: 0.08),
-                    ),
-                    icon: Icon(
-                      Icons.download_rounded,
-                      size: 17,
-                      color: Color(0xFF00E5FF),
-                    ),
-                    label: Text(
-                      "Export Audit CSV",
-                      style: TextStyle(
-                        color: Color(0xFF00E5FF),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
                   );
                 },
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 18),
 
           // ── Search & Filter Row ────────────────────────────────────
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF0D1627),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF1E2D4A)),
-                  ),
-                  child: TextField(
-                    style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
-                      fontSize: 13,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Search audit logs by admin, action, target, or details...",
-                      hintStyle: const TextStyle(
-                        color: Color(0xFF5A6E8C),
-                        fontSize: 12.5,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.search,
-                        color: Color(0xFF7B8DB0),
-                        size: 20,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFF0D1627),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16),
+          AdminSearchField(
+            hint: "Search audit logs by admin, action, target, or details...",
+            onChanged: (val) => setState(() => _searchQuery = val),
+          ),
+          const SizedBox(height: 12),
 
-              // Action Filter Dropdown
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF0D1627),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
+          // Action Filter Chips
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final (value, label) in const [
+                ("All", "All Actions"),
+                ("Status Update", "Status Updates"),
+                ("Emergency Siren", "Emergency Sirens"),
+                ("Citizen Moderation", "Citizen Moderation"),
+                ("Report Export", "Report Exports"),
+              ])
+                _ActionFilterChip(
+                  label: label,
+                  selected: _actionFilter == value,
+                  onTap: () => setState(() => _actionFilter = value),
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _actionFilter,
-                    dropdownColor: const Color(0xFF0D1627),
-                    style: const TextStyle(
-                      color: Color(0xFFE8F0FE),
-                      fontSize: 13,
-                    ),
-                    icon: Icon(
-                      Icons.keyboard_arrow_down_rounded,
-                      color: Color(0xFF00E5FF),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: "All", child: Text("All Actions")),
-                      DropdownMenuItem(
-                        value: "Status Update",
-                        child: Text("Status Updates"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Emergency Siren",
-                        child: Text("Emergency Sirens"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Citizen Moderation",
-                        child: Text("Citizen Moderation"),
-                      ),
-                      DropdownMenuItem(
-                        value: "Report Export",
-                        child: Text("Report Exports"),
-                      ),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) setState(() => _actionFilter = val);
-                    },
-                  ),
-                ),
-              ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 18),
 
           // ── Streamed Audit Log Table ───────────────────────────────
           Expanded(
@@ -220,16 +88,24 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(
-                    child: Text(
-                      "Error streaming audit records: ${snapshot.error}",
-                      style: const TextStyle(color: Colors.red),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        "Error streaming audit records: ${snapshot.error}",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: AdminColors.dangerText,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   );
                 }
 
                 if (!snapshot.hasData) {
                   return Center(
-                    child: CircularProgressIndicator(color: Color(0xFF00E5FF)),
+                    child: CircularProgressIndicator(color: AdminColors.cyan),
                   );
                 }
 
@@ -248,197 +124,41 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
                   return matchesSearch && matchesAction;
                 }).toList();
 
-                return Custom3dCard(
-                  padding: const EdgeInsets.all(12),
-                  borderRadius: 22,
+                return AdminPanel(
+                  padding: EdgeInsets.zero,
                   child: filteredLogs.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.verified_user_outlined,
-                                color: const Color(0xFF2A3F60),
-                                size: 52,
-                              ),
-                              SizedBox(height: 12),
-                              Text(
-                                "No audit log entries found for this filter.",
-                                style: TextStyle(
-                                  color: Color(0xFF7B8DB0),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                      ? const Center(
+                          child: SingleChildScrollView(
+                            child: AdminEmptyState(
+                              icon: Icons.verified_user_outlined,
+                              title:
+                                  "No audit log entries found for this filter.",
+                            ),
                           ),
                         )
-                      : SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              headingRowHeight: 48,
-                              headingRowColor: WidgetStateProperty.all(
-                                const Color(0xFF060D1A),
-                              ),
-                              dataRowColor: WidgetStateProperty.resolveWith(
-                                (states) => states.contains(WidgetState.hovered)
-                                    ? const Color(0xFF0D1627)
-                                        .withValues(alpha: 0.8)
-                                    : Colors.transparent,
-                              ),
-                              dividerThickness: 0.5,
-                              columns: const [
-                                DataColumn(
-                                  label: Text(
-                                    "Timestamp",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(22),
+                          // Fills the card on wide screens and scrolls
+                          // sideways on narrow ones.
+                          child: LayoutBuilder(
+                            builder: (context, constraints) =>
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minWidth: constraints.maxWidth,
+                                      ),
+                                      child: DividerTheme(
+                                        data: const DividerThemeData(
+                                          color: AdminTable.divider,
+                                        ),
+                                        child: _buildAuditTable(filteredLogs),
+                                      ),
                                     ),
                                   ),
                                 ),
-                                DataColumn(
-                                  label: Text(
-                                    "Admin Officer",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    "Action Type",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    "Target ID",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Text(
-                                    "Operational Details",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      color: Color(0xFF7B8DB0),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              rows: filteredLogs.map((log) {
-                                final color = _actionColor(log.actionType);
-                                final d = log.timestamp;
-                                final timeStr =
-                                    "${d.day}/${d.month}/${d.year} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}";
-
-                                return DataRow(
-                                  cells: [
-                                    DataCell(
-                                      Text(
-                                        timeStr,
-                                        style: const TextStyle(
-                                          color: Color(0xFF7B8DB0),
-                                          fontSize: 11.5,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            log.adminName,
-                                            style: const TextStyle(
-                                              color: Color(0xFFE8F0FE),
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                          Text(
-                                            log.adminEmail,
-                                            style: const TextStyle(
-                                              color: Color(0xFF5A6E8C),
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: color.withValues(alpha: 0.14),
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          border: Border.all(
-                                            color: color.withValues(alpha: 0.35),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          log.actionType,
-                                          style: TextStyle(
-                                            color: color,
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 10.5,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                        (log.targetId != null &&
-                                                log.targetId!.isNotEmpty)
-                                            ? (log.targetId!.length > 10
-                                                ? log.targetId!.substring(0, 10)
-                                                : log.targetId!)
-                                            : "—",
-                                        style: const TextStyle(
-                                          color: Color(0xFF00E5FF),
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    DataCell(
-                                      SizedBox(
-                                        width: 320,
-                                        child: Text(
-                                          log.details,
-                                          style: const TextStyle(
-                                            color: Color(0xFFB0C4DE),
-                                            fontSize: 12,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
                           ),
                         ),
                 );
@@ -450,21 +170,110 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
     );
   }
 
-  Color _actionColor(String action) {
+  Widget _buildAuditTable(List<AuditLogEntity> filteredLogs) {
+    return DataTable(
+      headingRowHeight: 48,
+      dataRowMinHeight: 52,
+      dataRowMaxHeight: 52,
+      horizontalMargin: 18,
+      columnSpacing: 28,
+      dataRowColor: WidgetStateProperty.resolveWith(
+        (states) => states.contains(WidgetState.hovered)
+            ? AdminTable.hoverRow
+            : Colors.transparent,
+      ),
+      dividerThickness: 1,
+      columns: [
+        _tableColumn("Timestamp"),
+        _tableColumn("Admin Officer"),
+        _tableColumn("Action Type"),
+        _tableColumn("Target ID"),
+        _tableColumn("Operational Details"),
+      ],
+      rows: filteredLogs.map((log) {
+        final tone = _actionTone(log.actionType);
+        final d = log.timestamp;
+        final timeStr =
+            "${d.day}/${d.month}/${d.year} ${d.hour.toString().padLeft(2, '0')}:${d.minute.toString().padLeft(2, '0')}:${d.second.toString().padLeft(2, '0')}";
+
+        return DataRow(
+          cells: [
+            DataCell(Text(timeStr, style: AdminTable.cellMuted)),
+            DataCell(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    log.adminName,
+                    style: const TextStyle(
+                      color: AdminColors.textBody,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    log.adminEmail,
+                    style: const TextStyle(
+                      color: AdminColors.textHint,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            DataCell(AdminPill(label: log.actionType, tone: tone)),
+            DataCell(
+              Text(
+                (log.targetId != null && log.targetId!.isNotEmpty)
+                    ? (log.targetId!.length > 10
+                          ? log.targetId!.substring(0, 10)
+                          : log.targetId!)
+                    : "—",
+                style: AdminTable.cellStrong,
+              ),
+            ),
+            DataCell(
+              SizedBox(
+                width: 320,
+                child: Text(
+                  log.details,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AdminTable.cellMuted,
+                ),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  /// A table heading, in capitals as on the board.
+  DataColumn _tableColumn(String label) {
+    return DataColumn(
+      label: Text(label.toUpperCase(), style: AdminTable.header),
+    );
+  }
+
+  AdminTone _actionTone(String action) {
     final a = action.toLowerCase();
     if (a.contains('siren') || a.contains('broadcast')) {
-      return const Color(0xFFFF3B30);
+      return AdminTone.red;
     }
     if (a.contains('moderation') || a.contains('suspend')) {
-      return const Color(0xFFFF9F0A);
+      return AdminTone.yellow;
     }
     if (a.contains('export') || a.contains('pdf') || a.contains('csv')) {
-      return const Color(0xFF00E5FF);
+      return AdminTone.cyan;
     }
     if (a.contains('status') || a.contains('solved')) {
-      return const Color(0xFF30D158);
+      return AdminTone.blue;
     }
-    return const Color(0xFF7C4DFF);
+    return AdminTone.violet;
   }
 
   Future<void> _exportAuditLogsCsv(List<AuditLogEntity> logs) async {
@@ -506,7 +315,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("✓ Audit trail CSV exported: $filename"),
-            backgroundColor: const Color(0xFF30D158),
+            backgroundColor: AdminColors.success,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -516,7 +325,7 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text("Failed to export audit CSV: $e"),
-            backgroundColor: Colors.red,
+            backgroundColor: AdminColors.danger,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -524,5 +333,82 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
     } finally {
       if (mounted) setState(() => _isExporting = false);
     }
+  }
+}
+
+/// A pill for one action filter. Selected is ResQuick blue, the rest faint
+/// glass, as on the audit board.
+class _ActionFilterChip extends StatelessWidget {
+  const _ActionFilterChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(999),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: 36,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              gradient: selected
+                  ? LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AdminColors.primary,
+                        Color.lerp(
+                          AdminColors.primary,
+                          AdminColors.primaryDeep,
+                          0.5,
+                        )!,
+                      ],
+                    )
+                  : null,
+              color: selected ? null : Colors.white.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: selected
+                    ? Colors.transparent
+                    : Colors.white.withValues(alpha: 0.14),
+              ),
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: AdminColors.primary.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Center(
+              widthFactor: 1,
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: selected ? Colors.white : AdminColors.textBody,
+                  fontSize: 12,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

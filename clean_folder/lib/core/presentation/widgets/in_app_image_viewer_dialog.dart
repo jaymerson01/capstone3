@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 class InAppImageViewerDialog extends StatefulWidget {
   final String imageUrl;
@@ -95,7 +96,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        widget.title ?? "Photo Evidence Viewer",
+                        widget.title ?? AppLocalizations.of(context).viewerPhotoTitle,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -109,7 +110,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                     IconButton(
                       icon: Icon(Icons.zoom_out_map_rounded,
                           color: AppColors.textLight, size: 20),
-                      tooltip: "Reset Zoom",
+                      tooltip: AppLocalizations.of(context).viewerResetZoom,
                       onPressed: _resetZoom,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -119,7 +120,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                     IconButton(
                       icon: Icon(Icons.open_in_new_rounded,
                           color: AppColors.textLight, size: 18),
-                      tooltip: "Open Full Image in New Tab",
+                      tooltip: AppLocalizations.of(context).viewerOpenFullImage,
                       onPressed: () {
                         launchUrl(
                           Uri.parse(widget.imageUrl),
@@ -134,7 +135,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                     IconButton(
                       icon: Icon(Icons.close_rounded,
                           color: AppColors.textLight, size: 20),
-                      tooltip: "Close",
+                      tooltip: AppLocalizations.of(context).commonClose,
                       onPressed: () => Navigator.pop(context),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -175,7 +176,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                                 color: AppColors.danger, size: 48),
                             SizedBox(height: 12),
                             Text(
-                              "Unable to display image in-app",
+                              AppLocalizations.of(context).viewerImageError,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold),
@@ -191,7 +192,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                                     mode: LaunchMode.externalApplication);
                               },
                               icon: Icon(Icons.open_in_browser, size: 16),
-                              label: Text("Open in External Tab"),
+                              label: Text(AppLocalizations.of(context).viewerOpenExternalTab),
                             ),
                           ],
                         ),
@@ -216,7 +217,7 @@ class _InAppImageViewerDialogState extends State<InAppImageViewerDialog> {
                     Icon(Icons.pinch_rounded, size: 14, color: AppColors.textLight),
                     SizedBox(width: 8),
                     Text(
-                      "Pinch, scroll, or drag to pan and zoom photo evidence",
+                      AppLocalizations.of(context).viewerZoomHint,
                       style: TextStyle(fontSize: 11, color: AppColors.textLight),
                     ),
                   ],

@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
 import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'admin_ui.dart';
 
 class CustomPieChart extends StatefulWidget {
   final List<IncidentEntity> incidents;
@@ -18,247 +19,159 @@ class _CustomPieChartState extends State<CustomPieChart> {
 
   // Curated harmonious neon palette for OLED dark mode
   static const List<Color> _palette = [
-    Color(0xFF00E5FF), // Cyan
-    Color(0xFFFF5252), // Coral Red
-    Color(0xFFFFD600), // Amber
-    Color(0xFF69F0AE), // Mint Green
-    Color(0xFFE040FB), // Magenta
-    Color(0xFF448AFF), // Azure Blue
-    Color(0xFFFFAB40), // Orange
-    Color(0xFF7C4DFF), // Purple
-    Color(0xFF00B0FF), // Light Blue
-    Color(0xFF1DE9B6), // Teal
+    AdminColors.cyan, // Cyan
+    AdminColors.dangerSoft, // Coral Red
+    AdminColors.chartAmber, // Amber
+    AdminColors.chartMint, // Mint Green
+    AdminColors.chartMagenta, // Magenta
+    AdminColors.chartAzure, // Azure Blue
+    AdminColors.orangeLight, // Orange
+    AdminColors.violet, // Purple
+    AdminColors.chartSky, // Light Blue
+    AdminColors.chartTeal, // Teal
   ];
 
   @override
   Widget build(BuildContext context) {
     final List<PieSliceData> slices = _computeSlices();
 
-    return Container(
-      height: 310,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0D1627),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: const Color(0xFF1E2D4A).withValues(alpha: 0.8),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with Dual-View Toggle
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Icon(
-                      Icons.pie_chart_outline_rounded,
-                      color: AppColors.primary,
-                      size: 18,
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _isCategoryView
-                            ? "Incidents by Category"
-                            : "Incidents by Sector",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          color: Color(0xFFE8F0FE),
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        _isCategoryView
-                            ? "Emergency taxonomy breakdown"
-                            : "Geographic territory distribution",
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF7B8DB0),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+    return SizedBox(
+      height: 330,
+      child: AdminPanel(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with Dual-View Toggle
+            _ChartHeader(
+              icon: Icons.pie_chart_outline_rounded,
+              tone: AdminTone.violet,
+              title: _isCategoryView
+                  ? "Incidents by Category"
+                  : "Incidents by Sector",
+              subtitle: _isCategoryView
+                  ? "Emergency taxonomy breakdown"
+                  : "Geographic territory distribution",
+              inlineMinWidth: 470,
               // Dual-View Toggle Pill
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF070E1A),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFF1E2D4A)),
-                ),
-                padding: const EdgeInsets.all(3),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _toggleButton("Category", _isCategoryView, () {
-                      setState(() => _isCategoryView = true);
-                    }),
-                    _toggleButton("Sector", !_isCategoryView, () {
-                      setState(() => _isCategoryView = false);
-                    }),
-                  ],
-                ),
+              trailing: AdminSegmented<bool>(
+                segments: const [(true, "Category"), (false, "Sector")],
+                value: _isCategoryView,
+                onChanged: (isCategory) {
+                  if (isCategory) {
+                    setState(() => _isCategoryView = true);
+                  } else {
+                    setState(() => _isCategoryView = false);
+                  }
+                },
               ),
-            ],
-          ),
-          SizedBox(height: 18),
+            ),
+            SizedBox(height: 18),
 
-          // Donut & Legend Content
-          Expanded(
-            child: slices.isEmpty
-                ? _buildEmptyState()
-                : Row(
-                    children: [
-                      // Donut Chart with Center Count Label
-                      Expanded(
-                        flex: 5,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            CustomPaint(
-                              size: const Size(180, 180),
-                              painter: _DonutChartPainter(slices),
-                            ),
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "${widget.incidents.length}",
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    color: Color(0xFFE8F0FE),
+            // Donut & Legend Content
+            Expanded(
+              child: slices.isEmpty
+                  ? _buildEmptyState()
+                  : Row(
+                      children: [
+                        // Donut Chart with Center Count Label
+                        Expanded(
+                          flex: 5,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CustomPaint(
+                                size: const Size(180, 180),
+                                painter: _DonutChartPainter(slices),
+                              ),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    "${widget.incidents.length}",
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w800,
+                                      color: AdminColors.textStrong,
+                                      height: 1.15,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  "INCIDENTS",
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF5A6E8C),
-                                    letterSpacing: 1.0,
+                                  Text(
+                                    "INCIDENTS",
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w800,
+                                      color: AdminColors.textHint,
+                                      letterSpacing: 1.0,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      // Legend List
-                      Expanded(
-                        flex: 6,
-                        child: SingleChildScrollView(
-                          physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: slices.map((d) {
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 9,
-                                      height: 9,
-                                      decoration: BoxDecoration(
-                                        color: d.color,
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color:
-                                                d.color.withValues(alpha: 0.5),
-                                            blurRadius: 5,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        d.label,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFFB0C4DE),
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${d.percentage.toStringAsFixed(1)}%",
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: d.color,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _toggleButton(String title, bool isSelected, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.25)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.primary.withValues(alpha: 0.4)
-                : Colors.transparent,
-          ),
-        ),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-            color: isSelected ? const Color(0xFF00E5FF) : const Color(0xFF7B8DB0),
-          ),
+                        SizedBox(width: 16),
+                        // Legend List
+                        Expanded(
+                          flex: 6,
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: slices.map((d) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 9,
+                                        height: 9,
+                                        decoration: BoxDecoration(
+                                          color: d.color,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: d.color
+                                                  .withValues(alpha: 0.5),
+                                              blurRadius: 5,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: 9),
+                                      Expanded(
+                                        child: Text(
+                                          d.label,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: AdminColors.textSoft,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "${d.percentage.toStringAsFixed(1)}%",
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w800,
+                                          color: d.color,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ],
         ),
       ),
     );
@@ -269,17 +182,27 @@ class _CustomPieChartState extends State<CustomPieChart> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.hourglass_empty_rounded,
-            color: const Color(0xFF5A6E8C).withValues(alpha: 0.5),
-            size: 36,
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+            ),
+            child: Icon(
+              Icons.hourglass_empty_rounded,
+              color: AdminColors.textLight,
+              size: 24,
+            ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 12),
           Text(
             "No recorded incident logs yet",
+            textAlign: TextAlign.center,
             style: TextStyle(
-              color: Color(0xFF7B8DB0),
-              fontSize: 12,
+              color: AdminColors.textLight,
+              fontSize: 12.5,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -324,7 +247,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
 
     if (otherCount > 0) {
       final pct = (otherCount / total) * 100.0;
-      result.add(PieSliceData("Others", pct, const Color(0xFF78909C)));
+      result.add(PieSliceData("Others", pct, AdminColors.chartOther));
     }
 
     return result;
@@ -400,4 +323,59 @@ class _DonutChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) => true;
+}
+
+/// The chart panel heading: an icon tile, the title and its line, with
+/// [trailing] on the right, or under the title when the panel is narrower
+/// than [inlineMinWidth].
+class _ChartHeader extends StatelessWidget {
+  const _ChartHeader({
+    required this.icon,
+    required this.tone,
+    required this.title,
+    required this.subtitle,
+    required this.trailing,
+    this.inlineMinWidth = 400,
+  });
+
+  final IconData icon;
+  final AdminTone tone;
+  final String title;
+  final String subtitle;
+  final Widget trailing;
+  final double inlineMinWidth;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= inlineMinWidth) {
+          return AdminSectionTitle(
+            icon: icon,
+            tone: tone,
+            title: title,
+            subtitle: subtitle,
+            trailing: trailing,
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AdminSectionTitle(
+              icon: icon,
+              tone: tone,
+              title: title,
+              subtitle: subtitle,
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.only(left: 48),
+              child: trailing,
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

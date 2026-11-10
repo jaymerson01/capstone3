@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/theme/admin_colors.dart';
 
+/// A dashboard figure: the label and a tinted icon tile on top, the number
+/// below. [backgroundColor] is the accent that tints the icon tile, and
+/// [highlight] washes the whole card red for a live alert.
 class StatCard extends StatefulWidget {
   final String title;
   final String value;
   final IconData icon;
   final Color backgroundColor;
   final Color textColor;
+  final bool highlight;
 
   const StatCard({
     super.key,
@@ -14,6 +19,7 @@ class StatCard extends StatefulWidget {
     required this.icon,
     required this.backgroundColor,
     this.textColor = Colors.white,
+    this.highlight = false,
   });
 
   @override
@@ -25,101 +31,108 @@ class _StatCardState extends State<StatCard> {
 
   @override
   Widget build(BuildContext context) {
+    final Color accent = widget.backgroundColor;
+    final bool highlight = widget.highlight;
+    final Color iconColor = highlight
+        ? AdminColors.dangerPale
+        : Color.lerp(accent, Colors.white, 0.55)!;
+
     return MouseRegion(
       onEnter: (_) => setState(() => isHovered = true),
       onExit: (_) => setState(() => isHovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
-        transform: isHovered ? Matrix4.translationValues(0.0, -6.0, 0.0) : Matrix4.identity(),
+        transform: isHovered
+            ? Matrix4.translationValues(0.0, -4.0, 0.0)
+            : Matrix4.identity(),
+        padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              widget.backgroundColor,
-              widget.backgroundColor.withValues(alpha: 0.85),
-            ],
+          color: highlight ? null : AdminColors.cardBackground,
+          gradient: highlight
+              ? LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color.alphaBlend(
+                      AdminColors.critical.withValues(alpha: 0.18),
+                      AdminColors.cardBackground,
+                    ),
+                    Color.alphaBlend(
+                      AdminColors.critical.withValues(alpha: 0.06),
+                      AdminColors.cardBackground,
+                    ),
+                  ],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: highlight
+                ? AdminColors.dangerSoft.withValues(alpha: 0.4)
+                : Colors.white.withValues(alpha: isHovered ? 0.18 : 0.1),
           ),
           boxShadow: [
+            if (highlight)
+              BoxShadow(
+                color: AdminColors.critical.withValues(alpha: 0.18),
+                blurRadius: 26,
+              ),
             BoxShadow(
-              color: isHovered 
-                  ? widget.backgroundColor.withValues(alpha: 0.35) 
-                  : Colors.black.withValues(alpha: 0.06),
-              blurRadius: isHovered ? 16 : 8,
-              offset: isHovered ? const Offset(0, 8) : const Offset(0, 4),
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 32,
+              offset: const Offset(0, 14),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Stack(
-            children: [
-              // Bottom right decorative circle icon
-              Positioned(
-                bottom: -24,
-                right: -24,
-                child: Opacity(
-                  opacity: 0.12,
-                  child: Icon(
-                    widget.icon,
-                    size: 110,
-                    color: widget.textColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 1.3,
+                      color: highlight
+                          ? AdminColors.dangerPale
+                          : AdminColors.textLight,
+                    ),
                   ),
                 ),
-              ),
-              // Main content
-              Padding(
-                padding: const EdgeInsets.all(22.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            widget.icon,
-                            color: widget.textColor,
-                            size: 22,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Text(
-                      widget.value,
-                      style: TextStyle(
-                        fontSize: 34,
-                        fontWeight: FontWeight.w900,
-                        color: widget.textColor,
-                        height: 1.0,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      widget.title.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: widget.textColor.withValues(alpha: 0.75),
-                        letterSpacing: 1.1,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                const SizedBox(width: 10),
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: highlight ? 0.3 : 0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(widget.icon, size: 18, color: iconColor),
+                ),
+              ],
+            ),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                widget.value,
+                style: TextStyle(
+                  fontSize: 34,
+                  fontWeight: FontWeight.w800,
+                  color: widget.textColor,
+                  height: 1.0,
+                  letterSpacing: -0.5,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

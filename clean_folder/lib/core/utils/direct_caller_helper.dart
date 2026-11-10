@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
 
 /// Reusable helper for dialing emergency hotlines with direct calling and fallback support.
 class DirectCallerHelper {
@@ -69,7 +70,7 @@ class DirectCallerHelper {
   static void _showDialerError(BuildContext context, String number) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Could not open dialer for $number. Please dial manually.'),
+        content: Text(AppLocalizations.of(context).reportDialerFailed(number)),
         backgroundColor: AppColors.danger,
         behavior: SnackBarBehavior.floating,
       ),

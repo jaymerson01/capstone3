@@ -28,7 +28,7 @@ class AuditLogModel extends AuditLogEntity {
       id: doc.id,
       timestamp: parsedTimestamp,
       adminName: data['adminName'] as String? ?? 'Admin',
-      adminEmail: data['adminEmail'] as String? ?? 'admin@resq.gov',
+      adminEmail: data['adminEmail'] as String? ?? '—',
       actionType: data['actionType'] as String? ?? 'General Action',
       details: data['details'] as String? ?? '',
       targetId: data['targetId'] as String?,

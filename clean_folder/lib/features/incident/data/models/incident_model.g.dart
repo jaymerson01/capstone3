@@ -40,13 +40,14 @@ class IncidentModelAdapter extends TypeAdapter<IncidentModel> {
       victimName: fields[20] as String?,
       victimPhone: fields[21] as String?,
       estimatedResponseTime: fields[22] as String?,
+      isBlotter: fields[23] as bool? ?? false,
     );
   }
 
   @override
   void write(BinaryWriter writer, IncidentModel obj) {
     writer
-      ..writeByte(23)
+      ..writeByte(24)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -92,7 +93,9 @@ class IncidentModelAdapter extends TypeAdapter<IncidentModel> {
       ..writeByte(21)
       ..write(obj.victimPhone)
       ..writeByte(22)
-      ..write(obj.estimatedResponseTime);
+      ..write(obj.estimatedResponseTime)
+      ..writeByte(23)
+      ..write(obj.isBlotter);
   }
 
   @override

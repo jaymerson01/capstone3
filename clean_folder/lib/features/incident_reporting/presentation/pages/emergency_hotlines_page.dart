@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
-import 'package:community_safety_app/core/presentation/widgets/custom_3d_card.dart';
+import 'package:community_safety_app/core/presentation/neo/aurora_background.dart';
+import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_tray.dart';
 import 'package:community_safety_app/core/utils/direct_caller_helper.dart';
+import 'package:community_safety_app/l10n/app_localizations.dart';
+import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
+import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 
 class EmergencyHotlinesPage extends StatelessWidget {
   final void Function(String title, String number)? onCallPressed;
@@ -32,207 +40,227 @@ class EmergencyHotlinesPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: AppColors.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(
-                color: AppColors.danger.withValues(alpha: 0.3), width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.danger.withValues(alpha: 0.12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.danger.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: Icon(Icons.call,
-                      color: AppColors.danger, size: 32),
+        return NeoDialog(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              NeoDialogIcon(icon: Icons.call_rounded, color: AppColors.danger),
+              SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context).hotlinesConfirmTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textDark,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
                 ),
-                SizedBox(height: 16),
-                Text(
-                  'Call Dispatch Line?',
-                  style: TextStyle(
-                    color: AppColors.textDark,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context).hotlinesConfirmMessage(title, number),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.textLight,
+                  fontSize: 14,
+                  height: 1.5,
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Are you sure you want to dial the official hotline for $title ($number) now?',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColors.textLight,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                ),
-                SizedBox(height: 24),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(color: AppColors.textLight),
-                        ),
-                      ),
+              ),
+              SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    child: NeoButton(
+                      label: AppLocalizations.of(context).commonCancel,
+                      variant: NeoButtonVariant.standard,
+                      height: 48,
+                      expand: true,
+                      onPressed: () => Navigator.pop(context),
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        height: 48,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.emergencyGradient,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: AppColors.dangerGlowShadow,
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(14),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _makeDirectCall(context, title, number);
-                            },
-                            child: Center(
-                              child: Text(
-                                'Call Now',
-                                style: TextStyle(
-                                  color: AppColors.textDark,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: NeoButton(
+                      label: AppLocalizations.of(context).commonCallNow,
+                      icon: Icons.call_rounded,
+                      variant: NeoButtonVariant.emergency,
+                      height: 48,
+                      expand: true,
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _makeDirectCall(context, title, number);
+                      },
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
     );
   }
 
+  /// One service: its icon, name, what to call it for, the number and the
+  /// CALL button. [featured] puts it on the dark tray (the barangay desk).
   Widget _buildHotlineCard(
     BuildContext context, {
     required String title,
     required String number,
     required String description,
     required IconData icon,
+    required Color accent,
     required int index,
+    bool featured = false,
   }) {
-    return _AnimatedHotlineCard(
-      delay: Duration(milliseconds: 80 * index),
-      child: Custom3dCard(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.all(20),
-        borderRadius: 20,
-        glowColor: AppColors.danger,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: AppColors.danger.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.danger.withValues(alpha: 0.2),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(icon, color: AppColors.danger, size: 26),
+    final isDark = AppColors.isDarkMode;
+    final iconColor = isDark ? Color.lerp(accent, Colors.white, 0.4)! : accent;
+
+    final iconBox = Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: featured
+            ? AppColors.ink
+            : accent.withValues(alpha: isDark ? 0.22 : 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: featured
+            ? Border.all(color: AppColors.secondary, width: 2)
+            : null,
+        boxShadow: featured
+            ? [
+                BoxShadow(
+                  color: AppColors.secondary.withValues(alpha: 0.55),
+                  blurRadius: 14,
+                ),
+              ]
+            : null,
+      ),
+      child: Icon(
+        icon,
+        color: featured ? AppColors.secondary : iconColor,
+        size: 22,
+      ),
+    );
+
+    final names = [
+      WordSafeText(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          color: featured ? const Color(0xFFF8FAFC) : AppColors.textDark,
+        ),
+      ),
+      SizedBox(height: 3),
+      Text(
+        description,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: featured ? NeoTray.soft : AppColors.textLight,
+          height: 1.35,
+        ),
+      ),
+    ];
+
+    final numberLink = InkWell(
+      onTap: () => _makeDirectCall(context, title, number),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        // A number never wraps; it shrinks to fit if it has to.
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            number,
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: featured
+                  ? AppColors.secondaryLight
+                  : (isDark ? AppColors.primaryText : AppColors.deepBlue),
             ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textLight,
-                      height: 1.4,
-                    ),
-                  ),
-                  SizedBox(height: 14),
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () => _makeDirectCall(context, title, number),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceLight,
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppColors.border),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.phone,
-                                  size: 13, color: AppColors.primary),
-                              SizedBox(width: 6),
-                              Text(
-                                number,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppColors.textDark,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      _CallButton(
-                        onTap: () => _makeDirectCall(context, title, number),
-                        onLongPress: () =>
-                            _showCallConfirmation(context, title, number),
-                      ),
-                    ],
-                  ),
-                ],
+          ),
+        ),
+      ),
+    );
+
+    // Its pulse repaints on its own layer, not the whole card.
+    final callButton = RepaintBoundary(
+      child: _CallButton(
+        live: featured,
+        onTap: () => _makeDirectCall(context, title, number),
+        onLongPress: () => _showCallConfirmation(context, title, number),
+      ),
+    );
+
+    // On narrow phones (or with large text) the CALL button moves under the
+    // text, beside the number, so the name and description get the width.
+    final content = LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(15) / 15;
+        if (constraints.maxWidth >= 300 * textScale) {
+          return Row(
+            children: [
+              iconBox,
+              SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [...names, SizedBox(height: 4), numberLink],
+                ),
               ),
+              SizedBox(width: 10),
+              callButton,
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                iconBox,
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: names,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: [
+                SizedBox(width: 62),
+                Expanded(
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: numberLink,
+                  ),
+                ),
+                SizedBox(width: 10),
+                callButton,
+              ],
             ),
           ],
-        ),
+        );
+      },
+    );
+
+    return _AnimatedHotlineCard(
+      delay: Duration(milliseconds: 80 * index),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: featured
+            ? NeoTray(padding: const EdgeInsets.all(14), child: content)
+            : GlassCard(padding: const EdgeInsets.all(14), child: content),
       ),
     );
   }
@@ -242,203 +270,110 @@ class EmergencyHotlinesPage extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: AppColors.isDarkModeNotifier,
       builder: (context, isDark, _) {
-        return Scaffold(
-          backgroundColor: AppColors.background,
-          body: Stack(
-            children: [
-              // ── Gradient Header Background ──────────────────────────────────
-              Container(
-                height: 220 + MediaQuery.of(context).padding.top,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: isDark
-                        ? [const Color(0xFF1A0A0E), const Color(0xFF2D0A0F)]
-                        : [const Color(0xFFFFF0F2), const Color(0xFFFFE5E9)],
-                  ),
-                  border: isDark
-                      ? null
-                      : Border(bottom: BorderSide(color: AppColors.border, width: 1)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.danger.withValues(alpha: isDark ? 0.15 : 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+        final l10n = AppLocalizations.of(context);
+        return AuroraBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              bottom: false,
+              child: ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  12,
+                  20,
+                  32 + MediaQuery.paddingOf(context).bottom,
                 ),
+                children: [
+                  // Back + Title
+                  Row(
+                    children: [
+                      NeoIconButton(
+                        icon: Icons.arrow_back_rounded,
+                        tooltip: l10n.commonBack,
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.welcomeHotlines,
+                              style: TextStyle(
+                                color: AppColors.primaryText,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              l10n.hotlinesPortal,
+                              style: TextStyle(
+                                color: AppColors.textDark,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    l10n.hotlinesGuestNote,
+                    style: TextStyle(
+                      color: AppColors.textLight,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w500,
+                      height: 1.4,
+                    ),
+                  ),
+                  SizedBox(height: 18),
+                  _buildHotlineCard(
+                    context,
+                    index: 0,
+                    title: l10n.hotlinesPolice,
+                    number: '911',
+                    description: l10n.hotlinesPoliceDesc,
+                    icon: Icons.local_police_outlined,
+                    accent: const Color(0xFF1D4ED8),
+                  ),
+                  _buildHotlineCard(
+                    context,
+                    index: 1,
+                    title: l10n.hotlinesFire,
+                    number: '112',
+                    description: l10n.hotlinesFireDesc,
+                    icon: Icons.local_fire_department_outlined,
+                    accent: AppColors.dangerDeep,
+                  ),
+                  _buildHotlineCard(
+                    context,
+                    index: 2,
+                    title: l10n.hotlinesAmbulance,
+                    number: '143',
+                    description: l10n.hotlinesAmbulanceDesc,
+                    icon: Icons.medical_services_outlined,
+                    accent: const Color(0xFFBE185D),
+                  ),
+                  _buildHotlineCard(
+                    context,
+                    index: 3,
+                    title: l10n.hotlinesBarangay,
+                    number: '888-9999',
+                    description: l10n.hotlinesBarangayDesc,
+                    icon: Icons.phone_in_talk_outlined,
+                    accent: AppColors.secondary,
+                    featured: true,
+                  ),
+                ],
               ),
-
-              // Ambient danger glow
-              Positioned(
-                top: 0,
-                right: -40,
-                child: Container(
-                  width: 250,
-                  height: 250,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        AppColors.danger.withValues(alpha: isDark ? 0.1 : 0.04),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Back + Title
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 38,
-                            height: 38,
-                            decoration: BoxDecoration(
-                              color: isDark
-                                  ? Colors.white.withValues(alpha: 0.08)
-                                  : AppColors.surface,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isDark
-                                    ? Colors.white.withValues(alpha: 0.12)
-                                    : AppColors.border,
-                              ),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.arrow_back,
-                                  color: AppColors.textDark, size: 18),
-                              onPressed: () => Navigator.pop(context),
-                              padding: EdgeInsets.zero,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            'Emergency Hotlines',
-                            style: TextStyle(
-                              color: AppColors.textDark,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: AppColors.danger.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(Icons.emergency,
-                                    color: AppColors.danger, size: 18),
-                              ),
-                              SizedBox(width: 10),
-                              Text(
-                                'EMERGENCY CALL PORTAL',
-                                style: TextStyle(
-                                  color: AppColors.textDark,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Unauthenticated guest access enabled. Dial emergency responders directly below.',
-                            style: TextStyle(
-                              color: AppColors.textLight,
-                              fontSize: 12,
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                SizedBox(height: 10),
-
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.only(
-                        left: 20, right: 20, top: 28),
-                    decoration: BoxDecoration(
-                      color: AppColors.background,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(32),
-                      ),
-                    ),
-                    child: ListView(
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        _buildHotlineCard(
-                          context,
-                          index: 0,
-                          title: 'Police Department Dispatch',
-                          number: '911',
-                          description:
-                              'Immediate criminal activity reporting, neighborhood patrols, threat neutralization, and public order enforcement.',
-                          icon: Icons.local_police_outlined,
-                        ),
-                        _buildHotlineCard(
-                          context,
-                          index: 1,
-                          title: 'Fire Command Station',
-                          number: '112',
-                          description:
-                              'Structural active fire emergencies, hazardous chemical leak containment, and immediate search and rescue ops.',
-                          icon: Icons.local_fire_department_outlined,
-                        ),
-                        _buildHotlineCard(
-                          context,
-                          index: 2,
-                          title: 'Ambulance Medical Team',
-                          number: '143',
-                          description:
-                              'Severe medical trauma support, critical emergency patient transport, and emergency responder dispatch.',
-                          icon: Icons.medical_services_outlined,
-                        ),
-                        _buildHotlineCard(
-                          context,
-                          index: 3,
-                          title: 'Barangay Desk Center',
-                          number: '888-9999',
-                          description:
-                              'Barangay Moonwalk local safety reports, minor community disputes, security desk coordination, and assistance.',
-                          icon: Icons.phone_in_talk_outlined,
-                        ),
-                        SizedBox(height: 40),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -446,10 +381,13 @@ class EmergencyHotlinesPage extends StatelessWidget {
 
 // ─── Supporting Widgets ───────────────────────────────────────────────────────
 
+/// The CALL pill: emergency red with a breathing glow, or live cyan on the
+/// dark tray. Tap calls; long-press asks first.
 class _CallButton extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
-  const _CallButton({required this.onTap, this.onLongPress});
+  final bool live;
+  const _CallButton({required this.onTap, this.onLongPress, this.live = false});
 
   @override
   State<_CallButton> createState() => _CallButtonState();
@@ -465,7 +403,13 @@ class _CallButtonState extends State<_CallButton>
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    syncLoop(_pulseCtrl, context);
   }
 
   @override
@@ -476,39 +420,47 @@ class _CallButtonState extends State<_CallButton>
 
   @override
   Widget build(BuildContext context) {
+    final glow = widget.live ? AppColors.secondary : AppColors.danger;
+    final foreground = widget.live ? AppColors.ink : Colors.white;
     return AnimatedBuilder(
       animation: _pulseCtrl,
       builder: (context, child) {
         return Tooltip(
-          message: 'Tap to call directly • Long-press for confirmation',
+          message: AppLocalizations.of(context).hotlinesTooltip,
           child: GestureDetector(
             onTap: widget.onTap,
             onLongPress: widget.onLongPress,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              height: 44,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                gradient: AppColors.emergencyGradient,
-                borderRadius: BorderRadius.circular(14),
+                gradient: widget.live
+                    ? const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [AppColors.secondaryLight, AppColors.secondary],
+                      )
+                    : AppColors.emergencyGradient,
+                borderRadius: BorderRadius.circular(999),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.danger
-                        .withValues(alpha: 0.35 + 0.2 * _pulseCtrl.value),
+                    color: glow.withValues(alpha: 0.35 + 0.2 * _pulseCtrl.value),
                     blurRadius: 12 + 8 * _pulseCtrl.value,
-                    offset: const Offset(0, 4),
+                    offset: widget.live ? Offset.zero : const Offset(0, 6),
                   ),
                 ],
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.call, color: AppColors.textDark, size: 14),
+                  Icon(Icons.call_rounded, color: foreground, size: 16),
                   SizedBox(width: 6),
                   Text(
-                    'CALL',
+                    AppLocalizations.of(context).hotlinesCall,
                     style: TextStyle(
-                      color: AppColors.textDark,
+                      color: foreground,
                       fontWeight: FontWeight.w800,
-                      fontSize: 12,
+                      fontSize: 13,
                       letterSpacing: 0.5,
                     ),
                   ),

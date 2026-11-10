@@ -143,6 +143,10 @@ class IncidentModel extends IncidentEntity {
   @override
   final String? estimatedResponseTime;
 
+  @HiveField(23)
+  @override
+  final bool isBlotter;
+
   @override
   final bool isSynced;
 
@@ -172,6 +176,12 @@ class IncidentModel extends IncidentEntity {
     String? victimName,
     String? victimPhone,
     String? estimatedResponseTime,
+    bool? isBlotter,
+    DateTime? dispatcherNotesAt,
+    DateTime? resolvedAt,
+    bool? reporterVerified,
+    DateTime? inProgressAt,
+    DateTime? closedAt,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -199,6 +209,12 @@ class IncidentModel extends IncidentEntity {
       victimName: victimName ?? this.victimName,
       victimPhone: victimPhone ?? this.victimPhone,
       estimatedResponseTime: estimatedResponseTime ?? this.estimatedResponseTime,
+      isBlotter: isBlotter ?? this.isBlotter,
+      dispatcherNotesAt: dispatcherNotesAt ?? this.dispatcherNotesAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+      reporterVerified: reporterVerified ?? this.reporterVerified,
+      inProgressAt: inProgressAt ?? this.inProgressAt,
+      closedAt: closedAt ?? this.closedAt,
     );
   }
 
@@ -224,10 +240,16 @@ class IncidentModel extends IncidentEntity {
     this.reporterEmail,
     this.isSynced = true,
     super.respondedAt,
+    super.dispatcherNotesAt,
+    super.resolvedAt,
+    super.reporterVerified,
+    super.inProgressAt,
+    super.closedAt,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
     this.estimatedResponseTime,
+    this.isBlotter = false,
   }) : super(
           id: id,
           reporterId: reporterId,
@@ -253,6 +275,7 @@ class IncidentModel extends IncidentEntity {
           victimName: victimName,
           victimPhone: victimPhone,
           estimatedResponseTime: estimatedResponseTime,
+          isBlotter: isBlotter,
         );
 
   factory IncidentModel.fromFirestore(DocumentSnapshot doc) {
@@ -280,6 +303,13 @@ class IncidentModel extends IncidentEntity {
       parsedRespondedAt = rawRespondedAt.toDate();
     } else if (rawRespondedAt is String) {
       parsedRespondedAt = DateTime.tryParse(rawRespondedAt);
+    }
+
+    DateTime? readTime(String key) {
+      final raw = data[key];
+      if (raw is Timestamp) return raw.toDate();
+      if (raw is String) return DateTime.tryParse(raw);
+      return null;
     }
 
     // Urgency shown = the higher of the stored level (set at filing / by admin)
@@ -329,6 +359,11 @@ class IncidentModel extends IncidentEntity {
       victimName: data['victimName'] as String?,
       victimPhone: data['victimPhone'] as String?,
       estimatedResponseTime: data['estimatedResponseTime'] as String?,
+      isBlotter: data['isBlotter'] as bool? ?? false,
+      dispatcherNotesAt: readTime('dispatcherNotesAt'),
+      resolvedAt: readTime('resolvedAt'),
+      inProgressAt: readTime('inProgressAt'),
+      closedAt: readTime('closedAt'),
     );
   }
 
@@ -386,6 +421,11 @@ class IncidentModel extends IncidentEntity {
       victimName: data['victimName'] as String? ?? victimName,
       victimPhone: data['victimPhone'] as String? ?? victimPhone,
       estimatedResponseTime: estimatedResponseTime,
+      isBlotter: isBlotter,
+      dispatcherNotesAt: dispatcherNotesAt,
+      resolvedAt: resolvedAt,
+      inProgressAt: inProgressAt,
+      closedAt: closedAt,
     );
   }
 
@@ -418,9 +458,22 @@ class IncidentModel extends IncidentEntity {
       'dispatcherNotes': dispatcherNotes,
       'isReportingOnBehalf': isReportingOnBehalf,
       'estimatedResponseTime': estimatedResponseTime,
+      'isBlotter': isBlotter,
     };
     if (respondedAt != null) {
       map['respondedAt'] = Timestamp.fromDate(respondedAt!);
+    }
+    if (dispatcherNotesAt != null) {
+      map['dispatcherNotesAt'] = Timestamp.fromDate(dispatcherNotesAt!);
+    }
+    if (resolvedAt != null) {
+      map['resolvedAt'] = Timestamp.fromDate(resolvedAt!);
+    }
+    if (inProgressAt != null) {
+      map['inProgressAt'] = Timestamp.fromDate(inProgressAt!);
+    }
+    if (closedAt != null) {
+      map['closedAt'] = Timestamp.fromDate(closedAt!);
     }
     return map;
   }
