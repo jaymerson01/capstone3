@@ -122,7 +122,10 @@ class IncidentStatusTimeline extends StatelessWidget {
     if (incident.isInProgress) {
       final since = incident.inProgressAt ?? incident.respondedAt;
       final eta = incident.estimatedResponseTime;
+      final responder = incident.assignedResponderName ?? l10n.timelineTheResponder;
       final detail = [
+        if (incident.responderStatus == 'on_the_way') l10n.timelineResponderOnTheWay(responder),
+        if (incident.responderStatus == 'on_scene') l10n.timelineResponderOnScene(responder),
         if (since != null) l10n.timelineSince(formatTime(since)),
         if (eta != null && eta.isNotEmpty) l10n.timelineRespondersOnTheWay(eta),
       ].join(' · ');

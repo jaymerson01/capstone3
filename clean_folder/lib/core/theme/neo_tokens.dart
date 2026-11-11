@@ -2,8 +2,8 @@
 class NeoRadii {
   static const double tile = 12;   // Icon tiles
   static const double field = 16;  // Text fields, small cards, snackbars
-  static const double card = 24;   // Cards and list groups
-  static const double panel = 30;  // Glass panels, dialogs, sheets, bottom bar
+  static const double card = 20;   // Cards and list groups
+  static const double panel = 26;  // Glass panels, dialogs, sheets, bottom bar
   static const double pill = 999;  // Buttons, chips, status pills
 }
 

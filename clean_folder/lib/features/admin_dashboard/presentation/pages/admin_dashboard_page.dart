@@ -13,11 +13,19 @@ import '../widgets/stat_card.dart';
 import '../widgets/custom_line_chart.dart';
 import '../widgets/custom_pie_chart.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
+import 'package:community_safety_app/features/verification/data/verification_repository.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/attention_row.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/pages/admin_dispatch_map_page.dart';
+import 'package:community_safety_app/core/utils/moonwalk_area.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   final VoidCallback? onViewAllReports;
 
-  const AdminDashboardPage({super.key, this.onViewAllReports});
+  /// Opens another admin page by its sidebar index.
+  final ValueChanged<int>? onNavigate;
+
+  const AdminDashboardPage({super.key, this.onViewAllReports, this.onNavigate});
 
   /// The pill colour for a stored report status. The admin portal saves
   /// "in_progress", so underscores count as spaces.
@@ -48,6 +56,8 @@ class AdminDashboardPage extends StatefulWidget {
 }
 
 class _AdminDashboardPageState extends State<AdminDashboardPage> {
+  late final Stream<Map<String, VerificationRequest>> _pendingIds = VerificationRepository().watchPending();
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -86,6 +96,18 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     children: [
                       // ── Welcome Header ──────────────────────────────────────
                       _buildWelcomeHeader(),
+                      SizedBox(height: 24),
+
+                      // ── Needs attention: what to act on now ─────────────────
+                      StreamBuilder<Map<String, VerificationRequest>>(
+                        stream: _pendingIds,
+                        builder: (context, pending) => AdminAttentionRow(
+                          counts: AttentionCounts.from(incidents, idChecks: pending.data?.length ?? 0),
+                          onOpenReports: () => widget.onNavigate?.call(2),
+                          onOpenMap: () => widget.onNavigate?.call(1),
+                          onOpenCitizens: () => widget.onNavigate?.call(4),
+                        ),
+                      ),
                       SizedBox(height: 24),
 
                       // ── Live Stat Cards ──────────────────────────────────────
@@ -128,6 +150,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             backgroundColor: AdminColors.cyan,
                           ),
                         ],
+                      ),
+                      SizedBox(height: 22),
+
+                      // ── Live map of open reports ───────────────────────────
+                      _LiveMapCard(
+                        incidents: incidents,
+                        onOpenMap: () => widget.onNavigate?.call(1),
                       ),
                       SizedBox(height: 22),
 
@@ -328,7 +357,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           tone: statusTone,
           title: inc.category,
           subtitle:
-              "Report ID: ${inc.id.length > 10 ? inc.id.substring(0, 10) : inc.id}",
+              "Report ID: ${inc.ticketNumber}",
           onClose: () => Navigator.pop(dialogCtx),
           maxWidth: 540,
           // Action buttons
@@ -453,7 +482,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     InAppImageViewerDialog.show(
                       context,
                       imageUrl: inc.photoUrl!,
-                      title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Photo Evidence",
+                      title: "Incident ${inc.ticketNumber} Photo Evidence",
                     );
                   },
                   child: MouseRegion(
@@ -532,7 +561,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           InAppEvidencePlayerDialog.show(
                             context,
                             videoUrl: inc.videoUrl!,
-                            title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Video Evidence",
+                            title: "Incident ${inc.ticketNumber} Video Evidence",
                           );
                         },
                       ),
@@ -716,3 +745,78 @@ class _IncidentListItemState extends State<_IncidentListItem> {
     );
   }
 }
+
+/// Open reports on a dark map, coloured by urgency; the button opens the
+/// full dispatch map.
+class _LiveMapCard extends StatelessWidget {
+  const _LiveMapCard({required this.incidents, required this.onOpenMap});
+
+  final List<IncidentEntity> incidents;
+  final VoidCallback onOpenMap;
+
+  double _hue(IncidentEntity i) => switch ((i.urgencyStatus ?? '').toUpperCase()) {
+        'CRITICAL' => BitmapDescriptor.hueRed,
+        'HIGH' => BitmapDescriptor.hueOrange,
+        'MEDIUM' => BitmapDescriptor.hueYellow,
+        _ => BitmapDescriptor.hueAzure,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final open = incidents
+        .where((i) => (i.isPending || i.isInProgress) && i.latitude != 0 && i.longitude != 0)
+        .toList();
+    return AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: AdminSectionTitle(
+                  title: "Live map",
+                  subtitle: "${open.length} open report${open.length == 1 ? '' : 's'} in Barangay Moonwalk",
+                ),
+              ),
+              AdminButton(
+                label: "Open dispatch map",
+                icon: Icons.map_rounded,
+                style: AdminButtonStyle.ghost,
+                onPressed: onOpenMap,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: SizedBox(
+              height: 320,
+              child: GoogleMap(
+                initialCameraPosition: const CameraPosition(target: LatLng(14.4875, 121.0125), zoom: 15),
+                cameraTargetBounds: MoonwalkArea.cameraBounds,
+                minMaxZoomPreference: MoonwalkArea.zoomRange,
+                style: AdminDispatchMapPage.darkMapStyle,
+                zoomControlsEnabled: true,
+                mapToolbarEnabled: false,
+                myLocationButtonEnabled: false,
+                markers: {
+                  for (final i in open)
+                    Marker(
+                      markerId: MarkerId(i.id),
+                      position: LatLng(i.latitude, i.longitude),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(_hue(i)),
+                      infoWindow: InfoWindow(
+                        title: i.category,
+                        snippet: "${i.ticketNumber} · ${(i.urgencyStatus ?? 'NORMAL').toUpperCase()}",
+                      ),
+                    ),
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+

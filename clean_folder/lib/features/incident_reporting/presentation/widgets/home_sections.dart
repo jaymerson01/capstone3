@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
 import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.dart';
 import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_status_pill.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
@@ -51,6 +52,11 @@ class HomeHeroHeader extends StatelessWidget {
   final int unreadCount;
   final VoidCallback onNotificationsTap;
 
+  /// An admin has verified this resident; otherwise the pill shows they're
+  /// waiting and [onPlaceTap] can lead to verification.
+  final bool verified;
+  final VoidCallback? onPlaceTap;
+
   const HomeHeroHeader({
     super.key,
     required this.welcomeLabel,
@@ -58,6 +64,8 @@ class HomeHeroHeader extends StatelessWidget {
     required this.placeLabel,
     required this.unreadCount,
     required this.onNotificationsTap,
+    this.verified = true,
+    this.onPlaceTap,
   });
 
   @override
@@ -68,8 +76,8 @@ class HomeHeroHeader extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
@@ -97,7 +105,7 @@ class HomeHeroHeader extends StatelessWidget {
               "RESQ",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 2,
                 shadows: _onLandscape,
@@ -110,7 +118,7 @@ class HomeHeroHeader extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 16),
         Text(
           welcomeLabel,
           style: TextStyle(
@@ -127,14 +135,16 @@ class HomeHeroHeader extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 28,
+            fontSize: 23,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.3,
             shadows: _onLandscape,
           ),
         ),
         const SizedBox(height: 10),
-        Container(
+        GestureDetector(
+          onTap: verified ? null : onPlaceTap,
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: AppColors.glassSmoke,
@@ -160,12 +170,160 @@ class HomeHeroHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.verified_user_outlined,
-                  size: 14, color: AppColors.secondaryLight),
+              Icon(verified ? Icons.verified_user_outlined : Icons.hourglass_top_rounded,
+                  size: 14, color: verified ? AppColors.secondaryLight : const Color(0xFFFCD34D)),
+              if (!verified && onPlaceTap != null) ...[
+                const SizedBox(width: 2),
+                const Icon(Icons.chevron_right_rounded, size: 16, color: Colors.white70),
+              ],
             ],
           ),
         ),
+        ),
       ],
+    );
+  }
+}
+
+/// The home's report shortcut: one tap on the incident type opens the
+/// report form with it chosen; the wide button opens it blank.
+class HomeReportCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String otherLabel;
+
+  /// (stored category, short label, icon) for the quick buttons.
+  final List<(String, String, IconData)> quickTypes;
+  final ValueChanged<String?> onReport;
+
+  const HomeReportCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.otherLabel,
+    required this.quickTypes,
+    required this.onReport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFDC2626), Color(0xFFEA580C)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFDC2626).withValues(alpha: 0.35),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800, height: 1.2),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12.5, height: 1.35),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 1.05,
+            children: [
+              for (final (category, label, icon) in quickTypes)
+                Material(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    key: Key('home-report-$category'),
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => onReport(category),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(icon, color: Colors.white, size: 22),
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(999),
+              child: InkWell(
+                key: const Key('home-report-other'),
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => onReport(null),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.add_circle_outline_rounded, color: Color(0xFFDC2626), size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        otherLabel,
+                        style: const TextStyle(color: Color(0xFFDC2626), fontSize: 14, fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -189,8 +347,8 @@ class _NotificationsBell extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(16),
             child: Ink(
-              width: 46,
-              height: 46,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
@@ -266,8 +424,8 @@ class HomeSirenCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const soft = Color(0xFFCBD5E1);
     return Container(
-      margin: const EdgeInsets.only(bottom: 18),
-      padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.fromLTRB(14, 13, 13, 13),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
@@ -295,7 +453,7 @@ class HomeSirenCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const LiveIndicator.ring(
-            size: 46,
+            size: 40,
             child: Icon(Icons.campaign_rounded),
           ),
           const SizedBox(width: 14),
@@ -417,8 +575,8 @@ class HomeMyReportsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      padding: const EdgeInsets.all(18),
-      borderRadius: 26,
+      padding: const EdgeInsets.all(14),
+      borderRadius: 22,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -441,7 +599,7 @@ class HomeMyReportsPanel extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textLight,
@@ -541,7 +699,7 @@ class _StatTile extends StatelessWidget {
                 stat.value,
                 style: TextStyle(
                   color: deep,
-                  fontSize: 26,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
                 ),
@@ -613,8 +771,8 @@ class HomeCommunityPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final active = activeLabel;
     return GlassCard(
-      padding: const EdgeInsets.all(18),
-      borderRadius: 26,
+      padding: const EdgeInsets.all(14),
+      borderRadius: 22,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -629,7 +787,7 @@ class HomeCommunityPanel extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: AppColors.textDark,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -747,14 +905,14 @@ class HomeIncidentRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
                     color: urgencyColor.withValues(
                         alpha: AppColors.isDarkMode ? 0.22 : 0.14),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(icon, color: _deep(urgencyColor), size: 22),
+                  child: Icon(icon, color: _deep(urgencyColor), size: 19),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -881,14 +1039,14 @@ class _HomeVideoCardState extends State<HomeVideoCard>
   @override
   Widget build(BuildContext context) {
     final card = GlassCard(
-      padding: const EdgeInsets.all(14),
-      borderRadius: 24,
+      padding: const EdgeInsets.all(12),
+      borderRadius: 20,
       onTap: widget.onTap,
       child: Row(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               gradient: AppColors.commandGradient,
               borderRadius: BorderRadius.circular(18),
@@ -906,8 +1064,8 @@ class _HomeVideoCardState extends State<HomeVideoCard>
                   animation: _pulseController,
                   builder: (context, child) {
                     return Container(
-                      width: 36,
-                      height: 36,
+                      width: 30,
+                      height: 30,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: AppColors.primaryGradient,
@@ -923,7 +1081,7 @@ class _HomeVideoCardState extends State<HomeVideoCard>
                     );
                   },
                   child: const Icon(Icons.play_arrow_rounded,
-                      color: Colors.white, size: 22),
+                      color: Colors.white, size: 19),
                 ),
               ),
             ),
@@ -961,6 +1119,77 @@ class _HomeVideoCardState extends State<HomeVideoCard>
     // Screen readers hear one button: the title, then the subtitle.
     return MergeSemantics(
       child: Semantics(button: widget.onTap != null, child: card),
+    );
+  }
+}
+
+/// Shown in place of the community reports until the resident's ID is
+/// verified.
+class HomeLockedCommunityCard extends StatelessWidget {
+  const HomeLockedCommunityCard({
+    super.key,
+    required this.title,
+    required this.body,
+    required this.actionLabel,
+    required this.onVerify,
+  });
+
+  final String title;
+  final String body;
+  final String actionLabel;
+  final VoidCallback onVerify;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      key: const Key('home-community-locked'),
+      padding: const EdgeInsets.all(14),
+      borderRadius: 22,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: AppColors.isDarkMode ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.lock_outline_rounded, color: AppColors.primaryText, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(color: AppColors.textDark, fontSize: 15, fontWeight: FontWeight.w800, height: 1.25),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      body,
+                      style: TextStyle(color: AppColors.textLight, fontSize: 12.5, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          NeoButton(
+            key: const Key('home-community-verify'),
+            label: actionLabel,
+            icon: Icons.badge_rounded,
+            height: 42,
+            expand: true,
+            onPressed: onVerify,
+          ),
+        ],
+      ),
     );
   }
 }

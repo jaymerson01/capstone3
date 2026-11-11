@@ -2121,4 +2121,273 @@ class AppLocalizationsFil extends AppLocalizations {
   String timelineSince(String time) {
     return 'Mula $time';
   }
+
+  @override
+  String get mapSearchHint => 'Maghanap ng kalye o lugar sa Moonwalk';
+
+  @override
+  String get mapSearchClear => 'Burahin ang hinahanap';
+
+  @override
+  String mapSearchOnline(String query) {
+    return 'Hanapin ang “$query”';
+  }
+
+  @override
+  String get mapSearchFailed =>
+      'Hindi makapag-search ngayon. Tingnan ang internet mo.';
+
+  @override
+  String get mapSearchNoResults =>
+      'Walang nahanap sa loob ng Barangay Moonwalk.';
+
+  @override
+  String get mapMoveHint =>
+      'Igalaw ang mapa para ilagay ang pin kung saan nangyari';
+
+  @override
+  String get mapFindingAddress => 'Hinahanap ang address…';
+
+  @override
+  String get mapMyLocation => 'Lokasyon ko';
+
+  @override
+  String get mapUseLocation => 'Gamitin ang lokasyong ito';
+
+  @override
+  String get mapFullScreen => 'Buong screen';
+
+  @override
+  String get mapSearchAddress => 'Maghanap ng address';
+
+  @override
+  String get rateTitle => 'I-rate ang aksyon ng barangay';
+
+  @override
+  String get rateSubtitle =>
+      'Kumusta ang tulong na natanggap mo? Pindutin ang mga bituin.';
+
+  @override
+  String get rateYourRating => 'Ang rating mo';
+
+  @override
+  String get rateThanks =>
+      'Salamat! Nakakatulong ang rating mo para mas gumaling pa ang barangay.';
+
+  @override
+  String get rateCommentLabel => 'Komento (opsyonal)';
+
+  @override
+  String get rateCommentHint =>
+      'Ano ang maganda, o ano pa ang puwedeng ayusin?';
+
+  @override
+  String get rateSubmit => 'Ipadala ang rating';
+
+  @override
+  String get rateSending => 'Ipinapadala…';
+
+  @override
+  String get rateFailed => 'Hindi naipadala ang rating. Subukan ulit.';
+
+  @override
+  String rateStars(int count) {
+    return '$count sa 5 bituin';
+  }
+
+  @override
+  String get nearbyAlertTitle => 'May kritikal na insidente malapit sa iyo';
+
+  @override
+  String nearbyAlertBody(String category, int meters, String area) {
+    return '$category · mga $meters m ang layo · $area';
+  }
+
+  @override
+  String get nearbyAlertView => 'Tingnan';
+
+  @override
+  String get timelineTheResponder => 'ang responder';
+
+  @override
+  String timelineResponderOnTheWay(String name) {
+    return 'Papunta na: $name';
+  }
+
+  @override
+  String timelineResponderOnScene(String name) {
+    return 'Nasa lugar na: $name';
+  }
+
+  @override
+  String get liveMapTitle => 'Papunta na ang responder';
+
+  @override
+  String liveMapDistance(int meters, String time) {
+    return 'Mga $meters m ang layo · na-update $time';
+  }
+
+  @override
+  String get liveMapWaiting => 'Hinihintay ang lokasyon ng responder…';
+
+  @override
+  String get liveMapYourReport => 'Ang ulat mo';
+
+  @override
+  String get idVerifyTitle => 'Ipa-verify ang paninirahan ko';
+
+  @override
+  String get idVerifySettingsSubtitle =>
+      'Magpadala ng valid ID para makumpirma ng barangay na taga-Moonwalk ka';
+
+  @override
+  String get idVerifyIntro =>
+      'Magpadala ng litrato ng government ID o iba pang valid ID. Titingnan ito ng admin ng barangay, tapos gagawing Beripikadong Residente ang account mo. Buburahin ang litrato pagkatapos ng pagsusuri.';
+
+  @override
+  String get idVerifyIdType => 'Uri ng ID';
+
+  @override
+  String get idVerifyGovernmentId => 'Government ID';
+
+  @override
+  String get idVerifyGovernmentExamples =>
+      'National ID (PhilSys), driver\'s license, passport, UMID, SSS o GSIS ID';
+
+  @override
+  String get idVerifyOtherValidId => 'Iba pang valid ID';
+
+  @override
+  String get idVerifyOtherExamples =>
+      'Postal ID, voter\'s ID, PRC ID, Barangay ID';
+
+  @override
+  String get idVerifyTakePhoto => 'Kumuha ng litrato';
+
+  @override
+  String get idVerifyChoosePhoto => 'Pumili ng litrato';
+
+  @override
+  String get idVerifyTips =>
+      'Siguraduhing malinaw at nababasa ang pangalan at litrato sa ID.';
+
+  @override
+  String get idVerifySubmit => 'Ipadala para masuri';
+
+  @override
+  String get idVerifyPending => 'Sinusuri pa ng barangay ang ID mo.';
+
+  @override
+  String idVerifyRejected(String reason) {
+    return 'Hindi naaprubahan: $reason. Puwede kang magpadala ulit ng ID.';
+  }
+
+  @override
+  String get idVerifyVerified => 'Beripikadong Residente ka na.';
+
+  @override
+  String get idVerifyTooLarge =>
+      'Masyadong malaki ang litrato. Subukan ulit nang medyo malayo, o pumili ng mas maliit na litrato.';
+
+  @override
+  String get idVerifySent => 'Naipadala! Susuriin ng barangay ang ID mo.';
+
+  @override
+  String get idVerifyFailed =>
+      'Hindi naipadala. Tingnan ang internet mo at subukan ulit.';
+
+  @override
+  String get reportStepType => 'Uri';
+
+  @override
+  String get reportStepLocation => 'Lokasyon';
+
+  @override
+  String get reportStepEvidence => 'Ebidensya';
+
+  @override
+  String get reportStepDetails => 'Detalye';
+
+  @override
+  String reportStepOf(int step, int total) {
+    return 'Hakbang $step sa $total';
+  }
+
+  @override
+  String get reportNext => 'Susunod';
+
+  @override
+  String get reportBack => 'Bumalik';
+
+  @override
+  String get reportReviewTitle => 'Suriin bago ipadala';
+
+  @override
+  String get reportReviewPhoto => 'Litrato';
+
+  @override
+  String get reportReviewVideo => 'Video';
+
+  @override
+  String get reportReviewNoEvidence => 'Wala';
+
+  @override
+  String get homeReportTitle => 'Mag-report ng insidente';
+
+  @override
+  String get homeReportSubtitle =>
+      'May emergency? Pindutin kung ano ang nangyari para makapagsimula agad.';
+
+  @override
+  String get homeReportOther => 'Iba pang insidente';
+
+  @override
+  String get homeQuickFire => 'Sunog';
+
+  @override
+  String get homeQuickMedical => 'Medikal';
+
+  @override
+  String get homeQuickTheft => 'Nakawan';
+
+  @override
+  String get homeQuickFlood => 'Baha';
+
+  @override
+  String get homeVerifyCta => 'Magpa-verify';
+
+  @override
+  String get accessCommunityLockedTitle =>
+      'Para sa verified na residente ang ulat ng kapitbahay';
+
+  @override
+  String get accessCommunityLockedBody =>
+      'I-verify ang ID mo para makita ang mga ulat at alerto sa paligid ng Moonwalk. Puwede ka pa ring mag-report at subaybayan ang sarili mong ulat.';
+
+  @override
+  String get accessVerifyNow => 'I-verify ang ID ko';
+
+  @override
+  String get accessMapOwnOnly =>
+      'Ulat mo lang ang nakikita. I-verify ang ID mo para makita ang ulat ng iba.';
+
+  @override
+  String get accessVerifiedOnlyTitle => 'Para sa verified na residente';
+
+  @override
+  String get accessVerifiedOnlyBody =>
+      'Mabubuksan ang pag-report nang anonymous o para sa iba kapag na-verify na ng barangay ang ID mo.';
+
+  @override
+  String accessReportsLeft(int left, int limit) {
+    return 'Hindi pa verified: $left sa $limit na ulat ang natitira ngayong araw. Walang limit ang emergency.';
+  }
+
+  @override
+  String get accessLimitTitle => 'Naabot na ang limit ngayong araw';
+
+  @override
+  String accessLimitBody(int limit) {
+    return '$limit ulat bawat araw ang puwede sa account na hindi pa verified. Puwede ka pa ring mag-report ng emergency: sunog, medikal, aksidente, baha, karahasan at nakawan. I-verify ang ID mo para mawala ang limit.';
+  }
 }

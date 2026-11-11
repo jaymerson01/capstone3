@@ -23,7 +23,7 @@ class NeoButton extends StatelessWidget {
     this.variant = NeoButtonVariant.primary,
     this.icon,
     this.expand = false,
-    this.height = 52,
+    this.height = 46,
   });
 
   NeoFill get _fill {
@@ -41,7 +41,7 @@ class NeoButton extends StatelessWidget {
 
   TextStyle? _labelStyle(BuildContext context) =>
       Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
             letterSpacing: 0.2,
           );
@@ -55,8 +55,8 @@ class NeoButton extends StatelessWidget {
       textScaler: MediaQuery.textScalerOf(context),
       maxLines: 1,
     )..layout();
-    // 44 of side padding, plus the icon and its gap.
-    final needed = painter.width + 44 + (icon == null ? 0 : 28);
+    // 36 of side padding, plus the icon and its gap.
+    final needed = painter.width + 36 + (icon == null ? 0 : 26);
     painter.dispose();
     return needed <= width;
   }
@@ -76,7 +76,7 @@ class NeoButton extends StatelessWidget {
       elevation: const WidgetStatePropertyAll(0),
       minimumSize: WidgetStatePropertyAll(Size(64, height)),
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+        EdgeInsets.symmetric(horizontal: 18, vertical: 6),
       ),
       shape: const WidgetStatePropertyAll(StadiumBorder()),
       textStyle: WidgetStatePropertyAll(_labelStyle(context)),
@@ -103,7 +103,7 @@ class NeoButton extends StatelessWidget {
             onPressed: onPressed,
             style: style,
             clipBehavior: Clip.none,
-            icon: Icon(icon, size: 20),
+            icon: Icon(icon, size: 18),
             label: text,
           );
     return expand ? SizedBox(width: double.infinity, child: button) : button;

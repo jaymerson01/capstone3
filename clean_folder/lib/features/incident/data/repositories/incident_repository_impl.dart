@@ -179,6 +179,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
                 videoUrl: i.videoUrl,
                 isSynced: false,
                 isReportingOnBehalf: i.isReportingOnBehalf,
+                reporterVerified: i.reporterVerified,
                 isBlotter: i.isBlotter,
                 victimName: i.victimName,
                 victimPhone: i.victimPhone,
@@ -230,6 +231,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
                 videoUrl: i.videoUrl,
                 isSynced: false,
                 isReportingOnBehalf: i.isReportingOnBehalf,
+                reporterVerified: i.reporterVerified,
                 isBlotter: i.isBlotter,
                 victimName: i.victimName,
                 victimPhone: i.victimPhone,
@@ -277,7 +279,9 @@ class IncidentRepositoryImpl implements IncidentRepository {
       dispatcherNotes: incident.dispatcherNotes,
       reporterName: incident.reporterName,
       reporterEmail: incident.reporterEmail,
+      reporterPhone: incident.reporterPhone,
       isReportingOnBehalf: incident.isReportingOnBehalf,
+      reporterVerified: incident.reporterVerified,
       isBlotter: incident.isBlotter,
       victimName: incident.victimName,
       victimPhone: incident.victimPhone,
@@ -402,6 +406,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
             videoUrl: existing.videoUrl,
             isSynced: false,
             isReportingOnBehalf: existing.isReportingOnBehalf,
+            reporterVerified: existing.reporterVerified,
             isBlotter: existing.isBlotter,
             victimName: existing.victimName,
             victimPhone: existing.victimPhone,
@@ -484,6 +489,46 @@ class IncidentRepositoryImpl implements IncidentRepository {
 
   /// [incident] with its reporter's name and email taken from [profile]
   /// (their `users` document) where the report itself lacks them.
+  @override
+  Future<void> assignResponder(String id, {String? responderId, String? responderName}) async {
+    await firestore.collection('incidents').doc(id).update(responderId == null
+        ? {
+            'assignedResponderId': FieldValue.delete(),
+            'assignedResponderName': FieldValue.delete(),
+            'assignedAt': FieldValue.delete(),
+          }
+        : {
+            'assignedResponderId': responderId,
+            'assignedResponderName': responderName,
+            'assignedAt': FieldValue.serverTimestamp(),
+          });
+  }
+
+  @override
+  Stream<({double lat, double lng, String? name, DateTime? at})?> watchResponderPosition(String id) {
+    return firestore.collection('incidents').doc(id).collection('tracking').doc('responder').snapshots().map((doc) {
+      final data = doc.data();
+      final lat = (data?['lat'] as num?)?.toDouble();
+      final lng = (data?['lng'] as num?)?.toDouble();
+      if (lat == null || lng == null) return null;
+      return (lat: lat, lng: lng, name: data!['name'] as String?, at: (data['at'] as Timestamp?)?.toDate());
+    });
+  }
+
+  @override
+  Future<void> setDepartments(String id, List<String> departmentIds) =>
+      firestore.collection('incidents').doc(id).update({'departments': departmentIds});
+
+  @override
+  Future<void> rateIncident(String id, int rating, {String? comment}) async {
+    final note = comment?.trim() ?? '';
+    await firestore.collection('incidents').doc(id).update({
+      'rating': rating.clamp(1, 5),
+      if (note.isNotEmpty) 'ratingComment': note.length > 500 ? note.substring(0, 500) : note,
+      'ratedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   /// The resident's notice when the barangay changes their report's status:
   /// Filipino first, then English (the admin desk writes it, so it can't follow
   /// the resident's app language), with the ticket number.
@@ -562,6 +607,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
                 videoUrl: i.videoUrl,
                 isSynced: false,
                 isReportingOnBehalf: i.isReportingOnBehalf,
+                reporterVerified: i.reporterVerified,
                 isBlotter: i.isBlotter,
                 victimName: i.victimName,
                 victimPhone: i.victimPhone,
@@ -638,6 +684,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
             reporterEmail: existing.reporterEmail,
             isSynced: false,
             isReportingOnBehalf: existing.isReportingOnBehalf,
+            reporterVerified: existing.reporterVerified,
             isBlotter: existing.isBlotter,
             victimName: existing.victimName,
             victimPhone: existing.victimPhone,

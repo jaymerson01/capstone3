@@ -23,5 +23,9 @@ class LocationServiceException implements Exception {
 abstract class LocationService {
   Future<AppCoordinate?> getCurrentLocation();
   Future<AppCoordinate?> reverseGeocode(double latitude, double longitude);
+
+  /// Streets and places inside Barangay Moonwalk matching [query], best
+  /// first. Throws when the search service can't be reached.
+  Future<List<AppCoordinate>> searchPlaces(String query);
   Future<void> openLocationSettings();
 }

@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:community_safety_app/core/utils/departments.dart';
+
 class IncidentEntity {
   final String id;
   final String reporterId;
@@ -41,8 +43,34 @@ class IncidentEntity {
   /// archived).
   final DateTime? closedAt;
 
-  /// Whether an admin has verified the reporter's residency (admin desk only;
-  /// null when the reporter's profile isn't loaded).
+  /// The reporter's 1-5 star rating of the barangay's response, once resolved.
+  final int? rating;
+  final String? ratingComment;
+
+  /// The tanod or responder an admin assigned, and when.
+  final String? assignedResponderId;
+  final String? assignedResponderName;
+  final DateTime? assignedAt;
+
+  /// Departments this report goes to, when an admin changed them; otherwise
+  /// [departments] routes it by category.
+  final List<String>? departmentIds;
+
+  /// The assigned responder's progress ('on_the_way', 'on_scene'), notes
+  /// and photo. Their live position is kept apart (the report's tracking
+  /// record), readable only by the reporter, admins and that responder.
+  final String? responderStatus;
+  final DateTime? responderStatusAt;
+  final String? responderNotes;
+  final String? responderPhotoUrl;
+
+  /// The reporter's phone, from the private contact record (admins and the
+  /// assigned responder only).
+  final String? reporterPhone;
+
+  /// Whether the barangay has verified the reporter's ID: saved on the
+  /// report when filed, and refreshed from the reporter's profile on the
+  /// admin desk (null on older reports when the profile isn't loaded).
   final bool? reporterVerified;
 
   const IncidentEntity({
@@ -77,7 +105,37 @@ class IncidentEntity {
     this.reporterVerified,
     this.inProgressAt,
     this.closedAt,
+    this.rating,
+    this.ratingComment,
+    this.assignedResponderId,
+    this.assignedResponderName,
+    this.assignedAt,
+    this.departmentIds,
+    this.responderStatus,
+    this.responderStatusAt,
+    this.responderNotes,
+    this.responderPhotoUrl,
+    this.reporterPhone,
   });
+
+  /// The departments this report goes to.
+  List<Department> get departments {
+    final chosen = departmentIds?.map(Department.fromId).whereType<Department>().toList();
+    return (chosen == null || chosen.isEmpty) ? Department.forCategory(category) : chosen;
+  }
+
+  /// From filing until the barangay started responding (In progress).
+  Duration? get timeToRespond => inProgressAt?.difference(timestamp);
+
+  /// From filing until the report was resolved.
+  Duration? get timeToResolve => resolvedAt?.difference(timestamp);
+
+  /// "45 min" or "2 h 05 min", for response times.
+  static String formatDuration(Duration d) {
+    final minutes = d.inMinutes;
+    if (minutes < 60) return '$minutes min';
+    return '${minutes ~/ 60} h ${(minutes % 60).toString().padLeft(2, '0')} min';
+  }
 
   /// The reference residents and the desk quote for this report, e.g.
   /// RQ-261104-AB3XK: the filing date (Philippine time) and the start of the

@@ -4,6 +4,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/theme/map_styles.dart';
 import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
+import 'package:community_safety_app/core/utils/resident_access.dart';
+import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_page.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_chip.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
@@ -25,6 +28,8 @@ import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 import 'package:community_safety_app/core/utils/moonwalk_area.dart';
+import 'package:community_safety_app/core/presentation/widgets/map_search_bar.dart';
+import 'package:community_safety_app/core/services/app_coordinate.dart';
 
 class MapsPage extends StatefulWidget {
   final IncidentEntity? focusedIncident;
@@ -38,6 +43,9 @@ class MapsPage extends StatefulWidget {
 
 class _MapsPageState extends State<MapsPage> {
   GoogleMapController? _mapController;
+
+  /// The place last chosen in the search bar.
+  AppCoordinate? _searchedPlace;
   String _selectedCategoryFilter = "All";
 
   // Default coordinate: Barangay Moonwalk, Paranaque City (or focused incident if provided)
@@ -96,7 +104,49 @@ class _MapsPageState extends State<MapsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
+    final auth = context.read<AuthBloc>().state;
+    context.read<IncidentBloc>().add(
+      ResidentAccess.streamFor(auth is Authenticated ? auth.user : null),
+    );
+  }
+
+  /// Until verified, the map shows only the resident's own reports.
+  Widget _buildOwnOnlyBanner(AppLocalizations l10n) {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, auth) {
+        final user = auth is Authenticated ? auth.user : null;
+        if (user == null || ResidentAccess.canSeeCommunity(user)) return const SizedBox.shrink();
+        return _ownOnlyBanner(l10n, user);
+      },
+    );
+  }
+
+  Widget _ownOnlyBanner(AppLocalizations l10n, UserEntity user) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: GlassCard(
+        key: const Key('maps-own-only'),
+        padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+        borderRadius: 16,
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => VerificationPage(user: user)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.lock_outline_rounded, size: 18, color: AppColors.primaryText),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                l10n.accessMapOwnOnly,
+                style: TextStyle(color: AppColors.textDark, fontSize: 12.5, fontWeight: FontWeight.w600, height: 1.3),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, size: 18, color: AppColors.textLight),
+          ],
+        ),
+      ),
+    );
   }
 
   double _getMarkerHue(String category) {
@@ -370,6 +420,15 @@ class _MapsPageState extends State<MapsPage> {
     );
   }
 
+  /// Shows a searched street or place: moves the map there and drops a
+  /// blue pin with its address.
+  void _goToPlace(AppCoordinate place) {
+    setState(() => _searchedPlace = place);
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(LatLng(place.latitude, place.longitude), 17.5),
+    );
+  }
+
   Future<void> _animateToUserLocation() async {
     try {
       final loc = await sl<LocationService>().getCurrentLocation();
@@ -451,7 +510,16 @@ class _MapsPageState extends State<MapsPage> {
                           });
                         }
                       },
-                      markers: _buildMarkers(activeIncidents),
+                      markers: {
+                        ..._buildMarkers(activeIncidents),
+                        if (_searchedPlace != null)
+                          Marker(
+                            markerId: const MarkerId('searched_place'),
+                            position: LatLng(_searchedPlace!.latitude, _searchedPlace!.longitude),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                            infoWindow: InfoWindow(title: _searchedPlace!.address),
+                          ),
+                      },
                     ),
                   ),
 
@@ -556,6 +624,9 @@ class _MapsPageState extends State<MapsPage> {
                                 ),
                               ),
                             ],
+                            SizedBox(height: 10),
+                            MapSearchBar(onSelected: _goToPlace),
+                            _buildOwnOnlyBanner(l10n),
                             SizedBox(height: 10),
                             SizedBox(
                               height: 48,

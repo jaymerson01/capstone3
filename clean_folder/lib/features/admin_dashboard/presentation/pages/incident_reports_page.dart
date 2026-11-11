@@ -13,9 +13,21 @@ import 'package:community_safety_app/core/presentation/widgets/in_app_image_view
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/responders_remote_data_source.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/report_exports.dart';
+import 'package:printing/printing.dart';
+import 'package:community_safety_app/core/utils/departments.dart';
 
 class IncidentReportsPage extends StatefulWidget {
-  const IncidentReportsPage({super.key});
+  const IncidentReportsPage({super.key, this.openIncidentId, this.onIncidentOpened});
+
+  /// A report to open as soon as the reports have loaded, e.g. from a
+  /// notification. [onIncidentOpened] runs once it has been handled.
+  final String? openIncidentId;
+  final VoidCallback? onIncidentOpened;
 
   @override
   State<IncidentReportsPage> createState() => _IncidentReportsPageState();
@@ -25,10 +37,25 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
   String searchQuery = "";
   String statusFilter = "All";
   bool showArchivedReports = false;
+
+  /// "All", "Verified" or "Unverified" reporters.
+  String reporterFilter = "All";
   String sortBy = "latest"; // 'latest', 'urgency', 'corroborated', 'oldest_pending'
   int? _sortColumnIndex;
   bool _sortAscending = true;
   final ScrollController _horizontalScrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _openRequestedIncident();
+  }
+
+  @override
+  void didUpdateWidget(IncidentReportsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.openIncidentId != oldWidget.openIncidentId) _openRequestedIncident();
+  }
 
   @override
   void dispose() {
@@ -36,8 +63,41 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     super.dispose();
   }
 
+  /// Opens [IncidentReportsPage.openIncidentId]'s details once its report is
+  /// loaded (the BlocListener in build tries again when reports arrive).
+  void _openRequestedIncident() {
+    final id = widget.openIncidentId;
+    if (id == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.openIncidentId != id) return;
+      final state = context.read<IncidentBloc>().state;
+      if (state is! IncidentLoaded) return;
+      widget.onIncidentOpened?.call();
+      final report = state.incidents.where((i) => i.id == id).firstOrNull;
+      if (report != null) {
+        _showReportDetails(context, report);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("That report isn't available anymore."),
+            backgroundColor: AdminColors.amber,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    return BlocListener<IncidentBloc, IncidentState>(
+      listenWhen: (_, state) => state is IncidentLoaded && widget.openIncidentId != null,
+      listener: (_, _) => _openRequestedIncident(),
+      child: _buildPage(context),
+    );
+  }
+
+  Widget _buildPage(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -83,8 +143,13 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         report.status.toLowerCase() == 'archived';
                     if (showArchivedReports && !isArchived) return false;
                     if (!showArchivedReports && isArchived) return false;
+                    if (reporterFilter == "Verified" && report.reporterVerified != true) return false;
+                    if (reporterFilter == "Unverified" && report.reporterVerified != false) return false;
 
                     final matchesSearch = report.id
+                            .toLowerCase()
+                            .contains(searchQuery.toLowerCase()) ||
+                        report.ticketNumber
                             .toLowerCase()
                             .contains(searchQuery.toLowerCase()) ||
                         report.category
@@ -197,6 +262,18 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           ],
           onChanged: (value) {
             setState(() => statusFilter = value);
+          },
+        ),
+        AdminSelect<String>(
+          key: const Key('reporter-filter'),
+          value: reporterFilter,
+          items: const [
+            ("All", "All Reporters"),
+            ("Verified", "Verified residents"),
+            ("Unverified", "Unverified residents"),
+          ],
+          onChanged: (value) {
+            setState(() => reporterFilter = value);
           },
         ),
         // Priority Triage Hierarchy Toolbar
@@ -348,7 +425,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           cells: [
             _cell(
               Text(
-                report.id.length > 8 ? report.id.substring(0, 8) : report.id,
+                report.ticketNumber,
                 style: AdminTable.cellStrong,
               ),
               dimmed: isSpam,
@@ -415,6 +492,15 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(reporterDisplayName, style: AdminTable.cell),
+                  if (report.reporterVerified == false)
+                    const Text(
+                      "Unverified",
+                      style: TextStyle(
+                        color: AdminColors.amber,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   if (report.isReportingOnBehalf)
                     Text(
                       "👥 For: ${report.victimName ?? 'Relative'}",
@@ -549,7 +635,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         SnackBar(
                           backgroundColor: AdminColors.surfaceDeep,
                           content: Text(
-                            "Report #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} marked as Spam",
+                            "Report ${report.ticketNumber} marked as Spam",
                             style: const TextStyle(
                               color: AdminColors.amber,
                               fontWeight: FontWeight.bold,
@@ -709,6 +795,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         TextEditingController(text: report.dispatcherNotes ?? "");
     final TextEditingController etaController =
         TextEditingController(text: report.estimatedResponseTime ?? "");
+    String? responderId = report.assignedResponderId;
+    String? responderName = report.assignedResponderName;
+    final originalDepartments = report.departments.map((d) => d.id).toSet();
+    final departments = {...originalDepartments};
+    final responderStream = sl<RespondersRemoteDataSource>().streamResponders();
 
     showDialog(
       context: context,
@@ -719,7 +810,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               tone: AdminTone.cyan,
               icon: Icons.edit_note,
               title:
-                  "Dispatch Actions • #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                  "Dispatch Actions • ${report.ticketNumber}",
               subtitle: report.category,
               maxWidth: 480,
               actions: [
@@ -749,12 +840,27 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         : (eta.isNotEmpty ? eta : null)),
                           ),
                         );
+                    if (departments.isNotEmpty &&
+                        (departments.length != originalDepartments.length ||
+                            !departments.containsAll(originalDepartments))) {
+                      sl<IncidentRepository>()
+                          .setDepartments(report.id, [
+                            for (final d in Department.values)
+                              if (departments.contains(d.id)) d.id,
+                          ])
+                          .catchError((Object e) => debugPrint('[Dispatch] Saving departments failed: $e'));
+                    }
+                    if (responderId != report.assignedResponderId) {
+                      sl<IncidentRepository>()
+                          .assignResponder(report.id, responderId: responderId, responderName: responderName)
+                          .catchError((Object e) => debugPrint('[Dispatch] Assigning the responder failed: $e'));
+                    }
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: AdminColors.cardBackground,
                         content: Text(
-                          "Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} status updated to '$selectedStatus'!",
+                          "Incident ${report.ticketNumber} status updated to '$selectedStatus'!",
                           style: const TextStyle(
                               color: AdminColors.success,
                               fontWeight: FontWeight.bold),
@@ -843,6 +949,68 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           "Log responder dispatch units, field actions, or resident advisory...",
                     ),
                   ),
+                  const SizedBox(height: 18),
+                  const AdminFieldLabel("DEPARTMENTS"),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final department in Department.values)
+                        AdminChoiceChip(
+                          label: department.label,
+                          selected: departments.contains(department.id),
+                          onTap: () => setDialogState(() {
+                            if (!departments.remove(department.id)) departments.add(department.id);
+                          }),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  const AdminFieldLabel("ASSIGNED RESPONDER"),
+                  StreamBuilder<List<Responder>>(
+                    stream: responderStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text(
+                          "Couldn't load the responders list.",
+                          style: TextStyle(color: AdminColors.dangerText, fontSize: 12.5),
+                        );
+                      }
+                      final responders = snapshot.data ?? const <Responder>[];
+                      if (snapshot.hasData && responders.isEmpty) {
+                        return const Text(
+                          "No responder accounts yet. A super admin adds them in User Management (Add account → Responder).",
+                          style: TextStyle(color: AdminColors.textHint, fontSize: 12.5, height: 1.4),
+                        );
+                      }
+                      return Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          AdminChoiceChip(
+                            label: "None",
+                            selected: responderId == null,
+                            onTap: () => setDialogState(() {
+                              responderId = null;
+                              responderName = null;
+                            }),
+                          ),
+                          for (final responder in responders)
+                            AdminChoiceChip(
+                              label: responder.label,
+                              selected: responderId == responder.id,
+                              onTap: () => setDialogState(() {
+                                responderId = responder.id;
+                                responderName = responder.name;
+                              }),
+                            ),
+                          // Kept even if it was removed from the list since.
+                          if (responderId != null && !responders.any((r) => r.id == responderId))
+                            AdminChoiceChip(label: responderName ?? "Assigned", selected: true, onTap: null),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             );
@@ -850,6 +1018,30 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         );
       },
     );
+  }
+
+  /// The report as a barangay blotter entry, in the browser's print dialog
+  /// (print it, or save it as PDF).
+  Future<void> _printBlotter(IncidentEntity report) async {
+    try {
+      await Printing.layoutPdf(
+        name: 'Blotter_${report.ticketNumber}.pdf',
+        onLayout: (_) => ReportExports.blotterPdf(report),
+      );
+      await sl<AuditLogRemoteDataSource>().recordLog(
+        actionType: 'Report Export',
+        details: 'Printed the blotter entry for ${report.ticketNumber} (#${report.id})',
+        targetId: report.id,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Couldn't open the blotter: $e"),
+          backgroundColor: AdminColors.critical,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    }
   }
 
   void _showReportDetails(BuildContext context, IncidentEntity report) {
@@ -886,7 +1078,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         return AdminDialog(
           icon: Icons.shield_outlined,
           title:
-              "Incident Dossier #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+              "Incident Dossier ${report.ticketNumber}",
           subtitle: _formatDateTime(report.timestamp),
           maxWidth: 660,
           actions: [
@@ -894,6 +1086,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               label: "Close",
               style: AdminButtonStyle.ghost,
               onPressed: () => Navigator.pop(dialogContext),
+            ),
+            AdminButton(
+              label: "Print blotter",
+              icon: Icons.print_rounded,
+              style: AdminButtonStyle.slate,
+              onPressed: () => _printBlotter(report),
             ),
             AdminButton(
               label: "Update Status / Notes",
@@ -1414,7 +1612,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           InAppImageViewerDialog.show(
                             context,
                             imageUrl: report.photoUrl!,
-                            title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                            title: "Photo Evidence • Incident ${report.ticketNumber}",
                           );
                         },
                         child: MouseRegion(
@@ -1513,7 +1711,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 InAppImageViewerDialog.show(
                                   context,
                                   imageUrl: report.photoUrl!,
-                                  title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                                  title: "Photo Evidence • Incident ${report.ticketNumber}",
                                 );
                               },
                             ),
@@ -1632,7 +1830,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               InAppEvidencePlayerDialog.show(
                                 context,
                                 videoUrl: report.videoUrl!,
-                                title: "Video Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                                title: "Video Evidence • Incident ${report.ticketNumber}",
                               );
                             },
                           ),
@@ -1693,6 +1891,84 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       height: 1.4,
                       fontSize: 13,
                     ),
+                  ),
+                ),
+              ],
+
+              // Who responded, and how long it took
+              const SizedBox(height: 16),
+              _buildSectionHeader(Icons.directions_run_rounded, "RESPONSE"),
+              const SizedBox(height: 8),
+              AdminInset(
+                tone: AdminTone.cyan,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        for (final d in report.departments)
+                          AdminPill(label: d.label, tone: AdminTone.blue, icon: d.icon),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    AdminDetailRow(label: "Responder", value: report.assignedResponderName ?? "Not assigned yet"),
+                    if (report.responderStatus != null && !report.isSolved)
+                      AdminDetailRow(
+                        label: "Progress",
+                        value: report.responderStatus == 'on_the_way' ? "On the way" : "On the scene",
+                      ),
+                    if ((report.responderNotes ?? '').isNotEmpty)
+                      AdminDetailRow(label: "Responder notes", value: report.responderNotes!),
+                      if (report.timeToRespond != null)
+                        AdminDetailRow(
+                          label: "Time to respond",
+                          value: IncidentEntity.formatDuration(report.timeToRespond!),
+                        ),
+                      if (report.timeToResolve != null)
+                        AdminDetailRow(
+                          label: "Time to resolve",
+                          value: IncidentEntity.formatDuration(report.timeToResolve!),
+                        ),
+                    if ((report.responderPhotoUrl ?? '').startsWith('http')) ...[
+                      const SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(report.responderPhotoUrl!, height: 160, fit: BoxFit.cover),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // The reporter's rating of the response
+              if (report.rating != null) ...[
+                const SizedBox(height: 16),
+                _buildSectionHeader(Icons.star_rate_rounded, "RESIDENT RATING"),
+                const SizedBox(height: 8),
+                AdminInset(
+                  tone: AdminTone.yellow,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${'★' * report.rating!}${'☆' * (5 - report.rating!)}  ${report.rating}/5",
+                        style: const TextStyle(
+                          color: Color(0xFFFBBF24),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      if ((report.ratingComment ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          "“${report.ratingComment}”",
+                          style: const TextStyle(color: AdminColors.textDark, height: 1.4, fontSize: 13),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],

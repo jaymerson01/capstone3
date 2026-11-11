@@ -3733,6 +3733,468 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Since {time}'**
   String timelineSince(String time);
+
+  /// Map search box hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a street or place in Moonwalk'**
+  String get mapSearchHint;
+
+  /// Clear button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get mapSearchClear;
+
+  /// Row that searches streets and places online.
+  ///
+  /// In en, this message translates to:
+  /// **'Search “{query}”'**
+  String mapSearchOnline(String query);
+
+  /// Search failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search right now. Check your internet.'**
+  String get mapSearchFailed;
+
+  /// No search results.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found inside Barangay Moonwalk.'**
+  String get mapSearchNoResults;
+
+  /// Full-screen picker hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the map to put the pin where it happened'**
+  String get mapMoveHint;
+
+  /// Address lookup in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding the address…'**
+  String get mapFindingAddress;
+
+  /// Button: move to the phone's location.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get mapMyLocation;
+
+  /// Confirm the picked place.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this location'**
+  String get mapUseLocation;
+
+  /// Open the map full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get mapFullScreen;
+
+  /// Search pill on the small report map.
+  ///
+  /// In en, this message translates to:
+  /// **'Search address'**
+  String get mapSearchAddress;
+
+  /// Rating card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the barangay\'s response'**
+  String get rateTitle;
+
+  /// Rating card hint.
+  ///
+  /// In en, this message translates to:
+  /// **'How was the help you got? Tap the stars.'**
+  String get rateSubtitle;
+
+  /// Rating card title after rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get rateYourRating;
+
+  /// Shown after rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Your rating helps the barangay improve.'**
+  String get rateThanks;
+
+  /// Rating comment label.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (optional)'**
+  String get rateCommentLabel;
+
+  /// Rating comment hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What went well, or what could be better?'**
+  String get rateCommentHint;
+
+  /// Send button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send rating'**
+  String get rateSubmit;
+
+  /// While sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get rateSending;
+
+  /// Send failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send your rating. Try again.'**
+  String get rateFailed;
+
+  /// Star button label.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 5 stars'**
+  String rateStars(int count);
+
+  /// Nearby alert title.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical incident near you'**
+  String get nearbyAlertTitle;
+
+  /// Nearby alert details.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} · about {meters} m away · {area}'**
+  String nearbyAlertBody(String category, int meters, String area);
+
+  /// Open the nearby report.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get nearbyAlertView;
+
+  /// Fallback when the responder's name isn't known.
+  ///
+  /// In en, this message translates to:
+  /// **'The responder'**
+  String get timelineTheResponder;
+
+  /// Timeline: responder on the way.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on the way'**
+  String timelineResponderOnTheWay(String name);
+
+  /// Timeline: responder on the scene.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on the scene'**
+  String timelineResponderOnScene(String name);
+
+  /// Live map title.
+  ///
+  /// In en, this message translates to:
+  /// **'Responder on the way'**
+  String get liveMapTitle;
+
+  /// Live map distance.
+  ///
+  /// In en, this message translates to:
+  /// **'About {meters} m away · updated {time}'**
+  String liveMapDistance(int meters, String time);
+
+  /// Before the first position arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the responder\'s location…'**
+  String get liveMapWaiting;
+
+  /// Report pin label.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report'**
+  String get liveMapYourReport;
+
+  /// ID verification page and settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify my residency'**
+  String get idVerifyTitle;
+
+  /// Settings row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a valid ID so the barangay can confirm you live in Moonwalk'**
+  String get idVerifySettingsSubtitle;
+
+  /// Intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a photo of a government-issued or other valid ID. A barangay admin checks it, then marks your account as a Verified Resident. The photo is deleted after the review.'**
+  String get idVerifyIntro;
+
+  /// ID type label.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of ID'**
+  String get idVerifyIdType;
+
+  /// ID type.
+  ///
+  /// In en, this message translates to:
+  /// **'Government ID'**
+  String get idVerifyGovernmentId;
+
+  /// Examples.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID (PhilSys), driver\'s license, passport, UMID, SSS or GSIS ID'**
+  String get idVerifyGovernmentExamples;
+
+  /// ID type.
+  ///
+  /// In en, this message translates to:
+  /// **'Other valid ID'**
+  String get idVerifyOtherValidId;
+
+  /// Examples.
+  ///
+  /// In en, this message translates to:
+  /// **'Postal ID, voter\'s ID, PRC ID, Barangay ID'**
+  String get idVerifyOtherExamples;
+
+  /// Camera button.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get idVerifyTakePhoto;
+
+  /// Gallery button.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo'**
+  String get idVerifyChoosePhoto;
+
+  /// Photo tips.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure your name and photo on the ID are clear and readable.'**
+  String get idVerifyTips;
+
+  /// Submit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review'**
+  String get idVerifySubmit;
+
+  /// Pending status.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ID is being reviewed by the barangay.'**
+  String get idVerifyPending;
+
+  /// Rejected status.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved: {reason}. You can send another ID.'**
+  String idVerifyRejected(String reason);
+
+  /// Verified status.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re a Verified Resident.'**
+  String get idVerifyVerified;
+
+  /// Photo too large.
+  ///
+  /// In en, this message translates to:
+  /// **'That photo is too large. Try again a little farther away, or choose a smaller photo.'**
+  String get idVerifyTooLarge;
+
+  /// Sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent! The barangay will review your ID.'**
+  String get idVerifySent;
+
+  /// Send failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send it. Check your internet and try again.'**
+  String get idVerifyFailed;
+
+  /// Step 1 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get reportStepType;
+
+  /// Step 2 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get reportStepLocation;
+
+  /// Step 3 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence'**
+  String get reportStepEvidence;
+
+  /// Step 4 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get reportStepDetails;
+
+  /// Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total}'**
+  String reportStepOf(int step, int total);
+
+  /// Next step button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get reportNext;
+
+  /// Previous step button.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get reportBack;
+
+  /// Review card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before sending'**
+  String get reportReviewTitle;
+
+  /// Review: a photo is attached.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get reportReviewPhoto;
+
+  /// Review: a video is attached.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get reportReviewVideo;
+
+  /// Review: no evidence.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get reportReviewNoEvidence;
+
+  /// Home report card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Report an incident'**
+  String get homeReportTitle;
+
+  /// Home report card subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency? Tap what happened to start right away.'**
+  String get homeReportSubtitle;
+
+  /// Opens the blank report form.
+  ///
+  /// In en, this message translates to:
+  /// **'Report something else'**
+  String get homeReportOther;
+
+  /// Quick report: fire.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get homeQuickFire;
+
+  /// Quick report: medical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get homeQuickMedical;
+
+  /// Quick report: theft.
+  ///
+  /// In en, this message translates to:
+  /// **'Theft'**
+  String get homeQuickTheft;
+
+  /// Quick report: flood.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood'**
+  String get homeQuickFlood;
+
+  /// Home header pill for residents not yet verified (opens verification).
+  ///
+  /// In en, this message translates to:
+  /// **'Get verified'**
+  String get homeVerifyCta;
+
+  /// Home card shown instead of community reports until the resident's ID is verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Neighbors\' reports are for verified residents'**
+  String get accessCommunityLockedTitle;
+
+  /// Body of the locked community card.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your ID to see reports and alerts from around Moonwalk. You can still report and follow your own reports.'**
+  String get accessCommunityLockedBody;
+
+  /// Button opening the ID verification page.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify my ID'**
+  String get accessVerifyNow;
+
+  /// Map banner for unverified residents.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing only your reports. Verify your ID to see your neighbors\' reports.'**
+  String get accessMapOwnOnly;
+
+  /// Title when an unverified resident picks anonymous or on-behalf reporting.
+  ///
+  /// In en, this message translates to:
+  /// **'For verified residents'**
+  String get accessVerifiedOnlyTitle;
+
+  /// Body when an unverified resident picks anonymous or on-behalf reporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporting anonymously or for someone else opens once the barangay verifies your ID.'**
+  String get accessVerifiedOnlyBody;
+
+  /// Note on the report form for unverified residents.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet verified: {left} of {limit} reports left today. Emergencies are never limited.'**
+  String accessReportsLeft(int left, int limit);
+
+  /// Dialog title when an unverified resident has used today's reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached'**
+  String get accessLimitTitle;
+
+  /// Dialog body when an unverified resident has used today's reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified accounts can send {limit} reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.'**
+  String accessLimitBody(int limit);
 }
 
 class _AppLocalizationsDelegate

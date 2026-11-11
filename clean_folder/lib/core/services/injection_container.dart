@@ -31,6 +31,7 @@ import 'package:community_safety_app/core/services/fcm_service.dart';
 import 'package:community_safety_app/core/services/biometric_service.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_accounts_remote_data_source.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/responders_remote_data_source.dart';
 
 final sl = GetIt.instance;
 
@@ -80,6 +81,8 @@ Future<void> init() async {
       () => AuditLogRemoteDataSourceImpl(firestore: sl(), auth: sl()));
   sl.registerLazySingleton<AdminAccountsRemoteDataSource>(
       () => AdminAccountsRemoteDataSourceImpl(firestore: sl(), auth: sl()));
+  sl.registerLazySingleton<RespondersRemoteDataSource>(
+      () => RespondersRemoteDataSource(firestore: sl()));
 
   // Services
   sl.registerLazySingleton<LocationService>(() => const LocationServiceImpl());

@@ -42,3 +42,11 @@ class UpdateProfileRequested extends AuthEvent {
 
   const UpdateProfileRequested(this.user);
 }
+
+/// The signed-in user's record changed elsewhere, e.g. an admin verified
+/// their ID.
+class AuthUserChanged extends AuthEvent {
+  final UserEntity user;
+
+  const AuthUserChanged(this.user);
+}

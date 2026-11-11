@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:community_safety_app/core/utils/resident_access.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_watcher.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,7 +18,6 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
-import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/data/models/incident_model.dart';
 import 'package:community_safety_app/features/incident/presentation/pages/incident_detail_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,6 +35,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/terms_page.dart';
+import 'package:community_safety_app/core/widgets/nearby_incident_alerts.dart';
 
 
 final GlobalKey<NavigatorState> residentNavigatorKey =
@@ -116,7 +118,9 @@ class ResQResidentApp extends StatelessWidget {
         ),
         BlocProvider<IncidentBloc>(
           create: (context) =>
-              sl<IncidentBloc>()..add(const StreamActiveIncidentsRequested()),
+              // Streams once signed in: what a resident sees depends on whether
+              // their ID is verified (see ResidentAccess).
+              sl<IncidentBloc>(),
         ),
       ],
       child: ListenableBuilder(
@@ -167,15 +171,15 @@ class ResidentAuthWrapper extends StatelessWidget {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          if (state.user.isAdmin) {
+          if (state.user.isAdmin || state.user.isResponder) {
             context.read<AuthBloc>().add(const LogoutRequested());
             final navContext = residentNavigatorKey.currentContext ?? context;
             AuthModals.showAdminAccountBlocked(navContext);
             return;
           }
 
-          // Always ensure community active incidents stream is fresh and active for Dashboard & Maps
-          context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
+          // Neighbors' reports once verified, otherwise only their own.
+          context.read<IncidentBloc>().add(ResidentAccess.streamFor(state.user));
 
           final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
           if (isVerified) {
@@ -196,7 +200,7 @@ class ResidentAuthWrapper extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is Authenticated && !state.user.isAdmin) {
+        if (state is Authenticated && !state.user.isAdmin && !state.user.isResponder) {
           final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
           if (!isVerified) {
             return EmailVerificationPage(user: state.user);
@@ -214,7 +218,18 @@ class ResidentAuthWrapper extends StatelessWidget {
               );
             },
           );
-          return TermsGate(user: state.user, child: const ResidentNavShell());
+          return TermsGate(
+            user: state.user,
+            child: VerificationWatcher(
+              key: ValueKey(state.user.id),
+              user: state.user,
+              child: NearbyIncidentAlerts(
+                user: state.user,
+                navigatorKey: residentNavigatorKey,
+                child: const ResidentNavShell(),
+              ),
+            ),
+          );
         }
 
         return const WelcomePage();

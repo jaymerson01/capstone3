@@ -124,14 +124,16 @@ class HomeSectionsPreview extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                    20, padding.top + 16, 20, padding.bottom + 96),
+                    16, padding.top + 14, 16, padding.bottom + 86),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     HomeHeroHeader(
                       welcomeLabel: l10n.dashboardWelcomeBack,
                       userName: 'Juan Dela Cruz',
-                      placeLabel: "Barangay Moonwalk • ${l10n.commonResident}",
+                      placeLabel: "Barangay Moonwalk • ${l10n.homeVerifyCta}",
+                      verified: false,
+                      onPlaceTap: () {},
                       unreadCount: 12,
                       onNotificationsTap: () {},
                     ),
@@ -145,6 +147,19 @@ class HomeSectionsPreview extends StatelessWidget {
                       targetLabel: l10n
                           .dashboardBroadcastTarget(l10n.dashboardAllSectors),
                     ),
+                    HomeReportCard(
+                      title: l10n.homeReportTitle,
+                      subtitle: l10n.homeReportSubtitle,
+                      otherLabel: l10n.homeReportOther,
+                      quickTypes: [
+                        ('Fire Incident', l10n.homeQuickFire, Icons.local_fire_department_rounded),
+                        ('Medical Emergency', l10n.homeQuickMedical, Icons.medical_services_rounded),
+                        ('Theft / Robbery', l10n.homeQuickTheft, Icons.local_police_rounded),
+                        ('Flood / Calamity', l10n.homeQuickFlood, Icons.flood_rounded),
+                      ],
+                      onReport: (_) {},
+                    ),
+                    const SizedBox(height: 18),
                     HomeVideoCard(
                       title: l10n.dashboardVideoInstructions,
                       subtitle: l10n.dashboardVideoSubtitle,
@@ -200,6 +215,14 @@ class HomeSectionsPreview extends StatelessWidget {
                           onTap: () {},
                         ),
                       ],
+                    ),
+                    // What an unverified resident sees instead.
+                    const SizedBox(height: 14),
+                    HomeLockedCommunityCard(
+                      title: l10n.accessCommunityLockedTitle,
+                      body: l10n.accessCommunityLockedBody,
+                      actionLabel: l10n.accessVerifyNow,
+                      onVerify: () {},
                     ),
                   ],
                 ),

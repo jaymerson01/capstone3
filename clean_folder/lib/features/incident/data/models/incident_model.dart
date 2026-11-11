@@ -182,6 +182,17 @@ class IncidentModel extends IncidentEntity {
     bool? reporterVerified,
     DateTime? inProgressAt,
     DateTime? closedAt,
+    int? rating,
+    String? ratingComment,
+    String? assignedResponderId,
+    String? assignedResponderName,
+    DateTime? assignedAt,
+    List<String>? departmentIds,
+    String? responderStatus,
+    DateTime? responderStatusAt,
+    String? responderNotes,
+    String? responderPhotoUrl,
+    String? reporterPhone,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -215,6 +226,17 @@ class IncidentModel extends IncidentEntity {
       reporterVerified: reporterVerified ?? this.reporterVerified,
       inProgressAt: inProgressAt ?? this.inProgressAt,
       closedAt: closedAt ?? this.closedAt,
+      rating: rating ?? this.rating,
+      ratingComment: ratingComment ?? this.ratingComment,
+      assignedResponderId: assignedResponderId ?? this.assignedResponderId,
+      assignedResponderName: assignedResponderName ?? this.assignedResponderName,
+      assignedAt: assignedAt ?? this.assignedAt,
+      departmentIds: departmentIds ?? this.departmentIds,
+      responderStatus: responderStatus ?? this.responderStatus,
+      responderStatusAt: responderStatusAt ?? this.responderStatusAt,
+      responderNotes: responderNotes ?? this.responderNotes,
+      responderPhotoUrl: responderPhotoUrl ?? this.responderPhotoUrl,
+      reporterPhone: reporterPhone ?? this.reporterPhone,
     );
   }
 
@@ -245,6 +267,17 @@ class IncidentModel extends IncidentEntity {
     super.reporterVerified,
     super.inProgressAt,
     super.closedAt,
+    super.rating,
+    super.ratingComment,
+    super.assignedResponderId,
+    super.assignedResponderName,
+    super.assignedAt,
+    super.departmentIds,
+    super.responderStatus,
+    super.responderStatusAt,
+    super.responderNotes,
+    super.responderPhotoUrl,
+    super.reporterPhone,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
@@ -364,6 +397,17 @@ class IncidentModel extends IncidentEntity {
       resolvedAt: readTime('resolvedAt'),
       inProgressAt: readTime('inProgressAt'),
       closedAt: readTime('closedAt'),
+      rating: (data['rating'] as num?)?.toInt(),
+      ratingComment: data['ratingComment'] as String?,
+      reporterVerified: data['reporterVerified'] as bool?,
+      assignedResponderId: data['assignedResponderId'] as String?,
+      assignedResponderName: data['assignedResponderName'] as String?,
+      assignedAt: readTime('assignedAt'),
+      departmentIds: (data['departments'] as List?)?.whereType<String>().toList(),
+      responderStatus: data['responderStatus'] as String?,
+      responderStatusAt: readTime('responderStatusAt'),
+      responderNotes: data['responderNotes'] as String?,
+      responderPhotoUrl: data['responderPhotoUrl'] as String?,
     );
   }
 
@@ -389,6 +433,7 @@ class IncidentModel extends IncidentEntity {
       'reporterEmail': reporterEmail,
       'victimName': victimName,
       'victimPhone': victimPhone,
+      if (reporterPhone != null && reporterPhone!.isNotEmpty) 'reporterPhone': reporterPhone,
     };
   }
 
@@ -426,6 +471,18 @@ class IncidentModel extends IncidentEntity {
       resolvedAt: resolvedAt,
       inProgressAt: inProgressAt,
       closedAt: closedAt,
+      rating: rating,
+      ratingComment: ratingComment,
+      reporterVerified: reporterVerified,
+      assignedResponderId: assignedResponderId,
+      assignedResponderName: assignedResponderName,
+      assignedAt: assignedAt,
+      departmentIds: departmentIds,
+      responderStatus: responderStatus,
+      responderStatusAt: responderStatusAt,
+      responderNotes: responderNotes,
+      responderPhotoUrl: responderPhotoUrl,
+      reporterPhone: data['reporterPhone'] as String? ?? reporterPhone,
     );
   }
 
@@ -457,6 +514,7 @@ class IncidentModel extends IncidentEntity {
       'isAnonymous': isAnonymous,
       'dispatcherNotes': dispatcherNotes,
       'isReportingOnBehalf': isReportingOnBehalf,
+      if (reporterVerified != null) 'reporterVerified': reporterVerified,
       'estimatedResponseTime': estimatedResponseTime,
       'isBlotter': isBlotter,
     };

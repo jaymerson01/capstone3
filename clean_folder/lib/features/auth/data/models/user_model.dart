@@ -19,6 +19,7 @@ class UserModel extends UserEntity {
     super.isSuperAdmin = false,
     super.mfaEnabled = false,
     super.acceptedTermsVersion,
+    super.department,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data, String id) {
@@ -49,6 +50,7 @@ class UserModel extends UserEntity {
       isSuperAdmin: data['isSuperAdmin'] as bool? ?? false,
       mfaEnabled: data['mfaEnabledAt'] != null,
       acceptedTermsVersion: data['termsVersion'] as String?,
+      department: data['department'] as String?,
     );
   }
 
@@ -93,6 +95,7 @@ class UserModel extends UserEntity {
     bool? isSuperAdmin,
     bool? mfaEnabled,
     String? acceptedTermsVersion,
+    String? department,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -111,6 +114,7 @@ class UserModel extends UserEntity {
       isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
       mfaEnabled: mfaEnabled ?? this.mfaEnabled,
       acceptedTermsVersion: acceptedTermsVersion ?? this.acceptedTermsVersion,
+      department: department ?? this.department,
     );
   }
 }

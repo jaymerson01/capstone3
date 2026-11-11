@@ -26,6 +26,25 @@ service cloud.firestore {
       return isAdmin() && get(userDoc()).data.get('isSuperAdmin', false) == true;
     }
 
+    // Responder = an active account with role 'responder' and a department.
+    function isResponder() {
+      return isActiveUser() && get(userDoc()).data.get('role', '') == 'responder';
+    }
+
+    function myDepartment() {
+      return get(userDoc()).data.get('department', '');
+    }
+
+    // Default departments by incident type (keep in step with Department.forCategory).
+    function routedDepartments(category) {
+      let c = category.lower();
+      return c.matches('.*fire.*') ? ['bfp', 'tanod']
+        : c.matches('.*medical.*') ? ['health']
+        : c.matches('.*(flood|calamity|road accident).*') ? ['health', 'tanod']
+        : c.matches('.*(theft|robbery|violence|fight|suspicious|missing).*') ? ['pnp', 'tanod']
+        : ['tanod'];
+    }
+
     function isOwner(userId) {
       return isAuthenticated() && request.auth.uid == userId;
     }
@@ -37,13 +56,18 @@ service cloud.firestore {
         get(userDoc()).data.get('isActive', true) != false;
     }
 
+    // Resident whose ID the barangay has checked (see ResidentAccess in the app).
+    function isVerifiedResident() {
+      return isActiveUser() && get(userDoc()).data.get('isVerified', false) == true;
+    }
+
     function changedKeys() {
       return request.resource.data.diff(resource.data).affectedKeys();
     }
 
     // Fields only an admin may change on a user profile.
     function protectedUserFields() {
-      return ['role', 'status', 'isActive', 'isVerified', 'isSuperAdmin'];
+      return ['role', 'status', 'isActive', 'isVerified', 'isSuperAdmin', 'department'];
     }
 
     // Contact details that must never sit in the public incident document.
@@ -86,10 +110,31 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ── 1c. Residency verification requests ───────────────────────────
+    // A resident's valid-ID photo for review: readable by them and admins
+    // only. Admins approve (the request is deleted) or reject (the photo goes).
+    match /verification_requests/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) &&
+        get(userDoc()).data.get('role', 'resident') == 'resident' &&
+        request.resource.data.keys().hasOnly(['uid', 'name', 'email', 'idType', 'image', 'status', 'submittedAt']) &&
+        request.resource.data.uid == userId &&
+        request.resource.data.idType in ['government_id', 'valid_id'] &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.image is string &&
+        request.resource.data.image.size() < 900000 &&
+        request.resource.data.submittedAt == request.time;
+      allow update, delete: if isAdmin();
+    }
+
     // ── 2. Incidents (public part) ────────────────────────────────────
     match /incidents/{incidentId} {
       // Community map / feed. Contains NO names, emails or phone numbers.
-      allow read: if isAuthenticated();
+      // Verified residents see everyone's reports; others only their own.
+      // (A report that does not exist yet reads as empty, so the app can
+      // check before uploading one filed offline.)
+      allow read: if isAdmin() || isResponder() || isVerifiedResident() ||
+        (isAuthenticated() && (resource == null || resource.data.reporterId == request.auth.uid));
 
       // New report: active resident, filed as themselves, clean starting state,
       // no private contact fields in the public document.
@@ -99,7 +144,16 @@ service cloud.firestore {
         request.resource.data.get('upvoteCount', 0) == 0 &&
         request.resource.data.get('validatedUserIds', []).size() == 0 &&
         request.resource.data.get('dispatcherNotes', null) == null &&
+        request.resource.data.get('rating', null) == null &&
+        request.resource.data.get('assignedResponderId', null) == null &&
+        request.resource.data.get('departments', null) == null &&
         request.resource.data.get('estimatedResponseTime', null) == null &&
+        // Anonymous and on-behalf reports are for verified residents.
+        ((request.resource.data.get('isAnonymous', false) != true &&
+          request.resource.data.get('isReportingOnBehalf', false) != true) || isVerifiedResident()) &&
+        // The verified mark, when sent, must be true.
+        (request.resource.data.get('reporterVerified', null) == null ||
+         request.resource.data.reporterVerified == isVerifiedResident()) &&
         (request.resource.data.get('urgencyStatus', null) == null ||
          request.resource.data.urgencyStatus in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) &&
         !request.resource.data.keys().hasAny(privateIncidentFields());
@@ -107,7 +161,11 @@ service cloud.firestore {
       // 1. Admins: status, ETA, dispatcher notes, archive.
       // 2. "Me Too" upvote: exactly +1, only your own uid added, once, not on your own report.
       // 3. Reporter may fix the text/location of their own report while it is still pending.
-      allow update: if isAdmin() || isValidUpvote() || isOwnerPendingEdit();
+      // 4. The reporter rates the response to their resolved report, once.
+      // 5. Responders: accept an unassigned report of their department, then
+      //    report progress on the ones assigned to them.
+      allow update: if isAdmin() || isValidUpvote() || isOwnerPendingEdit() || isOwnerRating() ||
+        isResponderAccept() || isResponderProgress();
 
       allow delete: if isAdmin();
 
@@ -123,12 +181,55 @@ service cloud.firestore {
           resource.data.get('reporterId', '') != request.auth.uid;
       }
 
+      function isResponderAccept() {
+        return isResponder() &&
+          resource.data.get('assignedResponderId', null) == null &&
+          myDepartment() in resource.data.get('departments', routedDepartments(resource.data.get('category', ''))) &&
+          changedKeys().hasOnly(['assignedResponderId', 'assignedResponderName', 'assignedAt']) &&
+          request.resource.data.assignedResponderId == request.auth.uid;
+      }
+
+      function isResponderProgress() {
+        return isResponder() &&
+          resource.data.get('assignedResponderId', '') == request.auth.uid &&
+          request.resource.data.get('assignedResponderId', '') == request.auth.uid &&
+          changedKeys().hasOnly(['status', 'responderStatus', 'responderStatusAt', 'responderNotes',
+                                 'responderPhotoUrl', 'inProgressAt', 'resolvedAt', 'respondedAt', 'updatedAt']) &&
+          request.resource.data.get('status', 'pending') in ['pending', 'in_progress', 'resolved'];
+      }
+
+      function isOwnerRating() {
+        let data = request.resource.data;
+        return isActiveUser() &&
+          resource.data.get('reporterId', '') == request.auth.uid &&
+          resource.data.get('status', '') == 'resolved' &&
+          resource.data.get('rating', null) == null &&
+          changedKeys().hasOnly(['rating', 'ratingComment', 'ratedAt']) &&
+          data.rating is int && data.rating >= 1 && data.rating <= 5 &&
+          (!('ratingComment' in data) ||
+            (data.ratingComment is string && data.ratingComment.size() <= 500)) &&
+          data.ratedAt == request.time;
+      }
+
       function isOwnerPendingEdit() {
         return isActiveUser() &&
           resource.data.get('reporterId', '') == request.auth.uid &&
           resource.data.get('status', '') == 'pending' &&
           changedKeys().hasOnly(['description', 'photoUrl', 'videoUrl', 'resolvedAddress',
-                                 'areaSector', 'latitude', 'longitude', 'isAnonymous']);
+                                 'areaSector', 'latitude', 'longitude', 'isAnonymous']) &&
+          (request.resource.data.get('isAnonymous', false) != true || isVerifiedResident());
+      }
+
+      // ── 2a. The responder's live position while on the way ──────────
+      // Readable by the reporter, admins and the assigned responder only.
+      match /tracking/{docId} {
+        function report() {
+          return get(/databases/$(database)/documents/incidents/$(incidentId)).data;
+        }
+        allow read: if isAdmin() ||
+          (isAuthenticated() && report().reporterId == request.auth.uid) ||
+          (isResponder() && report().get('assignedResponderId', '') == request.auth.uid);
+        allow write: if isResponder() && report().get('assignedResponderId', '') == request.auth.uid;
       }
 
       // ── 2b. Incident contact details (private) ──────────────────────
@@ -136,12 +237,19 @@ service cloud.firestore {
       // by the person who filed the report and by admins.
       match /confidential/{docId} {
         allow read: if isAdmin() ||
-          (isAuthenticated() && resource.data.reporterId == request.auth.uid);
+          (isAuthenticated() && resource.data.reporterId == request.auth.uid) ||
+          (isResponder() &&
+            get(/databases/$(database)/documents/incidents/$(incidentId)).data.get('assignedResponderId', '') == request.auth.uid);
         allow create: if isAdmin() || (isActiveUser() &&
           request.resource.data.reporterId == request.auth.uid &&
           getAfter(/databases/$(database)/documents/incidents/$(incidentId)).data.reporterId == request.auth.uid);
         allow update, delete: if isAdmin();
       }
+    }
+
+    // Collection-group reads of live responder positions (admin dispatch map).
+    match /{path=**}/tracking/{docId} {
+      allow read: if isAdmin();
     }
 
     // Collection-group reads of contact details (admin desk, "My Reports").
@@ -184,7 +292,19 @@ service cloud.firestore {
       // Residents may only create the two notifications the app sends for them:
       //  - 'new_report' to the admin desk, about their own report
       //  - 'upvote' to the author of a report they just corroborated
-      allow create: if isAdmin() || (isActiveUser() && isResidentNotification());
+      allow create: if isAdmin() || (isActiveUser() && isResidentNotification()) ||
+        (isResponder() && isResponderNotification());
+
+      // A responder tells the reporter and the admin desk about their own report.
+      function isResponderNotification() {
+        let data = request.resource.data;
+        let incidentPath = /databases/$(database)/documents/incidents/$(data.get('incidentId', 'none'));
+        return data.get('isRead', false) == false &&
+          exists(incidentPath) &&
+          get(incidentPath).data.get('assignedResponderId', '') == request.auth.uid &&
+          ((data.recipientId == 'admin' && data.type == 'responder_update') ||
+           (data.recipientId == get(incidentPath).data.reporterId && data.type == 'status_change'));
+      }
 
       function isResidentNotification() {
         let data = request.resource.data;
@@ -232,6 +352,11 @@ service cloud.firestore {
     match /areas/{areaId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
+    }
+
+    // ── 8. Barangay responders (tanod, BPAT…) admins assign to reports ──
+    match /responders/{responderId} {
+      allow read, write: if isAdmin();
     }
   }
 }

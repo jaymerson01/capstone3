@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:community_safety_app/core/services/station_audio_service.dart';
 import 'package:community_safety_app/core/widgets/emergency_siren_alert.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 class EmergencyBroadcastListener extends StatefulWidget {
@@ -64,6 +65,7 @@ class _EmergencyBroadcastListenerState
 
   @override
   void dispose() {
+    StationAudioService.stopSiren();
     _authSubscription?.cancel();
     _broadcastSubscription?.cancel();
     super.dispose();
@@ -153,6 +155,8 @@ class _EmergencyBroadcastListenerState
     _isDialogShowing = true;
     _activeDialogBroadcastId = broadcastId;
     _triggerSirenHaptics();
+    // A loud siren until the alert closes (acknowledged or silenced by the admin).
+    StationAudioService.startSiren();
 
     final title = data['title'] as String? ?? AppLocalizations.of(context).broadcastDefaultTitle;
     final alertType = data['alertType'] as String? ?? AppLocalizations.of(context).broadcastDefaultType;
@@ -170,6 +174,7 @@ class _EmergencyBroadcastListenerState
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 1500));
       if (!mounted) {
+        StationAudioService.stopSiren();
         _isDialogShowing = false;
         _activeDialogBroadcastId = null;
         return;
@@ -218,6 +223,7 @@ class _EmergencyBroadcastListenerState
         } catch (e) {
           debugPrint("🚨 [EmergencyBroadcast] Error showing siren dialog: $e");
         } finally {
+          StationAudioService.stopSiren();
           _isDialogShowing = false;
           _activeDialogContext = null;
           _activeDialogBroadcastId = null;

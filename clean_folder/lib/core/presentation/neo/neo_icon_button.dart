@@ -19,7 +19,7 @@ class NeoIconButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.tone = NeoIconButtonTone.raised,
-    this.size = 46,
+    this.size = 42,
   });
 
   @override

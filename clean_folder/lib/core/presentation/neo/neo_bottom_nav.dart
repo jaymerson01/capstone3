@@ -38,9 +38,9 @@ class NeoBottomNav extends StatelessWidget {
     this.reportIcon = Icons.warning_amber_rounded,
   });
 
-  static const double _barHeight = 76;
-  static const double _reportSize = 70;
-  static const double _reportRise = 14; // How far the button sits above the bar
+  static const double _barHeight = 66;
+  static const double _reportSize = 60;
+  static const double _reportRise = 12; // How far the button sits above the bar
 
   @override
   Widget build(BuildContext context) {
@@ -145,8 +145,8 @@ class _NavTab extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(selected ? item.selectedIcon : item.icon, color: color, size: 24),
-              const SizedBox(height: 4),
+              Icon(selected ? item.selectedIcon : item.icon, color: color, size: 22),
+              const SizedBox(height: 3),
               Text(
                 item.label,
                 maxLines: 1,
@@ -219,7 +219,7 @@ class _ReportButton extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(icon, color: Colors.white, size: 26),
+                    Icon(icon, color: Colors.white, size: 22),
                     Text(
                       label,
                       maxLines: 1,

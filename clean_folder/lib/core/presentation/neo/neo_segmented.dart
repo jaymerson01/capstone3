@@ -28,14 +28,14 @@ class NeoSegmented<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
-          fontSize: 14,
+          fontSize: 13,
           fontWeight: FontWeight.w700,
         );
     final track = AppColors.surfaceLight;
     final shade = Colors.black.withValues(alpha: AppColors.isDarkMode ? 0.2 : 0.07);
 
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(NeoRadii.pill),
         // The shade along the top makes the track look sunk into the glass.
@@ -97,7 +97,7 @@ class _Segment extends StatelessWidget {
                   : AppColors.textLight,
             ),
             overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-            minimumSize: const WidgetStatePropertyAll(Size(0, 40)),
+            minimumSize: const WidgetStatePropertyAll(Size(0, 36)),
             padding: const WidgetStatePropertyAll(
               EdgeInsets.symmetric(horizontal: 12),
             ),

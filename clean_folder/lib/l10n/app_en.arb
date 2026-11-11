@@ -2742,5 +2742,378 @@
         "type": "String"
       }
     }
+  },
+  "mapSearchHint": "Search a street or place in Moonwalk",
+  "@mapSearchHint": {
+    "description": "Map search box hint."
+  },
+  "mapSearchClear": "Clear search",
+  "@mapSearchClear": {
+    "description": "Clear button tooltip."
+  },
+  "mapSearchOnline": "Search “{query}”",
+  "@mapSearchOnline": {
+    "description": "Row that searches streets and places online.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "mapSearchFailed": "Couldn't search right now. Check your internet.",
+  "@mapSearchFailed": {
+    "description": "Search failed."
+  },
+  "mapSearchNoResults": "Nothing found inside Barangay Moonwalk.",
+  "@mapSearchNoResults": {
+    "description": "No search results."
+  },
+  "mapMoveHint": "Move the map to put the pin where it happened",
+  "@mapMoveHint": {
+    "description": "Full-screen picker hint."
+  },
+  "mapFindingAddress": "Finding the address…",
+  "@mapFindingAddress": {
+    "description": "Address lookup in progress."
+  },
+  "mapMyLocation": "My location",
+  "@mapMyLocation": {
+    "description": "Button: move to the phone's location."
+  },
+  "mapUseLocation": "Use this location",
+  "@mapUseLocation": {
+    "description": "Confirm the picked place."
+  },
+  "mapFullScreen": "Full screen",
+  "@mapFullScreen": {
+    "description": "Open the map full screen."
+  },
+  "mapSearchAddress": "Search address",
+  "@mapSearchAddress": {
+    "description": "Search pill on the small report map."
+  },
+  "rateTitle": "Rate the barangay's response",
+  "@rateTitle": {
+    "description": "Rating card title."
+  },
+  "rateSubtitle": "How was the help you got? Tap the stars.",
+  "@rateSubtitle": {
+    "description": "Rating card hint."
+  },
+  "rateYourRating": "Your rating",
+  "@rateYourRating": {
+    "description": "Rating card title after rating."
+  },
+  "rateThanks": "Thank you! Your rating helps the barangay improve.",
+  "@rateThanks": {
+    "description": "Shown after rating."
+  },
+  "rateCommentLabel": "Comment (optional)",
+  "@rateCommentLabel": {
+    "description": "Rating comment label."
+  },
+  "rateCommentHint": "What went well, or what could be better?",
+  "@rateCommentHint": {
+    "description": "Rating comment hint."
+  },
+  "rateSubmit": "Send rating",
+  "@rateSubmit": {
+    "description": "Send button."
+  },
+  "rateSending": "Sending…",
+  "@rateSending": {
+    "description": "While sending."
+  },
+  "rateFailed": "Couldn't send your rating. Try again.",
+  "@rateFailed": {
+    "description": "Send failed."
+  },
+  "rateStars": "{count} of 5 stars",
+  "@rateStars": {
+    "description": "Star button label.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "nearbyAlertTitle": "Critical incident near you",
+  "@nearbyAlertTitle": {
+    "description": "Nearby alert title."
+  },
+  "nearbyAlertBody": "{category} · about {meters} m away · {area}",
+  "@nearbyAlertBody": {
+    "description": "Nearby alert details.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "meters": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "nearbyAlertView": "View",
+  "@nearbyAlertView": {
+    "description": "Open the nearby report."
+  },
+  "timelineTheResponder": "The responder",
+  "@timelineTheResponder": {
+    "description": "Fallback when the responder's name isn't known."
+  },
+  "timelineResponderOnTheWay": "{name} is on the way",
+  "@timelineResponderOnTheWay": {
+    "description": "Timeline: responder on the way.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineResponderOnScene": "{name} is on the scene",
+  "@timelineResponderOnScene": {
+    "description": "Timeline: responder on the scene.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMapTitle": "Responder on the way",
+  "@liveMapTitle": {
+    "description": "Live map title."
+  },
+  "liveMapDistance": "About {meters} m away · updated {time}",
+  "@liveMapDistance": {
+    "description": "Live map distance.",
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMapWaiting": "Waiting for the responder's location…",
+  "@liveMapWaiting": {
+    "description": "Before the first position arrives."
+  },
+  "liveMapYourReport": "Your report",
+  "@liveMapYourReport": {
+    "description": "Report pin label."
+  },
+  "idVerifyTitle": "Verify my residency",
+  "@idVerifyTitle": {
+    "description": "ID verification page and settings row."
+  },
+  "idVerifySettingsSubtitle": "Send a valid ID so the barangay can confirm you live in Moonwalk",
+  "@idVerifySettingsSubtitle": {
+    "description": "Settings row subtitle."
+  },
+  "idVerifyIntro": "Send a photo of a government-issued or other valid ID. A barangay admin checks it, then marks your account as a Verified Resident. The photo is deleted after the review.",
+  "@idVerifyIntro": {
+    "description": "Intro."
+  },
+  "idVerifyIdType": "Type of ID",
+  "@idVerifyIdType": {
+    "description": "ID type label."
+  },
+  "idVerifyGovernmentId": "Government ID",
+  "@idVerifyGovernmentId": {
+    "description": "ID type."
+  },
+  "idVerifyGovernmentExamples": "National ID (PhilSys), driver's license, passport, UMID, SSS or GSIS ID",
+  "@idVerifyGovernmentExamples": {
+    "description": "Examples."
+  },
+  "idVerifyOtherValidId": "Other valid ID",
+  "@idVerifyOtherValidId": {
+    "description": "ID type."
+  },
+  "idVerifyOtherExamples": "Postal ID, voter's ID, PRC ID, Barangay ID",
+  "@idVerifyOtherExamples": {
+    "description": "Examples."
+  },
+  "idVerifyTakePhoto": "Take a photo",
+  "@idVerifyTakePhoto": {
+    "description": "Camera button."
+  },
+  "idVerifyChoosePhoto": "Choose a photo",
+  "@idVerifyChoosePhoto": {
+    "description": "Gallery button."
+  },
+  "idVerifyTips": "Make sure your name and photo on the ID are clear and readable.",
+  "@idVerifyTips": {
+    "description": "Photo tips."
+  },
+  "idVerifySubmit": "Send for review",
+  "@idVerifySubmit": {
+    "description": "Submit button."
+  },
+  "idVerifyPending": "Your ID is being reviewed by the barangay.",
+  "@idVerifyPending": {
+    "description": "Pending status."
+  },
+  "idVerifyRejected": "Not approved: {reason}. You can send another ID.",
+  "@idVerifyRejected": {
+    "description": "Rejected status.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "idVerifyVerified": "You're a Verified Resident.",
+  "@idVerifyVerified": {
+    "description": "Verified status."
+  },
+  "idVerifyTooLarge": "That photo is too large. Try again a little farther away, or choose a smaller photo.",
+  "@idVerifyTooLarge": {
+    "description": "Photo too large."
+  },
+  "idVerifySent": "Sent! The barangay will review your ID.",
+  "@idVerifySent": {
+    "description": "Sent."
+  },
+  "idVerifyFailed": "Couldn't send it. Check your internet and try again.",
+  "@idVerifyFailed": {
+    "description": "Send failed."
+  },
+  "reportStepType": "Type",
+  "@reportStepType": {
+    "description": "Step 1 label."
+  },
+  "reportStepLocation": "Location",
+  "@reportStepLocation": {
+    "description": "Step 2 label."
+  },
+  "reportStepEvidence": "Evidence",
+  "@reportStepEvidence": {
+    "description": "Step 3 label."
+  },
+  "reportStepDetails": "Details",
+  "@reportStepDetails": {
+    "description": "Step 4 label."
+  },
+  "reportStepOf": "Step {step} of {total}",
+  "@reportStepOf": {
+    "description": "Progress.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "reportNext": "Next",
+  "@reportNext": {
+    "description": "Next step button."
+  },
+  "reportBack": "Back",
+  "@reportBack": {
+    "description": "Previous step button."
+  },
+  "reportReviewTitle": "Review before sending",
+  "@reportReviewTitle": {
+    "description": "Review card title."
+  },
+  "reportReviewPhoto": "Photo",
+  "@reportReviewPhoto": {
+    "description": "Review: a photo is attached."
+  },
+  "reportReviewVideo": "Video",
+  "@reportReviewVideo": {
+    "description": "Review: a video is attached."
+  },
+  "reportReviewNoEvidence": "None",
+  "@reportReviewNoEvidence": {
+    "description": "Review: no evidence."
+  },
+  "homeReportTitle": "Report an incident",
+  "@homeReportTitle": {
+    "description": "Home report card title."
+  },
+  "homeReportSubtitle": "Emergency? Tap what happened to start right away.",
+  "@homeReportSubtitle": {
+    "description": "Home report card subtitle."
+  },
+  "homeReportOther": "Report something else",
+  "@homeReportOther": {
+    "description": "Opens the blank report form."
+  },
+  "homeQuickFire": "Fire",
+  "@homeQuickFire": {
+    "description": "Quick report: fire."
+  },
+  "homeQuickMedical": "Medical",
+  "@homeQuickMedical": {
+    "description": "Quick report: medical."
+  },
+  "homeQuickTheft": "Theft",
+  "@homeQuickTheft": {
+    "description": "Quick report: theft."
+  },
+  "homeQuickFlood": "Flood",
+  "@homeQuickFlood": {
+    "description": "Quick report: flood."
+  },
+  "homeVerifyCta": "Get verified",
+  "@homeVerifyCta": {
+    "description": "Home header pill for residents not yet verified (opens verification)."
+  },
+  "accessCommunityLockedTitle": "Neighbors' reports are for verified residents",
+  "@accessCommunityLockedTitle": {
+    "description": "Home card shown instead of community reports until the resident's ID is verified."
+  },
+  "accessCommunityLockedBody": "Verify your ID to see reports and alerts from around Moonwalk. You can still report and follow your own reports.",
+  "@accessCommunityLockedBody": {
+    "description": "Body of the locked community card."
+  },
+  "accessVerifyNow": "Verify my ID",
+  "@accessVerifyNow": {
+    "description": "Button opening the ID verification page."
+  },
+  "accessMapOwnOnly": "Showing only your reports. Verify your ID to see your neighbors' reports.",
+  "@accessMapOwnOnly": {
+    "description": "Map banner for unverified residents."
+  },
+  "accessVerifiedOnlyTitle": "For verified residents",
+  "@accessVerifiedOnlyTitle": {
+    "description": "Title when an unverified resident picks anonymous or on-behalf reporting."
+  },
+  "accessVerifiedOnlyBody": "Reporting anonymously or for someone else opens once the barangay verifies your ID.",
+  "@accessVerifiedOnlyBody": {
+    "description": "Body when an unverified resident picks anonymous or on-behalf reporting."
+  },
+  "accessReportsLeft": "Not yet verified: {left} of {limit} reports left today. Emergencies are never limited.",
+  "@accessReportsLeft": {
+    "description": "Note on the report form for unverified residents.",
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "accessLimitTitle": "Daily limit reached",
+  "@accessLimitTitle": {
+    "description": "Dialog title when an unverified resident has used today's reports."
+  },
+  "accessLimitBody": "Unverified accounts can send {limit} reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.",
+  "@accessLimitBody": {
+    "description": "Dialog body when an unverified resident has used today's reports.",
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
   }
 }

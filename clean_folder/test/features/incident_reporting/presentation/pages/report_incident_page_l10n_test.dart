@@ -7,6 +7,7 @@ import 'package:community_safety_app/features/auth/domain/entities/user_entity.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
+import 'package:community_safety_app/features/incident/domain/entities/incident_entity.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_bloc.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_event.dart';
 import 'package:community_safety_app/features/incident/presentation/bloc/incident_state.dart';
@@ -66,14 +67,36 @@ void main() {
   testWidgets('validation messages follow the language', (tester) async {
     await pumpReportPage(tester, const Locale('fil'));
 
-    await tester.ensureVisible(find.text('ISUMITE ANG ULAT'));
-    await tester.tap(find.text('ISUMITE ANG ULAT'));
+    // Step 1 can't be left without a category.
+    await tester.ensureVisible(find.byKey(const Key('report-next')));
+    await tester.tap(find.byKey(const Key('report-next')));
     await tester.pump();
 
     expect(
       find.text('Pumili muna ng kategorya ng insidente bago magsumite.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the form goes step by step, and back', (tester) async {
+    await pumpReportPage(tester, const Locale('fil'));
+    expect(find.text('Hakbang 1 sa 4'), findsOneWidget);
+    expect(find.byKey(const Key('report-back')), findsNothing);
+
+    await tester.ensureVisible(find.text('Sunog'));
+    await tester.tap(find.text('Sunog'));
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const Key('report-next')));
+    await tester.tap(find.byKey(const Key('report-next')));
+    await tester.pump();
+
+    expect(find.text('Hakbang 2 sa 4'), findsOneWidget);
+    expect(find.text('Sunog'), findsNothing, reason: 'the type step is hidden now');
+
+    await tester.ensureVisible(find.byKey(const Key('report-back')));
+    await tester.tap(find.byKey(const Key('report-back')));
+    await tester.pump();
+    expect(find.text('Hakbang 1 sa 4'), findsOneWidget);
   });
 
   testWidgets('English is unchanged', (tester) async {
@@ -100,11 +123,82 @@ void main() {
   });
 
   testWidgets('For Someone shows the affected person fields', (tester) async {
+    when(() => authBloc.state).thenReturn(
+      const Authenticated(UserEntity(id: 'resident_1', email: 'juan@example.com', isVerified: true)),
+    );
     await pumpReportPage(tester, const Locale('en'));
     expect(find.text("Affected Person's Full Name *"), findsNothing);
 
     await tester.tap(find.text('For Someone'));
     await tester.pump();
     expect(find.text("Affected Person's Full Name *"), findsOneWidget);
+  });
+
+  group('before the ID is verified', () {
+    IncidentEntity filedToday(String id) => IncidentEntity(
+          id: id,
+          reporterId: 'resident_1',
+          description: '',
+          category: 'Noise Complaint',
+          status: 'pending',
+          timestamp: DateTime.now(),
+          latitude: 14.4851,
+          longitude: 121.0116,
+        );
+
+    testWidgets('For Someone and Anonymous ask the resident to verify first', (tester) async {
+      await pumpReportPage(tester, const Locale('en'));
+
+      await tester.tap(find.text('For Someone'));
+      await tester.pumpAndSettle();
+      expect(find.text('For verified residents'), findsOneWidget);
+      expect(find.byKey(const Key('access-verify')), findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+      expect(find.text("Affected Person's Full Name *"), findsNothing);
+
+      await tester.tap(find.byKey(const Key('report-anonymous')));
+      await tester.pumpAndSettle();
+      expect(find.text('For verified residents'), findsOneWidget);
+    });
+
+    testWidgets('after 3 reports today only emergencies go through', (tester) async {
+      when(() => incidentBloc.state).thenReturn(
+        IncidentLoaded([filedToday('a'), filedToday('b'), filedToday('c')]),
+      );
+      await pumpReportPage(tester, const Locale('en'));
+      expect(find.text('Not yet verified: 0 of 3 reports left today. Emergencies are never limited.'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Noise Complaint'));
+      await tester.tap(find.text('Noise Complaint'));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('report-next')));
+      await tester.tap(find.byKey(const Key('report-next')));
+      await tester.pumpAndSettle();
+      expect(find.text('Daily limit reached'), findsOneWidget);
+      await tester.tap(find.text('Close'));
+      await tester.pumpAndSettle();
+      expect(find.text('Step 1 of 4'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Fire Incident'));
+      await tester.tap(find.text('Fire Incident'));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('report-next')));
+      await tester.tap(find.byKey(const Key('report-next')));
+      await tester.pumpAndSettle();
+      expect(find.text('Daily limit reached'), findsNothing);
+      expect(find.text('Step 2 of 4'), findsOneWidget);
+    });
+
+    testWidgets('verified residents see no limit', (tester) async {
+      when(() => authBloc.state).thenReturn(
+        const Authenticated(UserEntity(id: 'resident_1', email: 'juan@example.com', isVerified: true)),
+      );
+      when(() => incidentBloc.state).thenReturn(
+        IncidentLoaded([filedToday('a'), filedToday('b'), filedToday('c')]),
+      );
+      await pumpReportPage(tester, const Locale('en'));
+      expect(find.byKey(const Key('report-limit-note')), findsNothing);
+    });
   });
 }

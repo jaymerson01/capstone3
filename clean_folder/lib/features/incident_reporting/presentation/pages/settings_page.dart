@@ -31,6 +31,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/terms_page.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_page.dart';
 
 
 class SettingsPage extends StatefulWidget {
@@ -58,9 +59,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
-                20,
                 16,
-                20,
+                14,
+                16,
                 24 + (widget.isRootTab ? 0 : MediaQuery.paddingOf(context).bottom),
               ),
               children: [
@@ -80,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         l10n.settingsTitle,
                         style: TextStyle(
                           color: AppColors.textDark,
-                          fontSize: 24,
+                          fontSize: 21,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.5,
                         ),
@@ -115,6 +116,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 /// 3. ACCOUNT SETTINGS
                 _buildSectionTitle(l10n.settingsAccount),
                 _buildSettingsGroup([
+                  if (_lastKnownUser != null && !_lastKnownUser!.isVerified)
+                    _buildSettingTile(
+                      icon: Icons.verified_user_outlined,
+                      title: l10n.idVerifyTitle,
+                      subtitle: l10n.idVerifySettingsSubtitle,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => VerificationPage(user: _lastKnownUser!)),
+                      ),
+                    ),
                   _buildSettingTile(
                     icon: Icons.person_outline_rounded,
                     title: l10n.settingsEditProfile,
@@ -1325,7 +1336,7 @@ class _NeoSubPage extends StatelessWidget {
                         title,
                         style: TextStyle(
                           color: AppColors.textDark,
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
                       ),

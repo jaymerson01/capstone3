@@ -129,7 +129,12 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                       TextButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                          setState(() => _selectedIndex = 2);
+                          final incidentId = n.incidentId;
+                          if (incidentId != null && incidentId.isNotEmpty) {
+                            _openIncident(incidentId);
+                          } else {
+                            setState(() => _selectedIndex = 2);
+                          }
                         },
                         child: Text(
                           "VIEW",
@@ -157,6 +162,17 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
     super.dispose();
   }
 
+  /// A report to open on the Incident Reports page (from a notification or
+  /// an alert); cleared once the page has opened it.
+  String? _openIncidentId;
+
+  void _openIncident(String incidentId) {
+    setState(() {
+      _selectedIndex = 2;
+      _openIncidentId = incidentId;
+    });
+  }
+
   void _queueCriticalAlerts(IncidentState state) {
     if (state is! IncidentLoaded) return;
     _criticalQueue.addAll(_criticalAlerts.take(state.incidents));
@@ -171,7 +187,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
     final openReports = await showCriticalIncidentAlert(context, incident);
     _criticalAlertShowing = false;
     if (!mounted) return;
-    if (openReports) setState(() => _selectedIndex = 2);
+    if (openReports) _openIncident(incident.id);
     _showNextCriticalAlert();
   }
 
@@ -191,11 +207,15 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       case 0:
         return AdminDashboardPage(
           onViewAllReports: () => setState(() => _selectedIndex = 2),
+          onNavigate: (index) => setState(() => _selectedIndex = index),
         );
       case 1:
         return const AdminDispatchMapPage();
       case 2:
-        return const IncidentReportsPage();
+        return IncidentReportsPage(
+          openIncidentId: _openIncidentId,
+          onIncidentOpened: () => _openIncidentId = null,
+        );
       case 3:
         return const ReportsAnalyticsPage();
       case 4:
@@ -207,6 +227,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       default:
         return AdminDashboardPage(
           onViewAllReports: () => setState(() => _selectedIndex = 2),
+          onNavigate: (index) => setState(() => _selectedIndex = index),
         );
     }
   }
@@ -407,6 +428,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
                       });
                     },
                     onLogout: _handleLogout,
+                    onOpenIncident: _openIncident,
                     onMenuPressed: () {
                       if (isMobile) {
                         _scaffoldKey.currentState?.openDrawer();

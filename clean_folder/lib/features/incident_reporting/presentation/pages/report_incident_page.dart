@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:community_safety_app/core/utils/resident_access.dart';
+import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_page.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/theme/map_styles.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
@@ -44,16 +47,24 @@ import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 import 'package:community_safety_app/core/services/voice_input_service.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/location_picker_page.dart';
+import 'package:community_safety_app/core/services/app_coordinate.dart';
 
 class ReportIncidentPage extends StatefulWidget {
-  const ReportIncidentPage({super.key});
+  const ReportIncidentPage({super.key, this.initialCategory});
+
+  /// Opens with this incident type already chosen (from the home shortcuts).
+  final String? initialCategory;
 
   @override
   State<ReportIncidentPage> createState() => _ReportIncidentPageState();
 }
 
 class _ReportIncidentPageState extends State<ReportIncidentPage> {
-  int currentStep = 2;
+  /// The form's step: 0 type, 1 location, 2 evidence, 3 details.
+  int _step = 0;
+  static const int _lastStep = 3;
+  final ScrollController _formScroll = ScrollController();
 
   AppLocalizations get _l10n => AppLocalizations.of(context);
 
@@ -134,11 +145,130 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   @override
   void initState() {
     super.initState();
-    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
+    _selectedIncidentCategory = widget.initialCategory;
+    context.read<IncidentBloc>().add(ResidentAccess.streamFor(_user));
+  }
+
+  UserEntity? get _user {
+    final state = context.read<AuthBloc>().state;
+    return state is Authenticated ? state.user : null;
+  }
+
+  List<IncidentEntity> get _knownIncidents {
+    final state = context.read<IncidentBloc>().state;
+    return state is IncidentLoaded ? state.incidents : const [];
+  }
+
+  /// Anonymous and on-behalf reports are for verified residents.
+  bool _allowedAnonymousOrForOthers() {
+    if (ResidentAccess.canReportAnonymouslyOrForOthers(_user)) return true;
+    _showAccessDialog(
+      icon: Icons.lock_outline_rounded,
+      color: AppColors.primary,
+      title: _l10n.accessVerifiedOnlyTitle,
+      body: _l10n.accessVerifiedOnlyBody,
+    );
+    return false;
+  }
+
+  /// Unverified residents get [ResidentAccess.dailyReportLimit] reports a
+  /// day; emergencies always go through.
+  bool _withinDailyLimit() {
+    if (ResidentAccess.canFile(_user, _selectedIncidentCategory, _knownIncidents)) return true;
+    _showAccessDialog(
+      icon: Icons.hourglass_bottom_rounded,
+      color: AppColors.warning,
+      title: _l10n.accessLimitTitle,
+      body: _l10n.accessLimitBody(ResidentAccess.dailyReportLimit),
+    );
+    return false;
+  }
+
+  void _showAccessDialog({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String body,
+  }) {
+    final user = _user;
+    showDialog<void>(
+      context: context,
+      builder: (dialogCtx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NeoDialogIcon(icon: icon, color: color),
+            SizedBox(height: 16),
+            Text(title, textAlign: TextAlign.center, style: _dialogTitleStyle),
+            SizedBox(height: 8),
+            Text(body, textAlign: TextAlign.center, style: _dialogBodyStyle),
+            SizedBox(height: 22),
+            if (user != null) ...[
+              NeoButton(
+                key: const Key('access-verify'),
+                label: _l10n.accessVerifyNow,
+                icon: Icons.badge_rounded,
+                height: 48,
+                expand: true,
+                onPressed: () {
+                  Navigator.of(dialogCtx).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => VerificationPage(user: user)),
+                  );
+                },
+              ),
+              SizedBox(height: 10),
+            ],
+            NeoButton(
+              label: _l10n.commonClose,
+              variant: NeoButtonVariant.standard,
+              height: 48,
+              expand: true,
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// How many reports an unverified resident has left today.
+  Widget _buildDailyLimitNote() {
+    return BlocBuilder<IncidentBloc, IncidentState>(
+      builder: (context, state) {
+        final left = ResidentAccess.reportsLeftToday(
+          _user,
+          state is IncidentLoaded ? state.incidents : const [],
+        );
+        if (left == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: left == 0 ? AppColors.warning : AppColors.textLight,
+              ),
+              SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _l10n.accessReportsLeft(left, ResidentAccess.dailyReportLimit),
+                  key: const Key('report-limit-note'),
+                  style: TextStyle(color: AppColors.textLight, fontSize: 12.5, height: 1.35),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
   void dispose() {
+    _formScroll.dispose();
     _voice.stop();
     _coordinatesController.dispose();
     _descriptionController.dispose();
@@ -227,6 +357,63 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         height: 1.45,
         fontWeight: FontWeight.w500,
       );
+
+  /// Moves the small map back to the pin.
+  Widget _recenterButton() {
+    return FloatingActionButton.small(
+      heroTag: 'recenter_pin_btn',
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.primaryText,
+      elevation: 3,
+      shape: const CircleBorder(),
+      onPressed: () {
+        if (_miniMapController != null) {
+          _miniMapController!.animateCamera(
+            CameraUpdate.newLatLng(
+              LatLng(
+                _latitude ?? _defaultMoonwalkCenter.latitude,
+                _longitude ?? _defaultMoonwalkCenter.longitude,
+              ),
+            ),
+          );
+        }
+      },
+      child: Icon(Icons.center_focus_strong_rounded, size: 18),
+    );
+  }
+
+  /// The full-screen map with search. Whatever place is chosen there becomes
+  /// the report's pin and address.
+  Future<void> _openLocationPicker({bool search = false}) async {
+    final picked = await Navigator.of(context).push<AppCoordinate>(
+      MaterialPageRoute(
+        builder: (_) => LocationPickerPage(
+          initial: LatLng(
+            _latitude ?? _defaultMoonwalkCenter.latitude,
+            _longitude ?? _defaultMoonwalkCenter.longitude,
+          ),
+          initialAddress: _resolvedAddress,
+          focusSearch: search,
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _latitude = picked.latitude;
+      _longitude = picked.longitude;
+      _coordinatesController.text =
+          "${picked.latitude.toStringAsFixed(6)}, ${picked.longitude.toStringAsFixed(6)}";
+      _resolvedAddress = picked.address ?? _resolvedAddress;
+      if (picked.sector != null && picked.sector!.isNotEmpty) {
+        _resolvedSector = picked.sector;
+        _selectedBarangay = picked.sector!;
+      }
+      _isReverseGeocoding = false;
+    });
+    _miniMapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(LatLng(picked.latitude, picked.longitude), 17),
+    );
+  }
 
   void _showFormError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -760,7 +947,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             : 'Citizen');
     final currentUserEmail = currentUser?.email ?? '';
 
-    final bool isAnonymous = _selectedComplainant == 'anonymous';
+    final bool isAnonymous = _selectedComplainant == 'anonymous' &&
+        ResidentAccess.canReportAnonymouslyOrForOthers(currentUser);
 
     final String readableBase = BarangaySectorHelper.formatReadableAddress(
       resolvedAddress: _resolvedAddress,
@@ -801,7 +989,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       isAnonymous: isAnonymous,
       reporterName: currentUserName,
       reporterEmail: currentUserEmail,
+      reporterPhone: currentUser?.phoneNumber,
       isReportingOnBehalf: _isReportingOnBehalf,
+      reporterVerified: currentUser?.isVerified,
       isBlotter: _isBlotter &&
           IncidentEntity.isBlotterCategory(_selectedIncidentCategory),
       victimName:
@@ -867,79 +1057,63 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     context.read<IncidentBloc>().add(SubmitIncidentReportRequested(incident));
   }
 
+  /// Why [step] isn't complete yet, or null when it is.
+  String? _stepProblem(int step) {
+    switch (step) {
+      case 0:
+        if (_isReportingOnBehalf && _victimNameController.text.trim().isEmpty) {
+          return _l10n.reportVictimNameRequired;
+        }
+        if (_selectedIncidentCategory == null) return _l10n.reportCategoryRequired;
+        if (_selectedIncidentCategory == 'Other Emergency' && _otherCategoryController.text.trim().isEmpty) {
+          return _l10n.reportOtherTypeRequired;
+        }
+      case 1:
+        if (_latitude == null && !_isReportingOnBehalf) return _l10n.reportLocationRequired;
+        if (_latitude != null && _longitude != null && !MoonwalkArea.contains(_latitude!, _longitude!)) {
+          return _l10n.reportOutsideMoonwalk;
+        }
+      case 2:
+        if (IncidentEntity.requiresEvidence(_selectedIncidentCategory) &&
+            _selectedImageFile == null &&
+            _selectedVideoFile == null) {
+          return _l10n.reportEvidenceRequired(LocalizedLabels.category(context, _selectedIncidentCategory!));
+        }
+        if (_isUploadingImage || _isUploadingVideo) return _l10n.reportMediaStillUploading;
+      case 3:
+        if (_descriptionController.text.trim().isEmpty) return _l10n.reportDescriptionRequired;
+    }
+    return null;
+  }
+
+  void _goToStep(int step) {
+    // The small map is rebuilt when its step comes back.
+    if (_step == 1 && step != 1) _miniMapController = null;
+    setState(() => _step = step);
+    if (_formScroll.hasClients) _formScroll.jumpTo(0);
+  }
+
+  /// Next, if this step is complete.
+  void _nextStep() {
+    final problem = _stepProblem(_step);
+    if (problem != null) {
+      _showFormError(problem);
+      return;
+    }
+    if (_step == 0 && !_withinDailyLimit()) return;
+    _goToStep(_step + 1);
+  }
+
   void _submitReport() {
-    if (_isReportingOnBehalf && _victimNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportVictimNameRequired),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
+    for (var step = 0; step <= _lastStep; step++) {
+      final problem = _stepProblem(step);
+      if (problem != null) {
+        _goToStep(step);
+        _showFormError(problem);
+        return;
+      }
     }
-
-    if (_selectedIncidentCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportCategoryRequired),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    if (_selectedIncidentCategory == 'Other Emergency' &&
-        _otherCategoryController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportOtherTypeRequired),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    final description = _descriptionController.text.trim();
-    if (description.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportDescriptionRequired),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.danger,
-        ),
-      );
-      return;
-    }
-
-    if (IncidentEntity.requiresEvidence(_selectedIncidentCategory) &&
-        _selectedImageFile == null &&
-        _selectedVideoFile == null) {
-      _showFormError(_l10n.reportEvidenceRequired(
-          LocalizedLabels.category(context, _selectedIncidentCategory!)));
-      return;
-    }
-
-    if (_latitude == null && !_isReportingOnBehalf) {
-      _showFormError(_l10n.reportLocationRequired);
-      return;
-    }
-    if (_latitude != null && _longitude != null && !MoonwalkArea.contains(_latitude!, _longitude!)) {
-      _showFormError(_l10n.reportOutsideMoonwalk);
-      return;
-    }
-
-    if (_isUploadingImage || _isUploadingVideo) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportMediaStillUploading),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.primary,
-        ),
-      );
-      return;
-    }
+    if (!_withinDailyLimit()) return;
 
     // Check for nearby duplicate incidents (within 250m, same category, within 2h)
     final duplicateMatch = _findNearbyDuplicateIncident();
@@ -1488,25 +1662,33 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
+                        controller: _formScroll,
                         physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
-                          20,
+                          16,
                           8,
-                          20,
+                          16,
                           32 + MediaQuery.paddingOf(context).bottom,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _buildEmergencyHotlinesSection(),
-                            SizedBox(height: 18),
-                            _buildDetailsCard(),
-                            SizedBox(height: 18),
-                            _buildLocationCard(),
-                            SizedBox(height: 18),
-                            _buildEvidenceTray(),
+                            _buildStepIndicator(),
+                            SizedBox(height: 16),
+                            if (_step == 0) ...[
+                              _buildEmergencyHotlinesSection(),
+                              SizedBox(height: 18),
+                              _buildTypeCard(),
+                            ],
+                            if (_step == 1) _buildLocationCard(),
+                            if (_step == 2) _buildEvidenceTray(),
+                            if (_step == 3) ...[
+                              _buildDescriptionCard(),
+                              SizedBox(height: 18),
+                              _buildReviewCard(),
+                            ],
                             SizedBox(height: 24),
-                            _buildSubmitButton(state),
+                            _buildStepNavigation(state),
                           ],
                         ),
                       ),
@@ -1560,7 +1742,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               maxLines: 2,
               style: TextStyle(
                 color: AppColors.textDark,
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
                 height: 1.15,
@@ -1651,6 +1833,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   }
 
   void _selectReportingMode(bool onBehalf) {
+    if (onBehalf && !_allowedAnonymousOrForOthers()) return;
     setState(() {
       _isReportingOnBehalf = onBehalf;
     });
@@ -1664,9 +1847,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     }
   }
 
-  Widget _buildDetailsCard() {
+  Widget _buildTypeCard() {
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1712,11 +1895,18 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     onPressed: () => setState(() => _selectedComplainant = "self"),
                   ),
                   NeoChip(
+                    key: const Key('report-anonymous'),
                     label: _l10n.reportComplainantAnonymous,
-                    icon: Icons.security_rounded,
+                    icon: ResidentAccess.canReportAnonymouslyOrForOthers(
+                            authState is Authenticated ? authState.user : null)
+                        ? Icons.security_rounded
+                        : Icons.lock_outline_rounded,
                     selected: _selectedComplainant == "anonymous",
-                    onPressed: () =>
-                        setState(() => _selectedComplainant = "anonymous"),
+                    onPressed: () {
+                      if (_allowedAnonymousOrForOthers()) {
+                        setState(() => _selectedComplainant = "anonymous");
+                      }
+                    },
                   ),
                 ],
               );
@@ -1727,6 +1917,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           // Incident Category Selection
           _fieldLabel(_l10n.reportCategoryLabel),
           _buildCategoryGrid(),
+          _buildDailyLimitNote(),
           SizedBox(height: 16),
 
           // Blotter entry: only for disputes and complaints the barangay records
@@ -1744,6 +1935,18 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               inset: true,
             ),
 
+        ],
+      ),
+    );
+  }
+
+  /// The last step: what happened, by typing or by voice.
+  Widget _buildDescriptionCard() {
+    return GlassCard(
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           // Description 3D text field
           Custom3dTextField(
             controller: _descriptionController,
@@ -1762,6 +1965,132 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// What's about to be sent, before Submit.
+  Widget _buildReviewCard() {
+    final category = _selectedIncidentCategory;
+    Widget row(IconData icon, String label, String value) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 18, color: AppColors.textLight),
+              SizedBox(width: 10),
+              SizedBox(
+                width: 92,
+                child: Text(label, style: TextStyle(color: AppColors.textLight, fontSize: 12.5, fontWeight: FontWeight.w700)),
+              ),
+              Expanded(
+                child: Text(value, style: TextStyle(color: AppColors.textDark, fontSize: 13.5, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        );
+    final evidence = [
+      if (_selectedImageFile != null) _l10n.reportReviewPhoto,
+      if (_selectedVideoFile != null) _l10n.reportReviewVideo,
+    ];
+    return GlassCard(
+      padding: const EdgeInsets.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_l10n.reportReviewTitle, style: _cardTitleStyle),
+          SizedBox(height: 10),
+          row(Icons.category_outlined, _l10n.reportStepType,
+              category == null ? '—' : LocalizedLabels.category(context, category)),
+          row(Icons.place_outlined, _l10n.reportStepLocation, _resolvedAddress ?? _resolvedSector ?? '—'),
+          row(Icons.photo_camera_outlined, _l10n.reportStepEvidence,
+              evidence.isEmpty ? _l10n.reportReviewNoEvidence : evidence.join(' · ')),
+        ],
+      ),
+    );
+  }
+
+  /// The four steps across the top; finished ones can be tapped to go back.
+  Widget _buildStepIndicator() {
+    final labels = [_l10n.reportStepType, _l10n.reportStepLocation, _l10n.reportStepEvidence, _l10n.reportStepDetails];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          _l10n.reportStepOf(_step + 1, labels.length),
+          style: TextStyle(color: AppColors.textLight, fontSize: 12.5, fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            for (var i = 0; i < labels.length; i++) ...[
+              if (i > 0) SizedBox(width: 6),
+              Expanded(
+                child: InkWell(
+                  key: Key('report-step-$i'),
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: i < _step ? () => _goToStep(i) : null,
+                  child: Column(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: i <= _step ? AppColors.primary : AppColors.border,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        labels[i],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: i == _step ? AppColors.textDark : AppColors.textLight,
+                          fontSize: 12,
+                          fontWeight: i == _step ? FontWeight.w800 : FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Back and Next; on the last step, Back and Submit.
+  Widget _buildStepNavigation(IncidentState state) {
+    return Row(
+      children: [
+        if (_step > 0) ...[
+          Expanded(
+            child: NeoButton(
+              key: const Key('report-back'),
+              label: _l10n.reportBack,
+              icon: Icons.arrow_back_rounded,
+              variant: NeoButtonVariant.slate,
+              expand: true,
+              onPressed: () => _goToStep(_step - 1),
+            ),
+          ),
+          SizedBox(width: 10),
+        ],
+        Expanded(
+          flex: 2,
+          child: _step < _lastStep
+              ? NeoButton(
+                  key: const Key('report-next'),
+                  label: _l10n.reportNext,
+                  icon: Icons.arrow_forward_rounded,
+                  expand: true,
+                  onPressed: _nextStep,
+                )
+              : _buildSubmitButton(state),
+        ),
+      ],
     );
   }
 
@@ -1932,7 +2261,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         _isReportingOnBehalf ? const Color(0xFFFDBA74) : AppColors.secondary;
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2055,7 +2384,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(22),
             child: Container(
-              height: 220,
+              height: 300,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
@@ -2077,7 +2406,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         _latitude ?? _defaultMoonwalkCenter.latitude,
                         _longitude ?? _defaultMoonwalkCenter.longitude,
                       ),
-                      zoom: 15.5,
+                      zoom: 17,
                     ),
                     cameraTargetBounds: MoonwalkArea.cameraBounds,
                     minMaxZoomPreference: MoonwalkArea.zoomRange,
@@ -2177,29 +2506,59 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                     ),
                   ),
-                  // Bottom-right re-center button
+                  // Search, full screen and re-center along the bottom
                   Positioned(
                     bottom: 10,
+                    left: 10,
                     right: 10,
-                    child: FloatingActionButton.small(
-                      heroTag: 'recenter_pin_btn',
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.primaryText,
-                      elevation: 3,
-                      shape: const CircleBorder(),
-                      onPressed: () {
-                        if (_miniMapController != null) {
-                          _miniMapController!.animateCamera(
-                            CameraUpdate.newLatLng(
-                              LatLng(
-                                _latitude ?? _defaultMoonwalkCenter.latitude,
-                                _longitude ?? _defaultMoonwalkCenter.longitude,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Material(
+                            color: AppColors.surface,
+                            elevation: 3,
+                            borderRadius: BorderRadius.circular(999),
+                            child: InkWell(
+                              key: const Key('report-map-search'),
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () => _openLocationPicker(search: true),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.search_rounded, size: 18, color: AppColors.textLight),
+                                    SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        _l10n.mapSearchAddress,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: AppColors.textLight,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          );
-                        }
-                      },
-                      child: Icon(Icons.center_focus_strong_rounded, size: 18),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        FloatingActionButton.small(
+                          heroTag: 'fullscreen_map_btn',
+                          tooltip: _l10n.mapFullScreen,
+                          backgroundColor: AppColors.surface,
+                          foregroundColor: AppColors.primaryText,
+                          elevation: 3,
+                          shape: const CircleBorder(),
+                          onPressed: () => _openLocationPicker(),
+                          child: Icon(Icons.fullscreen_rounded, size: 20),
+                        ),
+                        SizedBox(width: 8),
+                        _recenterButton(),
+                      ],
                     ),
                   ),
                 ],
@@ -2948,8 +3307,8 @@ class _CategoryTile extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          constraints: const BoxConstraints(minHeight: 54),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          constraints: const BoxConstraints(minHeight: 46),
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: radius,
             color: selected
@@ -2994,13 +3353,13 @@ class _CategoryTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(visual.icon, size: 19, color: visual.foreground),
+              Icon(visual.icon, size: 17, color: visual.foreground),
               SizedBox(width: 8),
               Expanded(
                 child: WordSafeText(
                   label,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     height: 1.25,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
                     color: selected

@@ -15,6 +15,9 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
+import 'package:community_safety_app/core/utils/departments.dart';
+import 'package:community_safety_app/features/verification/data/verification_repository.dart';
+import 'dart:async';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -27,6 +30,28 @@ class _UserManagementPageState extends State<UserManagementPage> {
   String _searchQuery = "";
   String _statusFilter = "All"; // "All", "Active", "Suspended"
   String _roleFilter = "All"; // "All", "resident", "admin"
+
+  // Residents waiting for an admin to check their ID, by uid.
+  final VerificationRepository _verification = VerificationRepository();
+  StreamSubscription<Map<String, VerificationRequest>>? _pendingSubscription;
+  Map<String, VerificationRequest> _pendingIds = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingSubscription = _verification.watchPending().listen(
+      (pending) {
+        if (mounted) setState(() => _pendingIds = pending);
+      },
+      onError: (Object e) => debugPrint('[UserManagement] ID requests unavailable: $e'),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pendingSubscription?.cancel();
+    super.dispose();
+  }
 
   /// Super admins create admin accounts and reset two-step verification.
   bool _isSuperAdmin(BuildContext context) {
@@ -108,6 +133,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               ("All", "All Roles"),
                               ("resident", "Residents Only"),
                               ("admin", "Admins Only"),
+                              ("responder", "Responders Only"),
                             ],
                             onChanged: (val) =>
                                 setState(() => _roleFilter = val),
@@ -115,7 +141,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                           if (iAmSuperAdmin) ...[
                             const SizedBox(width: 12, height: 12),
                             AdminButton(
-                              label: "Add admin",
+                              label: "Add account",
                               icon: Icons.person_add_alt_1_rounded,
                               onPressed: () => _showAddAdminDialog(context),
                             ),
@@ -414,12 +440,16 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                   ? "Super Admin"
                                                   : user.isAdmin
                                                       ? "Barangay Admin"
-                                                      : "Citizen Resident",
+                                                      : user.isResponder
+                                                          ? "Responder · ${Department.fromId(user.department)?.label ?? 'No department'}"
+                                                          : "Citizen Resident",
                                               tone: user.isSuperAdmin
                                                   ? AdminTone.violet
                                                   : user.isAdmin
                                                       ? AdminTone.blue
-                                                      : AdminTone.slate,
+                                                      : user.isResponder
+                                                          ? AdminTone.orange
+                                                          : AdminTone.slate,
                                             ),
                                             // Two-step sign-in (MFA) status.
                                             if (user.isAdmin)
@@ -471,7 +501,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                             Text(
                                               user.isVerified
                                                   ? "Verified"
-                                                  : "Unverified",
+                                                  : _pendingIds.containsKey(user.id)
+                                                      ? "ID submitted"
+                                                      : "Unverified",
                                               style: TextStyle(
                                                 fontSize: 12.5,
                                                 color: user.isVerified
@@ -520,6 +552,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                               ),
                                             ),
                                             const SizedBox(width: 6),
+                                            if (_pendingIds.containsKey(user.id)) ...[
+                                              AdminIconAction(
+                                                icon: Icons.badge_rounded,
+                                                tone: AdminTone.yellow,
+                                                tooltip: "Review the ID they sent",
+                                                onPressed: () => _reviewId(context, user, _pendingIds[user.id]!),
+                                              ),
+                                              const SizedBox(width: 6),
+                                            ],
                                             // Verify Resident Toggle
                                             AdminIconAction(
                                               icon: user.isVerified
@@ -1218,6 +1259,127 @@ class _UserManagementPageState extends State<UserManagementPage> {
     }
   }
 
+  // ── Residency: review the ID a resident sent ───────────────────────────
+  Future<void> _reviewId(BuildContext context, UserEntity user, VerificationRequest request) async {
+    final reason = TextEditingController();
+    var rejecting = false;
+    var busy = false;
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) {
+          Future<void> decide(Future<void> Function() action, String outcome) async {
+            setState(() => busy = true);
+            try {
+              await action();
+              if (ctx.mounted) Navigator.pop(ctx, outcome);
+            } catch (e) {
+              setState(() => busy = false);
+              if (ctx.mounted) {
+                ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                  content: Text("Couldn't save the decision: $e"),
+                  backgroundColor: AdminColors.critical,
+                  behavior: SnackBarBehavior.floating,
+                ));
+              }
+            }
+          }
+
+          return AdminDialog(
+            title: "Review ID",
+            subtitle: user.displayName ?? user.email,
+            icon: Icons.badge_rounded,
+            tone: AdminTone.yellow,
+            maxWidth: 620,
+            actions: [
+              AdminButton(label: "Close", style: AdminButtonStyle.ghost, onPressed: busy ? null : () => Navigator.pop(ctx)),
+              if (!rejecting)
+                AdminButton(
+                  label: "Reject",
+                  style: AdminButtonStyle.danger,
+                  onPressed: busy ? null : () => setState(() => rejecting = true),
+                )
+              else
+                AdminButton(
+                  label: "Send rejection",
+                  style: AdminButtonStyle.danger,
+                  busy: busy,
+                  onPressed: () {
+                    if (reason.text.trim().isEmpty) return;
+                    decide(() => _verification.reject(user.id, reason.text), 'rejected');
+                  },
+                ),
+              if (!rejecting)
+                AdminButton(
+                  label: "Approve",
+                  icon: Icons.verified_rounded,
+                  busy: busy,
+                  onPressed: () => decide(() => _verification.approve(user.id), 'approved'),
+                ),
+            ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (request.image != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: InteractiveViewer(
+                      maxScale: 4,
+                      child: Image.memory(request.image!, height: 300, fit: BoxFit.contain),
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                AdminDetailRow(
+                  label: "ID type",
+                  value: request.idType == 'government_id' ? "Government ID" : "Other valid ID",
+                ),
+                AdminDetailRow(label: "Name on account", value: user.displayName ?? "—"),
+                AdminDetailRow(label: "Email", value: user.email),
+                AdminDetailRow(label: "Phone", value: user.phoneNumber ?? "—"),
+                AdminDetailRow(label: "Area / address", value: user.barangayArea ?? user.address ?? "—"),
+                const SizedBox(height: 6),
+                const Text(
+                  "Check that the name and photo match the account and that the ID is valid. The photo is deleted after you decide.",
+                  style: TextStyle(color: AdminColors.textHint, fontSize: 12, height: 1.4),
+                ),
+                if (rejecting) ...[
+                  const SizedBox(height: 12),
+                  const AdminFieldLabel("REASON (THE RESIDENT SEES THIS)"),
+                  TextField(
+                    controller: reason,
+                    autofocus: true,
+                    style: adminInputText,
+                    decoration: adminInputDecoration(hint: "e.g. The ID photo is blurry; the name doesn't match"),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+    if (result == null) return;
+    try {
+      await sl<AuditLogRemoteDataSource>().recordLog(
+        actionType: 'Citizen Moderation',
+        details: result == 'approved'
+            ? 'Verified ${user.displayName ?? user.email} after reviewing their ID (UID: ${user.id})'
+            : 'Rejected the ID of ${user.displayName ?? user.email}: ${reason.text.trim()} (UID: ${user.id})',
+        targetId: user.id,
+      );
+    } catch (_) {}
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(result == 'approved'
+            ? "✓ ${user.displayName ?? user.email} is now a Verified Resident."
+            : "Rejection sent to ${user.displayName ?? user.email}."),
+        backgroundColor: result == 'approved' ? AdminColors.success : AdminColors.amber,
+        behavior: SnackBarBehavior.floating,
+      ));
+    }
+  }
+
   // ── Super admin: create admin accounts ─────────────────────────────────
   Future<void> _showAddAdminDialog(BuildContext context) async {
     final created = await showDialog<String>(
@@ -1228,7 +1390,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "✓ Admin account created. $created will get an email to set a password, then link an authenticator app at first sign-in.",
+            "✓ Account created. $created will get an email to set a password.",
           ),
           backgroundColor: AdminColors.success,
           behavior: SnackBarBehavior.floating,
@@ -1314,6 +1476,8 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
   final _email = TextEditingController();
   bool _busy = false;
   String? _error;
+  String _role = 'admin';
+  Department _department = Department.tanod;
 
   @override
   void dispose() {
@@ -1331,10 +1495,18 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
     final name = _name.text.trim();
     final email = _email.text.trim();
     try {
-      final uid = await sl<AdminAccountsRemoteDataSource>().createAdmin(email: email, displayName: name);
+      final responder = _role == 'responder';
+      final uid = await sl<AdminAccountsRemoteDataSource>().createStaffAccount(
+        email: email,
+        displayName: name,
+        role: _role,
+        department: responder ? _department.id : null,
+      );
       await sl<AuditLogRemoteDataSource>().recordLog(
         actionType: 'Admin Accounts',
-        details: 'Created admin account for $name <$email> (UID: $uid)',
+        details: responder
+            ? 'Created responder account for $name <$email>, ${_department.label} (UID: $uid)'
+            : 'Created admin account for $name <$email> (UID: $uid)',
         targetId: uid,
       );
       if (mounted) Navigator.pop(context, email);
@@ -1358,7 +1530,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
   @override
   Widget build(BuildContext context) {
     return AdminDialog(
-      title: "Add an admin",
+      title: "Add an account",
       subtitle: "Super admin only",
       icon: Icons.person_add_alt_1_rounded,
       tone: AdminTone.violet,
@@ -1370,7 +1542,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
           onPressed: _busy ? null : () => Navigator.pop(context),
         ),
         AdminButton(
-          label: "Create admin",
+          label: "Create account",
           icon: Icons.check_rounded,
           busy: _busy,
           onPressed: _create,
@@ -1382,9 +1554,43 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              "They'll get an email to set their own password. At their first sign-in they'll link an authenticator app for two-step verification.",
-              style: TextStyle(color: AdminColors.textSoft, fontSize: 13, height: 1.5),
+            const AdminFieldLabel("Account type"),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                AdminChoiceChip(label: "Admin", selected: _role == 'admin', onTap: () => setState(() => _role = 'admin')),
+                AdminChoiceChip(
+                  label: "Responder",
+                  selected: _role == 'responder',
+                  onTap: () => setState(() => _role = 'responder'),
+                ),
+              ],
+            ),
+            if (_role == 'responder') ...[
+              const SizedBox(height: 12),
+              const AdminFieldLabel("Department"),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final department in Department.values)
+                    AdminChoiceChip(
+                      label: department.label,
+                      selected: _department == department,
+                      onTap: () => setState(() => _department = department),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              _role == 'responder'
+                  ? "They'll get an email to set their password, then sign in at the responder portal (/responder/) to see their department's reports."
+                  : "They'll get an email to set their own password. At their first sign-in they'll link an authenticator app for two-step verification.",
+              style: const TextStyle(color: AdminColors.textSoft, fontSize: 13, height: 1.5),
             ),
             const SizedBox(height: 16),
             const AdminFieldLabel("Full name"),

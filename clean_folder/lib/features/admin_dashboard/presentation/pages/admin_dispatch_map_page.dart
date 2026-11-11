@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,32 +20,8 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/widge
 import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 
 class AdminDispatchMapPage extends StatefulWidget {
-  const AdminDispatchMapPage({super.key});
-
-  @override
-  State<AdminDispatchMapPage> createState() => _AdminDispatchMapPageState();
-}
-
-class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
-  GoogleMapController? _mapController;
-
-  // Selected filters
-  String _selectedStatus = "All"; // All, Pending, In Progress, Solved
-  bool _criticalOnly = false;
-  String _activeSectorFilter = "All";
-
-  // Selected incident for Dispatcher Drawer
-  IncidentEntity? _selectedIncident;
-  final TextEditingController _notesController = TextEditingController();
-  bool _isSavingNotes = false;
-
-  // Default coordinate: Barangay Moonwalk, Parañaque City
-  static const CameraPosition _initialPosition = CameraPosition(
-    target: LatLng(14.4851, 121.0116),
-    zoom: 14.5,
-  );
-
-  static const String _darkMapStyle = '''
+  /// The admin portal's dark Google Maps style (the dashboard uses it too).
+  static const String darkMapStyle = '''
 [
   {"elementType": "geometry", "stylers": [{"color": "#0d1627"}]},
   {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
@@ -71,8 +48,60 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 ]
 ''';
 
+  const AdminDispatchMapPage({super.key});
+
+  @override
+  State<AdminDispatchMapPage> createState() => _AdminDispatchMapPageState();
+}
+
+class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
+  GoogleMapController? _mapController;
+
+  // Selected filters
+  String _selectedStatus = "All"; // All, Pending, In Progress, Solved
+  bool _criticalOnly = false;
+  String _activeSectorFilter = "All";
+
+  // Selected incident for Dispatcher Drawer
+  IncidentEntity? _selectedIncident;
+
+  // Responders on the way, by report id: their shared live position.
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _trackingSubscription;
+  Map<String, ({LatLng at, String? name})> _responders = const {};
+  final TextEditingController _notesController = TextEditingController();
+  bool _isSavingNotes = false;
+
+  // Default coordinate: Barangay Moonwalk, Parañaque City
+  static const CameraPosition _initialPosition = CameraPosition(
+    target: LatLng(14.4851, 121.0116),
+    zoom: 14.5,
+  );
+
+
+  @override
+  void initState() {
+    super.initState();
+    _trackingSubscription = FirebaseFirestore.instance.collectionGroup('tracking').snapshots().listen(
+      (snapshot) {
+        if (!mounted) return;
+        setState(() {
+          _responders = {
+            for (final doc in snapshot.docs)
+              if (doc.data()['lat'] is num && doc.data()['lng'] is num && doc.reference.parent.parent != null)
+                doc.reference.parent.parent!.id: (
+                  at: LatLng((doc.data()['lat'] as num).toDouble(), (doc.data()['lng'] as num).toDouble()),
+                  name: doc.data()['name'] as String?,
+                ),
+          };
+        });
+      },
+      onError: (Object e) => debugPrint('[DispatchMap] Responder positions unavailable: $e'),
+    );
+  }
+
   @override
   void dispose() {
+    _trackingSubscription?.cancel();
     _notesController.dispose();
     super.dispose();
   }
@@ -179,7 +208,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Case ${inc.id.substring(0, min(8, inc.id.length))} updated to $newStatus!"),
+        content: Text("Case ${inc.ticketNumber} updated to $newStatus!"),
         backgroundColor: AdminColors.success,
         behavior: SnackBarBehavior.floating,
       ),
@@ -439,8 +468,20 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   initialCameraPosition: _initialPosition,
                                   cameraTargetBounds: MoonwalkArea.cameraBounds,
                                   minMaxZoomPreference: MoonwalkArea.zoomRange,
-                                  style: _darkMapStyle,
-                                  markers: markers,
+                                  style: AdminDispatchMapPage.darkMapStyle,
+                                  markers: {
+                                    ...markers,
+                                    for (final entry in _responders.entries)
+                                      Marker(
+                                        markerId: MarkerId('responder_${entry.key}'),
+                                        position: entry.value.at,
+                                        zIndexInt: 2,
+                                        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                                        infoWindow: InfoWindow(
+                                          title: '${entry.value.name ?? 'Responder'} · on the way',
+                                        ),
+                                      ),
+                                  },
                                   circles: circles,
                                   onMapCreated: (controller) {
                                     _mapController = controller;
@@ -768,7 +809,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            "Case #${inc.id.substring(0, min(8, inc.id.length))}",
+                            "Case ${inc.ticketNumber}",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -993,7 +1034,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             InAppImageViewerDialog.show(
                               context,
                               imageUrl: inc.photoUrl!,
-                              title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Photo Evidence",
+                              title: "Incident ${inc.ticketNumber} Photo Evidence",
                             );
                           },
                           child: MouseRegion(
@@ -1075,7 +1116,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                     InAppEvidencePlayerDialog.show(
                                       context,
                                       videoUrl: inc.videoUrl!,
-                                      title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Video Evidence",
+                                      title: "Incident ${inc.ticketNumber} Video Evidence",
                                     );
                                   },
                                 ),

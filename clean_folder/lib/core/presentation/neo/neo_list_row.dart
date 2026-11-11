@@ -38,19 +38,19 @@ class NeoListRow extends StatelessWidget {
           child: InkWell(
             onTap: onTap,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
               child: Row(
                 children: [
                   Container(
-                    width: 34,
-                    height: 34,
+                    width: 30,
+                    height: 30,
                     decoration: BoxDecoration(
                       color: destructive
                           ? AppColors.danger.withValues(alpha: 0.1)
                           : (isDark ? AppColors.surfaceLight : const Color(0xFFEEF2F7)),
                       borderRadius: BorderRadius.circular(NeoRadii.tile),
                     ),
-                    child: Icon(icon, size: 18, color: accent),
+                    child: Icon(icon, size: 16, color: accent),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -60,7 +60,7 @@ class NeoListRow extends StatelessWidget {
                         Text(
                           title,
                           style: textTheme.bodyLarge?.copyWith(
-                            fontSize: 15,
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: destructive ? AppColors.danger : AppColors.textDark,
                           ),
@@ -70,7 +70,7 @@ class NeoListRow extends StatelessWidget {
                           Text(
                             subtitleText,
                             style: textTheme.bodySmall?.copyWith(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: AppColors.textLight,
                             ),
                           ),

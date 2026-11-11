@@ -2,7 +2,7 @@ class UserEntity {
   final String id;
   final String email;
   final String? displayName;
-  final String role; // strictly 'resident' or 'admin'
+  final String role; // 'resident', 'admin' or 'responder'
   final String? phoneNumber;
   final String? address;
   final String? barangayArea;
@@ -23,6 +23,9 @@ class UserEntity {
   /// The Terms and Conditions version this resident accepted, if any.
   final String? acceptedTermsVersion;
 
+  /// A responder's department id (see Department), set by a super admin.
+  final String? department;
+
   const UserEntity({
     required this.id,
     required this.email,
@@ -40,10 +43,12 @@ class UserEntity {
     this.isSuperAdmin = false,
     this.mfaEnabled = false,
     this.acceptedTermsVersion,
+    this.department,
   });
 
   bool get isAdmin => role == 'admin';
   bool get isResident => role == 'resident';
+  bool get isResponder => role == 'responder';
   String? get fullName => displayName;
 
   UserEntity copyWith({
@@ -63,6 +68,7 @@ class UserEntity {
     bool? isSuperAdmin,
     bool? mfaEnabled,
     String? acceptedTermsVersion,
+    String? department,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -82,6 +88,7 @@ class UserEntity {
       isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
       mfaEnabled: mfaEnabled ?? this.mfaEnabled,
       acceptedTermsVersion: acceptedTermsVersion ?? this.acceptedTermsVersion,
+      department: department ?? this.department,
     );
   }
 }

@@ -18,9 +18,15 @@ abstract class AdminAccountsRemoteDataSource {
   /// one at their next sign-in.
   Future<void> resetMfa(String uid);
 
-  /// Creates an admin account and emails the new admin a link to choose
-  /// their password. Returns the new account's uid.
-  Future<String> createAdmin({required String email, required String displayName});
+  /// Creates a staff account ([role] 'admin' or 'responder', with the
+  /// responder's [department]) and emails them a link to choose their
+  /// password. Returns the new account's uid.
+  Future<String> createStaffAccount({
+    required String email,
+    required String displayName,
+    String role = 'admin',
+    String? department,
+  });
 }
 
 class AdminAccountsRemoteDataSourceImpl implements AdminAccountsRemoteDataSource {
@@ -56,7 +62,12 @@ class AdminAccountsRemoteDataSourceImpl implements AdminAccountsRemoteDataSource
   }
 
   @override
-  Future<String> createAdmin({required String email, required String displayName}) async {
+  Future<String> createStaffAccount({
+    required String email,
+    required String displayName,
+    String role = 'admin',
+    String? department,
+  }) async {
     // Signing up through the main app would sign the super admin out, so a
     // second, throwaway app instance does it.
     final secondary = await Firebase.initializeApp(
@@ -79,7 +90,11 @@ class AdminAccountsRemoteDataSourceImpl implements AdminAccountsRemoteDataSource
           );
       await secondaryAuth.signOut();
 
-      await firestore.collection('users').doc(uid).update({'role': 'admin', 'isVerified': true});
+      await firestore.collection('users').doc(uid).update({
+        'role': role,
+        'isVerified': true,
+        'department': ?department,
+      });
       await auth.sendPasswordResetEmail(email: email);
       return uid;
     } finally {

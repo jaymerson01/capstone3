@@ -2140,4 +2140,268 @@ class AppLocalizationsEn extends AppLocalizations {
   String timelineSince(String time) {
     return 'Since $time';
   }
+
+  @override
+  String get mapSearchHint => 'Search a street or place in Moonwalk';
+
+  @override
+  String get mapSearchClear => 'Clear search';
+
+  @override
+  String mapSearchOnline(String query) {
+    return 'Search “$query”';
+  }
+
+  @override
+  String get mapSearchFailed =>
+      'Couldn\'t search right now. Check your internet.';
+
+  @override
+  String get mapSearchNoResults => 'Nothing found inside Barangay Moonwalk.';
+
+  @override
+  String get mapMoveHint => 'Move the map to put the pin where it happened';
+
+  @override
+  String get mapFindingAddress => 'Finding the address…';
+
+  @override
+  String get mapMyLocation => 'My location';
+
+  @override
+  String get mapUseLocation => 'Use this location';
+
+  @override
+  String get mapFullScreen => 'Full screen';
+
+  @override
+  String get mapSearchAddress => 'Search address';
+
+  @override
+  String get rateTitle => 'Rate the barangay\'s response';
+
+  @override
+  String get rateSubtitle => 'How was the help you got? Tap the stars.';
+
+  @override
+  String get rateYourRating => 'Your rating';
+
+  @override
+  String get rateThanks => 'Thank you! Your rating helps the barangay improve.';
+
+  @override
+  String get rateCommentLabel => 'Comment (optional)';
+
+  @override
+  String get rateCommentHint => 'What went well, or what could be better?';
+
+  @override
+  String get rateSubmit => 'Send rating';
+
+  @override
+  String get rateSending => 'Sending…';
+
+  @override
+  String get rateFailed => 'Couldn\'t send your rating. Try again.';
+
+  @override
+  String rateStars(int count) {
+    return '$count of 5 stars';
+  }
+
+  @override
+  String get nearbyAlertTitle => 'Critical incident near you';
+
+  @override
+  String nearbyAlertBody(String category, int meters, String area) {
+    return '$category · about $meters m away · $area';
+  }
+
+  @override
+  String get nearbyAlertView => 'View';
+
+  @override
+  String get timelineTheResponder => 'The responder';
+
+  @override
+  String timelineResponderOnTheWay(String name) {
+    return '$name is on the way';
+  }
+
+  @override
+  String timelineResponderOnScene(String name) {
+    return '$name is on the scene';
+  }
+
+  @override
+  String get liveMapTitle => 'Responder on the way';
+
+  @override
+  String liveMapDistance(int meters, String time) {
+    return 'About $meters m away · updated $time';
+  }
+
+  @override
+  String get liveMapWaiting => 'Waiting for the responder\'s location…';
+
+  @override
+  String get liveMapYourReport => 'Your report';
+
+  @override
+  String get idVerifyTitle => 'Verify my residency';
+
+  @override
+  String get idVerifySettingsSubtitle =>
+      'Send a valid ID so the barangay can confirm you live in Moonwalk';
+
+  @override
+  String get idVerifyIntro =>
+      'Send a photo of a government-issued or other valid ID. A barangay admin checks it, then marks your account as a Verified Resident. The photo is deleted after the review.';
+
+  @override
+  String get idVerifyIdType => 'Type of ID';
+
+  @override
+  String get idVerifyGovernmentId => 'Government ID';
+
+  @override
+  String get idVerifyGovernmentExamples =>
+      'National ID (PhilSys), driver\'s license, passport, UMID, SSS or GSIS ID';
+
+  @override
+  String get idVerifyOtherValidId => 'Other valid ID';
+
+  @override
+  String get idVerifyOtherExamples =>
+      'Postal ID, voter\'s ID, PRC ID, Barangay ID';
+
+  @override
+  String get idVerifyTakePhoto => 'Take a photo';
+
+  @override
+  String get idVerifyChoosePhoto => 'Choose a photo';
+
+  @override
+  String get idVerifyTips =>
+      'Make sure your name and photo on the ID are clear and readable.';
+
+  @override
+  String get idVerifySubmit => 'Send for review';
+
+  @override
+  String get idVerifyPending => 'Your ID is being reviewed by the barangay.';
+
+  @override
+  String idVerifyRejected(String reason) {
+    return 'Not approved: $reason. You can send another ID.';
+  }
+
+  @override
+  String get idVerifyVerified => 'You\'re a Verified Resident.';
+
+  @override
+  String get idVerifyTooLarge =>
+      'That photo is too large. Try again a little farther away, or choose a smaller photo.';
+
+  @override
+  String get idVerifySent => 'Sent! The barangay will review your ID.';
+
+  @override
+  String get idVerifyFailed =>
+      'Couldn\'t send it. Check your internet and try again.';
+
+  @override
+  String get reportStepType => 'Type';
+
+  @override
+  String get reportStepLocation => 'Location';
+
+  @override
+  String get reportStepEvidence => 'Evidence';
+
+  @override
+  String get reportStepDetails => 'Details';
+
+  @override
+  String reportStepOf(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get reportNext => 'Next';
+
+  @override
+  String get reportBack => 'Back';
+
+  @override
+  String get reportReviewTitle => 'Review before sending';
+
+  @override
+  String get reportReviewPhoto => 'Photo';
+
+  @override
+  String get reportReviewVideo => 'Video';
+
+  @override
+  String get reportReviewNoEvidence => 'None';
+
+  @override
+  String get homeReportTitle => 'Report an incident';
+
+  @override
+  String get homeReportSubtitle =>
+      'Emergency? Tap what happened to start right away.';
+
+  @override
+  String get homeReportOther => 'Report something else';
+
+  @override
+  String get homeQuickFire => 'Fire';
+
+  @override
+  String get homeQuickMedical => 'Medical';
+
+  @override
+  String get homeQuickTheft => 'Theft';
+
+  @override
+  String get homeQuickFlood => 'Flood';
+
+  @override
+  String get homeVerifyCta => 'Get verified';
+
+  @override
+  String get accessCommunityLockedTitle =>
+      'Neighbors\' reports are for verified residents';
+
+  @override
+  String get accessCommunityLockedBody =>
+      'Verify your ID to see reports and alerts from around Moonwalk. You can still report and follow your own reports.';
+
+  @override
+  String get accessVerifyNow => 'Verify my ID';
+
+  @override
+  String get accessMapOwnOnly =>
+      'Showing only your reports. Verify your ID to see your neighbors\' reports.';
+
+  @override
+  String get accessVerifiedOnlyTitle => 'For verified residents';
+
+  @override
+  String get accessVerifiedOnlyBody =>
+      'Reporting anonymously or for someone else opens once the barangay verifies your ID.';
+
+  @override
+  String accessReportsLeft(int left, int limit) {
+    return 'Not yet verified: $left of $limit reports left today. Emergencies are never limited.';
+  }
+
+  @override
+  String get accessLimitTitle => 'Daily limit reached';
+
+  @override
+  String accessLimitBody(int limit) {
+    return 'Unverified accounts can send $limit reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.';
+  }
 }

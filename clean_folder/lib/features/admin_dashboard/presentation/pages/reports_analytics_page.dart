@@ -1,9 +1,6 @@
-import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:csv/csv.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -16,6 +13,9 @@ import 'package:community_safety_app/features/admin_dashboard/data/datasources/a
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/report_exports.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/area_analytics.dart';
 
 enum ReportTimeframe { allTime, thisMonth, last30Days, thisWeek }
 
@@ -48,6 +48,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
           if (_blotterOnly && !inc.isBlotter) return false;
           final q = _searchQuery.toLowerCase();
           return inc.id.toLowerCase().contains(q) ||
+              inc.ticketNumber.toLowerCase().contains(q) ||
               inc.category.toLowerCase().contains(q) ||
               (inc.areaSector ?? '').toLowerCase().contains(q) ||
               (inc.resolvedAddress ?? '').toLowerCase().contains(q) ||
@@ -179,6 +180,29 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
               ),
               const SizedBox(height: 20),
 
+              // ── Per-area and per-department breakdown ──────────────────
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final Widget areaCard = _buildAreaBreakdownCard(filteredIncidents);
+                  final Widget departmentCard = _buildDepartmentCard(filteredIncidents);
+                  if (constraints.maxWidth < 1100) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [areaCard, const SizedBox(height: 18), departmentCard],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 7, child: areaCard),
+                      const SizedBox(width: 18),
+                      Expanded(flex: 3, child: departmentCard),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+
               // ── Incident Blotter Ledger Table ──────────────────────────
               _buildBlotterLedgerCard(searchedIncidents),
               const SizedBox(height: 24),
@@ -199,14 +223,14 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
       subtitle:
           "Barangay Moonwalk blotter ledger, sector load diagnostics, and certified LGU exports",
       trailing: [
-        // 1-Click CSV Export Button
+        // 1-Click Excel Export Button
         AdminButton(
-          label: "Export Blotter CSV",
+          label: "Export to Excel",
           icon: Icons.table_chart_outlined,
           style: AdminButtonStyle.ghost,
           onPressed: _isExporting
               ? null
-              : () => _exportBlotterCsv(filteredIncidents),
+              : () => _exportExcel(filteredIncidents),
         ),
         // Official PDF Report Generator Button
         AdminButton(
@@ -492,6 +516,122 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     );
   }
 
+  // ── Per-Area Breakdown ─────────────────────────────────────────────────
+  Widget _buildAreaBreakdownCard(List<IncidentEntity> incidents) {
+    final rows = AreaAnalytics.byArea(incidents);
+    String duration(Duration? d) => d == null ? "—" : IncidentEntity.formatDuration(d);
+    DataColumn column(String label, {bool numeric = false}) =>
+        DataColumn(numeric: numeric, label: Text(label.toUpperCase(), style: AdminTable.header));
+
+    return AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AdminSectionTitle(
+            title: "Analytics by Area",
+            subtitle: "Every area's reports, response speed and resident ratings",
+          ),
+          const SizedBox(height: 14),
+          if (rows.isEmpty)
+            const AdminEmptyState(icon: Icons.map_outlined, title: "No reports in this timeframe")
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowHeight: 40,
+                dataRowMinHeight: 40,
+                dataRowMaxHeight: 52,
+                columnSpacing: 22,
+                horizontalMargin: 8,
+                dividerThickness: 0.6,
+                columns: [
+                  column("Area"),
+                  column("Reports", numeric: true),
+                  column("Open", numeric: true),
+                  column("Critical", numeric: true),
+                  column("Most common"),
+                  column("Avg. respond"),
+                  column("Avg. resolve"),
+                  column("Resolved", numeric: true),
+                  column("Rating", numeric: true),
+                ],
+                rows: [
+                  for (final row in rows)
+                    DataRow(cells: [
+                      DataCell(Text(row.area, style: AdminTable.cellStrong)),
+                      DataCell(Text("${row.total}", style: AdminTable.cellStrong)),
+                      DataCell(Text("${row.open}", style: AdminTable.cell)),
+                      DataCell(Text(
+                        "${row.critical}",
+                        style: row.critical > 0
+                            ? const TextStyle(color: AdminColors.dangerText, fontWeight: FontWeight.w800, fontSize: 13)
+                            : AdminTable.cell,
+                      )),
+                      DataCell(Text(row.topCategory, style: AdminTable.cell)),
+                      DataCell(Text(duration(row.avgTimeToRespond), style: AdminTable.cell)),
+                      DataCell(Text(duration(row.avgTimeToResolve), style: AdminTable.cell)),
+                      DataCell(Text("${(row.resolvedShare * 100).round()}%", style: AdminTable.cell)),
+                      DataCell(Text(
+                        row.avgRating == null ? "—" : "★ ${row.avgRating!.toStringAsFixed(1)}",
+                        style: const TextStyle(color: Color(0xFFFBBF24), fontWeight: FontWeight.w700, fontSize: 13),
+                      )),
+                    ]),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Department Workload ────────────────────────────────────────────────
+  Widget _buildDepartmentCard(List<IncidentEntity> incidents) {
+    final rows = AreaAnalytics.byDepartment(incidents);
+    return AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AdminSectionTitle(
+            title: "Departments",
+            subtitle: "Reports routed to each, and how fast they respond",
+          ),
+          const SizedBox(height: 14),
+          for (final row in rows) ...[
+            Row(
+              children: [
+                AdminIconTile(icon: row.department.icon, tone: AdminTone.blue, size: 34),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(row.department.label, style: AdminTable.cellStrong),
+                      const SizedBox(height: 2),
+                      Text(
+                        "${row.total} reports · ${row.open} open"
+                        "${row.unassigned > 0 ? " · ${row.unassigned} waiting" : ""}",
+                        style: AdminTable.cell,
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  row.avgTimeToRespond == null ? "—" : IncidentEntity.formatDuration(row.avgTimeToRespond!),
+                  style: AdminTable.cellStrong,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+          const Text(
+            "Right: average time from filing to the response starting.",
+            style: TextStyle(color: AdminColors.textHint, fontSize: 11.5),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Blotter Ledger Table Card ──────────────────────────────────────────
   Widget _buildBlotterLedgerCard(List<IncidentEntity> incidents) {
     return AdminPanel(
@@ -606,7 +746,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     cells: [
                       DataCell(
                         Text(
-                          inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
+                          inc.ticketNumber,
                           style: AdminTable.cellStrong,
                         ),
                       ),
@@ -688,68 +828,22 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     );
   }
 
-  // ── CSV Blotter Export ──────────────────────────────────────────────────
-  Future<void> _exportBlotterCsv(List<IncidentEntity> incidents) async {
+  // ── Excel Export ─────────────────────────────────────────────────────────
+  Future<void> _exportExcel(List<IncidentEntity> incidents) async {
     setState(() => _isExporting = true);
     try {
-      final List<List<dynamic>> csvRows = [
-        [
-          "Case ID",
-          "Timestamp",
-          "Category",
-          "Priority",
-          "Status",
-          "Barangay Sector",
-          "Resolved Address",
-          "Latitude",
-          "Longitude",
-          "Complainant Name",
-          "Is Anonymous",
-          "Blotter Entry",
-          "Corroboration Upvotes",
-          "Dispatcher Remarks",
-        ],
-      ];
-
-      for (final inc in incidents) {
-        csvRows.add([
-          inc.id,
-          inc.timestamp.toIso8601String(),
-          inc.category,
-          inc.urgencyStatus ?? 'Normal',
-          inc.status,
-          BarangaySectorHelper.normalizeSector(
-            inc.areaSector,
-            inc.resolvedAddress,
-          ),
-          inc.resolvedAddress ?? '',
-          inc.latitude,
-          inc.longitude,
-          inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? ''),
-          inc.isAnonymous ? 'YES' : 'NO',
-          inc.isBlotter ? 'YES' : 'NO',
-          inc.upvoteCount,
-          inc.dispatcherNotes ?? '',
-        ]);
-      }
-
-      final csvString = const ListToCsvConverter().convert(csvRows);
-      final bytes = Uint8List.fromList(utf8.encode(csvString));
-
-      final filename =
-          "Barangay_Moonwalk_Blotter_${DateTime.now().millisecondsSinceEpoch}.csv";
-
-      await Printing.sharePdf(bytes: bytes, filename: filename);
+      final filename = "Barangay_Moonwalk_Reports_${DateFormat('yyyy-MM-dd_HHmm').format(DateTime.now())}.xlsx";
+      await Printing.sharePdf(bytes: ReportExports.reportsWorkbook(incidents), filename: filename);
 
       await sl<AuditLogRemoteDataSource>().recordLog(
         actionType: 'Report Export',
-        details: 'Exported blotter ledger CSV with ${incidents.length} incident records.',
+        details: 'Exported ${incidents.length} reports to Excel.',
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("✓ Blotter ledger CSV exported successfully: $filename"),
+            content: Text("✓ Exported ${incidents.length} reports to Excel: $filename"),
             backgroundColor: AdminColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -759,8 +853,8 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to export CSV: $e"),
-            backgroundColor: AdminColors.danger,
+            content: Text("Failed to export to Excel: $e"),
+            backgroundColor: AdminColors.critical,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -770,7 +864,6 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     }
   }
 
-  // ── Official Printable PDF Report Generator ────────────────────────────
   Future<void> _generateOfficialPdfReport(
     List<IncidentEntity> incidents,
   ) async {
@@ -917,7 +1010,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   final dStr =
                       "${dt.day}/${dt.month} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
                   return [
-                    inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
+                    inc.ticketNumber,
                     dStr,
                     inc.isBlotter ? "${inc.category} (Blotter)" : inc.category,
                     inc.resolvedAddress ?? inc.areaSector ?? 'Barangay Moonwalk',

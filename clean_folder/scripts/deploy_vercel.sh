@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Builds the resident app (site root) and the admin portal (/admin/) and
-# deploys both to Vercel as a ready-made static site (Vercel can't build
-# Flutter itself).
+# Builds the resident app (site root), the admin portal (/admin/) and the
+# responder portal (/responder/) and deploys them to Vercel as a ready-made
+# static site (Vercel can't build Flutter itself).
 #
 #   ./scripts/deploy_vercel.sh               build, then deploy to production
 #   ./scripts/deploy_vercel.sh --skip-build  deploy the existing build/web
@@ -44,14 +44,15 @@ echo "==> Packing build/web for Vercel"
 rm -rf .vercel/output
 mkdir -p .vercel/output/static
 rsync -a --exclude='.*' build/web/ .vercel/output/static/
-# Files first; then /admin/... opens the admin portal and everything else
-# the resident app (both are single-page apps).
+# Files first; then /admin/... and /responder/... open their portals and
+# everything else the resident app (all three are single-page apps).
 cat > .vercel/output/config.json <<'JSON'
 {
   "version": 3,
   "routes": [
     { "handle": "filesystem" },
     { "src": "^/admin(/.*)?$", "dest": "/admin/index.html" },
+    { "src": "^/responder(/.*)?$", "dest": "/responder/index.html" },
     { "src": "^/.*$", "dest": "/index.html" }
   ]
 }
