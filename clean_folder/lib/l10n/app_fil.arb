@@ -654,5 +654,16 @@
   "idVerifyVerified": "Beripikadong Residente ka na.",
   "idVerifyTooLarge": "Masyadong malaki ang litrato. Subukan ulit nang medyo malayo, o pumili ng mas maliit na litrato.",
   "idVerifySent": "Naipadala! Susuriin ng barangay ang ID mo.",
-  "idVerifyFailed": "Hindi naipadala. Tingnan ang internet mo at subukan ulit."
+  "idVerifyFailed": "Hindi naipadala. Tingnan ang internet mo at subukan ulit.",
+  "reportStepType": "Uri",
+  "reportStepLocation": "Lokasyon",
+  "reportStepEvidence": "Ebidensya",
+  "reportStepDetails": "Detalye",
+  "reportStepOf": "Hakbang {step} sa {total}",
+  "reportNext": "Susunod",
+  "reportBack": "Bumalik",
+  "reportReviewTitle": "Suriin bago ipadala",
+  "reportReviewPhoto": "Litrato",
+  "reportReviewVideo": "Video",
+  "reportReviewNoEvidence": "Wala"
 }

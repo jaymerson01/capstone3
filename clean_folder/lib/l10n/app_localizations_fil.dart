@@ -2295,4 +2295,39 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get idVerifyFailed =>
       'Hindi naipadala. Tingnan ang internet mo at subukan ulit.';
+
+  @override
+  String get reportStepType => 'Uri';
+
+  @override
+  String get reportStepLocation => 'Lokasyon';
+
+  @override
+  String get reportStepEvidence => 'Ebidensya';
+
+  @override
+  String get reportStepDetails => 'Detalye';
+
+  @override
+  String reportStepOf(int step, int total) {
+    return 'Hakbang $step sa $total';
+  }
+
+  @override
+  String get reportNext => 'Susunod';
+
+  @override
+  String get reportBack => 'Bumalik';
+
+  @override
+  String get reportReviewTitle => 'Suriin bago ipadala';
+
+  @override
+  String get reportReviewPhoto => 'Litrato';
+
+  @override
+  String get reportReviewVideo => 'Video';
+
+  @override
+  String get reportReviewNoEvidence => 'Wala';
 }

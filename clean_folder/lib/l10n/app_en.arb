@@ -2982,5 +2982,57 @@
   "idVerifyFailed": "Couldn't send it. Check your internet and try again.",
   "@idVerifyFailed": {
     "description": "Send failed."
+  },
+  "reportStepType": "Type",
+  "@reportStepType": {
+    "description": "Step 1 label."
+  },
+  "reportStepLocation": "Location",
+  "@reportStepLocation": {
+    "description": "Step 2 label."
+  },
+  "reportStepEvidence": "Evidence",
+  "@reportStepEvidence": {
+    "description": "Step 3 label."
+  },
+  "reportStepDetails": "Details",
+  "@reportStepDetails": {
+    "description": "Step 4 label."
+  },
+  "reportStepOf": "Step {step} of {total}",
+  "@reportStepOf": {
+    "description": "Progress.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "reportNext": "Next",
+  "@reportNext": {
+    "description": "Next step button."
+  },
+  "reportBack": "Back",
+  "@reportBack": {
+    "description": "Previous step button."
+  },
+  "reportReviewTitle": "Review before sending",
+  "@reportReviewTitle": {
+    "description": "Review card title."
+  },
+  "reportReviewPhoto": "Photo",
+  "@reportReviewPhoto": {
+    "description": "Review: a photo is attached."
+  },
+  "reportReviewVideo": "Video",
+  "@reportReviewVideo": {
+    "description": "Review: a video is attached."
+  },
+  "reportReviewNoEvidence": "None",
+  "@reportReviewNoEvidence": {
+    "description": "Review: no evidence."
   }
 }

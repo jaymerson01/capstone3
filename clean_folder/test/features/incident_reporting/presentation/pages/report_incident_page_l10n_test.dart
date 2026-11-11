@@ -66,14 +66,36 @@ void main() {
   testWidgets('validation messages follow the language', (tester) async {
     await pumpReportPage(tester, const Locale('fil'));
 
-    await tester.ensureVisible(find.text('ISUMITE ANG ULAT'));
-    await tester.tap(find.text('ISUMITE ANG ULAT'));
+    // Step 1 can't be left without a category.
+    await tester.ensureVisible(find.byKey(const Key('report-next')));
+    await tester.tap(find.byKey(const Key('report-next')));
     await tester.pump();
 
     expect(
       find.text('Pumili muna ng kategorya ng insidente bago magsumite.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the form goes step by step, and back', (tester) async {
+    await pumpReportPage(tester, const Locale('fil'));
+    expect(find.text('Hakbang 1 sa 4'), findsOneWidget);
+    expect(find.byKey(const Key('report-back')), findsNothing);
+
+    await tester.ensureVisible(find.text('Sunog'));
+    await tester.tap(find.text('Sunog'));
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const Key('report-next')));
+    await tester.tap(find.byKey(const Key('report-next')));
+    await tester.pump();
+
+    expect(find.text('Hakbang 2 sa 4'), findsOneWidget);
+    expect(find.text('Sunog'), findsNothing, reason: 'the type step is hidden now');
+
+    await tester.ensureVisible(find.byKey(const Key('report-back')));
+    await tester.tap(find.byKey(const Key('report-back')));
+    await tester.pump();
+    expect(find.text('Hakbang 1 sa 4'), findsOneWidget);
   });
 
   testWidgets('English is unchanged', (tester) async {

@@ -55,7 +55,10 @@ class ReportIncidentPage extends StatefulWidget {
 }
 
 class _ReportIncidentPageState extends State<ReportIncidentPage> {
-  int currentStep = 2;
+  /// The form's step: 0 type, 1 location, 2 evidence, 3 details.
+  int _step = 0;
+  static const int _lastStep = 3;
+  final ScrollController _formScroll = ScrollController();
 
   AppLocalizations get _l10n => AppLocalizations.of(context);
 
@@ -141,6 +144,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   @override
   void dispose() {
+    _formScroll.dispose();
     _voice.stop();
     _coordinatesController.dispose();
     _descriptionController.dispose();
@@ -927,78 +931,60 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     context.read<IncidentBloc>().add(SubmitIncidentReportRequested(incident));
   }
 
+  /// Why [step] isn't complete yet, or null when it is.
+  String? _stepProblem(int step) {
+    switch (step) {
+      case 0:
+        if (_isReportingOnBehalf && _victimNameController.text.trim().isEmpty) {
+          return _l10n.reportVictimNameRequired;
+        }
+        if (_selectedIncidentCategory == null) return _l10n.reportCategoryRequired;
+        if (_selectedIncidentCategory == 'Other Emergency' && _otherCategoryController.text.trim().isEmpty) {
+          return _l10n.reportOtherTypeRequired;
+        }
+      case 1:
+        if (_latitude == null && !_isReportingOnBehalf) return _l10n.reportLocationRequired;
+        if (_latitude != null && _longitude != null && !MoonwalkArea.contains(_latitude!, _longitude!)) {
+          return _l10n.reportOutsideMoonwalk;
+        }
+      case 2:
+        if (IncidentEntity.requiresEvidence(_selectedIncidentCategory) &&
+            _selectedImageFile == null &&
+            _selectedVideoFile == null) {
+          return _l10n.reportEvidenceRequired(LocalizedLabels.category(context, _selectedIncidentCategory!));
+        }
+        if (_isUploadingImage || _isUploadingVideo) return _l10n.reportMediaStillUploading;
+      case 3:
+        if (_descriptionController.text.trim().isEmpty) return _l10n.reportDescriptionRequired;
+    }
+    return null;
+  }
+
+  void _goToStep(int step) {
+    // The small map is rebuilt when its step comes back.
+    if (_step == 1 && step != 1) _miniMapController = null;
+    setState(() => _step = step);
+    if (_formScroll.hasClients) _formScroll.jumpTo(0);
+  }
+
+  /// Next, if this step is complete.
+  void _nextStep() {
+    final problem = _stepProblem(_step);
+    if (problem != null) {
+      _showFormError(problem);
+      return;
+    }
+    _goToStep(_step + 1);
+  }
+
   void _submitReport() {
-    if (_isReportingOnBehalf && _victimNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportVictimNameRequired),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    if (_selectedIncidentCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportCategoryRequired),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
-    if (_selectedIncidentCategory == 'Other Emergency' &&
-        _otherCategoryController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportOtherTypeRequired),
-          backgroundColor: AppColors.danger,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-    final description = _descriptionController.text.trim();
-    if (description.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportDescriptionRequired),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.danger,
-        ),
-      );
-      return;
-    }
-
-    if (IncidentEntity.requiresEvidence(_selectedIncidentCategory) &&
-        _selectedImageFile == null &&
-        _selectedVideoFile == null) {
-      _showFormError(_l10n.reportEvidenceRequired(
-          LocalizedLabels.category(context, _selectedIncidentCategory!)));
-      return;
-    }
-
-    if (_latitude == null && !_isReportingOnBehalf) {
-      _showFormError(_l10n.reportLocationRequired);
-      return;
-    }
-    if (_latitude != null && _longitude != null && !MoonwalkArea.contains(_latitude!, _longitude!)) {
-      _showFormError(_l10n.reportOutsideMoonwalk);
-      return;
-    }
-
-    if (_isUploadingImage || _isUploadingVideo) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_l10n.reportMediaStillUploading),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: AppColors.primary,
-        ),
-      );
-      return;
+    for (var step = 0; step <= _lastStep; step++) {
+      final problem = _stepProblem(step);
+      if (problem != null) {
+        _goToStep(step);
+        _showFormError(problem);
+        return;
+      }
     }
 
     // Check for nearby duplicate incidents (within 250m, same category, within 2h)
@@ -1548,6 +1534,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     _buildHeader(),
                     Expanded(
                       child: SingleChildScrollView(
+                        controller: _formScroll,
                         physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
                           20,
@@ -1558,15 +1545,22 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            _buildEmergencyHotlinesSection(),
-                            SizedBox(height: 18),
-                            _buildDetailsCard(),
-                            SizedBox(height: 18),
-                            _buildLocationCard(),
-                            SizedBox(height: 18),
-                            _buildEvidenceTray(),
+                            _buildStepIndicator(),
+                            SizedBox(height: 16),
+                            if (_step == 0) ...[
+                              _buildEmergencyHotlinesSection(),
+                              SizedBox(height: 18),
+                              _buildTypeCard(),
+                            ],
+                            if (_step == 1) _buildLocationCard(),
+                            if (_step == 2) _buildEvidenceTray(),
+                            if (_step == 3) ...[
+                              _buildDescriptionCard(),
+                              SizedBox(height: 18),
+                              _buildReviewCard(),
+                            ],
                             SizedBox(height: 24),
-                            _buildSubmitButton(state),
+                            _buildStepNavigation(state),
                           ],
                         ),
                       ),
@@ -1724,7 +1718,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
     }
   }
 
-  Widget _buildDetailsCard() {
+  Widget _buildTypeCard() {
     return GlassCard(
       padding: const EdgeInsets.all(18),
       child: Column(
@@ -1804,6 +1798,18 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               inset: true,
             ),
 
+        ],
+      ),
+    );
+  }
+
+  /// The last step: what happened, by typing or by voice.
+  Widget _buildDescriptionCard() {
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           // Description 3D text field
           Custom3dTextField(
             controller: _descriptionController,
@@ -1822,6 +1828,132 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ),
         ],
       ),
+    );
+  }
+
+  /// What's about to be sent, before Submit.
+  Widget _buildReviewCard() {
+    final category = _selectedIncidentCategory;
+    Widget row(IconData icon, String label, String value) => Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 18, color: AppColors.textLight),
+              SizedBox(width: 10),
+              SizedBox(
+                width: 92,
+                child: Text(label, style: TextStyle(color: AppColors.textLight, fontSize: 12.5, fontWeight: FontWeight.w700)),
+              ),
+              Expanded(
+                child: Text(value, style: TextStyle(color: AppColors.textDark, fontSize: 13.5, fontWeight: FontWeight.w600)),
+              ),
+            ],
+          ),
+        );
+    final evidence = [
+      if (_selectedImageFile != null) _l10n.reportReviewPhoto,
+      if (_selectedVideoFile != null) _l10n.reportReviewVideo,
+    ];
+    return GlassCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_l10n.reportReviewTitle, style: _cardTitleStyle),
+          SizedBox(height: 10),
+          row(Icons.category_outlined, _l10n.reportStepType,
+              category == null ? '—' : LocalizedLabels.category(context, category)),
+          row(Icons.place_outlined, _l10n.reportStepLocation, _resolvedAddress ?? _resolvedSector ?? '—'),
+          row(Icons.photo_camera_outlined, _l10n.reportStepEvidence,
+              evidence.isEmpty ? _l10n.reportReviewNoEvidence : evidence.join(' · ')),
+        ],
+      ),
+    );
+  }
+
+  /// The four steps across the top; finished ones can be tapped to go back.
+  Widget _buildStepIndicator() {
+    final labels = [_l10n.reportStepType, _l10n.reportStepLocation, _l10n.reportStepEvidence, _l10n.reportStepDetails];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          _l10n.reportStepOf(_step + 1, labels.length),
+          style: TextStyle(color: AppColors.textLight, fontSize: 12.5, fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            for (var i = 0; i < labels.length; i++) ...[
+              if (i > 0) SizedBox(width: 6),
+              Expanded(
+                child: InkWell(
+                  key: Key('report-step-$i'),
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: i < _step ? () => _goToStep(i) : null,
+                  child: Column(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: i <= _step ? AppColors.primary : AppColors.border,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        labels[i],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: i == _step ? AppColors.textDark : AppColors.textLight,
+                          fontSize: 12,
+                          fontWeight: i == _step ? FontWeight.w800 : FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Back and Next; on the last step, Back and Submit.
+  Widget _buildStepNavigation(IncidentState state) {
+    return Row(
+      children: [
+        if (_step > 0) ...[
+          Expanded(
+            child: NeoButton(
+              key: const Key('report-back'),
+              label: _l10n.reportBack,
+              icon: Icons.arrow_back_rounded,
+              variant: NeoButtonVariant.slate,
+              expand: true,
+              onPressed: () => _goToStep(_step - 1),
+            ),
+          ),
+          SizedBox(width: 10),
+        ],
+        Expanded(
+          flex: 2,
+          child: _step < _lastStep
+              ? NeoButton(
+                  key: const Key('report-next'),
+                  label: _l10n.reportNext,
+                  icon: Icons.arrow_forward_rounded,
+                  expand: true,
+                  onPressed: _nextStep,
+                )
+              : _buildSubmitButton(state),
+        ),
+      ],
     );
   }
 

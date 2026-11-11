@@ -4027,6 +4027,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t send it. Check your internet and try again.'**
   String get idVerifyFailed;
+
+  /// Step 1 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get reportStepType;
+
+  /// Step 2 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get reportStepLocation;
+
+  /// Step 3 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Evidence'**
+  String get reportStepEvidence;
+
+  /// Step 4 label.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get reportStepDetails;
+
+  /// Progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of {total}'**
+  String reportStepOf(int step, int total);
+
+  /// Next step button.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get reportNext;
+
+  /// Previous step button.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get reportBack;
+
+  /// Review card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Review before sending'**
+  String get reportReviewTitle;
+
+  /// Review: a photo is attached.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get reportReviewPhoto;
+
+  /// Review: a video is attached.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get reportReviewVideo;
+
+  /// Review: no evidence.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get reportReviewNoEvidence;
 }
 
 class _AppLocalizationsDelegate

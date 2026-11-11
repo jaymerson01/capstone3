@@ -2309,4 +2309,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get idVerifyFailed =>
       'Couldn\'t send it. Check your internet and try again.';
+
+  @override
+  String get reportStepType => 'Type';
+
+  @override
+  String get reportStepLocation => 'Location';
+
+  @override
+  String get reportStepEvidence => 'Evidence';
+
+  @override
+  String get reportStepDetails => 'Details';
+
+  @override
+  String reportStepOf(int step, int total) {
+    return 'Step $step of $total';
+  }
+
+  @override
+  String get reportNext => 'Next';
+
+  @override
+  String get reportBack => 'Back';
+
+  @override
+  String get reportReviewTitle => 'Review before sending';
+
+  @override
+  String get reportReviewPhoto => 'Photo';
+
+  @override
+  String get reportReviewVideo => 'Video';
+
+  @override
+  String get reportReviewNoEvidence => 'None';
 }
