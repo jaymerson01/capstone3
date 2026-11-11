@@ -277,6 +277,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
       dispatcherNotes: incident.dispatcherNotes,
       reporterName: incident.reporterName,
       reporterEmail: incident.reporterEmail,
+      reporterPhone: incident.reporterPhone,
       isReportingOnBehalf: incident.isReportingOnBehalf,
       isBlotter: incident.isBlotter,
       victimName: incident.victimName,
@@ -498,6 +499,21 @@ class IncidentRepositoryImpl implements IncidentRepository {
             'assignedAt': FieldValue.serverTimestamp(),
           });
   }
+
+  @override
+  Stream<({double lat, double lng, String? name, DateTime? at})?> watchResponderPosition(String id) {
+    return firestore.collection('incidents').doc(id).collection('tracking').doc('responder').snapshots().map((doc) {
+      final data = doc.data();
+      final lat = (data?['lat'] as num?)?.toDouble();
+      final lng = (data?['lng'] as num?)?.toDouble();
+      if (lat == null || lng == null) return null;
+      return (lat: lat, lng: lng, name: data!['name'] as String?, at: (data['at'] as Timestamp?)?.toDate());
+    });
+  }
+
+  @override
+  Future<void> setDepartments(String id, List<String> departmentIds) =>
+      firestore.collection('incidents').doc(id).update({'departments': departmentIds});
 
   @override
   Future<void> rateIncident(String id, int rating, {String? comment}) async {

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Builds the resident app (site root) and the admin portal (/admin/) and
-# deploys both to Firebase Hosting. Deploys hosting only: Firestore rules,
-# Storage rules and Cloud Functions are never touched.
+# Builds the resident app (site root), the admin portal (/admin/) and the
+# responder portal (/responder/) and deploys them to Firebase Hosting.
+# Deploys hosting only: Firestore rules, Storage rules and Cloud Functions are
+# never touched.
 #
 #   ./scripts/deploy_firebase.sh               build, then deploy
 #   ./scripts/deploy_firebase.sh --build-only  build only (to check build/web)
@@ -45,3 +46,4 @@ echo
 echo "Live:"
 echo "  Resident app:  https://$PROJECT.web.app"
 echo "  Admin portal:  https://$PROJECT.web.app/admin/"
+echo "  Responders:    https://$PROJECT.web.app/responder/"

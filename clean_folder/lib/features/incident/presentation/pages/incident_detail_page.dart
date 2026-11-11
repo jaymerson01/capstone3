@@ -26,6 +26,7 @@ import '../widgets/incident_status_timeline.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/features/incident/presentation/widgets/rate_response_card.dart';
+import 'package:community_safety_app/features/incident/presentation/widgets/responder_live_map.dart';
 
 class IncidentDetailPage extends StatelessWidget {
   final IncidentEntity initialIncident;
@@ -142,6 +143,13 @@ class IncidentDetailPage extends StatelessWidget {
                     // 4. Resolution stage and safety action protocol
                     IncidentStatusTimeline(incident: currentIncident),
                     SizedBox(height: 16),
+                    // 4a. The reporter follows the responder on the way
+                    if (currentIncident.responderStatus == 'on_the_way' &&
+                        !currentIncident.isSolved &&
+                        currentIncident.reporterId == FirebaseAuth.instance.currentUser?.uid) ...[
+                      ResponderLiveMap(incident: currentIncident),
+                      SizedBox(height: 16),
+                    ],
                     // 4b. The reporter rates the response once it's resolved
                     if (currentIncident.isSolved &&
                         currentIncident.reporterId == FirebaseAuth.instance.currentUser?.uid) ...[

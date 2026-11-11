@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:community_safety_app/core/utils/departments.dart';
+
 class IncidentEntity {
   final String id;
   final String reporterId;
@@ -50,6 +52,22 @@ class IncidentEntity {
   final String? assignedResponderName;
   final DateTime? assignedAt;
 
+  /// Departments this report goes to, when an admin changed them; otherwise
+  /// [departments] routes it by category.
+  final List<String>? departmentIds;
+
+  /// The assigned responder's progress ('on_the_way', 'on_scene'), notes
+  /// and photo. Their live position is kept apart (the report's tracking
+  /// record), readable only by the reporter, admins and that responder.
+  final String? responderStatus;
+  final DateTime? responderStatusAt;
+  final String? responderNotes;
+  final String? responderPhotoUrl;
+
+  /// The reporter's phone, from the private contact record (admins and the
+  /// assigned responder only).
+  final String? reporterPhone;
+
   /// Whether an admin has verified the reporter's residency (admin desk only;
   /// null when the reporter's profile isn't loaded).
   final bool? reporterVerified;
@@ -91,7 +109,19 @@ class IncidentEntity {
     this.assignedResponderId,
     this.assignedResponderName,
     this.assignedAt,
+    this.departmentIds,
+    this.responderStatus,
+    this.responderStatusAt,
+    this.responderNotes,
+    this.responderPhotoUrl,
+    this.reporterPhone,
   });
+
+  /// The departments this report goes to.
+  List<Department> get departments {
+    final chosen = departmentIds?.map(Department.fromId).whereType<Department>().toList();
+    return (chosen == null || chosen.isEmpty) ? Department.forCategory(category) : chosen;
+  }
 
   /// From filing until the barangay started responding (In progress).
   Duration? get timeToRespond => inProgressAt?.difference(timestamp);

@@ -860,6 +860,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       isAnonymous: isAnonymous,
       reporterName: currentUserName,
       reporterEmail: currentUserEmail,
+      reporterPhone: currentUser?.phoneNumber,
       isReportingOnBehalf: _isReportingOnBehalf,
       isBlotter: _isBlotter &&
           IncidentEntity.isBlotterCategory(_selectedIncidentCategory),

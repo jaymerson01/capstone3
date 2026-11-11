@@ -187,6 +187,12 @@ class IncidentModel extends IncidentEntity {
     String? assignedResponderId,
     String? assignedResponderName,
     DateTime? assignedAt,
+    List<String>? departmentIds,
+    String? responderStatus,
+    DateTime? responderStatusAt,
+    String? responderNotes,
+    String? responderPhotoUrl,
+    String? reporterPhone,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -225,6 +231,12 @@ class IncidentModel extends IncidentEntity {
       assignedResponderId: assignedResponderId ?? this.assignedResponderId,
       assignedResponderName: assignedResponderName ?? this.assignedResponderName,
       assignedAt: assignedAt ?? this.assignedAt,
+      departmentIds: departmentIds ?? this.departmentIds,
+      responderStatus: responderStatus ?? this.responderStatus,
+      responderStatusAt: responderStatusAt ?? this.responderStatusAt,
+      responderNotes: responderNotes ?? this.responderNotes,
+      responderPhotoUrl: responderPhotoUrl ?? this.responderPhotoUrl,
+      reporterPhone: reporterPhone ?? this.reporterPhone,
     );
   }
 
@@ -260,6 +272,12 @@ class IncidentModel extends IncidentEntity {
     super.assignedResponderId,
     super.assignedResponderName,
     super.assignedAt,
+    super.departmentIds,
+    super.responderStatus,
+    super.responderStatusAt,
+    super.responderNotes,
+    super.responderPhotoUrl,
+    super.reporterPhone,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
@@ -384,6 +402,11 @@ class IncidentModel extends IncidentEntity {
       assignedResponderId: data['assignedResponderId'] as String?,
       assignedResponderName: data['assignedResponderName'] as String?,
       assignedAt: readTime('assignedAt'),
+      departmentIds: (data['departments'] as List?)?.whereType<String>().toList(),
+      responderStatus: data['responderStatus'] as String?,
+      responderStatusAt: readTime('responderStatusAt'),
+      responderNotes: data['responderNotes'] as String?,
+      responderPhotoUrl: data['responderPhotoUrl'] as String?,
     );
   }
 
@@ -409,6 +432,7 @@ class IncidentModel extends IncidentEntity {
       'reporterEmail': reporterEmail,
       'victimName': victimName,
       'victimPhone': victimPhone,
+      if (reporterPhone != null && reporterPhone!.isNotEmpty) 'reporterPhone': reporterPhone,
     };
   }
 
@@ -451,6 +475,12 @@ class IncidentModel extends IncidentEntity {
       assignedResponderId: assignedResponderId,
       assignedResponderName: assignedResponderName,
       assignedAt: assignedAt,
+      departmentIds: departmentIds,
+      responderStatus: responderStatus,
+      responderStatusAt: responderStatusAt,
+      responderNotes: responderNotes,
+      responderPhotoUrl: responderPhotoUrl,
+      reporterPhone: data['reporterPhone'] as String? ?? reporterPhone,
     );
   }
 

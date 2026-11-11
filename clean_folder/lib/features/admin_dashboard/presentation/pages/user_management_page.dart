@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
+import 'package:community_safety_app/core/utils/departments.dart';
 
 class UserManagementPage extends StatefulWidget {
   const UserManagementPage({super.key});
@@ -108,6 +109,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               ("All", "All Roles"),
                               ("resident", "Residents Only"),
                               ("admin", "Admins Only"),
+                              ("responder", "Responders Only"),
                             ],
                             onChanged: (val) =>
                                 setState(() => _roleFilter = val),
@@ -115,7 +117,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                           if (iAmSuperAdmin) ...[
                             const SizedBox(width: 12, height: 12),
                             AdminButton(
-                              label: "Add admin",
+                              label: "Add account",
                               icon: Icons.person_add_alt_1_rounded,
                               onPressed: () => _showAddAdminDialog(context),
                             ),
@@ -414,12 +416,16 @@ class _UserManagementPageState extends State<UserManagementPage> {
                                                   ? "Super Admin"
                                                   : user.isAdmin
                                                       ? "Barangay Admin"
-                                                      : "Citizen Resident",
+                                                      : user.isResponder
+                                                          ? "Responder · ${Department.fromId(user.department)?.label ?? 'No department'}"
+                                                          : "Citizen Resident",
                                               tone: user.isSuperAdmin
                                                   ? AdminTone.violet
                                                   : user.isAdmin
                                                       ? AdminTone.blue
-                                                      : AdminTone.slate,
+                                                      : user.isResponder
+                                                          ? AdminTone.orange
+                                                          : AdminTone.slate,
                                             ),
                                             // Two-step sign-in (MFA) status.
                                             if (user.isAdmin)
@@ -1228,7 +1234,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            "✓ Admin account created. $created will get an email to set a password, then link an authenticator app at first sign-in.",
+            "✓ Account created. $created will get an email to set a password.",
           ),
           backgroundColor: AdminColors.success,
           behavior: SnackBarBehavior.floating,
@@ -1314,6 +1320,8 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
   final _email = TextEditingController();
   bool _busy = false;
   String? _error;
+  String _role = 'admin';
+  Department _department = Department.tanod;
 
   @override
   void dispose() {
@@ -1331,10 +1339,18 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
     final name = _name.text.trim();
     final email = _email.text.trim();
     try {
-      final uid = await sl<AdminAccountsRemoteDataSource>().createAdmin(email: email, displayName: name);
+      final responder = _role == 'responder';
+      final uid = await sl<AdminAccountsRemoteDataSource>().createStaffAccount(
+        email: email,
+        displayName: name,
+        role: _role,
+        department: responder ? _department.id : null,
+      );
       await sl<AuditLogRemoteDataSource>().recordLog(
         actionType: 'Admin Accounts',
-        details: 'Created admin account for $name <$email> (UID: $uid)',
+        details: responder
+            ? 'Created responder account for $name <$email>, ${_department.label} (UID: $uid)'
+            : 'Created admin account for $name <$email> (UID: $uid)',
         targetId: uid,
       );
       if (mounted) Navigator.pop(context, email);
@@ -1358,7 +1374,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
   @override
   Widget build(BuildContext context) {
     return AdminDialog(
-      title: "Add an admin",
+      title: "Add an account",
       subtitle: "Super admin only",
       icon: Icons.person_add_alt_1_rounded,
       tone: AdminTone.violet,
@@ -1370,7 +1386,7 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
           onPressed: _busy ? null : () => Navigator.pop(context),
         ),
         AdminButton(
-          label: "Create admin",
+          label: "Create account",
           icon: Icons.check_rounded,
           busy: _busy,
           onPressed: _create,
@@ -1382,9 +1398,43 @@ class _AddAdminDialogState extends State<_AddAdminDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              "They'll get an email to set their own password. At their first sign-in they'll link an authenticator app for two-step verification.",
-              style: TextStyle(color: AdminColors.textSoft, fontSize: 13, height: 1.5),
+            const AdminFieldLabel("Account type"),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                AdminChoiceChip(label: "Admin", selected: _role == 'admin', onTap: () => setState(() => _role = 'admin')),
+                AdminChoiceChip(
+                  label: "Responder",
+                  selected: _role == 'responder',
+                  onTap: () => setState(() => _role = 'responder'),
+                ),
+              ],
+            ),
+            if (_role == 'responder') ...[
+              const SizedBox(height: 12),
+              const AdminFieldLabel("Department"),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final department in Department.values)
+                    AdminChoiceChip(
+                      label: department.label,
+                      selected: _department == department,
+                      onTap: () => setState(() => _department = department),
+                    ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 12),
+            Text(
+              _role == 'responder'
+                  ? "They'll get an email to set their password, then sign in at the responder portal (/responder/) to see their department's reports."
+                  : "They'll get an email to set their own password. At their first sign-in they'll link an authenticator app for two-step verification.",
+              style: const TextStyle(color: AdminColors.textSoft, fontSize: 13, height: 1.5),
             ),
             const SizedBox(height: 16),
             const AdminFieldLabel("Full name"),

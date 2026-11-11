@@ -168,7 +168,7 @@ class ResidentAuthWrapper extends StatelessWidget {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is Authenticated) {
-          if (state.user.isAdmin) {
+          if (state.user.isAdmin || state.user.isResponder) {
             context.read<AuthBloc>().add(const LogoutRequested());
             final navContext = residentNavigatorKey.currentContext ?? context;
             AuthModals.showAdminAccountBlocked(navContext);
@@ -197,7 +197,7 @@ class ResidentAuthWrapper extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is Authenticated && !state.user.isAdmin) {
+        if (state is Authenticated && !state.user.isAdmin && !state.user.isResponder) {
           final isVerified = (FirebaseAuth.instance.currentUser?.emailVerified ?? false) || state.user.isVerified;
           if (!isVerified) {
             return EmailVerificationPage(user: state.user);

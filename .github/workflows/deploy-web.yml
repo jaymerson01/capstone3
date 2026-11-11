@@ -4,7 +4,8 @@ name: Publish the web app
 # - the resident app at https://jaymerson01.github.io/capstone3/, so iPhone
 #   users can open it in Safari and add it to their Home Screen;
 # - the admin portal at https://jaymerson01.github.io/capstone3/admin/
-#   (only accounts with the admin role can sign in).
+#   (only accounts with the admin role can sign in);
+# - the responder portal at https://jaymerson01.github.io/capstone3/responder/.
 #
 # The site is public, so it is built without the Gemini key (.env is left
 # empty).
@@ -48,10 +49,16 @@ jobs:
           flutter build web --release -t lib/main_admin.dart --base-href /capstone3/admin/
           mv build/web build/admin_site
 
-      - name: Build the resident web app, with the admin portal under /admin/
+      - name: Build the responder portal
+        run: |
+          flutter build web --release -t lib/main_responder.dart --base-href /capstone3/responder/
+          mv build/web build/responder_site
+
+      - name: Build the resident web app, with the portals under /admin/ and /responder/
         run: |
           flutter build web --release -t lib/main_resident.dart --base-href /capstone3/
           mv build/admin_site build/web/admin
+          mv build/responder_site build/web/responder
 
       - uses: actions/upload-pages-artifact@v3
         with:

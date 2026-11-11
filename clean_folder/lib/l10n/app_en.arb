@@ -2859,5 +2859,51 @@
   "nearbyAlertView": "View",
   "@nearbyAlertView": {
     "description": "Open the nearby report."
+  },
+  "timelineTheResponder": "The responder",
+  "@timelineTheResponder": {
+    "description": "Fallback when the responder's name isn't known."
+  },
+  "timelineResponderOnTheWay": "{name} is on the way",
+  "@timelineResponderOnTheWay": {
+    "description": "Timeline: responder on the way.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "timelineResponderOnScene": "{name} is on the scene",
+  "@timelineResponderOnScene": {
+    "description": "Timeline: responder on the scene.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMapTitle": "Responder on the way",
+  "@liveMapTitle": {
+    "description": "Live map title."
+  },
+  "liveMapDistance": "About {meters} m away · updated {time}",
+  "@liveMapDistance": {
+    "description": "Live map distance.",
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "liveMapWaiting": "Waiting for the responder's location…",
+  "@liveMapWaiting": {
+    "description": "Before the first position arrives."
+  },
+  "liveMapYourReport": "Your report",
+  "@liveMapYourReport": {
+    "description": "Report pin label."
   }
 }

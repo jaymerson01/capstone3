@@ -21,4 +21,12 @@ abstract class IncidentRepository {
 
   /// Assigns a tanod or responder to the report (admins); null clears it.
   Future<void> assignResponder(String id, {String? responderId, String? responderName});
+
+  /// Sends the report to these departments instead of the default for its
+  /// type (admins).
+  Future<void> setDepartments(String id, List<String> departmentIds);
+
+  /// The assigned responder's live position while they're on the way to the
+  /// reporter's report; null when they aren't sharing it.
+  Stream<({double lat, double lng, String? name, DateTime? at})?> watchResponderPosition(String id);
 }

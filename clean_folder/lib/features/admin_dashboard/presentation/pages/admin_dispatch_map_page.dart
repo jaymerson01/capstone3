@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,6 +36,10 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
   // Selected incident for Dispatcher Drawer
   IncidentEntity? _selectedIncident;
+
+  // Responders on the way, by report id: their shared live position.
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _trackingSubscription;
+  Map<String, ({LatLng at, String? name})> _responders = const {};
   final TextEditingController _notesController = TextEditingController();
   bool _isSavingNotes = false;
 
@@ -72,7 +77,29 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 ''';
 
   @override
+  void initState() {
+    super.initState();
+    _trackingSubscription = FirebaseFirestore.instance.collectionGroup('tracking').snapshots().listen(
+      (snapshot) {
+        if (!mounted) return;
+        setState(() {
+          _responders = {
+            for (final doc in snapshot.docs)
+              if (doc.data()['lat'] is num && doc.data()['lng'] is num && doc.reference.parent.parent != null)
+                doc.reference.parent.parent!.id: (
+                  at: LatLng((doc.data()['lat'] as num).toDouble(), (doc.data()['lng'] as num).toDouble()),
+                  name: doc.data()['name'] as String?,
+                ),
+          };
+        });
+      },
+      onError: (Object e) => debugPrint('[DispatchMap] Responder positions unavailable: $e'),
+    );
+  }
+
+  @override
   void dispose() {
+    _trackingSubscription?.cancel();
     _notesController.dispose();
     super.dispose();
   }
@@ -440,7 +467,19 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   cameraTargetBounds: MoonwalkArea.cameraBounds,
                                   minMaxZoomPreference: MoonwalkArea.zoomRange,
                                   style: _darkMapStyle,
-                                  markers: markers,
+                                  markers: {
+                                    ...markers,
+                                    for (final entry in _responders.entries)
+                                      Marker(
+                                        markerId: MarkerId('responder_${entry.key}'),
+                                        position: entry.value.at,
+                                        zIndexInt: 2,
+                                        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                                        infoWindow: InfoWindow(
+                                          title: '${entry.value.name ?? 'Responder'} · on the way',
+                                        ),
+                                      ),
+                                  },
                                   circles: circles,
                                   onMapCreated: (controller) {
                                     _mapController = controller;

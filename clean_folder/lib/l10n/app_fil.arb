@@ -629,5 +629,12 @@
   "rateStars": "{count} sa 5 bituin",
   "nearbyAlertTitle": "May kritikal na insidente malapit sa iyo",
   "nearbyAlertBody": "{category} · mga {meters} m ang layo · {area}",
-  "nearbyAlertView": "Tingnan"
+  "nearbyAlertView": "Tingnan",
+  "timelineTheResponder": "ang responder",
+  "timelineResponderOnTheWay": "Papunta na: {name}",
+  "timelineResponderOnScene": "Nasa lugar na: {name}",
+  "liveMapTitle": "Papunta na ang responder",
+  "liveMapDistance": "Mga {meters} m ang layo · na-update {time}",
+  "liveMapWaiting": "Hinihintay ang lokasyon ng responder…",
+  "liveMapYourReport": "Ang ulat mo"
 }

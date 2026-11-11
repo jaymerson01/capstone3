@@ -2205,4 +2205,31 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get nearbyAlertView => 'Tingnan';
+
+  @override
+  String get timelineTheResponder => 'ang responder';
+
+  @override
+  String timelineResponderOnTheWay(String name) {
+    return 'Papunta na: $name';
+  }
+
+  @override
+  String timelineResponderOnScene(String name) {
+    return 'Nasa lugar na: $name';
+  }
+
+  @override
+  String get liveMapTitle => 'Papunta na ang responder';
+
+  @override
+  String liveMapDistance(int meters, String time) {
+    return 'Mga $meters m ang layo · na-update $time';
+  }
+
+  @override
+  String get liveMapWaiting => 'Hinihintay ang lokasyon ng responder…';
+
+  @override
+  String get liveMapYourReport => 'Ang ulat mo';
 }

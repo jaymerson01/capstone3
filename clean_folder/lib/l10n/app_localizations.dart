@@ -3877,6 +3877,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get nearbyAlertView;
+
+  /// Fallback when the responder's name isn't known.
+  ///
+  /// In en, this message translates to:
+  /// **'The responder'**
+  String get timelineTheResponder;
+
+  /// Timeline: responder on the way.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on the way'**
+  String timelineResponderOnTheWay(String name);
+
+  /// Timeline: responder on the scene.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is on the scene'**
+  String timelineResponderOnScene(String name);
+
+  /// Live map title.
+  ///
+  /// In en, this message translates to:
+  /// **'Responder on the way'**
+  String get liveMapTitle;
+
+  /// Live map distance.
+  ///
+  /// In en, this message translates to:
+  /// **'About {meters} m away · updated {time}'**
+  String liveMapDistance(int meters, String time);
+
+  /// Before the first position arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the responder\'s location…'**
+  String get liveMapWaiting;
+
+  /// Report pin label.
+  ///
+  /// In en, this message translates to:
+  /// **'Your report'**
+  String get liveMapYourReport;
 }
 
 class _AppLocalizationsDelegate

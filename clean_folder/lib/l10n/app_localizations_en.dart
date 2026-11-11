@@ -2219,4 +2219,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nearbyAlertView => 'View';
+
+  @override
+  String get timelineTheResponder => 'The responder';
+
+  @override
+  String timelineResponderOnTheWay(String name) {
+    return '$name is on the way';
+  }
+
+  @override
+  String timelineResponderOnScene(String name) {
+    return '$name is on the scene';
+  }
+
+  @override
+  String get liveMapTitle => 'Responder on the way';
+
+  @override
+  String liveMapDistance(int meters, String time) {
+    return 'About $meters m away · updated $time';
+  }
+
+  @override
+  String get liveMapWaiting => 'Waiting for the responder\'s location…';
+
+  @override
+  String get liveMapYourReport => 'Your report';
 }
