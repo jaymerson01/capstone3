@@ -207,6 +207,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       case 0:
         return AdminDashboardPage(
           onViewAllReports: () => setState(() => _selectedIndex = 2),
+          onNavigate: (index) => setState(() => _selectedIndex = index),
         );
       case 1:
         return const AdminDispatchMapPage();
@@ -226,6 +227,7 @@ class _AdminPanelShellState extends State<AdminPanelShell> {
       default:
         return AdminDashboardPage(
           onViewAllReports: () => setState(() => _selectedIndex = 2),
+          onNavigate: (index) => setState(() => _selectedIndex = index),
         );
     }
   }

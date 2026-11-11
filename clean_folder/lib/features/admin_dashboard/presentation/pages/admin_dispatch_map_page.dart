@@ -20,6 +20,34 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/widge
 import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 
 class AdminDispatchMapPage extends StatefulWidget {
+  /// The admin portal's dark Google Maps style (the dashboard uses it too).
+  static const String darkMapStyle = '''
+[
+  {"elementType": "geometry", "stylers": [{"color": "#0d1627"}]},
+  {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
+  {"elementType": "labels.text.stroke", "stylers": [{"color": "#060d1a"}]},
+  {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
+  {"featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{"color": "#64779e"}]},
+  {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
+  {"featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
+  {"featureType": "landscape.natural", "elementType": "geometry", "stylers": [{"color": "#08101e"}]},
+  {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#0f1c32"}]},
+  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
+  {"featureType": "poi.park", "elementType": "geometry.fill", "stylers": [{"color": "#0a1a24"}]},
+  {"featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{"color": "#3C7680"}]},
+  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#18263e"}]},
+  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#111c2f"}]},
+  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#98a6be"}]},
+  {"featureType": "road.highway", "elementType": "geometry", "stylers": [{"color": "#23395b"}]},
+  {"featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{"color": "#17263c"}]},
+  {"featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{"color": "#b0d5ce"}]},
+  {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#182740"}]},
+  {"featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
+  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#061324"}]},
+  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#3d648f"}]}
+]
+''';
+
   const AdminDispatchMapPage({super.key});
 
   @override
@@ -49,32 +77,6 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
     zoom: 14.5,
   );
 
-  static const String _darkMapStyle = '''
-[
-  {"elementType": "geometry", "stylers": [{"color": "#0d1627"}]},
-  {"elementType": "labels.text.fill", "stylers": [{"color": "#8ec3b9"}]},
-  {"elementType": "labels.text.stroke", "stylers": [{"color": "#060d1a"}]},
-  {"featureType": "administrative.country", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [{"color": "#64779e"}]},
-  {"featureType": "administrative.province", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "landscape.man_made", "elementType": "geometry.stroke", "stylers": [{"color": "#1e2d4a"}]},
-  {"featureType": "landscape.natural", "elementType": "geometry", "stylers": [{"color": "#08101e"}]},
-  {"featureType": "poi", "elementType": "geometry", "stylers": [{"color": "#0f1c32"}]},
-  {"featureType": "poi", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
-  {"featureType": "poi.park", "elementType": "geometry.fill", "stylers": [{"color": "#0a1a24"}]},
-  {"featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{"color": "#3C7680"}]},
-  {"featureType": "road", "elementType": "geometry", "stylers": [{"color": "#18263e"}]},
-  {"featureType": "road", "elementType": "geometry.stroke", "stylers": [{"color": "#111c2f"}]},
-  {"featureType": "road", "elementType": "labels.text.fill", "stylers": [{"color": "#98a6be"}]},
-  {"featureType": "road.highway", "elementType": "geometry", "stylers": [{"color": "#23395b"}]},
-  {"featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{"color": "#17263c"}]},
-  {"featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{"color": "#b0d5ce"}]},
-  {"featureType": "transit", "elementType": "geometry", "stylers": [{"color": "#182740"}]},
-  {"featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{"color": "#6f88b0"}]},
-  {"featureType": "water", "elementType": "geometry", "stylers": [{"color": "#061324"}]},
-  {"featureType": "water", "elementType": "labels.text.fill", "stylers": [{"color": "#3d648f"}]}
-]
-''';
 
   @override
   void initState() {
@@ -466,7 +468,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                   initialCameraPosition: _initialPosition,
                                   cameraTargetBounds: MoonwalkArea.cameraBounds,
                                   minMaxZoomPreference: MoonwalkArea.zoomRange,
-                                  style: _darkMapStyle,
+                                  style: AdminDispatchMapPage.darkMapStyle,
                                   markers: {
                                     ...markers,
                                     for (final entry in _responders.entries)
