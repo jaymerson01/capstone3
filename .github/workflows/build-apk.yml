@@ -10,7 +10,7 @@ name: Build Android APK
 # secrets, so its SHA-1/SHA-256 always match Firebase and the Maps key.
 on:
   push:
-    branches: [feature/neo-tactile-ui]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
