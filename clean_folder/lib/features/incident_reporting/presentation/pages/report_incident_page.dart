@@ -44,6 +44,8 @@ import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 import 'package:community_safety_app/core/services/voice_input_service.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/location_picker_page.dart';
+import 'package:community_safety_app/core/services/app_coordinate.dart';
 
 class ReportIncidentPage extends StatefulWidget {
   const ReportIncidentPage({super.key});
@@ -227,6 +229,63 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         height: 1.45,
         fontWeight: FontWeight.w500,
       );
+
+  /// Moves the small map back to the pin.
+  Widget _recenterButton() {
+    return FloatingActionButton.small(
+      heroTag: 'recenter_pin_btn',
+      backgroundColor: AppColors.surface,
+      foregroundColor: AppColors.primaryText,
+      elevation: 3,
+      shape: const CircleBorder(),
+      onPressed: () {
+        if (_miniMapController != null) {
+          _miniMapController!.animateCamera(
+            CameraUpdate.newLatLng(
+              LatLng(
+                _latitude ?? _defaultMoonwalkCenter.latitude,
+                _longitude ?? _defaultMoonwalkCenter.longitude,
+              ),
+            ),
+          );
+        }
+      },
+      child: Icon(Icons.center_focus_strong_rounded, size: 18),
+    );
+  }
+
+  /// The full-screen map with search. Whatever place is chosen there becomes
+  /// the report's pin and address.
+  Future<void> _openLocationPicker({bool search = false}) async {
+    final picked = await Navigator.of(context).push<AppCoordinate>(
+      MaterialPageRoute(
+        builder: (_) => LocationPickerPage(
+          initial: LatLng(
+            _latitude ?? _defaultMoonwalkCenter.latitude,
+            _longitude ?? _defaultMoonwalkCenter.longitude,
+          ),
+          initialAddress: _resolvedAddress,
+          focusSearch: search,
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _latitude = picked.latitude;
+      _longitude = picked.longitude;
+      _coordinatesController.text =
+          "${picked.latitude.toStringAsFixed(6)}, ${picked.longitude.toStringAsFixed(6)}";
+      _resolvedAddress = picked.address ?? _resolvedAddress;
+      if (picked.sector != null && picked.sector!.isNotEmpty) {
+        _resolvedSector = picked.sector;
+        _selectedBarangay = picked.sector!;
+      }
+      _isReverseGeocoding = false;
+    });
+    _miniMapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(LatLng(picked.latitude, picked.longitude), 17),
+    );
+  }
 
   void _showFormError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -2055,7 +2114,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(22),
             child: Container(
-              height: 220,
+              height: 300,
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(22),
@@ -2077,7 +2136,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         _latitude ?? _defaultMoonwalkCenter.latitude,
                         _longitude ?? _defaultMoonwalkCenter.longitude,
                       ),
-                      zoom: 15.5,
+                      zoom: 17,
                     ),
                     cameraTargetBounds: MoonwalkArea.cameraBounds,
                     minMaxZoomPreference: MoonwalkArea.zoomRange,
@@ -2177,29 +2236,59 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                       ),
                     ),
                   ),
-                  // Bottom-right re-center button
+                  // Search, full screen and re-center along the bottom
                   Positioned(
                     bottom: 10,
+                    left: 10,
                     right: 10,
-                    child: FloatingActionButton.small(
-                      heroTag: 'recenter_pin_btn',
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.primaryText,
-                      elevation: 3,
-                      shape: const CircleBorder(),
-                      onPressed: () {
-                        if (_miniMapController != null) {
-                          _miniMapController!.animateCamera(
-                            CameraUpdate.newLatLng(
-                              LatLng(
-                                _latitude ?? _defaultMoonwalkCenter.latitude,
-                                _longitude ?? _defaultMoonwalkCenter.longitude,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Material(
+                            color: AppColors.surface,
+                            elevation: 3,
+                            borderRadius: BorderRadius.circular(999),
+                            child: InkWell(
+                              key: const Key('report-map-search'),
+                              borderRadius: BorderRadius.circular(999),
+                              onTap: () => _openLocationPicker(search: true),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.search_rounded, size: 18, color: AppColors.textLight),
+                                    SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        _l10n.mapSearchAddress,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: AppColors.textLight,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          );
-                        }
-                      },
-                      child: Icon(Icons.center_focus_strong_rounded, size: 18),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        FloatingActionButton.small(
+                          heroTag: 'fullscreen_map_btn',
+                          tooltip: _l10n.mapFullScreen,
+                          backgroundColor: AppColors.surface,
+                          foregroundColor: AppColors.primaryText,
+                          elevation: 3,
+                          shape: const CircleBorder(),
+                          onPressed: () => _openLocationPicker(),
+                          child: Icon(Icons.fullscreen_rounded, size: 20),
+                        ),
+                        SizedBox(width: 8),
+                        _recenterButton(),
+                      ],
                     ),
                   ),
                 ],

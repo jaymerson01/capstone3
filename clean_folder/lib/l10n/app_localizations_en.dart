@@ -2140,4 +2140,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String timelineSince(String time) {
     return 'Since $time';
   }
+
+  @override
+  String get mapSearchHint => 'Search a street or place in Moonwalk';
+
+  @override
+  String get mapSearchClear => 'Clear search';
+
+  @override
+  String mapSearchOnline(String query) {
+    return 'Search “$query”';
+  }
+
+  @override
+  String get mapSearchFailed =>
+      'Couldn\'t search right now. Check your internet.';
+
+  @override
+  String get mapSearchNoResults => 'Nothing found inside Barangay Moonwalk.';
+
+  @override
+  String get mapMoveHint => 'Move the map to put the pin where it happened';
+
+  @override
+  String get mapFindingAddress => 'Finding the address…';
+
+  @override
+  String get mapMyLocation => 'My location';
+
+  @override
+  String get mapUseLocation => 'Use this location';
+
+  @override
+  String get mapFullScreen => 'Full screen';
+
+  @override
+  String get mapSearchAddress => 'Search address';
 }

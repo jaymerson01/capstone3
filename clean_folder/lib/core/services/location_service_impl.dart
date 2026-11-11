@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'package:community_safety_app/core/utils/barangay_sector_helper.dart';
+import 'package:community_safety_app/core/utils/moonwalk_area.dart';
 import 'app_coordinate.dart';
 import 'location_service.dart';
 
@@ -182,6 +183,101 @@ class LocationServiceImpl implements LocationService {
     );
   }
 
+  @override
+  Future<List<AppCoordinate>> searchPlaces(String query) async {
+    final box = MoonwalkArea.bounds;
+    final uri = Uri.https('nominatim.openstreetmap.org', '/search', {
+      'q': query,
+      'format': 'jsonv2',
+      'addressdetails': '1',
+      'limit': '8',
+      'countrycodes': 'ph',
+      // Only places inside Barangay Moonwalk's box (west,north,east,south).
+      'viewbox': '${box.southwest.longitude},${box.northeast.latitude},'
+          '${box.northeast.longitude},${box.southwest.latitude}',
+      'bounded': '1',
+    });
+    final response = await http.get(uri, headers: {
+      'User-Agent': 'ResQCommunitySafetyApp/1.0 (contact: support@resq.ph)',
+      'Accept-Language': 'en-US,en;q=0.9',
+    }).timeout(const Duration(seconds: 8));
+    if (response.statusCode != 200) {
+      throw Exception('Address search failed (HTTP ${response.statusCode})');
+    }
+    return placesFromNominatim(json.decode(response.body) as List<dynamic>);
+  }
+
+  /// Nominatim search results as places inside Moonwalk, in its order.
+  @visibleForTesting
+  static List<AppCoordinate> placesFromNominatim(List<dynamic> results) {
+    final places = <AppCoordinate>[];
+    for (final result in results.whereType<Map<String, dynamic>>()) {
+      final lat = double.tryParse('${result['lat']}');
+      final lng = double.tryParse('${result['lon']}');
+      if (lat == null || lng == null || !MoonwalkArea.contains(lat, lng)) continue;
+      final addr = result['address'];
+      final place = addr is Map<String, dynamic>
+          ? _coordinateFromAddress(addr, lat, lng, name: result['name'] as String?)
+          : null;
+      places.add(place ??
+          AppCoordinate(
+            latitude: lat,
+            longitude: lng,
+            address: result['display_name'] as String?,
+            sector: BarangaySectorHelper.findClosestSector(lat, lng)['sector'] as String,
+          ));
+    }
+    return places;
+  }
+
+  /// A short address from a Nominatim address block: the place's [name] (a
+  /// shop, school or landmark), road, neighbourhood and city.
+  static AppCoordinate? _coordinateFromAddress(
+    Map<String, dynamic> addr,
+    double lat,
+    double lng, {
+    String? name,
+  }) {
+    final road = addr['road'] as String?;
+    final neighbourhood = (addr['neighbourhood'] ??
+        addr['subdivision'] ??
+        addr['hamlet'] ??
+        addr['residential'] ??
+        addr['commercial']) as String?;
+    final quarter = (addr['quarter'] ??
+        addr['suburb'] ??
+        addr['village']) as String?;
+    final rawCity = (addr['city'] ??
+            addr['town'] ??
+            addr['municipality'] ??
+            'Parañaque City')
+        .toString();
+
+    final List<String> parts = [];
+    void add(String? part) {
+      final value = part?.trim();
+      if (value != null && value.isNotEmpty && !parts.contains(value)) parts.add(value);
+    }
+
+    add(name);
+    add(road);
+    add(neighbourhood);
+    if (parts.isEmpty) add(quarter);
+    if (parts.isEmpty) return null;
+
+    add((rawCity.toLowerCase().contains('parañaque') || rawCity.toLowerCase().contains('paranaque'))
+        ? 'Parañaque City'
+        : rawCity);
+
+    final addressStr = parts.join(', ');
+    return AppCoordinate(
+      latitude: lat,
+      longitude: lng,
+      address: addressStr,
+      sector: BarangaySectorHelper.normalizeSector(neighbourhood ?? quarter ?? road, addressStr),
+    );
+  }
+
   /// High-precision reverse geocoding via OpenStreetMap Nominatim
   Future<AppCoordinate?> _reverseGeocodeNominatim(double lat, double lng) async {
     try {
@@ -197,60 +293,12 @@ class LocationServiceImpl implements LocationService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body) as Map<String, dynamic>?;
-        if (data != null && data['address'] != null) {
-          final addr = data['address'] as Map<String, dynamic>;
-          final road = addr['road'] as String?;
-          final neighbourhood = (addr['neighbourhood'] ??
-              addr['subdivision'] ??
-              addr['hamlet'] ??
-              addr['residential'] ??
-              addr['commercial']) as String?;
-          final quarter = (addr['quarter'] ??
-              addr['suburb'] ??
-              addr['village']) as String?;
-          final rawCity = (addr['city'] ??
-                  addr['town'] ??
-                  addr['municipality'] ??
-                  'Parañaque City')
-              .toString();
-
-          final List<String> parts = [];
-          if (road != null && road.trim().isNotEmpty) {
-            parts.add(road.trim());
-          }
-          if (neighbourhood != null &&
-              neighbourhood.trim().isNotEmpty &&
-              !parts.contains(neighbourhood.trim())) {
-            parts.add(neighbourhood.trim());
-          }
-          if (parts.isEmpty && quarter != null && quarter.trim().isNotEmpty) {
-            parts.add(quarter.trim());
-          }
-
-          final formattedCity = (rawCity.toLowerCase().contains('parañaque') ||
-                  rawCity.toLowerCase().contains('paranaque'))
-              ? 'Parañaque City'
-              : rawCity;
-
-          if (formattedCity.isNotEmpty && !parts.contains(formattedCity)) {
-            parts.add(formattedCity);
-          }
-
-          final addressStr = parts.join(', ');
-          final rawSectorCandidate = neighbourhood ?? quarter ?? road;
-          final sectorStr = BarangaySectorHelper.normalizeSector(
-            rawSectorCandidate,
-            addressStr,
-          );
-
-          if (parts.isNotEmpty) {
-            debugPrint('[LocationService] Nominatim geocode success: $addressStr (Sector: $sectorStr)');
-            return AppCoordinate(
-              latitude: lat,
-              longitude: lng,
-              address: addressStr,
-              sector: sectorStr,
-            );
+        final addr = data?['address'];
+        if (addr is Map<String, dynamic>) {
+          final place = _coordinateFromAddress(addr, lat, lng);
+          if (place != null) {
+            debugPrint('[LocationService] Nominatim geocode success: ${place.address} (Sector: ${place.sector})');
+            return place;
           }
         }
       }

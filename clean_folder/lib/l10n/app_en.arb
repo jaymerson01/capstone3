@@ -2742,5 +2742,54 @@
         "type": "String"
       }
     }
+  },
+  "mapSearchHint": "Search a street or place in Moonwalk",
+  "@mapSearchHint": {
+    "description": "Map search box hint."
+  },
+  "mapSearchClear": "Clear search",
+  "@mapSearchClear": {
+    "description": "Clear button tooltip."
+  },
+  "mapSearchOnline": "Search “{query}”",
+  "@mapSearchOnline": {
+    "description": "Row that searches streets and places online.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "mapSearchFailed": "Couldn't search right now. Check your internet.",
+  "@mapSearchFailed": {
+    "description": "Search failed."
+  },
+  "mapSearchNoResults": "Nothing found inside Barangay Moonwalk.",
+  "@mapSearchNoResults": {
+    "description": "No search results."
+  },
+  "mapMoveHint": "Move the map to put the pin where it happened",
+  "@mapMoveHint": {
+    "description": "Full-screen picker hint."
+  },
+  "mapFindingAddress": "Finding the address…",
+  "@mapFindingAddress": {
+    "description": "Address lookup in progress."
+  },
+  "mapMyLocation": "My location",
+  "@mapMyLocation": {
+    "description": "Button: move to the phone's location."
+  },
+  "mapUseLocation": "Use this location",
+  "@mapUseLocation": {
+    "description": "Confirm the picked place."
+  },
+  "mapFullScreen": "Full screen",
+  "@mapFullScreen": {
+    "description": "Open the map full screen."
+  },
+  "mapSearchAddress": "Search address",
+  "@mapSearchAddress": {
+    "description": "Search pill on the small report map."
   }
 }

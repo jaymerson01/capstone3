@@ -25,6 +25,8 @@ import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
 import 'package:community_safety_app/core/presentation/neo/reduced_motion.dart';
 import 'package:community_safety_app/core/utils/moonwalk_area.dart';
+import 'package:community_safety_app/core/presentation/widgets/map_search_bar.dart';
+import 'package:community_safety_app/core/services/app_coordinate.dart';
 
 class MapsPage extends StatefulWidget {
   final IncidentEntity? focusedIncident;
@@ -38,6 +40,9 @@ class MapsPage extends StatefulWidget {
 
 class _MapsPageState extends State<MapsPage> {
   GoogleMapController? _mapController;
+
+  /// The place last chosen in the search bar.
+  AppCoordinate? _searchedPlace;
   String _selectedCategoryFilter = "All";
 
   // Default coordinate: Barangay Moonwalk, Paranaque City (or focused incident if provided)
@@ -370,6 +375,15 @@ class _MapsPageState extends State<MapsPage> {
     );
   }
 
+  /// Shows a searched street or place: moves the map there and drops a
+  /// blue pin with its address.
+  void _goToPlace(AppCoordinate place) {
+    setState(() => _searchedPlace = place);
+    _mapController?.animateCamera(
+      CameraUpdate.newLatLngZoom(LatLng(place.latitude, place.longitude), 17.5),
+    );
+  }
+
   Future<void> _animateToUserLocation() async {
     try {
       final loc = await sl<LocationService>().getCurrentLocation();
@@ -451,7 +465,16 @@ class _MapsPageState extends State<MapsPage> {
                           });
                         }
                       },
-                      markers: _buildMarkers(activeIncidents),
+                      markers: {
+                        ..._buildMarkers(activeIncidents),
+                        if (_searchedPlace != null)
+                          Marker(
+                            markerId: const MarkerId('searched_place'),
+                            position: LatLng(_searchedPlace!.latitude, _searchedPlace!.longitude),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                            infoWindow: InfoWindow(title: _searchedPlace!.address),
+                          ),
+                      },
                     ),
                   ),
 
@@ -556,6 +579,8 @@ class _MapsPageState extends State<MapsPage> {
                                 ),
                               ),
                             ],
+                            SizedBox(height: 10),
+                            MapSearchBar(onSelected: _goToPlace),
                             SizedBox(height: 10),
                             SizedBox(
                               height: 48,

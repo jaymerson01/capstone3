@@ -605,5 +605,16 @@
   "timelineStageResponding": "Inaaksyunan ng barangay",
   "timelineStageResolved": "Nalutas",
   "timelineStageClosed": "Isinara ng barangay",
-  "timelineSince": "Mula {time}"
+  "timelineSince": "Mula {time}",
+  "mapSearchHint": "Maghanap ng kalye o lugar sa Moonwalk",
+  "mapSearchClear": "Burahin ang hinahanap",
+  "mapSearchOnline": "Hanapin ang “{query}”",
+  "mapSearchFailed": "Hindi makapag-search ngayon. Tingnan ang internet mo.",
+  "mapSearchNoResults": "Walang nahanap sa loob ng Barangay Moonwalk.",
+  "mapMoveHint": "Igalaw ang mapa para ilagay ang pin kung saan nangyari",
+  "mapFindingAddress": "Hinahanap ang address…",
+  "mapMyLocation": "Lokasyon ko",
+  "mapUseLocation": "Gamitin ang lokasyong ito",
+  "mapFullScreen": "Buong screen",
+  "mapSearchAddress": "Maghanap ng address"
 }

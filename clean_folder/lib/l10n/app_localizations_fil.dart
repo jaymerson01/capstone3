@@ -2121,4 +2121,42 @@ class AppLocalizationsFil extends AppLocalizations {
   String timelineSince(String time) {
     return 'Mula $time';
   }
+
+  @override
+  String get mapSearchHint => 'Maghanap ng kalye o lugar sa Moonwalk';
+
+  @override
+  String get mapSearchClear => 'Burahin ang hinahanap';
+
+  @override
+  String mapSearchOnline(String query) {
+    return 'Hanapin ang “$query”';
+  }
+
+  @override
+  String get mapSearchFailed =>
+      'Hindi makapag-search ngayon. Tingnan ang internet mo.';
+
+  @override
+  String get mapSearchNoResults =>
+      'Walang nahanap sa loob ng Barangay Moonwalk.';
+
+  @override
+  String get mapMoveHint =>
+      'Igalaw ang mapa para ilagay ang pin kung saan nangyari';
+
+  @override
+  String get mapFindingAddress => 'Hinahanap ang address…';
+
+  @override
+  String get mapMyLocation => 'Lokasyon ko';
+
+  @override
+  String get mapUseLocation => 'Gamitin ang lokasyong ito';
+
+  @override
+  String get mapFullScreen => 'Buong screen';
+
+  @override
+  String get mapSearchAddress => 'Maghanap ng address';
 }

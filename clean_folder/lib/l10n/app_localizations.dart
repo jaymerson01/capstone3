@@ -3733,6 +3733,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Since {time}'**
   String timelineSince(String time);
+
+  /// Map search box hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a street or place in Moonwalk'**
+  String get mapSearchHint;
+
+  /// Clear button tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get mapSearchClear;
+
+  /// Row that searches streets and places online.
+  ///
+  /// In en, this message translates to:
+  /// **'Search “{query}”'**
+  String mapSearchOnline(String query);
+
+  /// Search failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search right now. Check your internet.'**
+  String get mapSearchFailed;
+
+  /// No search results.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found inside Barangay Moonwalk.'**
+  String get mapSearchNoResults;
+
+  /// Full-screen picker hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Move the map to put the pin where it happened'**
+  String get mapMoveHint;
+
+  /// Address lookup in progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding the address…'**
+  String get mapFindingAddress;
+
+  /// Button: move to the phone's location.
+  ///
+  /// In en, this message translates to:
+  /// **'My location'**
+  String get mapMyLocation;
+
+  /// Confirm the picked place.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this location'**
+  String get mapUseLocation;
+
+  /// Open the map full screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Full screen'**
+  String get mapFullScreen;
+
+  /// Search pill on the small report map.
+  ///
+  /// In en, this message translates to:
+  /// **'Search address'**
+  String get mapSearchAddress;
 }
 
 class _AppLocalizationsDelegate
