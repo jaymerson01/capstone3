@@ -15,6 +15,7 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/widge
 import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/report_exports.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/area_analytics.dart';
 
 enum ReportTimeframe { allTime, thisMonth, last30Days, thisWeek }
 
@@ -173,6 +174,29 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                         Expanded(flex: 4, child: rankingCard),
                       ],
                     ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+
+              // ── Per-area and per-department breakdown ──────────────────
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final Widget areaCard = _buildAreaBreakdownCard(filteredIncidents);
+                  final Widget departmentCard = _buildDepartmentCard(filteredIncidents);
+                  if (constraints.maxWidth < 1100) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [areaCard, const SizedBox(height: 18), departmentCard],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 7, child: areaCard),
+                      const SizedBox(width: 18),
+                      Expanded(flex: 3, child: departmentCard),
+                    ],
                   );
                 },
               ),
@@ -488,6 +512,122 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
           ),
         ),
       ],
+    );
+  }
+
+  // ── Per-Area Breakdown ─────────────────────────────────────────────────
+  Widget _buildAreaBreakdownCard(List<IncidentEntity> incidents) {
+    final rows = AreaAnalytics.byArea(incidents);
+    String duration(Duration? d) => d == null ? "—" : IncidentEntity.formatDuration(d);
+    DataColumn column(String label, {bool numeric = false}) =>
+        DataColumn(numeric: numeric, label: Text(label.toUpperCase(), style: AdminTable.header));
+
+    return AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AdminSectionTitle(
+            title: "Analytics by Area",
+            subtitle: "Every area's reports, response speed and resident ratings",
+          ),
+          const SizedBox(height: 14),
+          if (rows.isEmpty)
+            const AdminEmptyState(icon: Icons.map_outlined, title: "No reports in this timeframe")
+          else
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                headingRowHeight: 40,
+                dataRowMinHeight: 40,
+                dataRowMaxHeight: 52,
+                columnSpacing: 22,
+                horizontalMargin: 8,
+                dividerThickness: 0.6,
+                columns: [
+                  column("Area"),
+                  column("Reports", numeric: true),
+                  column("Open", numeric: true),
+                  column("Critical", numeric: true),
+                  column("Most common"),
+                  column("Avg. respond"),
+                  column("Avg. resolve"),
+                  column("Resolved", numeric: true),
+                  column("Rating", numeric: true),
+                ],
+                rows: [
+                  for (final row in rows)
+                    DataRow(cells: [
+                      DataCell(Text(row.area, style: AdminTable.cellStrong)),
+                      DataCell(Text("${row.total}", style: AdminTable.cellStrong)),
+                      DataCell(Text("${row.open}", style: AdminTable.cell)),
+                      DataCell(Text(
+                        "${row.critical}",
+                        style: row.critical > 0
+                            ? const TextStyle(color: AdminColors.dangerText, fontWeight: FontWeight.w800, fontSize: 13)
+                            : AdminTable.cell,
+                      )),
+                      DataCell(Text(row.topCategory, style: AdminTable.cell)),
+                      DataCell(Text(duration(row.avgTimeToRespond), style: AdminTable.cell)),
+                      DataCell(Text(duration(row.avgTimeToResolve), style: AdminTable.cell)),
+                      DataCell(Text("${(row.resolvedShare * 100).round()}%", style: AdminTable.cell)),
+                      DataCell(Text(
+                        row.avgRating == null ? "—" : "★ ${row.avgRating!.toStringAsFixed(1)}",
+                        style: const TextStyle(color: Color(0xFFFBBF24), fontWeight: FontWeight.w700, fontSize: 13),
+                      )),
+                    ]),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ── Department Workload ────────────────────────────────────────────────
+  Widget _buildDepartmentCard(List<IncidentEntity> incidents) {
+    final rows = AreaAnalytics.byDepartment(incidents);
+    return AdminPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AdminSectionTitle(
+            title: "Departments",
+            subtitle: "Reports routed to each, and how fast they respond",
+          ),
+          const SizedBox(height: 14),
+          for (final row in rows) ...[
+            Row(
+              children: [
+                AdminIconTile(icon: row.department.icon, tone: AdminTone.blue, size: 34),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(row.department.label, style: AdminTable.cellStrong),
+                      const SizedBox(height: 2),
+                      Text(
+                        "${row.total} reports · ${row.open} open"
+                        "${row.unassigned > 0 ? " · ${row.unassigned} waiting" : ""}",
+                        style: AdminTable.cell,
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  row.avgTimeToRespond == null ? "—" : IncidentEntity.formatDuration(row.avgTimeToRespond!),
+                  style: AdminTable.cellStrong,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+          const Text(
+            "Right: average time from filing to the response starting.",
+            style: TextStyle(color: AdminColors.textHint, fontSize: 11.5),
+          ),
+        ],
+      ),
     );
   }
 
