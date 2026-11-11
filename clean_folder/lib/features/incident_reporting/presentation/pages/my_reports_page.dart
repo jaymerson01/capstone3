@@ -114,7 +114,7 @@ class _MyReportsPageState extends State<MyReportsPage>
             child: FadeTransition(
               opacity: _entranceController,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -136,7 +136,7 @@ class _MyReportsPageState extends State<MyReportsPage>
                               WordSafeText(
                                 l10n.myReportsTitle,
                                 style: TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 21,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 1.5,
                                   color: AppColors.textDark,

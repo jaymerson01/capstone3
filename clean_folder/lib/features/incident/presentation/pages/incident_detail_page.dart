@@ -213,7 +213,7 @@ class IncidentDetailPage extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 21,
+                  fontSize: 19,
                   fontWeight: FontWeight.w800,
                   letterSpacing: -0.3,
                   color: AppColors.textDark,
@@ -331,7 +331,7 @@ class IncidentDetailPage extends StatelessWidget {
 
     return NeoTray(
       live: isSynced,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -485,7 +485,7 @@ class IncidentDetailPage extends StatelessWidget {
         : AppColors.onBehalf;
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -678,7 +678,7 @@ class IncidentDetailPage extends StatelessWidget {
     );
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -738,7 +738,7 @@ class IncidentDetailPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -773,7 +773,7 @@ class IncidentDetailPage extends StatelessWidget {
 
     if (!hasPhoto && !hasVideo) {
       return GlassCard(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -814,7 +814,7 @@ class IncidentDetailPage extends StatelessWidget {
     }
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

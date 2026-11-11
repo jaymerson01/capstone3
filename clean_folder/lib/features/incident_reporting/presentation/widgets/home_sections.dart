@@ -75,8 +75,8 @@ class HomeHeroHeader extends StatelessWidget {
         Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
@@ -104,7 +104,7 @@ class HomeHeroHeader extends StatelessWidget {
               "RESQ",
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 2,
                 shadows: _onLandscape,
@@ -117,7 +117,7 @@ class HomeHeroHeader extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 16),
         Text(
           welcomeLabel,
           style: TextStyle(
@@ -134,7 +134,7 @@ class HomeHeroHeader extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.white,
-            fontSize: 28,
+            fontSize: 23,
             fontWeight: FontWeight.w800,
             letterSpacing: -0.3,
             shadows: _onLandscape,
@@ -208,9 +208,9 @@ class HomeReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(22),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -230,13 +230,13 @@ class HomeReportCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 46,
-                height: 46,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.18),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 26),
+                child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -245,7 +245,7 @@ class HomeReportCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800, height: 1.2),
+                      style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w800, height: 1.2),
                     ),
                     const SizedBox(height: 3),
                     Text(
@@ -264,7 +264,7 @@ class HomeReportCard extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 0.92,
+            childAspectRatio: 1.05,
             children: [
               for (final (category, label, icon) in quickTypes)
                 Material(
@@ -277,8 +277,8 @@ class HomeReportCard extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(icon, color: Colors.white, size: 26),
-                        const SizedBox(height: 6),
+                        Icon(icon, color: Colors.white, size: 22),
+                        const SizedBox(height: 4),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 2),
                           child: Text(
@@ -305,11 +305,11 @@ class HomeReportCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
                 onTap: () => onReport(null),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.add_circle_outline_rounded, color: Color(0xFFDC2626), size: 20),
+                      const Icon(Icons.add_circle_outline_rounded, color: Color(0xFFDC2626), size: 18),
                       const SizedBox(width: 8),
                       Text(
                         otherLabel,
@@ -346,8 +346,8 @@ class _NotificationsBell extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(16),
             child: Ink(
-              width: 46,
-              height: 46,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 gradient: LinearGradient(
@@ -423,8 +423,8 @@ class HomeSirenCard extends StatelessWidget {
   Widget build(BuildContext context) {
     const soft = Color(0xFFCBD5E1);
     return Container(
-      margin: const EdgeInsets.only(bottom: 18),
-      padding: const EdgeInsets.fromLTRB(18, 16, 16, 16),
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.fromLTRB(14, 13, 13, 13),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topCenter,
@@ -452,7 +452,7 @@ class HomeSirenCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const LiveIndicator.ring(
-            size: 46,
+            size: 40,
             child: Icon(Icons.campaign_rounded),
           ),
           const SizedBox(width: 14),
@@ -574,8 +574,8 @@ class HomeMyReportsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      padding: const EdgeInsets.all(18),
-      borderRadius: 26,
+      padding: const EdgeInsets.all(14),
+      borderRadius: 22,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -698,7 +698,7 @@ class _StatTile extends StatelessWidget {
                 stat.value,
                 style: TextStyle(
                   color: deep,
-                  fontSize: 26,
+                  fontSize: 22,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
                 ),
@@ -770,8 +770,8 @@ class HomeCommunityPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final active = activeLabel;
     return GlassCard(
-      padding: const EdgeInsets.all(18),
-      borderRadius: 26,
+      padding: const EdgeInsets.all(14),
+      borderRadius: 22,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -786,7 +786,7 @@ class HomeCommunityPanel extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: AppColors.textDark,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -904,14 +904,14 @@ class HomeIncidentRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
                     color: urgencyColor.withValues(
                         alpha: AppColors.isDarkMode ? 0.22 : 0.14),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(icon, color: _deep(urgencyColor), size: 22),
+                  child: Icon(icon, color: _deep(urgencyColor), size: 19),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -1038,14 +1038,14 @@ class _HomeVideoCardState extends State<HomeVideoCard>
   @override
   Widget build(BuildContext context) {
     final card = GlassCard(
-      padding: const EdgeInsets.all(14),
-      borderRadius: 24,
+      padding: const EdgeInsets.all(12),
+      borderRadius: 20,
       onTap: widget.onTap,
       child: Row(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               gradient: AppColors.commandGradient,
               borderRadius: BorderRadius.circular(18),
@@ -1063,8 +1063,8 @@ class _HomeVideoCardState extends State<HomeVideoCard>
                   animation: _pulseController,
                   builder: (context, child) {
                     return Container(
-                      width: 36,
-                      height: 36,
+                      width: 30,
+                      height: 30,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: AppColors.primaryGradient,
@@ -1080,7 +1080,7 @@ class _HomeVideoCardState extends State<HomeVideoCard>
                     );
                   },
                   child: const Icon(Icons.play_arrow_rounded,
-                      color: Colors.white, size: 22),
+                      color: Colors.white, size: 19),
                 ),
               ),
             ),

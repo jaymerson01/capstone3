@@ -24,7 +24,7 @@ class GlassCard extends StatelessWidget {
     required this.child,
     this.tone = GlassTone.frost,
     this.blur = false,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(14),
     this.borderRadius = NeoRadii.card,
     this.onTap,
   });

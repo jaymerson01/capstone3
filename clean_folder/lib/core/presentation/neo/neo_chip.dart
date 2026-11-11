@@ -29,14 +29,14 @@ class NeoChip extends StatelessWidget {
         ),
       ),
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-      minimumSize: const WidgetStatePropertyAll(Size(48, 36)),
+      minimumSize: const WidgetStatePropertyAll(Size(44, 32)),
       padding: const WidgetStatePropertyAll(
-        EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        EdgeInsets.symmetric(horizontal: 13, vertical: 5),
       ),
       shape: const WidgetStatePropertyAll(StadiumBorder()),
       textStyle: WidgetStatePropertyAll(
         Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontSize: 13,
+              fontSize: 12.5,
               fontWeight: FontWeight.w700,
             ),
       ),

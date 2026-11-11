@@ -63,7 +63,7 @@ class NeoDialogIcon extends StatelessWidget {
     super.key,
     required this.icon,
     required this.color,
-    this.size = 72,
+    this.size = 60,
   });
 
   @override

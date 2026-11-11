@@ -1541,9 +1541,9 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                         controller: _formScroll,
                         physics: const BouncingScrollPhysics(),
                         padding: EdgeInsets.fromLTRB(
-                          20,
+                          16,
                           8,
-                          20,
+                          16,
                           32 + MediaQuery.paddingOf(context).bottom,
                         ),
                         child: Column(
@@ -1618,7 +1618,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
               maxLines: 2,
               style: TextStyle(
                 color: AppColors.textDark,
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.3,
                 height: 1.15,
@@ -1724,7 +1724,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
 
   Widget _buildTypeCard() {
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1810,7 +1810,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   /// The last step: what happened, by typing or by voice.
   Widget _buildDescriptionCard() {
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1860,7 +1860,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       if (_selectedVideoFile != null) _l10n.reportReviewVideo,
     ];
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2128,7 +2128,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         _isReportingOnBehalf ? const Color(0xFFFDBA74) : AppColors.secondary;
 
     return GlassCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -3174,8 +3174,8 @@ class _CategoryTile extends StatelessWidget {
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 160),
-          constraints: const BoxConstraints(minHeight: 54),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          constraints: const BoxConstraints(minHeight: 46),
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
           decoration: BoxDecoration(
             borderRadius: radius,
             color: selected
@@ -3220,13 +3220,13 @@ class _CategoryTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(visual.icon, size: 19, color: visual.foreground),
+              Icon(visual.icon, size: 17, color: visual.foreground),
               SizedBox(width: 8),
               Expanded(
                 child: WordSafeText(
                   label,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12.5,
                     height: 1.25,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
                     color: selected

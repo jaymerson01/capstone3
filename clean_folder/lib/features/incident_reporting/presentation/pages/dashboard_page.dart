@@ -360,13 +360,13 @@ class _DashboardPageState extends State<DashboardPage>
                         ),
                         Padding(
                           padding: EdgeInsets.fromLTRB(
-                              20, padding.top + 16, 20, padding.bottom + 96),
+                              16, padding.top + 14, 16, padding.bottom + 86),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // ── Welcome header and notifications ─────────────
                               _HomeHeader(userName: userName),
-                              SizedBox(height: 24),
+                              SizedBox(height: 18),
                               BlocBuilder<IncidentBloc, IncidentState>(
                                 builder: (context, state) {
                                   List<IncidentEntity> incidents = [];
@@ -402,7 +402,7 @@ class _DashboardPageState extends State<DashboardPage>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 18),
+                                      SizedBox(height: 14),
 
                                       // ── How to use ResQ (video guide) ──────────────
                                       HomeVideoCard(
@@ -418,11 +418,11 @@ class _DashboardPageState extends State<DashboardPage>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 18),
+                                      SizedBox(height: 14),
 
                                       // ── My Reports Status (counts) ─────────────────
                                       _QuickStatsRow(incidents: incidents),
-                                      SizedBox(height: 18),
+                                      SizedBox(height: 14),
 
                                       // ── Community Reports ──────────────────────────
                                       _buildCommunityReportsSection(state),

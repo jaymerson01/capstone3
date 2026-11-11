@@ -91,7 +91,7 @@ class _VerificationPageState extends State<VerificationPage> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 560),
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
                 children: [
                   if (widget.user.isVerified)
                     _status(Icons.verified_rounded, AppColors.solved, l10n.idVerifyVerified)

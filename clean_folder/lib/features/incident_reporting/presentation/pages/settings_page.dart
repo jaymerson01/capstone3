@@ -59,9 +59,9 @@ class _SettingsPageState extends State<SettingsPage> {
             child: ListView(
               physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.fromLTRB(
-                20,
                 16,
-                20,
+                14,
+                16,
                 24 + (widget.isRootTab ? 0 : MediaQuery.paddingOf(context).bottom),
               ),
               children: [
@@ -81,7 +81,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         l10n.settingsTitle,
                         style: TextStyle(
                           color: AppColors.textDark,
-                          fontSize: 24,
+                          fontSize: 21,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 1.5,
                         ),
@@ -1336,7 +1336,7 @@ class _NeoSubPage extends StatelessWidget {
                         title,
                         style: TextStyle(
                           color: AppColors.textDark,
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
