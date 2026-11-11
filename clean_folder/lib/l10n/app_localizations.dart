@@ -3859,6 +3859,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} of 5 stars'**
   String rateStars(int count);
+
+  /// Nearby alert title.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical incident near you'**
+  String get nearbyAlertTitle;
+
+  /// Nearby alert details.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} · about {meters} m away · {area}'**
+  String nearbyAlertBody(String category, int meters, String area);
+
+  /// Open the nearby report.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get nearbyAlertView;
 }
 
 class _AppLocalizationsDelegate

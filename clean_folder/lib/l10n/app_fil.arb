@@ -626,5 +626,8 @@
   "rateSubmit": "Ipadala ang rating",
   "rateSending": "Ipinapadala…",
   "rateFailed": "Hindi naipadala ang rating. Subukan ulit.",
-  "rateStars": "{count} sa 5 bituin"
+  "rateStars": "{count} sa 5 bituin",
+  "nearbyAlertTitle": "May kritikal na insidente malapit sa iyo",
+  "nearbyAlertBody": "{category} · mga {meters} m ang layo · {area}",
+  "nearbyAlertView": "Tingnan"
 }

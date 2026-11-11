@@ -2194,4 +2194,15 @@ class AppLocalizationsFil extends AppLocalizations {
   String rateStars(int count) {
     return '$count sa 5 bituin';
   }
+
+  @override
+  String get nearbyAlertTitle => 'May kritikal na insidente malapit sa iyo';
+
+  @override
+  String nearbyAlertBody(String category, int meters, String area) {
+    return '$category · mga $meters m ang layo · $area';
+  }
+
+  @override
+  String get nearbyAlertView => 'Tingnan';
 }

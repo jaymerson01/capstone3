@@ -2208,4 +2208,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String rateStars(int count) {
     return '$count of 5 stars';
   }
+
+  @override
+  String get nearbyAlertTitle => 'Critical incident near you';
+
+  @override
+  String nearbyAlertBody(String category, int meters, String area) {
+    return '$category · about $meters m away · $area';
+  }
+
+  @override
+  String get nearbyAlertView => 'View';
 }

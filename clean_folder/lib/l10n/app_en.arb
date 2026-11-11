@@ -2836,5 +2836,28 @@
         "type": "int"
       }
     }
+  },
+  "nearbyAlertTitle": "Critical incident near you",
+  "@nearbyAlertTitle": {
+    "description": "Nearby alert title."
+  },
+  "nearbyAlertBody": "{category} · about {meters} m away · {area}",
+  "@nearbyAlertBody": {
+    "description": "Nearby alert details.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "meters": {
+        "type": "int"
+      },
+      "area": {
+        "type": "String"
+      }
+    }
+  },
+  "nearbyAlertView": "View",
+  "@nearbyAlertView": {
+    "description": "Open the nearby report."
   }
 }
