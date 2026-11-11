@@ -10,7 +10,7 @@ name: Publish the web app
 # empty).
 on:
   push:
-    branches: [feature/neo-tactile-ui]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
