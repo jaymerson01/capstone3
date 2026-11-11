@@ -616,5 +616,15 @@
   "mapMyLocation": "Lokasyon ko",
   "mapUseLocation": "Gamitin ang lokasyong ito",
   "mapFullScreen": "Buong screen",
-  "mapSearchAddress": "Maghanap ng address"
+  "mapSearchAddress": "Maghanap ng address",
+  "rateTitle": "I-rate ang aksyon ng barangay",
+  "rateSubtitle": "Kumusta ang tulong na natanggap mo? Pindutin ang mga bituin.",
+  "rateYourRating": "Ang rating mo",
+  "rateThanks": "Salamat! Nakakatulong ang rating mo para mas gumaling pa ang barangay.",
+  "rateCommentLabel": "Komento (opsyonal)",
+  "rateCommentHint": "Ano ang maganda, o ano pa ang puwedeng ayusin?",
+  "rateSubmit": "Ipadala ang rating",
+  "rateSending": "Ipinapadala…",
+  "rateFailed": "Hindi naipadala ang rating. Subukan ulit.",
+  "rateStars": "{count} sa 5 bituin"
 }

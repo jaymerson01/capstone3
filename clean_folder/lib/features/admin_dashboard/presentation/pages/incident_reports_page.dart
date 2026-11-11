@@ -1746,6 +1746,37 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                   ),
                 ),
               ],
+
+              // The reporter's rating of the response
+              if (report.rating != null) ...[
+                const SizedBox(height: 16),
+                _buildSectionHeader(Icons.star_rate_rounded, "RESIDENT RATING"),
+                const SizedBox(height: 8),
+                AdminInset(
+                  tone: AdminTone.yellow,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${'★' * report.rating!}${'☆' * (5 - report.rating!)}  ${report.rating}/5",
+                        style: const TextStyle(
+                          color: Color(0xFFFBBF24),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      if ((report.ratingComment ?? '').isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          "“${report.ratingComment}”",
+                          style: const TextStyle(color: AdminColors.textDark, height: 1.4, fontSize: 13),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         );

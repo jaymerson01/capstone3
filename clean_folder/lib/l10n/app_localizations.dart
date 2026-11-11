@@ -3799,6 +3799,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search address'**
   String get mapSearchAddress;
+
+  /// Rating card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the barangay\'s response'**
+  String get rateTitle;
+
+  /// Rating card hint.
+  ///
+  /// In en, this message translates to:
+  /// **'How was the help you got? Tap the stars.'**
+  String get rateSubtitle;
+
+  /// Rating card title after rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rating'**
+  String get rateYourRating;
+
+  /// Shown after rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Your rating helps the barangay improve.'**
+  String get rateThanks;
+
+  /// Rating comment label.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment (optional)'**
+  String get rateCommentLabel;
+
+  /// Rating comment hint.
+  ///
+  /// In en, this message translates to:
+  /// **'What went well, or what could be better?'**
+  String get rateCommentHint;
+
+  /// Send button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send rating'**
+  String get rateSubmit;
+
+  /// While sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get rateSending;
+
+  /// Send failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send your rating. Try again.'**
+  String get rateFailed;
+
+  /// Star button label.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of 5 stars'**
+  String rateStars(int count);
 }
 
 class _AppLocalizationsDelegate

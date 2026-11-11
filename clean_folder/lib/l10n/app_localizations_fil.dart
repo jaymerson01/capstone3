@@ -2159,4 +2159,39 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get mapSearchAddress => 'Maghanap ng address';
+
+  @override
+  String get rateTitle => 'I-rate ang aksyon ng barangay';
+
+  @override
+  String get rateSubtitle =>
+      'Kumusta ang tulong na natanggap mo? Pindutin ang mga bituin.';
+
+  @override
+  String get rateYourRating => 'Ang rating mo';
+
+  @override
+  String get rateThanks =>
+      'Salamat! Nakakatulong ang rating mo para mas gumaling pa ang barangay.';
+
+  @override
+  String get rateCommentLabel => 'Komento (opsyonal)';
+
+  @override
+  String get rateCommentHint =>
+      'Ano ang maganda, o ano pa ang puwedeng ayusin?';
+
+  @override
+  String get rateSubmit => 'Ipadala ang rating';
+
+  @override
+  String get rateSending => 'Ipinapadala…';
+
+  @override
+  String get rateFailed => 'Hindi naipadala ang rating. Subukan ulit.';
+
+  @override
+  String rateStars(int count) {
+    return '$count sa 5 bituin';
+  }
 }

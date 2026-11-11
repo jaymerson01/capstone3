@@ -182,6 +182,8 @@ class IncidentModel extends IncidentEntity {
     bool? reporterVerified,
     DateTime? inProgressAt,
     DateTime? closedAt,
+    int? rating,
+    String? ratingComment,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -215,6 +217,8 @@ class IncidentModel extends IncidentEntity {
       reporterVerified: reporterVerified ?? this.reporterVerified,
       inProgressAt: inProgressAt ?? this.inProgressAt,
       closedAt: closedAt ?? this.closedAt,
+      rating: rating ?? this.rating,
+      ratingComment: ratingComment ?? this.ratingComment,
     );
   }
 
@@ -245,6 +249,8 @@ class IncidentModel extends IncidentEntity {
     super.reporterVerified,
     super.inProgressAt,
     super.closedAt,
+    super.rating,
+    super.ratingComment,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
@@ -364,6 +370,8 @@ class IncidentModel extends IncidentEntity {
       resolvedAt: readTime('resolvedAt'),
       inProgressAt: readTime('inProgressAt'),
       closedAt: readTime('closedAt'),
+      rating: (data['rating'] as num?)?.toInt(),
+      ratingComment: data['ratingComment'] as String?,
     );
   }
 
@@ -426,6 +434,8 @@ class IncidentModel extends IncidentEntity {
       resolvedAt: resolvedAt,
       inProgressAt: inProgressAt,
       closedAt: closedAt,
+      rating: rating,
+      ratingComment: ratingComment,
     );
   }
 

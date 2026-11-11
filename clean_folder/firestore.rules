@@ -107,7 +107,8 @@ service cloud.firestore {
       // 1. Admins: status, ETA, dispatcher notes, archive.
       // 2. "Me Too" upvote: exactly +1, only your own uid added, once, not on your own report.
       // 3. Reporter may fix the text/location of their own report while it is still pending.
-      allow update: if isAdmin() || isValidUpvote() || isOwnerPendingEdit();
+      // 4. The reporter rates the response to their resolved report, once.
+      allow update: if isAdmin() || isValidUpvote() || isOwnerPendingEdit() || isOwnerRating();
 
       allow delete: if isAdmin();
 
@@ -121,6 +122,19 @@ service cloud.firestore {
           newIds.size() == oldIds.size() + 1 &&
           newIds.toSet().difference(oldIds.toSet()).hasOnly([request.auth.uid]) &&
           resource.data.get('reporterId', '') != request.auth.uid;
+      }
+
+      function isOwnerRating() {
+        let data = request.resource.data;
+        return isActiveUser() &&
+          resource.data.get('reporterId', '') == request.auth.uid &&
+          resource.data.get('status', '') == 'resolved' &&
+          resource.data.get('rating', null) == null &&
+          changedKeys().hasOnly(['rating', 'ratingComment', 'ratedAt']) &&
+          data.rating is int && data.rating >= 1 && data.rating <= 5 &&
+          (!('ratingComment' in data) ||
+            (data.ratingComment is string && data.ratingComment.size() <= 500)) &&
+          data.ratedAt == request.time;
       }
 
       function isOwnerPendingEdit() {

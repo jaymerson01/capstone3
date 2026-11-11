@@ -484,6 +484,16 @@ class IncidentRepositoryImpl implements IncidentRepository {
 
   /// [incident] with its reporter's name and email taken from [profile]
   /// (their `users` document) where the report itself lacks them.
+  @override
+  Future<void> rateIncident(String id, int rating, {String? comment}) async {
+    final note = comment?.trim() ?? '';
+    await firestore.collection('incidents').doc(id).update({
+      'rating': rating.clamp(1, 5),
+      if (note.isNotEmpty) 'ratingComment': note.length > 500 ? note.substring(0, 500) : note,
+      'ratedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   /// The resident's notice when the barangay changes their report's status:
   /// Filipino first, then English (the admin desk writes it, so it can't follow
   /// the resident's app language), with the ticket number.

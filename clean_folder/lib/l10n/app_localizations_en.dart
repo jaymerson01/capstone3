@@ -2176,4 +2176,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mapSearchAddress => 'Search address';
+
+  @override
+  String get rateTitle => 'Rate the barangay\'s response';
+
+  @override
+  String get rateSubtitle => 'How was the help you got? Tap the stars.';
+
+  @override
+  String get rateYourRating => 'Your rating';
+
+  @override
+  String get rateThanks => 'Thank you! Your rating helps the barangay improve.';
+
+  @override
+  String get rateCommentLabel => 'Comment (optional)';
+
+  @override
+  String get rateCommentHint => 'What went well, or what could be better?';
+
+  @override
+  String get rateSubmit => 'Send rating';
+
+  @override
+  String get rateSending => 'Sending…';
+
+  @override
+  String get rateFailed => 'Couldn\'t send your rating. Try again.';
+
+  @override
+  String rateStars(int count) {
+    return '$count of 5 stars';
+  }
 }

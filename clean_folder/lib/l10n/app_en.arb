@@ -2791,5 +2791,50 @@
   "mapSearchAddress": "Search address",
   "@mapSearchAddress": {
     "description": "Search pill on the small report map."
+  },
+  "rateTitle": "Rate the barangay's response",
+  "@rateTitle": {
+    "description": "Rating card title."
+  },
+  "rateSubtitle": "How was the help you got? Tap the stars.",
+  "@rateSubtitle": {
+    "description": "Rating card hint."
+  },
+  "rateYourRating": "Your rating",
+  "@rateYourRating": {
+    "description": "Rating card title after rating."
+  },
+  "rateThanks": "Thank you! Your rating helps the barangay improve.",
+  "@rateThanks": {
+    "description": "Shown after rating."
+  },
+  "rateCommentLabel": "Comment (optional)",
+  "@rateCommentLabel": {
+    "description": "Rating comment label."
+  },
+  "rateCommentHint": "What went well, or what could be better?",
+  "@rateCommentHint": {
+    "description": "Rating comment hint."
+  },
+  "rateSubmit": "Send rating",
+  "@rateSubmit": {
+    "description": "Send button."
+  },
+  "rateSending": "Sending…",
+  "@rateSending": {
+    "description": "While sending."
+  },
+  "rateFailed": "Couldn't send your rating. Try again.",
+  "@rateFailed": {
+    "description": "Send failed."
+  },
+  "rateStars": "{count} of 5 stars",
+  "@rateStars": {
+    "description": "Star button label.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

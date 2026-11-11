@@ -14,4 +14,8 @@ abstract class IncidentRepository {
   Stream<List<IncidentEntity>> streamAllIncidents();
   Future<void> updateIncidentStatus(String id, String status, {String? dispatcherNotes, String? estimatedResponseTime});
   Future<void> archiveIncident(String id);
+
+  /// The reporter's rating (1-5 stars, optional comment) of the barangay's
+  /// response to their resolved report. Can be sent once.
+  Future<void> rateIncident(String id, int rating, {String? comment});
 }

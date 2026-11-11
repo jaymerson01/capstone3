@@ -41,6 +41,10 @@ class IncidentEntity {
   /// archived).
   final DateTime? closedAt;
 
+  /// The reporter's 1-5 star rating of the barangay's response, once resolved.
+  final int? rating;
+  final String? ratingComment;
+
   /// Whether an admin has verified the reporter's residency (admin desk only;
   /// null when the reporter's profile isn't loaded).
   final bool? reporterVerified;
@@ -77,6 +81,8 @@ class IncidentEntity {
     this.reporterVerified,
     this.inProgressAt,
     this.closedAt,
+    this.rating,
+    this.ratingComment,
   });
 
   /// The reference residents and the desk quote for this report, e.g.
