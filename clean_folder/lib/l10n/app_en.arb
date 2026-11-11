@@ -2905,5 +2905,82 @@
   "liveMapYourReport": "Your report",
   "@liveMapYourReport": {
     "description": "Report pin label."
+  },
+  "idVerifyTitle": "Verify my residency",
+  "@idVerifyTitle": {
+    "description": "ID verification page and settings row."
+  },
+  "idVerifySettingsSubtitle": "Send a valid ID so the barangay can confirm you live in Moonwalk",
+  "@idVerifySettingsSubtitle": {
+    "description": "Settings row subtitle."
+  },
+  "idVerifyIntro": "Send a photo of a government-issued or other valid ID. A barangay admin checks it, then marks your account as a Verified Resident. The photo is deleted after the review.",
+  "@idVerifyIntro": {
+    "description": "Intro."
+  },
+  "idVerifyIdType": "Type of ID",
+  "@idVerifyIdType": {
+    "description": "ID type label."
+  },
+  "idVerifyGovernmentId": "Government ID",
+  "@idVerifyGovernmentId": {
+    "description": "ID type."
+  },
+  "idVerifyGovernmentExamples": "National ID (PhilSys), driver's license, passport, UMID, SSS or GSIS ID",
+  "@idVerifyGovernmentExamples": {
+    "description": "Examples."
+  },
+  "idVerifyOtherValidId": "Other valid ID",
+  "@idVerifyOtherValidId": {
+    "description": "ID type."
+  },
+  "idVerifyOtherExamples": "Postal ID, voter's ID, PRC ID, Barangay ID",
+  "@idVerifyOtherExamples": {
+    "description": "Examples."
+  },
+  "idVerifyTakePhoto": "Take a photo",
+  "@idVerifyTakePhoto": {
+    "description": "Camera button."
+  },
+  "idVerifyChoosePhoto": "Choose a photo",
+  "@idVerifyChoosePhoto": {
+    "description": "Gallery button."
+  },
+  "idVerifyTips": "Make sure your name and photo on the ID are clear and readable.",
+  "@idVerifyTips": {
+    "description": "Photo tips."
+  },
+  "idVerifySubmit": "Send for review",
+  "@idVerifySubmit": {
+    "description": "Submit button."
+  },
+  "idVerifyPending": "Your ID is being reviewed by the barangay.",
+  "@idVerifyPending": {
+    "description": "Pending status."
+  },
+  "idVerifyRejected": "Not approved: {reason}. You can send another ID.",
+  "@idVerifyRejected": {
+    "description": "Rejected status.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "idVerifyVerified": "You're a Verified Resident.",
+  "@idVerifyVerified": {
+    "description": "Verified status."
+  },
+  "idVerifyTooLarge": "That photo is too large. Try again a little farther away, or choose a smaller photo.",
+  "@idVerifyTooLarge": {
+    "description": "Photo too large."
+  },
+  "idVerifySent": "Sent! The barangay will review your ID.",
+  "@idVerifySent": {
+    "description": "Sent."
+  },
+  "idVerifyFailed": "Couldn't send it. Check your internet and try again.",
+  "@idVerifyFailed": {
+    "description": "Send failed."
   }
 }

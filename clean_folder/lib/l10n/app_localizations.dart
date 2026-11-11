@@ -3919,6 +3919,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your report'**
   String get liveMapYourReport;
+
+  /// ID verification page and settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify my residency'**
+  String get idVerifyTitle;
+
+  /// Settings row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a valid ID so the barangay can confirm you live in Moonwalk'**
+  String get idVerifySettingsSubtitle;
+
+  /// Intro.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a photo of a government-issued or other valid ID. A barangay admin checks it, then marks your account as a Verified Resident. The photo is deleted after the review.'**
+  String get idVerifyIntro;
+
+  /// ID type label.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of ID'**
+  String get idVerifyIdType;
+
+  /// ID type.
+  ///
+  /// In en, this message translates to:
+  /// **'Government ID'**
+  String get idVerifyGovernmentId;
+
+  /// Examples.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID (PhilSys), driver\'s license, passport, UMID, SSS or GSIS ID'**
+  String get idVerifyGovernmentExamples;
+
+  /// ID type.
+  ///
+  /// In en, this message translates to:
+  /// **'Other valid ID'**
+  String get idVerifyOtherValidId;
+
+  /// Examples.
+  ///
+  /// In en, this message translates to:
+  /// **'Postal ID, voter\'s ID, PRC ID, Barangay ID'**
+  String get idVerifyOtherExamples;
+
+  /// Camera button.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get idVerifyTakePhoto;
+
+  /// Gallery button.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo'**
+  String get idVerifyChoosePhoto;
+
+  /// Photo tips.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure your name and photo on the ID are clear and readable.'**
+  String get idVerifyTips;
+
+  /// Submit button.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for review'**
+  String get idVerifySubmit;
+
+  /// Pending status.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ID is being reviewed by the barangay.'**
+  String get idVerifyPending;
+
+  /// Rejected status.
+  ///
+  /// In en, this message translates to:
+  /// **'Not approved: {reason}. You can send another ID.'**
+  String idVerifyRejected(String reason);
+
+  /// Verified status.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re a Verified Resident.'**
+  String get idVerifyVerified;
+
+  /// Photo too large.
+  ///
+  /// In en, this message translates to:
+  /// **'That photo is too large. Try again a little farther away, or choose a smaller photo.'**
+  String get idVerifyTooLarge;
+
+  /// Sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent! The barangay will review your ID.'**
+  String get idVerifySent;
+
+  /// Send failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send it. Check your internet and try again.'**
+  String get idVerifyFailed;
 }
 
 class _AppLocalizationsDelegate

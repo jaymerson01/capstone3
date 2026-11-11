@@ -2232,4 +2232,67 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get liveMapYourReport => 'Ang ulat mo';
+
+  @override
+  String get idVerifyTitle => 'Ipa-verify ang paninirahan ko';
+
+  @override
+  String get idVerifySettingsSubtitle =>
+      'Magpadala ng valid ID para makumpirma ng barangay na taga-Moonwalk ka';
+
+  @override
+  String get idVerifyIntro =>
+      'Magpadala ng litrato ng government ID o iba pang valid ID. Titingnan ito ng admin ng barangay, tapos gagawing Beripikadong Residente ang account mo. Buburahin ang litrato pagkatapos ng pagsusuri.';
+
+  @override
+  String get idVerifyIdType => 'Uri ng ID';
+
+  @override
+  String get idVerifyGovernmentId => 'Government ID';
+
+  @override
+  String get idVerifyGovernmentExamples =>
+      'National ID (PhilSys), driver\'s license, passport, UMID, SSS o GSIS ID';
+
+  @override
+  String get idVerifyOtherValidId => 'Iba pang valid ID';
+
+  @override
+  String get idVerifyOtherExamples =>
+      'Postal ID, voter\'s ID, PRC ID, Barangay ID';
+
+  @override
+  String get idVerifyTakePhoto => 'Kumuha ng litrato';
+
+  @override
+  String get idVerifyChoosePhoto => 'Pumili ng litrato';
+
+  @override
+  String get idVerifyTips =>
+      'Siguraduhing malinaw at nababasa ang pangalan at litrato sa ID.';
+
+  @override
+  String get idVerifySubmit => 'Ipadala para masuri';
+
+  @override
+  String get idVerifyPending => 'Sinusuri pa ng barangay ang ID mo.';
+
+  @override
+  String idVerifyRejected(String reason) {
+    return 'Hindi naaprubahan: $reason. Puwede kang magpadala ulit ng ID.';
+  }
+
+  @override
+  String get idVerifyVerified => 'Beripikadong Residente ka na.';
+
+  @override
+  String get idVerifyTooLarge =>
+      'Masyadong malaki ang litrato. Subukan ulit nang medyo malayo, o pumili ng mas maliit na litrato.';
+
+  @override
+  String get idVerifySent => 'Naipadala! Susuriin ng barangay ang ID mo.';
+
+  @override
+  String get idVerifyFailed =>
+      'Hindi naipadala. Tingnan ang internet mo at subukan ulit.';
 }

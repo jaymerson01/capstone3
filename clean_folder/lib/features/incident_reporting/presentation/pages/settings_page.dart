@@ -31,6 +31,7 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/core/utils/localized_labels.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/terms_page.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_page.dart';
 
 
 class SettingsPage extends StatefulWidget {
@@ -115,6 +116,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 /// 3. ACCOUNT SETTINGS
                 _buildSectionTitle(l10n.settingsAccount),
                 _buildSettingsGroup([
+                  if (_lastKnownUser != null && !_lastKnownUser!.isVerified)
+                    _buildSettingTile(
+                      icon: Icons.verified_user_outlined,
+                      title: l10n.idVerifyTitle,
+                      subtitle: l10n.idVerifySettingsSubtitle,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => VerificationPage(user: _lastKnownUser!)),
+                      ),
+                    ),
                   _buildSettingTile(
                     icon: Icons.person_outline_rounded,
                     title: l10n.settingsEditProfile,

@@ -2246,4 +2246,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get liveMapYourReport => 'Your report';
+
+  @override
+  String get idVerifyTitle => 'Verify my residency';
+
+  @override
+  String get idVerifySettingsSubtitle =>
+      'Send a valid ID so the barangay can confirm you live in Moonwalk';
+
+  @override
+  String get idVerifyIntro =>
+      'Send a photo of a government-issued or other valid ID. A barangay admin checks it, then marks your account as a Verified Resident. The photo is deleted after the review.';
+
+  @override
+  String get idVerifyIdType => 'Type of ID';
+
+  @override
+  String get idVerifyGovernmentId => 'Government ID';
+
+  @override
+  String get idVerifyGovernmentExamples =>
+      'National ID (PhilSys), driver\'s license, passport, UMID, SSS or GSIS ID';
+
+  @override
+  String get idVerifyOtherValidId => 'Other valid ID';
+
+  @override
+  String get idVerifyOtherExamples =>
+      'Postal ID, voter\'s ID, PRC ID, Barangay ID';
+
+  @override
+  String get idVerifyTakePhoto => 'Take a photo';
+
+  @override
+  String get idVerifyChoosePhoto => 'Choose a photo';
+
+  @override
+  String get idVerifyTips =>
+      'Make sure your name and photo on the ID are clear and readable.';
+
+  @override
+  String get idVerifySubmit => 'Send for review';
+
+  @override
+  String get idVerifyPending => 'Your ID is being reviewed by the barangay.';
+
+  @override
+  String idVerifyRejected(String reason) {
+    return 'Not approved: $reason. You can send another ID.';
+  }
+
+  @override
+  String get idVerifyVerified => 'You\'re a Verified Resident.';
+
+  @override
+  String get idVerifyTooLarge =>
+      'That photo is too large. Try again a little farther away, or choose a smaller photo.';
+
+  @override
+  String get idVerifySent => 'Sent! The barangay will review your ID.';
+
+  @override
+  String get idVerifyFailed =>
+      'Couldn\'t send it. Check your internet and try again.';
 }

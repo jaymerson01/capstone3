@@ -105,6 +105,23 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ── 1c. Residency verification requests ───────────────────────────
+    // A resident's valid-ID photo for review: readable by them and admins
+    // only. Admins approve (the request is deleted) or reject (the photo goes).
+    match /verification_requests/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) &&
+        get(userDoc()).data.get('role', 'resident') == 'resident' &&
+        request.resource.data.keys().hasOnly(['uid', 'name', 'email', 'idType', 'image', 'status', 'submittedAt']) &&
+        request.resource.data.uid == userId &&
+        request.resource.data.idType in ['government_id', 'valid_id'] &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.image is string &&
+        request.resource.data.image.size() < 900000 &&
+        request.resource.data.submittedAt == request.time;
+      allow update, delete: if isAdmin();
+    }
+
     // ── 2. Incidents (public part) ────────────────────────────────────
     match /incidents/{incidentId} {
       // Community map / feed. Contains NO names, emails or phone numbers.
