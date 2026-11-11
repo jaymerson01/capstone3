@@ -66,7 +66,7 @@ Future<bool> showCriticalIncidentAlert(BuildContext context, IncidentEntity inci
           onPressed: () => Navigator.pop(ctx, false),
         ),
         AdminButton(
-          label: 'Open incident reports',
+          label: 'Open report',
           icon: Icons.open_in_new_rounded,
           style: AdminButtonStyle.danger,
           onPressed: () => Navigator.pop(ctx, true),

@@ -15,7 +15,12 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/widge
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 
 class IncidentReportsPage extends StatefulWidget {
-  const IncidentReportsPage({super.key});
+  const IncidentReportsPage({super.key, this.openIncidentId, this.onIncidentOpened});
+
+  /// A report to open as soon as the reports have loaded, e.g. from a
+  /// notification. [onIncidentOpened] runs once it has been handled.
+  final String? openIncidentId;
+  final VoidCallback? onIncidentOpened;
 
   @override
   State<IncidentReportsPage> createState() => _IncidentReportsPageState();
@@ -31,13 +36,58 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
   final ScrollController _horizontalScrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    _openRequestedIncident();
+  }
+
+  @override
+  void didUpdateWidget(IncidentReportsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.openIncidentId != oldWidget.openIncidentId) _openRequestedIncident();
+  }
+
+  @override
   void dispose() {
     _horizontalScrollController.dispose();
     super.dispose();
   }
 
+  /// Opens [IncidentReportsPage.openIncidentId]'s details once its report is
+  /// loaded (the BlocListener in build tries again when reports arrive).
+  void _openRequestedIncident() {
+    final id = widget.openIncidentId;
+    if (id == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.openIncidentId != id) return;
+      final state = context.read<IncidentBloc>().state;
+      if (state is! IncidentLoaded) return;
+      widget.onIncidentOpened?.call();
+      final report = state.incidents.where((i) => i.id == id).firstOrNull;
+      if (report != null) {
+        _showReportDetails(context, report);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("That report isn't available anymore."),
+            backgroundColor: AdminColors.amber,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    return BlocListener<IncidentBloc, IncidentState>(
+      listenWhen: (_, state) => state is IncidentLoaded && widget.openIncidentId != null,
+      listener: (_, _) => _openRequestedIncident(),
+      child: _buildPage(context),
+    );
+  }
+
+  Widget _buildPage(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(

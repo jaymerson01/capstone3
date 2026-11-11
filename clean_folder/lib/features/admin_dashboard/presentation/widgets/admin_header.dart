@@ -17,6 +17,9 @@ class AdminHeader extends StatelessWidget {
   final ValueChanged<int>? onNavigate;
   final VoidCallback? onLogout;
 
+  /// Opens a report by id, from a notification about it.
+  final ValueChanged<String>? onOpenIncident;
+
   const AdminHeader({
     super.key,
     required this.title,
@@ -24,6 +27,7 @@ class AdminHeader extends StatelessWidget {
     required this.isMobile,
     this.onNavigate,
     this.onLogout,
+    this.onOpenIncident,
   });
 
   @override
@@ -760,6 +764,13 @@ class AdminHeader extends StatelessWidget {
                             onTap: () {
                               if (!item.isRead) {
                                 notificationService.markAsRead(item.id);
+                              }
+                              final incidentId = item.incidentId;
+                              if (incidentId != null &&
+                                  incidentId.isNotEmpty &&
+                                  onOpenIncident != null) {
+                                Navigator.pop(dialogCtx);
+                                onOpenIncident!(incidentId);
                               }
                             },
                             borderRadius: BorderRadius.circular(14),
