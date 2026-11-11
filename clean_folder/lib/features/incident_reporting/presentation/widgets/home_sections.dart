@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:community_safety_app/core/presentation/neo/glass_card.dart';
 import 'package:community_safety_app/core/presentation/neo/landscape_backdrop.dart';
 import 'package:community_safety_app/core/presentation/neo/live_indicator.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_status_pill.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/presentation/neo/word_safe_text.dart';
@@ -1118,6 +1119,77 @@ class _HomeVideoCardState extends State<HomeVideoCard>
     // Screen readers hear one button: the title, then the subtitle.
     return MergeSemantics(
       child: Semantics(button: widget.onTap != null, child: card),
+    );
+  }
+}
+
+/// Shown in place of the community reports until the resident's ID is
+/// verified.
+class HomeLockedCommunityCard extends StatelessWidget {
+  const HomeLockedCommunityCard({
+    super.key,
+    required this.title,
+    required this.body,
+    required this.actionLabel,
+    required this.onVerify,
+  });
+
+  final String title;
+  final String body;
+  final String actionLabel;
+  final VoidCallback onVerify;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      key: const Key('home-community-locked'),
+      padding: const EdgeInsets.all(14),
+      borderRadius: 22,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: AppColors.isDarkMode ? 0.22 : 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(Icons.lock_outline_rounded, color: AppColors.primaryText, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(color: AppColors.textDark, fontSize: 15, fontWeight: FontWeight.w800, height: 1.25),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      body,
+                      style: TextStyle(color: AppColors.textLight, fontSize: 12.5, height: 1.4),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          NeoButton(
+            key: const Key('home-community-verify'),
+            label: actionLabel,
+            icon: Icons.badge_rounded,
+            height: 42,
+            expand: true,
+            onPressed: onVerify,
+          ),
+        ],
+      ),
     );
   }
 }

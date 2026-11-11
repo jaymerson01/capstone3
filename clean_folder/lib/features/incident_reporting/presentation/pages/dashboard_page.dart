@@ -13,6 +13,7 @@ import 'package:community_safety_app/features/incident/domain/entities/incident_
 import 'package:community_safety_app/features/chat/presentation/widgets/floating_chat_bot.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_dialog.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/widgets/home_sections.dart';
+import 'package:community_safety_app/core/utils/resident_access.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
 import 'package:community_safety_app/core/services/biometric_service.dart';
@@ -448,6 +449,21 @@ class _DashboardPageState extends State<DashboardPage>
 
   Widget _buildCommunityReportsSection(IncidentState state) {
     final l10n = AppLocalizations.of(context);
+    // Read, not watch: this runs inside the incident BlocBuilder, which
+    // rebuilds when verification changes (the app re-streams the reports).
+    final auth = context.read<AuthBloc>().state;
+    final user = auth is Authenticated ? auth.user : null;
+    if (user != null && !ResidentAccess.canSeeCommunity(user)) {
+      return HomeLockedCommunityCard(
+        title: l10n.accessCommunityLockedTitle,
+        body: l10n.accessCommunityLockedBody,
+        actionLabel: l10n.accessVerifyNow,
+        onVerify: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => VerificationPage(user: user)),
+        ),
+      );
+    }
     if (state is IncidentLoading) {
       return HomeCommunityPanel(
         title: l10n.dashboardCommunityIncidents,

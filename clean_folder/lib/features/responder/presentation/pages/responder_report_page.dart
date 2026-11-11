@@ -310,6 +310,14 @@ class _ResponderReportPageState extends State<ResponderReportPage> {
             children: [
               const Text('REPORTER', style: TextStyle(color: AdminColors.textHint, fontSize: 11.5, fontWeight: FontWeight.w800, letterSpacing: 1)),
               const SizedBox(height: 6),
+              if (report.reporterVerified != null) ...[
+                AdminPill(
+                  label: report.reporterVerified! ? 'Verified resident' : 'Unverified resident',
+                  tone: report.reporterVerified! ? AdminTone.cyan : AdminTone.yellow,
+                  icon: report.reporterVerified! ? Icons.verified_rounded : Icons.pending_outlined,
+                ),
+                const SizedBox(height: 6),
+              ],
               if (snapshot.connectionState == ConnectionState.waiting)
                 const LinearProgressIndicator(color: AdminColors.cyan)
               else ...[

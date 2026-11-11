@@ -673,5 +673,14 @@
   "homeQuickMedical": "Medikal",
   "homeQuickTheft": "Nakawan",
   "homeQuickFlood": "Baha",
-  "homeVerifyCta": "Magpa-verify"
+  "homeVerifyCta": "Magpa-verify",
+  "accessCommunityLockedTitle": "Para sa verified na residente ang ulat ng kapitbahay",
+  "accessCommunityLockedBody": "I-verify ang ID mo para makita ang mga ulat at alerto sa paligid ng Moonwalk. Puwede ka pa ring mag-report at subaybayan ang sarili mong ulat.",
+  "accessVerifyNow": "I-verify ang ID ko",
+  "accessMapOwnOnly": "Ulat mo lang ang nakikita. I-verify ang ID mo para makita ang ulat ng iba.",
+  "accessVerifiedOnlyTitle": "Para sa verified na residente",
+  "accessVerifiedOnlyBody": "Mabubuksan ang pag-report nang anonymous o para sa iba kapag na-verify na ng barangay ang ID mo.",
+  "accessReportsLeft": "Hindi pa verified: {left} sa {limit} na ulat ang natitira ngayong araw. Walang limit ang emergency.",
+  "accessLimitTitle": "Naabot na ang limit ngayong araw",
+  "accessLimitBody": "{limit} ulat bawat araw ang puwede sa account na hindi pa verified. Puwede ka pa ring mag-report ng emergency: sunog, medikal, aksidente, baha, karahasan at nakawan. I-verify ang ID mo para mawala ang limit."
 }

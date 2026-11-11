@@ -124,7 +124,7 @@ class HomeSectionsPreview extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                    20, padding.top + 16, 20, padding.bottom + 96),
+                    16, padding.top + 14, 16, padding.bottom + 86),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -215,6 +215,14 @@ class HomeSectionsPreview extends StatelessWidget {
                           onTap: () {},
                         ),
                       ],
+                    ),
+                    // What an unverified resident sees instead.
+                    const SizedBox(height: 14),
+                    HomeLockedCommunityCard(
+                      title: l10n.accessCommunityLockedTitle,
+                      body: l10n.accessCommunityLockedBody,
+                      actionLabel: l10n.accessVerifyNow,
+                      onVerify: () {},
                     ),
                   ],
                 ),

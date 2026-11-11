@@ -68,8 +68,9 @@ class IncidentEntity {
   /// assigned responder only).
   final String? reporterPhone;
 
-  /// Whether an admin has verified the reporter's residency (admin desk only;
-  /// null when the reporter's profile isn't loaded).
+  /// Whether the barangay has verified the reporter's ID: saved on the
+  /// report when filed, and refreshed from the reporter's profile on the
+  /// admin desk (null on older reports when the profile isn't loaded).
   final bool? reporterVerified;
 
   const IncidentEntity({

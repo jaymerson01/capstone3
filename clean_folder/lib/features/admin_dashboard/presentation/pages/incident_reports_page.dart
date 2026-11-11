@@ -37,6 +37,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
   String searchQuery = "";
   String statusFilter = "All";
   bool showArchivedReports = false;
+
+  /// "All", "Verified" or "Unverified" reporters.
+  String reporterFilter = "All";
   String sortBy = "latest"; // 'latest', 'urgency', 'corroborated', 'oldest_pending'
   int? _sortColumnIndex;
   bool _sortAscending = true;
@@ -140,6 +143,8 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         report.status.toLowerCase() == 'archived';
                     if (showArchivedReports && !isArchived) return false;
                     if (!showArchivedReports && isArchived) return false;
+                    if (reporterFilter == "Verified" && report.reporterVerified != true) return false;
+                    if (reporterFilter == "Unverified" && report.reporterVerified != false) return false;
 
                     final matchesSearch = report.id
                             .toLowerCase()
@@ -257,6 +262,18 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           ],
           onChanged: (value) {
             setState(() => statusFilter = value);
+          },
+        ),
+        AdminSelect<String>(
+          key: const Key('reporter-filter'),
+          value: reporterFilter,
+          items: const [
+            ("All", "All Reporters"),
+            ("Verified", "Verified residents"),
+            ("Unverified", "Unverified residents"),
+          ],
+          onChanged: (value) {
+            setState(() => reporterFilter = value);
           },
         ),
         // Priority Triage Hierarchy Toolbar
@@ -475,6 +492,15 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(reporterDisplayName, style: AdminTable.cell),
+                  if (report.reporterVerified == false)
+                    const Text(
+                      "Unverified",
+                      style: TextStyle(
+                        color: AdminColors.amber,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   if (report.isReportingOnBehalf)
                     Text(
                       "👥 For: ${report.victimName ?? 'Relative'}",

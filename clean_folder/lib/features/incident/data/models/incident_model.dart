@@ -399,6 +399,7 @@ class IncidentModel extends IncidentEntity {
       closedAt: readTime('closedAt'),
       rating: (data['rating'] as num?)?.toInt(),
       ratingComment: data['ratingComment'] as String?,
+      reporterVerified: data['reporterVerified'] as bool?,
       assignedResponderId: data['assignedResponderId'] as String?,
       assignedResponderName: data['assignedResponderName'] as String?,
       assignedAt: readTime('assignedAt'),
@@ -472,6 +473,7 @@ class IncidentModel extends IncidentEntity {
       closedAt: closedAt,
       rating: rating,
       ratingComment: ratingComment,
+      reporterVerified: reporterVerified,
       assignedResponderId: assignedResponderId,
       assignedResponderName: assignedResponderName,
       assignedAt: assignedAt,
@@ -512,6 +514,7 @@ class IncidentModel extends IncidentEntity {
       'isAnonymous': isAnonymous,
       'dispatcherNotes': dispatcherNotes,
       'isReportingOnBehalf': isReportingOnBehalf,
+      if (reporterVerified != null) 'reporterVerified': reporterVerified,
       'estimatedResponseTime': estimatedResponseTime,
       'isBlotter': isBlotter,
     };

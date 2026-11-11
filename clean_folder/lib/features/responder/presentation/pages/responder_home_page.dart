@@ -256,7 +256,8 @@ class _ReportCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              '${report.ticketNumber} · ${timeAgo(report.timestamp)}',
+              '${report.ticketNumber} · ${timeAgo(report.timestamp)}'
+              '${report.reporterVerified == false ? ' · Unverified reporter' : ''}',
               style: const TextStyle(color: AdminColors.textHint, fontSize: 12),
             ),
             const SizedBox(height: 6),

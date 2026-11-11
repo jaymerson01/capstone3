@@ -4141,6 +4141,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get verified'**
   String get homeVerifyCta;
+
+  /// Home card shown instead of community reports until the resident's ID is verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Neighbors\' reports are for verified residents'**
+  String get accessCommunityLockedTitle;
+
+  /// Body of the locked community card.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your ID to see reports and alerts from around Moonwalk. You can still report and follow your own reports.'**
+  String get accessCommunityLockedBody;
+
+  /// Button opening the ID verification page.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify my ID'**
+  String get accessVerifyNow;
+
+  /// Map banner for unverified residents.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing only your reports. Verify your ID to see your neighbors\' reports.'**
+  String get accessMapOwnOnly;
+
+  /// Title when an unverified resident picks anonymous or on-behalf reporting.
+  ///
+  /// In en, this message translates to:
+  /// **'For verified residents'**
+  String get accessVerifiedOnlyTitle;
+
+  /// Body when an unverified resident picks anonymous or on-behalf reporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporting anonymously or for someone else opens once the barangay verifies your ID.'**
+  String get accessVerifiedOnlyBody;
+
+  /// Note on the report form for unverified residents.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet verified: {left} of {limit} reports left today. Emergencies are never limited.'**
+  String accessReportsLeft(int left, int limit);
+
+  /// Dialog title when an unverified resident has used today's reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached'**
+  String get accessLimitTitle;
+
+  /// Dialog body when an unverified resident has used today's reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Unverified accounts can send {limit} reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.'**
+  String accessLimitBody(int limit);
 }
 
 class _AppLocalizationsDelegate

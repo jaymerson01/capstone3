@@ -2369,4 +2369,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeVerifyCta => 'Get verified';
+
+  @override
+  String get accessCommunityLockedTitle =>
+      'Neighbors\' reports are for verified residents';
+
+  @override
+  String get accessCommunityLockedBody =>
+      'Verify your ID to see reports and alerts from around Moonwalk. You can still report and follow your own reports.';
+
+  @override
+  String get accessVerifyNow => 'Verify my ID';
+
+  @override
+  String get accessMapOwnOnly =>
+      'Showing only your reports. Verify your ID to see your neighbors\' reports.';
+
+  @override
+  String get accessVerifiedOnlyTitle => 'For verified residents';
+
+  @override
+  String get accessVerifiedOnlyBody =>
+      'Reporting anonymously or for someone else opens once the barangay verifies your ID.';
+
+  @override
+  String accessReportsLeft(int left, int limit) {
+    return 'Not yet verified: $left of $limit reports left today. Emergencies are never limited.';
+  }
+
+  @override
+  String get accessLimitTitle => 'Daily limit reached';
+
+  @override
+  String accessLimitBody(int limit) {
+    return 'Unverified accounts can send $limit reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.';
+  }
 }

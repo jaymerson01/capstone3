@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:community_safety_app/core/utils/resident_access.dart';
+import 'package:community_safety_app/features/auth/domain/entities/user_entity.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_page.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/core/theme/map_styles.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
@@ -143,7 +146,124 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   void initState() {
     super.initState();
     _selectedIncidentCategory = widget.initialCategory;
-    context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
+    context.read<IncidentBloc>().add(ResidentAccess.streamFor(_user));
+  }
+
+  UserEntity? get _user {
+    final state = context.read<AuthBloc>().state;
+    return state is Authenticated ? state.user : null;
+  }
+
+  List<IncidentEntity> get _knownIncidents {
+    final state = context.read<IncidentBloc>().state;
+    return state is IncidentLoaded ? state.incidents : const [];
+  }
+
+  /// Anonymous and on-behalf reports are for verified residents.
+  bool _allowedAnonymousOrForOthers() {
+    if (ResidentAccess.canReportAnonymouslyOrForOthers(_user)) return true;
+    _showAccessDialog(
+      icon: Icons.lock_outline_rounded,
+      color: AppColors.primary,
+      title: _l10n.accessVerifiedOnlyTitle,
+      body: _l10n.accessVerifiedOnlyBody,
+    );
+    return false;
+  }
+
+  /// Unverified residents get [ResidentAccess.dailyReportLimit] reports a
+  /// day; emergencies always go through.
+  bool _withinDailyLimit() {
+    if (ResidentAccess.canFile(_user, _selectedIncidentCategory, _knownIncidents)) return true;
+    _showAccessDialog(
+      icon: Icons.hourglass_bottom_rounded,
+      color: AppColors.warning,
+      title: _l10n.accessLimitTitle,
+      body: _l10n.accessLimitBody(ResidentAccess.dailyReportLimit),
+    );
+    return false;
+  }
+
+  void _showAccessDialog({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String body,
+  }) {
+    final user = _user;
+    showDialog<void>(
+      context: context,
+      builder: (dialogCtx) => NeoDialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            NeoDialogIcon(icon: icon, color: color),
+            SizedBox(height: 16),
+            Text(title, textAlign: TextAlign.center, style: _dialogTitleStyle),
+            SizedBox(height: 8),
+            Text(body, textAlign: TextAlign.center, style: _dialogBodyStyle),
+            SizedBox(height: 22),
+            if (user != null) ...[
+              NeoButton(
+                key: const Key('access-verify'),
+                label: _l10n.accessVerifyNow,
+                icon: Icons.badge_rounded,
+                height: 48,
+                expand: true,
+                onPressed: () {
+                  Navigator.of(dialogCtx).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => VerificationPage(user: user)),
+                  );
+                },
+              ),
+              SizedBox(height: 10),
+            ],
+            NeoButton(
+              label: _l10n.commonClose,
+              variant: NeoButtonVariant.standard,
+              height: 48,
+              expand: true,
+              onPressed: () => Navigator.of(dialogCtx).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// How many reports an unverified resident has left today.
+  Widget _buildDailyLimitNote() {
+    return BlocBuilder<IncidentBloc, IncidentState>(
+      builder: (context, state) {
+        final left = ResidentAccess.reportsLeftToday(
+          _user,
+          state is IncidentLoaded ? state.incidents : const [],
+        );
+        if (left == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 16,
+                color: left == 0 ? AppColors.warning : AppColors.textLight,
+              ),
+              SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  _l10n.accessReportsLeft(left, ResidentAccess.dailyReportLimit),
+                  key: const Key('report-limit-note'),
+                  style: TextStyle(color: AppColors.textLight, fontSize: 12.5, height: 1.35),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -827,7 +947,8 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
             : 'Citizen');
     final currentUserEmail = currentUser?.email ?? '';
 
-    final bool isAnonymous = _selectedComplainant == 'anonymous';
+    final bool isAnonymous = _selectedComplainant == 'anonymous' &&
+        ResidentAccess.canReportAnonymouslyOrForOthers(currentUser);
 
     final String readableBase = BarangaySectorHelper.formatReadableAddress(
       resolvedAddress: _resolvedAddress,
@@ -870,6 +991,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       reporterEmail: currentUserEmail,
       reporterPhone: currentUser?.phoneNumber,
       isReportingOnBehalf: _isReportingOnBehalf,
+      reporterVerified: currentUser?.isVerified,
       isBlotter: _isBlotter &&
           IncidentEntity.isBlotterCategory(_selectedIncidentCategory),
       victimName:
@@ -978,6 +1100,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
       _showFormError(problem);
       return;
     }
+    if (_step == 0 && !_withinDailyLimit()) return;
     _goToStep(_step + 1);
   }
 
@@ -990,6 +1113,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
         return;
       }
     }
+    if (!_withinDailyLimit()) return;
 
     // Check for nearby duplicate incidents (within 250m, same category, within 2h)
     final duplicateMatch = _findNearbyDuplicateIncident();
@@ -1709,6 +1833,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   }
 
   void _selectReportingMode(bool onBehalf) {
+    if (onBehalf && !_allowedAnonymousOrForOthers()) return;
     setState(() {
       _isReportingOnBehalf = onBehalf;
     });
@@ -1770,11 +1895,18 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
                     onPressed: () => setState(() => _selectedComplainant = "self"),
                   ),
                   NeoChip(
+                    key: const Key('report-anonymous'),
                     label: _l10n.reportComplainantAnonymous,
-                    icon: Icons.security_rounded,
+                    icon: ResidentAccess.canReportAnonymouslyOrForOthers(
+                            authState is Authenticated ? authState.user : null)
+                        ? Icons.security_rounded
+                        : Icons.lock_outline_rounded,
                     selected: _selectedComplainant == "anonymous",
-                    onPressed: () =>
-                        setState(() => _selectedComplainant = "anonymous"),
+                    onPressed: () {
+                      if (_allowedAnonymousOrForOthers()) {
+                        setState(() => _selectedComplainant = "anonymous");
+                      }
+                    },
                   ),
                 ],
               );
@@ -1785,6 +1917,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
           // Incident Category Selection
           _fieldLabel(_l10n.reportCategoryLabel),
           _buildCategoryGrid(),
+          _buildDailyLimitNote(),
           SizedBox(height: 16),
 
           // Blotter entry: only for disputes and complaints the barangay records

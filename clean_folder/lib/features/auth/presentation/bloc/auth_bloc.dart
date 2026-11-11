@@ -33,6 +33,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<LogoutRequested>(_onLogoutRequested);
     on<UpdateProfileRequested>(_onUpdateProfileRequested);
+    on<AuthUserChanged>(_onAuthUserChanged);
+  }
+
+  void _onAuthUserChanged(AuthUserChanged event, Emitter<AuthState> emit) {
+    final current = state;
+    if (current is Authenticated && current.user.id == event.user.id) {
+      emit(Authenticated(event.user));
+    }
   }
 
   Future<void> _onLoginRequested(

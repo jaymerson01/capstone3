@@ -2355,4 +2355,39 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get homeVerifyCta => 'Magpa-verify';
+
+  @override
+  String get accessCommunityLockedTitle =>
+      'Para sa verified na residente ang ulat ng kapitbahay';
+
+  @override
+  String get accessCommunityLockedBody =>
+      'I-verify ang ID mo para makita ang mga ulat at alerto sa paligid ng Moonwalk. Puwede ka pa ring mag-report at subaybayan ang sarili mong ulat.';
+
+  @override
+  String get accessVerifyNow => 'I-verify ang ID ko';
+
+  @override
+  String get accessMapOwnOnly =>
+      'Ulat mo lang ang nakikita. I-verify ang ID mo para makita ang ulat ng iba.';
+
+  @override
+  String get accessVerifiedOnlyTitle => 'Para sa verified na residente';
+
+  @override
+  String get accessVerifiedOnlyBody =>
+      'Mabubuksan ang pag-report nang anonymous o para sa iba kapag na-verify na ng barangay ang ID mo.';
+
+  @override
+  String accessReportsLeft(int left, int limit) {
+    return 'Hindi pa verified: $left sa $limit na ulat ang natitira ngayong araw. Walang limit ang emergency.';
+  }
+
+  @override
+  String get accessLimitTitle => 'Naabot na ang limit ngayong araw';
+
+  @override
+  String accessLimitBody(int limit) {
+    return '$limit ulat bawat araw ang puwede sa account na hindi pa verified. Puwede ka pa ring mag-report ng emergency: sunog, medikal, aksidente, baha, karahasan at nakawan. I-verify ang ID mo para mawala ang limit.';
+  }
 }

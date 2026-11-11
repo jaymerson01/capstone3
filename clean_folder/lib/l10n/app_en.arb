@@ -3066,5 +3066,54 @@
   "homeVerifyCta": "Get verified",
   "@homeVerifyCta": {
     "description": "Home header pill for residents not yet verified (opens verification)."
+  },
+  "accessCommunityLockedTitle": "Neighbors' reports are for verified residents",
+  "@accessCommunityLockedTitle": {
+    "description": "Home card shown instead of community reports until the resident's ID is verified."
+  },
+  "accessCommunityLockedBody": "Verify your ID to see reports and alerts from around Moonwalk. You can still report and follow your own reports.",
+  "@accessCommunityLockedBody": {
+    "description": "Body of the locked community card."
+  },
+  "accessVerifyNow": "Verify my ID",
+  "@accessVerifyNow": {
+    "description": "Button opening the ID verification page."
+  },
+  "accessMapOwnOnly": "Showing only your reports. Verify your ID to see your neighbors' reports.",
+  "@accessMapOwnOnly": {
+    "description": "Map banner for unverified residents."
+  },
+  "accessVerifiedOnlyTitle": "For verified residents",
+  "@accessVerifiedOnlyTitle": {
+    "description": "Title when an unverified resident picks anonymous or on-behalf reporting."
+  },
+  "accessVerifiedOnlyBody": "Reporting anonymously or for someone else opens once the barangay verifies your ID.",
+  "@accessVerifiedOnlyBody": {
+    "description": "Body when an unverified resident picks anonymous or on-behalf reporting."
+  },
+  "accessReportsLeft": "Not yet verified: {left} of {limit} reports left today. Emergencies are never limited.",
+  "@accessReportsLeft": {
+    "description": "Note on the report form for unverified residents.",
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "accessLimitTitle": "Daily limit reached",
+  "@accessLimitTitle": {
+    "description": "Dialog title when an unverified resident has used today's reports."
+  },
+  "accessLimitBody": "Unverified accounts can send {limit} reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.",
+  "@accessLimitBody": {
+    "description": "Dialog body when an unverified resident has used today's reports.",
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
   }
 }

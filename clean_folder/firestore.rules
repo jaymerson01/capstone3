@@ -56,6 +56,11 @@ service cloud.firestore {
         get(userDoc()).data.get('isActive', true) != false;
     }
 
+    // Resident whose ID the barangay has checked (see ResidentAccess in the app).
+    function isVerifiedResident() {
+      return isActiveUser() && get(userDoc()).data.get('isVerified', false) == true;
+    }
+
     function changedKeys() {
       return request.resource.data.diff(resource.data).affectedKeys();
     }
@@ -125,7 +130,11 @@ service cloud.firestore {
     // ── 2. Incidents (public part) ────────────────────────────────────
     match /incidents/{incidentId} {
       // Community map / feed. Contains NO names, emails or phone numbers.
-      allow read: if isAuthenticated();
+      // Verified residents see everyone's reports; others only their own.
+      // (A report that does not exist yet reads as empty, so the app can
+      // check before uploading one filed offline.)
+      allow read: if isAdmin() || isResponder() || isVerifiedResident() ||
+        (isAuthenticated() && (resource == null || resource.data.reporterId == request.auth.uid));
 
       // New report: active resident, filed as themselves, clean starting state,
       // no private contact fields in the public document.
@@ -139,6 +148,12 @@ service cloud.firestore {
         request.resource.data.get('assignedResponderId', null) == null &&
         request.resource.data.get('departments', null) == null &&
         request.resource.data.get('estimatedResponseTime', null) == null &&
+        // Anonymous and on-behalf reports are for verified residents.
+        ((request.resource.data.get('isAnonymous', false) != true &&
+          request.resource.data.get('isReportingOnBehalf', false) != true) || isVerifiedResident()) &&
+        // The verified mark, when sent, must be true.
+        (request.resource.data.get('reporterVerified', null) == null ||
+         request.resource.data.reporterVerified == isVerifiedResident()) &&
         (request.resource.data.get('urgencyStatus', null) == null ||
          request.resource.data.urgencyStatus in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) &&
         !request.resource.data.keys().hasAny(privateIncidentFields());
@@ -201,7 +216,8 @@ service cloud.firestore {
           resource.data.get('reporterId', '') == request.auth.uid &&
           resource.data.get('status', '') == 'pending' &&
           changedKeys().hasOnly(['description', 'photoUrl', 'videoUrl', 'resolvedAddress',
-                                 'areaSector', 'latitude', 'longitude', 'isAnonymous']);
+                                 'areaSector', 'latitude', 'longitude', 'isAnonymous']) &&
+          (request.resource.data.get('isAnonymous', false) != true || isVerifiedResident());
       }
 
       // ── 2a. The responder's live position while on the way ──────────
