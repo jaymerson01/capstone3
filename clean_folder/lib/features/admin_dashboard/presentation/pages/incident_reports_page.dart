@@ -16,6 +16,9 @@ import 'package:community_safety_app/features/admin_dashboard/presentation/widge
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/responders_remote_data_source.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
+import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/report_exports.dart';
+import 'package:printing/printing.dart';
 
 class IncidentReportsPage extends StatefulWidget {
   const IncidentReportsPage({super.key, this.openIncidentId, this.onIncidentOpened});
@@ -966,6 +969,30 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
     );
   }
 
+  /// The report as a barangay blotter entry, in the browser's print dialog
+  /// (print it, or save it as PDF).
+  Future<void> _printBlotter(IncidentEntity report) async {
+    try {
+      await Printing.layoutPdf(
+        name: 'Blotter_${report.ticketNumber}.pdf',
+        onLayout: (_) => ReportExports.blotterPdf(report),
+      );
+      await sl<AuditLogRemoteDataSource>().recordLog(
+        actionType: 'Report Export',
+        details: 'Printed the blotter entry for ${report.ticketNumber} (#${report.id})',
+        targetId: report.id,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Couldn't open the blotter: $e"),
+          backgroundColor: AdminColors.critical,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    }
+  }
+
   /// A new tanod or responder for the assign list.
   Future<Responder?> _showAddResponderDialog(BuildContext context) {
     final name = TextEditingController();
@@ -1072,6 +1099,12 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               label: "Close",
               style: AdminButtonStyle.ghost,
               onPressed: () => Navigator.pop(dialogContext),
+            ),
+            AdminButton(
+              label: "Print blotter",
+              icon: Icons.print_rounded,
+              style: AdminButtonStyle.slate,
+              onPressed: () => _printBlotter(report),
             ),
             AdminButton(
               label: "Update Status / Notes",

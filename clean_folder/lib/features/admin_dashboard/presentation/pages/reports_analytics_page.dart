@@ -1,9 +1,6 @@
-import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:csv/csv.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -16,6 +13,8 @@ import 'package:community_safety_app/features/admin_dashboard/data/datasources/a
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 import 'package:community_safety_app/core/theme/app_theme.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:community_safety_app/features/admin_dashboard/presentation/helpers/report_exports.dart';
 
 enum ReportTimeframe { allTime, thisMonth, last30Days, thisWeek }
 
@@ -199,14 +198,14 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
       subtitle:
           "Barangay Moonwalk blotter ledger, sector load diagnostics, and certified LGU exports",
       trailing: [
-        // 1-Click CSV Export Button
+        // 1-Click Excel Export Button
         AdminButton(
-          label: "Export Blotter CSV",
+          label: "Export to Excel",
           icon: Icons.table_chart_outlined,
           style: AdminButtonStyle.ghost,
           onPressed: _isExporting
               ? null
-              : () => _exportBlotterCsv(filteredIncidents),
+              : () => _exportExcel(filteredIncidents),
         ),
         // Official PDF Report Generator Button
         AdminButton(
@@ -688,68 +687,22 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     );
   }
 
-  // ── CSV Blotter Export ──────────────────────────────────────────────────
-  Future<void> _exportBlotterCsv(List<IncidentEntity> incidents) async {
+  // ── Excel Export ─────────────────────────────────────────────────────────
+  Future<void> _exportExcel(List<IncidentEntity> incidents) async {
     setState(() => _isExporting = true);
     try {
-      final List<List<dynamic>> csvRows = [
-        [
-          "Case ID",
-          "Timestamp",
-          "Category",
-          "Priority",
-          "Status",
-          "Barangay Sector",
-          "Resolved Address",
-          "Latitude",
-          "Longitude",
-          "Complainant Name",
-          "Is Anonymous",
-          "Blotter Entry",
-          "Corroboration Upvotes",
-          "Dispatcher Remarks",
-        ],
-      ];
-
-      for (final inc in incidents) {
-        csvRows.add([
-          inc.id,
-          inc.timestamp.toIso8601String(),
-          inc.category,
-          inc.urgencyStatus ?? 'Normal',
-          inc.status,
-          BarangaySectorHelper.normalizeSector(
-            inc.areaSector,
-            inc.resolvedAddress,
-          ),
-          inc.resolvedAddress ?? '',
-          inc.latitude,
-          inc.longitude,
-          inc.isAnonymous ? 'Anonymous' : (inc.reporterName ?? ''),
-          inc.isAnonymous ? 'YES' : 'NO',
-          inc.isBlotter ? 'YES' : 'NO',
-          inc.upvoteCount,
-          inc.dispatcherNotes ?? '',
-        ]);
-      }
-
-      final csvString = const ListToCsvConverter().convert(csvRows);
-      final bytes = Uint8List.fromList(utf8.encode(csvString));
-
-      final filename =
-          "Barangay_Moonwalk_Blotter_${DateTime.now().millisecondsSinceEpoch}.csv";
-
-      await Printing.sharePdf(bytes: bytes, filename: filename);
+      final filename = "Barangay_Moonwalk_Reports_${DateFormat('yyyy-MM-dd_HHmm').format(DateTime.now())}.xlsx";
+      await Printing.sharePdf(bytes: ReportExports.reportsWorkbook(incidents), filename: filename);
 
       await sl<AuditLogRemoteDataSource>().recordLog(
         actionType: 'Report Export',
-        details: 'Exported blotter ledger CSV with ${incidents.length} incident records.',
+        details: 'Exported ${incidents.length} reports to Excel.',
       );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("✓ Blotter ledger CSV exported successfully: $filename"),
+            content: Text("✓ Exported ${incidents.length} reports to Excel: $filename"),
             backgroundColor: AdminColors.success,
             behavior: SnackBarBehavior.floating,
           ),
@@ -759,8 +712,8 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to export CSV: $e"),
-            backgroundColor: AdminColors.danger,
+            content: Text("Failed to export to Excel: $e"),
+            backgroundColor: AdminColors.critical,
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -770,7 +723,6 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
     }
   }
 
-  // ── Official Printable PDF Report Generator ────────────────────────────
   Future<void> _generateOfficialPdfReport(
     List<IncidentEntity> incidents,
   ) async {
