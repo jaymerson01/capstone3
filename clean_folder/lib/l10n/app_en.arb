@@ -3034,5 +3034,37 @@
   "reportReviewNoEvidence": "None",
   "@reportReviewNoEvidence": {
     "description": "Review: no evidence."
+  },
+  "homeReportTitle": "Report an incident",
+  "@homeReportTitle": {
+    "description": "Home report card title."
+  },
+  "homeReportSubtitle": "Emergency? Tap what happened to start right away.",
+  "@homeReportSubtitle": {
+    "description": "Home report card subtitle."
+  },
+  "homeReportOther": "Report something else",
+  "@homeReportOther": {
+    "description": "Opens the blank report form."
+  },
+  "homeQuickFire": "Fire",
+  "@homeQuickFire": {
+    "description": "Quick report: fire."
+  },
+  "homeQuickMedical": "Medical",
+  "@homeQuickMedical": {
+    "description": "Quick report: medical."
+  },
+  "homeQuickTheft": "Theft",
+  "@homeQuickTheft": {
+    "description": "Quick report: theft."
+  },
+  "homeQuickFlood": "Flood",
+  "@homeQuickFlood": {
+    "description": "Quick report: flood."
+  },
+  "homeVerifyCta": "Get verified",
+  "@homeVerifyCta": {
+    "description": "Home header pill for residents not yet verified (opens verification)."
   }
 }

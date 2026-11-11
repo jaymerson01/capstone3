@@ -665,5 +665,13 @@
   "reportReviewTitle": "Suriin bago ipadala",
   "reportReviewPhoto": "Litrato",
   "reportReviewVideo": "Video",
-  "reportReviewNoEvidence": "Wala"
+  "reportReviewNoEvidence": "Wala",
+  "homeReportTitle": "Mag-report ng insidente",
+  "homeReportSubtitle": "May emergency? Pindutin kung ano ang nangyari para makapagsimula agad.",
+  "homeReportOther": "Iba pang insidente",
+  "homeQuickFire": "Sunog",
+  "homeQuickMedical": "Medikal",
+  "homeQuickTheft": "Nakawan",
+  "homeQuickFlood": "Baha",
+  "homeVerifyCta": "Magpa-verify"
 }

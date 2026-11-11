@@ -23,6 +23,8 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.d
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/utils/localized_labels.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/pages/report_incident_page.dart';
+import 'package:community_safety_app/features/verification/presentation/verification_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -378,6 +380,30 @@ class _DashboardPageState extends State<DashboardPage>
                                       // ── Active Municipal Siren / Emergency Broadcast ──
                                       _ActiveEmergencyBanner(),
 
+                                      // ── Report: quick types, or anything else ──────
+                                      HomeReportCard(
+                                        title: AppLocalizations.of(context).homeReportTitle,
+                                        subtitle: AppLocalizations.of(context).homeReportSubtitle,
+                                        otherLabel: AppLocalizations.of(context).homeReportOther,
+                                        quickTypes: [
+                                          ('Fire Incident', AppLocalizations.of(context).homeQuickFire,
+                                              Icons.local_fire_department_rounded),
+                                          ('Medical Emergency', AppLocalizations.of(context).homeQuickMedical,
+                                              Icons.medical_services_rounded),
+                                          ('Theft / Robbery', AppLocalizations.of(context).homeQuickTheft,
+                                              Icons.local_police_rounded),
+                                          ('Flood / Calamity', AppLocalizations.of(context).homeQuickFlood,
+                                              Icons.flood_rounded),
+                                        ],
+                                        onReport: (category) => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => ReportIncidentPage(initialCategory: category),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 18),
+
                                       // ── How to use ResQ (video guide) ──────────────
                                       HomeVideoCard(
                                         title: AppLocalizations.of(context)
@@ -507,6 +533,9 @@ class _HomeHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
     final notificationService = NotificationService();
+    final authState = context.watch<AuthBloc>().state;
+    final user = authState is Authenticated ? authState.user : null;
+    final verified = user?.isVerified ?? false;
 
     return StreamBuilder<List<NotificationModel>>(
       stream: notificationService.streamResidentNotifications(currentUserId),
@@ -517,7 +546,15 @@ class _HomeHeader extends StatelessWidget {
         return HomeHeroHeader(
           welcomeLabel: l10n.dashboardWelcomeBack,
           userName: userName,
-          placeLabel: "Barangay Moonwalk • ${l10n.commonResident}",
+          placeLabel:
+              "Barangay Moonwalk • ${verified ? l10n.settingsVerifiedResident : l10n.homeVerifyCta}",
+          verified: verified,
+          onPlaceTap: user == null
+              ? null
+              : () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => VerificationPage(user: user)),
+                  ),
           unreadCount: unreadCount,
           onNotificationsTap: () {
             ResidentNotificationsSheet.show(context, userId: currentUserId);

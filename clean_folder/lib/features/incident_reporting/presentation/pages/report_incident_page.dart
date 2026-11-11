@@ -48,7 +48,10 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/core/services/app_coordinate.dart';
 
 class ReportIncidentPage extends StatefulWidget {
-  const ReportIncidentPage({super.key});
+  const ReportIncidentPage({super.key, this.initialCategory});
+
+  /// Opens with this incident type already chosen (from the home shortcuts).
+  final String? initialCategory;
 
   @override
   State<ReportIncidentPage> createState() => _ReportIncidentPageState();
@@ -139,6 +142,7 @@ class _ReportIncidentPageState extends State<ReportIncidentPage> {
   @override
   void initState() {
     super.initState();
+    _selectedIncidentCategory = widget.initialCategory;
     context.read<IncidentBloc>().add(const StreamActiveIncidentsRequested());
   }
 

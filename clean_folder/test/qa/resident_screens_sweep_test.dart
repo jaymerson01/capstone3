@@ -131,7 +131,9 @@ class HomeSectionsPreview extends StatelessWidget {
                     HomeHeroHeader(
                       welcomeLabel: l10n.dashboardWelcomeBack,
                       userName: 'Juan Dela Cruz',
-                      placeLabel: "Barangay Moonwalk • ${l10n.commonResident}",
+                      placeLabel: "Barangay Moonwalk • ${l10n.homeVerifyCta}",
+                      verified: false,
+                      onPlaceTap: () {},
                       unreadCount: 12,
                       onNotificationsTap: () {},
                     ),
@@ -145,6 +147,19 @@ class HomeSectionsPreview extends StatelessWidget {
                       targetLabel: l10n
                           .dashboardBroadcastTarget(l10n.dashboardAllSectors),
                     ),
+                    HomeReportCard(
+                      title: l10n.homeReportTitle,
+                      subtitle: l10n.homeReportSubtitle,
+                      otherLabel: l10n.homeReportOther,
+                      quickTypes: [
+                        ('Fire Incident', l10n.homeQuickFire, Icons.local_fire_department_rounded),
+                        ('Medical Emergency', l10n.homeQuickMedical, Icons.medical_services_rounded),
+                        ('Theft / Robbery', l10n.homeQuickTheft, Icons.local_police_rounded),
+                        ('Flood / Calamity', l10n.homeQuickFlood, Icons.flood_rounded),
+                      ],
+                      onReport: (_) {},
+                    ),
+                    const SizedBox(height: 18),
                     HomeVideoCard(
                       title: l10n.dashboardVideoInstructions,
                       subtitle: l10n.dashboardVideoSubtitle,

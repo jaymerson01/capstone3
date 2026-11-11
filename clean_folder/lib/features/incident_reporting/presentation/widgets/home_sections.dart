@@ -51,6 +51,11 @@ class HomeHeroHeader extends StatelessWidget {
   final int unreadCount;
   final VoidCallback onNotificationsTap;
 
+  /// An admin has verified this resident; otherwise the pill shows they're
+  /// waiting and [onPlaceTap] can lead to verification.
+  final bool verified;
+  final VoidCallback? onPlaceTap;
+
   const HomeHeroHeader({
     super.key,
     required this.welcomeLabel,
@@ -58,6 +63,8 @@ class HomeHeroHeader extends StatelessWidget {
     required this.placeLabel,
     required this.unreadCount,
     required this.onNotificationsTap,
+    this.verified = true,
+    this.onPlaceTap,
   });
 
   @override
@@ -134,7 +141,9 @@ class HomeHeroHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Container(
+        GestureDetector(
+          onTap: verified ? null : onPlaceTap,
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: AppColors.glassSmoke,
@@ -160,12 +169,160 @@ class HomeHeroHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(Icons.verified_user_outlined,
-                  size: 14, color: AppColors.secondaryLight),
+              Icon(verified ? Icons.verified_user_outlined : Icons.hourglass_top_rounded,
+                  size: 14, color: verified ? AppColors.secondaryLight : const Color(0xFFFCD34D)),
+              if (!verified && onPlaceTap != null) ...[
+                const SizedBox(width: 2),
+                const Icon(Icons.chevron_right_rounded, size: 16, color: Colors.white70),
+              ],
             ],
           ),
         ),
+        ),
       ],
+    );
+  }
+}
+
+/// The home's report shortcut: one tap on the incident type opens the
+/// report form with it chosen; the wide button opens it blank.
+class HomeReportCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final String otherLabel;
+
+  /// (stored category, short label, icon) for the quick buttons.
+  final List<(String, String, IconData)> quickTypes;
+  final ValueChanged<String?> onReport;
+
+  const HomeReportCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.otherLabel,
+    required this.quickTypes,
+    required this.onReport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(26),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFDC2626), Color(0xFFEA580C)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFDC2626).withValues(alpha: 0.35),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 26),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w800, height: 1.2),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 12.5, height: 1.35),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          GridView.count(
+            crossAxisCount: 4,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
+            childAspectRatio: 0.92,
+            children: [
+              for (final (category, label, icon) in quickTypes)
+                Material(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    key: Key('home-report-$category'),
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => onReport(category),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(icon, color: Colors.white, size: 26),
+                        const SizedBox(height: 6),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: Material(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(999),
+              child: InkWell(
+                key: const Key('home-report-other'),
+                borderRadius: BorderRadius.circular(999),
+                onTap: () => onReport(null),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.add_circle_outline_rounded, color: Color(0xFFDC2626), size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        otherLabel,
+                        style: const TextStyle(color: Color(0xFFDC2626), fontSize: 14, fontWeight: FontWeight.w800),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -441,7 +598,7 @@ class HomeMyReportsPanel extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: AppColors.textLight,

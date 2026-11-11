@@ -2330,4 +2330,29 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get reportReviewNoEvidence => 'Wala';
+
+  @override
+  String get homeReportTitle => 'Mag-report ng insidente';
+
+  @override
+  String get homeReportSubtitle =>
+      'May emergency? Pindutin kung ano ang nangyari para makapagsimula agad.';
+
+  @override
+  String get homeReportOther => 'Iba pang insidente';
+
+  @override
+  String get homeQuickFire => 'Sunog';
+
+  @override
+  String get homeQuickMedical => 'Medikal';
+
+  @override
+  String get homeQuickTheft => 'Nakawan';
+
+  @override
+  String get homeQuickFlood => 'Baha';
+
+  @override
+  String get homeVerifyCta => 'Magpa-verify';
 }

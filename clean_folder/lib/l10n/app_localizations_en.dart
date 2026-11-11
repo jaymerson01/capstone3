@@ -2344,4 +2344,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportReviewNoEvidence => 'None';
+
+  @override
+  String get homeReportTitle => 'Report an incident';
+
+  @override
+  String get homeReportSubtitle =>
+      'Emergency? Tap what happened to start right away.';
+
+  @override
+  String get homeReportOther => 'Report something else';
+
+  @override
+  String get homeQuickFire => 'Fire';
+
+  @override
+  String get homeQuickMedical => 'Medical';
+
+  @override
+  String get homeQuickTheft => 'Theft';
+
+  @override
+  String get homeQuickFlood => 'Flood';
+
+  @override
+  String get homeVerifyCta => 'Get verified';
 }

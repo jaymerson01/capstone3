@@ -4093,6 +4093,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'None'**
   String get reportReviewNoEvidence;
+
+  /// Home report card title.
+  ///
+  /// In en, this message translates to:
+  /// **'Report an incident'**
+  String get homeReportTitle;
+
+  /// Home report card subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency? Tap what happened to start right away.'**
+  String get homeReportSubtitle;
+
+  /// Opens the blank report form.
+  ///
+  /// In en, this message translates to:
+  /// **'Report something else'**
+  String get homeReportOther;
+
+  /// Quick report: fire.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire'**
+  String get homeQuickFire;
+
+  /// Quick report: medical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get homeQuickMedical;
+
+  /// Quick report: theft.
+  ///
+  /// In en, this message translates to:
+  /// **'Theft'**
+  String get homeQuickTheft;
+
+  /// Quick report: flood.
+  ///
+  /// In en, this message translates to:
+  /// **'Flood'**
+  String get homeQuickFlood;
+
+  /// Home header pill for residents not yet verified (opens verification).
+  ///
+  /// In en, this message translates to:
+  /// **'Get verified'**
+  String get homeVerifyCta;
 }
 
 class _AppLocalizationsDelegate
