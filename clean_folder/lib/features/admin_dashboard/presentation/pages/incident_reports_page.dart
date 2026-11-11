@@ -13,6 +13,9 @@ import 'package:community_safety_app/core/presentation/widgets/in_app_image_view
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_header_parts.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
+import 'package:community_safety_app/core/services/injection_container.dart';
+import 'package:community_safety_app/features/incident/domain/repositories/incident_repository.dart';
+import 'package:community_safety_app/features/admin_dashboard/data/datasources/responders_remote_data_source.dart';
 
 class IncidentReportsPage extends StatefulWidget {
   const IncidentReportsPage({super.key, this.openIncidentId, this.onIncidentOpened});
@@ -759,6 +762,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         TextEditingController(text: report.dispatcherNotes ?? "");
     final TextEditingController etaController =
         TextEditingController(text: report.estimatedResponseTime ?? "");
+    String? responderId = report.assignedResponderId;
+    String? responderName = report.assignedResponderName;
+    final responderStream = sl<RespondersRemoteDataSource>().streamResponders();
 
     showDialog(
       context: context,
@@ -799,6 +805,11 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                         : (eta.isNotEmpty ? eta : null)),
                           ),
                         );
+                    if (responderId != report.assignedResponderId) {
+                      sl<IncidentRepository>()
+                          .assignResponder(report.id, responderId: responderId, responderName: responderName)
+                          .catchError((Object e) => debugPrint('[Dispatch] Assigning the responder failed: $e'));
+                    }
                     Navigator.pop(dialogContext);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -893,10 +904,127 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           "Log responder dispatch units, field actions, or resident advisory...",
                     ),
                   ),
+                  const SizedBox(height: 18),
+                  const AdminFieldLabel("ASSIGNED RESPONDER"),
+                  StreamBuilder<List<Responder>>(
+                    stream: responderStream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return const Text(
+                          "Couldn't load the responders list.",
+                          style: TextStyle(color: AdminColors.dangerText, fontSize: 12.5),
+                        );
+                      }
+                      final responders = snapshot.data ?? const <Responder>[];
+                      return Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          AdminChoiceChip(
+                            label: "None",
+                            selected: responderId == null,
+                            onTap: () => setDialogState(() {
+                              responderId = null;
+                              responderName = null;
+                            }),
+                          ),
+                          for (final responder in responders)
+                            AdminChoiceChip(
+                              label: responder.label,
+                              selected: responderId == responder.id,
+                              onTap: () => setDialogState(() {
+                                responderId = responder.id;
+                                responderName = responder.name;
+                              }),
+                            ),
+                          // Kept even if it was removed from the list since.
+                          if (responderId != null && !responders.any((r) => r.id == responderId))
+                            AdminChoiceChip(label: responderName ?? "Assigned", selected: true, onTap: null),
+                          AdminChoiceChip(
+                            label: "+ Add responder",
+                            selected: false,
+                            onTap: () async {
+                              final added = await _showAddResponderDialog(context);
+                              if (added != null) {
+                                setDialogState(() {
+                                  responderId = added.id;
+                                  responderName = added.name;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ],
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  /// A new tanod or responder for the assign list.
+  Future<Responder?> _showAddResponderDialog(BuildContext context) {
+    final name = TextEditingController();
+    final role = TextEditingController();
+    return showDialog<Responder>(
+      context: context,
+      builder: (ctx) {
+        var saving = false;
+        return StatefulBuilder(
+          builder: (ctx, setState) => AdminDialog(
+            title: "Add a responder",
+            icon: Icons.person_add_alt_1_rounded,
+            tone: AdminTone.cyan,
+            maxWidth: 420,
+            actions: [
+              AdminButton(label: "Cancel", style: AdminButtonStyle.ghost, onPressed: () => Navigator.pop(ctx)),
+              AdminButton(
+                label: "Add",
+                busy: saving,
+                onPressed: () async {
+                  if (name.text.trim().length < 2) return;
+                  setState(() => saving = true);
+                  try {
+                    final responder = await sl<RespondersRemoteDataSource>().addResponder(name.text, role: role.text);
+                    if (ctx.mounted) Navigator.pop(ctx, responder);
+                  } catch (e) {
+                    setState(() => saving = false);
+                    if (ctx.mounted) {
+                      ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+                        content: Text("Couldn't add the responder: $e"),
+                        backgroundColor: AdminColors.critical,
+                        behavior: SnackBarBehavior.floating,
+                      ));
+                    }
+                  }
+                },
+              ),
+            ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const AdminFieldLabel("NAME"),
+                TextField(
+                  controller: name,
+                  autofocus: true,
+                  style: adminInputText,
+                  decoration: adminInputDecoration(hint: "e.g. Tanod Juan Dela Cruz", icon: Icons.badge_outlined),
+                ),
+                const SizedBox(height: 12),
+                const AdminFieldLabel("ROLE (OPTIONAL)"),
+                TextField(
+                  controller: role,
+                  style: adminInputText,
+                  decoration: adminInputDecoration(hint: "Tanod, BPAT, Health worker…", icon: Icons.work_outline),
+                ),
+              ],
+            ),
+          ),
         );
       },
     );
@@ -1743,6 +1871,34 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       height: 1.4,
                       fontSize: 13,
                     ),
+                  ),
+                ),
+              ],
+
+              // Who responded, and how long it took
+              if (report.assignedResponderName != null ||
+                  report.timeToRespond != null ||
+                  report.timeToResolve != null) ...[
+                const SizedBox(height: 16),
+                _buildSectionHeader(Icons.directions_run_rounded, "RESPONSE"),
+                const SizedBox(height: 8),
+                AdminInset(
+                  tone: AdminTone.cyan,
+                  child: Column(
+                    children: [
+                      if (report.assignedResponderName != null)
+                        AdminDetailRow(label: "Responder", value: report.assignedResponderName!),
+                      if (report.timeToRespond != null)
+                        AdminDetailRow(
+                          label: "Time to respond",
+                          value: IncidentEntity.formatDuration(report.timeToRespond!),
+                        ),
+                      if (report.timeToResolve != null)
+                        AdminDetailRow(
+                          label: "Time to resolve",
+                          value: IncidentEntity.formatDuration(report.timeToResolve!),
+                        ),
+                    ],
                   ),
                 ),
               ],

@@ -184,6 +184,9 @@ class IncidentModel extends IncidentEntity {
     DateTime? closedAt,
     int? rating,
     String? ratingComment,
+    String? assignedResponderId,
+    String? assignedResponderName,
+    DateTime? assignedAt,
   }) {
     return IncidentModel(
       id: id ?? this.id,
@@ -219,6 +222,9 @@ class IncidentModel extends IncidentEntity {
       closedAt: closedAt ?? this.closedAt,
       rating: rating ?? this.rating,
       ratingComment: ratingComment ?? this.ratingComment,
+      assignedResponderId: assignedResponderId ?? this.assignedResponderId,
+      assignedResponderName: assignedResponderName ?? this.assignedResponderName,
+      assignedAt: assignedAt ?? this.assignedAt,
     );
   }
 
@@ -251,6 +257,9 @@ class IncidentModel extends IncidentEntity {
     super.closedAt,
     super.rating,
     super.ratingComment,
+    super.assignedResponderId,
+    super.assignedResponderName,
+    super.assignedAt,
     this.isReportingOnBehalf = false,
     this.victimName,
     this.victimPhone,
@@ -372,6 +381,9 @@ class IncidentModel extends IncidentEntity {
       closedAt: readTime('closedAt'),
       rating: (data['rating'] as num?)?.toInt(),
       ratingComment: data['ratingComment'] as String?,
+      assignedResponderId: data['assignedResponderId'] as String?,
+      assignedResponderName: data['assignedResponderName'] as String?,
+      assignedAt: readTime('assignedAt'),
     );
   }
 
@@ -436,6 +448,9 @@ class IncidentModel extends IncidentEntity {
       closedAt: closedAt,
       rating: rating,
       ratingComment: ratingComment,
+      assignedResponderId: assignedResponderId,
+      assignedResponderName: assignedResponderName,
+      assignedAt: assignedAt,
     );
   }
 

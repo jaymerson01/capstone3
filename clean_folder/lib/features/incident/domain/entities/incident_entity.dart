@@ -45,6 +45,11 @@ class IncidentEntity {
   final int? rating;
   final String? ratingComment;
 
+  /// The tanod or responder an admin assigned, and when.
+  final String? assignedResponderId;
+  final String? assignedResponderName;
+  final DateTime? assignedAt;
+
   /// Whether an admin has verified the reporter's residency (admin desk only;
   /// null when the reporter's profile isn't loaded).
   final bool? reporterVerified;
@@ -83,7 +88,23 @@ class IncidentEntity {
     this.closedAt,
     this.rating,
     this.ratingComment,
+    this.assignedResponderId,
+    this.assignedResponderName,
+    this.assignedAt,
   });
+
+  /// From filing until the barangay started responding (In progress).
+  Duration? get timeToRespond => inProgressAt?.difference(timestamp);
+
+  /// From filing until the report was resolved.
+  Duration? get timeToResolve => resolvedAt?.difference(timestamp);
+
+  /// "45 min" or "2 h 05 min", for response times.
+  static String formatDuration(Duration d) {
+    final minutes = d.inMinutes;
+    if (minutes < 60) return '$minutes min';
+    return '${minutes ~/ 60} h ${(minutes % 60).toString().padLeft(2, '0')} min';
+  }
 
   /// The reference residents and the desk quote for this report, e.g.
   /// RQ-261104-AB3XK: the filing date (Philippine time) and the start of the

@@ -99,6 +99,8 @@ service cloud.firestore {
         request.resource.data.get('upvoteCount', 0) == 0 &&
         request.resource.data.get('validatedUserIds', []).size() == 0 &&
         request.resource.data.get('dispatcherNotes', null) == null &&
+        request.resource.data.get('rating', null) == null &&
+        request.resource.data.get('assignedResponderId', null) == null &&
         request.resource.data.get('estimatedResponseTime', null) == null &&
         (request.resource.data.get('urgencyStatus', null) == null ||
          request.resource.data.urgencyStatus in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) &&
@@ -246,6 +248,11 @@ service cloud.firestore {
     match /areas/{areaId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
+    }
+
+    // ── 8. Barangay responders (tanod, BPAT…) admins assign to reports ──
+    match /responders/{responderId} {
+      allow read, write: if isAdmin();
     }
   }
 }

@@ -485,6 +485,21 @@ class IncidentRepositoryImpl implements IncidentRepository {
   /// [incident] with its reporter's name and email taken from [profile]
   /// (their `users` document) where the report itself lacks them.
   @override
+  Future<void> assignResponder(String id, {String? responderId, String? responderName}) async {
+    await firestore.collection('incidents').doc(id).update(responderId == null
+        ? {
+            'assignedResponderId': FieldValue.delete(),
+            'assignedResponderName': FieldValue.delete(),
+            'assignedAt': FieldValue.delete(),
+          }
+        : {
+            'assignedResponderId': responderId,
+            'assignedResponderName': responderName,
+            'assignedAt': FieldValue.serverTimestamp(),
+          });
+  }
+
+  @override
   Future<void> rateIncident(String id, int rating, {String? comment}) async {
     final note = comment?.trim() ?? '';
     await firestore.collection('incidents').doc(id).update({

@@ -18,4 +18,7 @@ abstract class IncidentRepository {
   /// The reporter's rating (1-5 stars, optional comment) of the barangay's
   /// response to their resolved report. Can be sent once.
   Future<void> rateIncident(String id, int rating, {String? comment});
+
+  /// Assigns a tanod or responder to the report (admins); null clears it.
+  Future<void> assignResponder(String id, {String? responderId, String? responderName});
 }
