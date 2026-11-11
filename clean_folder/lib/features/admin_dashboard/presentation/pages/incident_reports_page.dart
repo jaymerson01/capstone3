@@ -144,6 +144,9 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                     final matchesSearch = report.id
                             .toLowerCase()
                             .contains(searchQuery.toLowerCase()) ||
+                        report.ticketNumber
+                            .toLowerCase()
+                            .contains(searchQuery.toLowerCase()) ||
                         report.category
                             .toLowerCase()
                             .contains(searchQuery.toLowerCase()) ||
@@ -405,7 +408,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
           cells: [
             _cell(
               Text(
-                report.id.length > 8 ? report.id.substring(0, 8) : report.id,
+                report.ticketNumber,
                 style: AdminTable.cellStrong,
               ),
               dimmed: isSpam,
@@ -606,7 +609,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                         SnackBar(
                           backgroundColor: AdminColors.surfaceDeep,
                           content: Text(
-                            "Report #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} marked as Spam",
+                            "Report ${report.ticketNumber} marked as Spam",
                             style: const TextStyle(
                               color: AdminColors.amber,
                               fontWeight: FontWeight.bold,
@@ -781,7 +784,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
               tone: AdminTone.cyan,
               icon: Icons.edit_note,
               title:
-                  "Dispatch Actions • #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                  "Dispatch Actions • ${report.ticketNumber}",
               subtitle: report.category,
               maxWidth: 480,
               actions: [
@@ -831,7 +834,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                       SnackBar(
                         backgroundColor: AdminColors.cardBackground,
                         content: Text(
-                          "Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)} status updated to '$selectedStatus'!",
+                          "Incident ${report.ticketNumber} status updated to '$selectedStatus'!",
                           style: const TextStyle(
                               color: AdminColors.success,
                               fontWeight: FontWeight.bold),
@@ -1049,7 +1052,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
         return AdminDialog(
           icon: Icons.shield_outlined,
           title:
-              "Incident Dossier #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+              "Incident Dossier ${report.ticketNumber}",
           subtitle: _formatDateTime(report.timestamp),
           maxWidth: 660,
           actions: [
@@ -1583,7 +1586,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                           InAppImageViewerDialog.show(
                             context,
                             imageUrl: report.photoUrl!,
-                            title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                            title: "Photo Evidence • Incident ${report.ticketNumber}",
                           );
                         },
                         child: MouseRegion(
@@ -1682,7 +1685,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                                 InAppImageViewerDialog.show(
                                   context,
                                   imageUrl: report.photoUrl!,
-                                  title: "Photo Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                                  title: "Photo Evidence • Incident ${report.ticketNumber}",
                                 );
                               },
                             ),
@@ -1801,7 +1804,7 @@ class _IncidentReportsPageState extends State<IncidentReportsPage> {
                               InAppEvidencePlayerDialog.show(
                                 context,
                                 videoUrl: report.videoUrl!,
-                                title: "Video Evidence • Incident #${report.id.substring(0, report.id.length > 8 ? 8 : report.id.length)}",
+                                title: "Video Evidence • Incident ${report.ticketNumber}",
                               );
                             },
                           ),

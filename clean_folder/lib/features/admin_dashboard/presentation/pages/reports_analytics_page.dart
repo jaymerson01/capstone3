@@ -48,6 +48,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
           if (_blotterOnly && !inc.isBlotter) return false;
           final q = _searchQuery.toLowerCase();
           return inc.id.toLowerCase().contains(q) ||
+              inc.ticketNumber.toLowerCase().contains(q) ||
               inc.category.toLowerCase().contains(q) ||
               (inc.areaSector ?? '').toLowerCase().contains(q) ||
               (inc.resolvedAddress ?? '').toLowerCase().contains(q) ||
@@ -745,7 +746,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                     cells: [
                       DataCell(
                         Text(
-                          inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
+                          inc.ticketNumber,
                           style: AdminTable.cellStrong,
                         ),
                       ),
@@ -1009,7 +1010,7 @@ class _ReportsAnalyticsPageState extends State<ReportsAnalyticsPage> {
                   final dStr =
                       "${dt.day}/${dt.month} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
                   return [
-                    inc.id.length > 8 ? inc.id.substring(0, 8) : inc.id,
+                    inc.ticketNumber,
                     dStr,
                     inc.isBlotter ? "${inc.category} (Blotter)" : inc.category,
                     inc.resolvedAddress ?? inc.areaSector ?? 'Barangay Moonwalk',

@@ -208,7 +208,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("Case ${inc.id.substring(0, min(8, inc.id.length))} updated to $newStatus!"),
+        content: Text("Case ${inc.ticketNumber} updated to $newStatus!"),
         backgroundColor: AdminColors.success,
         behavior: SnackBarBehavior.floating,
       ),
@@ -809,7 +809,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                           ),
                           const SizedBox(height: 3),
                           Text(
-                            "Case #${inc.id.substring(0, min(8, inc.id.length))}",
+                            "Case ${inc.ticketNumber}",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
@@ -1034,7 +1034,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                             InAppImageViewerDialog.show(
                               context,
                               imageUrl: inc.photoUrl!,
-                              title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Photo Evidence",
+                              title: "Incident ${inc.ticketNumber} Photo Evidence",
                             );
                           },
                           child: MouseRegion(
@@ -1116,7 +1116,7 @@ class _AdminDispatchMapPageState extends State<AdminDispatchMapPage> {
                                     InAppEvidencePlayerDialog.show(
                                       context,
                                       videoUrl: inc.videoUrl!,
-                                      title: "Incident #${inc.id.substring(0, min(8, inc.id.length))} Video Evidence",
+                                      title: "Incident ${inc.ticketNumber} Video Evidence",
                                     );
                                   },
                                 ),

@@ -357,7 +357,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           tone: statusTone,
           title: inc.category,
           subtitle:
-              "Report ID: ${inc.id.length > 10 ? inc.id.substring(0, 10) : inc.id}",
+              "Report ID: ${inc.ticketNumber}",
           onClose: () => Navigator.pop(dialogCtx),
           maxWidth: 540,
           // Action buttons
@@ -482,7 +482,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     InAppImageViewerDialog.show(
                       context,
                       imageUrl: inc.photoUrl!,
-                      title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Photo Evidence",
+                      title: "Incident ${inc.ticketNumber} Photo Evidence",
                     );
                   },
                   child: MouseRegion(
@@ -561,7 +561,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           InAppEvidencePlayerDialog.show(
                             context,
                             videoUrl: inc.videoUrl!,
-                            title: "Incident #${inc.id.substring(0, inc.id.length > 8 ? 8 : inc.id.length)} Video Evidence",
+                            title: "Incident ${inc.ticketNumber} Video Evidence",
                           );
                         },
                       ),

@@ -55,7 +55,7 @@ class AdminIncidentTable extends StatelessWidget {
     return DataRow(
       cells: [
         DataCell(Text(
-          incident.id.length > 8 ? incident.id.substring(0, 8).toUpperCase() : incident.id,
+          incident.ticketNumber,
           style: const TextStyle(fontWeight: FontWeight.w500),
         )),
         DataCell(Text(incident.category)),
