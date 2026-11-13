@@ -4195,6 +4195,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unverified accounts can send {limit} reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.'**
   String accessLimitBody(int limit);
+
+  /// Title of the How to use ResQ video when it opens by itself the first time the app opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome! Here\'s how ResQ works'**
+  String get guideWelcomeTitle;
+
+  /// Button that closes the first-time guide video.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get guideSkip;
+
+  /// Button shown when the first-time guide video ends; closes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get guideGetStarted;
 }
 
 class _AppLocalizationsDelegate

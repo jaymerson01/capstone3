@@ -11,6 +11,8 @@ import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
 import 'package:community_safety_app/core/services/locale_controller.dart';
+import 'package:community_safety_app/core/services/first_run_guide.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/widgets/first_run_guide_gate.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
@@ -51,6 +53,7 @@ void main() async {
   }
 
   await LocaleController.load();
+  await FirstRunGuide.load();
 
   try {
     await Hive.initFlutter();
@@ -137,7 +140,8 @@ class ResQResidentApp extends StatelessWidget {
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             theme: AppTheme.resident(),
-        home: const ResidentAuthWrapper(),
+        // The first time the app opens, the How to use ResQ guide opens on top.
+        home: const FirstRunGuideGate(child: ResidentAuthWrapper()),
         routes: {
           '/welcome': (context) => const WelcomePage(),
           '/login': (context) => const LoginPage(),

@@ -3115,5 +3115,17 @@
         "type": "int"
       }
     }
+  },
+  "guideWelcomeTitle": "Welcome! Here's how ResQ works",
+  "@guideWelcomeTitle": {
+    "description": "Title of the How to use ResQ video when it opens by itself the first time the app opens."
+  },
+  "guideSkip": "Skip",
+  "@guideSkip": {
+    "description": "Button that closes the first-time guide video."
+  },
+  "guideGetStarted": "Get started",
+  "@guideGetStarted": {
+    "description": "Button shown when the first-time guide video ends; closes it."
   }
 }
