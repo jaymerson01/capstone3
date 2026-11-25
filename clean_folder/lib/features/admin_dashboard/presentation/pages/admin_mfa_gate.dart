@@ -7,7 +7,6 @@ import 'package:community_safety_app/core/security/totp.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/theme/admin_colors.dart';
 import 'package:community_safety_app/features/admin_dashboard/data/datasources/admin_accounts_remote_data_source.dart';
-import 'package:community_safety_app/features/admin_dashboard/data/datasources/audit_log_remote_data_source.dart';
 import 'package:community_safety_app/features/admin_dashboard/presentation/widgets/admin_ui.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.dart';
@@ -15,6 +14,10 @@ import 'package:community_safety_app/features/auth/presentation/bloc/auth_event.
 /// Two-step sign-in for the admin portal. After the password, the admin types
 /// the 6-digit code from their authenticator app; the first time, they link
 /// the app by scanning a QR code. [child] (the panel) shows once that passes.
+///
+/// The code is checked by the `adminMfa` Cloud Function, not here: a right
+/// code opens the server-side admin session the database rules require, so
+/// skipping this screen with a stolen password gets no admin access.
 class AdminMfaGate extends StatefulWidget {
   const AdminMfaGate({
     super.key,
@@ -82,43 +85,54 @@ class _AdminMfaGateState extends State<AdminMfaGate> {
       setState(() => _step = _Step.passed);
       return;
     }
+    setState(() {
+      _step = _Step.loading;
+      _error = null;
+    });
     try {
-      final secret = await _accounts.mfaSecret(uid);
+      String? secret;
+      if (!await _accounts.mfaStatus()) {
+        try {
+          secret = await _accounts.beginMfaSetup();
+        } on AdminMfaException catch (e) {
+          // Linked in another tab meanwhile: just ask for the code.
+          if (e.failure != AdminMfaFailure.setupState) rethrow;
+        }
+      }
       if (!mounted) return;
       setState(() {
-        _secret = secret ?? Totp.generateSecret();
-        _step = secret == null ? _Step.setup : _Step.verify;
+        _secret = secret;
+        _step = secret == null ? _Step.verify : _Step.setup;
       });
-    } on FirebaseException catch (e) {
-      debugPrint('[AdminMfa] Could not read the authenticator key: $e');
+    } on AdminMfaException catch (e) {
+      debugPrint('[AdminMfa] Could not start two-step verification: $e');
       if (!mounted) return;
       setState(() {
         _step = _Step.failed;
-        _error = e.code == 'permission-denied'
-            ? "Two-step verification isn't enabled on the server yet: the updated database rules still need to be deployed."
-            : "Couldn't check two-step verification. Check the connection and try again.";
+        _error = _messageFor(e);
       });
     }
   }
 
+  static const String _unavailableMessage =
+      "Couldn't reach the two-step verification server. It may not be deployed yet, "
+      'or the connection is down. Try again in a moment.';
+
+  String _messageFor(AdminMfaException e) => switch (e.failure) {
+        AdminMfaFailure.wrongCode => 'That code is wrong or expired. Try the newest code in your authenticator app.',
+        AdminMfaFailure.lockedOut => 'Too many wrong codes. Wait 15 minutes, then sign in again.',
+        AdminMfaFailure.notAllowed => "This account can't use the admin portal.",
+        AdminMfaFailure.unavailable => _unavailableMessage,
+        AdminMfaFailure.setupState => 'The authenticator setup changed. Scan the new code and try again.',
+        AdminMfaFailure.other =>
+          "Couldn't check two-step verification${e.message.isEmpty ? '' : ' (${e.message})'}. Try again.",
+      };
+
   Future<void> _submit() async {
     if (_busy) return;
-    final secret = _secret!;
-    bool correct;
-    try {
-      correct = Totp.verify(secret, _code.text);
-    } catch (e) {
-      debugPrint('[AdminMfa] Code check failed: $e');
-      setState(() => _error = "Couldn't check the code ($e).");
-      return;
-    }
-    if (!correct) {
-      _attempts++;
-      if (_attempts >= AdminMfaGate.maxAttempts) {
-        _signOut();
-        return;
-      }
-      setState(() => _error = 'That code is wrong or expired. Try the newest code in your authenticator app.');
+    final code = _code.text.replaceAll(RegExp(r'\s'), '');
+    if (code.length != Totp.digits) {
+      setState(() => _error = 'Type the ${Totp.digits}-digit code from your authenticator app.');
       return;
     }
     setState(() {
@@ -126,26 +140,39 @@ class _AdminMfaGateState extends State<AdminMfaGate> {
       _error = null;
     });
     try {
-      if (_step == _Step.setup) {
-        await _accounts.enrollMfa(uid: _uid!, email: _email, secret: secret);
-        try {
-          await sl<AuditLogRemoteDataSource>().recordLog(
-            actionType: 'Security',
-            details: 'Turned on two-step verification (authenticator app) for $_email',
-            targetId: _uid,
-          );
-        } catch (e) {
-          debugPrint('[AdminMfa] Audit log skipped: $e');
-        }
-      }
+      // The server checks the code (and, the first time, links the app and
+      // records it in the audit log), then opens the admin session.
+      await _accounts.verifyMfaCode(code);
       AdminMfaGate._verifiedUid = _uid;
       if (mounted) setState(() => _step = _Step.passed);
-    } on FirebaseException catch (e) {
-      if (mounted) {
-        setState(() {
+    } on AdminMfaException catch (e) {
+      debugPrint('[AdminMfa] $e');
+      if (!mounted) return;
+      switch (e.failure) {
+        case AdminMfaFailure.wrongCode:
+          _attempts++;
+          setState(() {
+            _busy = false;
+            _error = _messageFor(e);
+          });
+          if (_attempts >= AdminMfaGate.maxAttempts) _signOut();
+        case AdminMfaFailure.lockedOut || AdminMfaFailure.notAllowed:
+          setState(() {
+            _busy = false;
+            _step = _Step.failed;
+            _error = _messageFor(e);
+          });
+        case AdminMfaFailure.setupState:
+          // The pending key was replaced or is gone: start the setup over.
           _busy = false;
-          _error = "Couldn't save the authenticator link (${e.code}). Try again.";
-        });
+          _code.clear();
+          await _load();
+          if (mounted && _step != _Step.failed) setState(() => _error = _messageFor(e));
+        case AdminMfaFailure.unavailable || AdminMfaFailure.other:
+          setState(() {
+            _busy = false;
+            _error = _messageFor(e);
+          });
       }
     } catch (e) {
       // Never leave the button doing nothing: show what went wrong.
@@ -153,7 +180,7 @@ class _AdminMfaGateState extends State<AdminMfaGate> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _error = "Something went wrong ($e). Try again.";
+          _error = 'Something went wrong ($e). Try again.';
         });
       }
     }
@@ -216,6 +243,15 @@ class _AdminMfaGateState extends State<AdminMfaGate> {
             _error ?? 'Sign in again to continue.',
             style: const TextStyle(color: AdminColors.textSoft, fontSize: 13.5, height: 1.5),
           ),
+          if (_error == _unavailableMessage) ...[
+            const SizedBox(height: 16),
+            AdminButton(
+              label: 'Try again',
+              icon: Icons.refresh,
+              expand: true,
+              onPressed: _load,
+            ),
+          ],
         ] else ...[
           Text(
             setup

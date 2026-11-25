@@ -207,8 +207,20 @@ class ResidentNotificationsSheet extends StatelessWidget {
                                 .get();
 
                             if (doc.exists && context.mounted) {
-                              final incident =
+                              var incident =
                                   IncidentModel.fromFirestore(doc);
+                              // Contact details and evidence: readable only
+                              // by the reporter, admins and the responder.
+                              try {
+                                final contact = await doc.reference
+                                    .collection(
+                                        IncidentModel.confidentialCollection)
+                                    .doc(IncidentModel.confidentialDocId)
+                                    .get();
+                                incident =
+                                    incident.withConfidential(contact.data());
+                              } catch (_) {}
+                              if (!context.mounted) return;
                               Navigator.pop(context); // Close bottom sheet
                               Navigator.push(
                                 context,

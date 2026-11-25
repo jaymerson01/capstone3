@@ -171,8 +171,11 @@ class IncidentDetailPage extends StatelessWidget {
                     _buildNarrativeCard(context, currentIncident),
                     SizedBox(height: 16),
 
-                    // 8. Evidence Photo Block (with Tap-to-Zoom)
-                    _buildEvidenceCard(context, currentIncident),
+                    // 8. Evidence Photo Block (with Tap-to-Zoom). Evidence
+                    // is private to the reporter, admins and the assigned
+                    // responder, so other residents don't get the card.
+                    if (_canSeeEvidence(currentIncident))
+                      _buildEvidenceCard(context, currentIncident),
                   ],
                 ),
               ),
@@ -761,6 +764,18 @@ class IncidentDetailPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Evidence links only reach the reporter (and admins/responders), so a
+  /// missing photo on someone else's report means "not shared", not "none".
+  bool _canSeeEvidence(IncidentEntity incident) {
+    final hasEvidence = (incident.photoUrl ?? '').isNotEmpty || (incident.videoUrl ?? '').isNotEmpty;
+    if (hasEvidence) return true;
+    try {
+      return incident.reporterId == FirebaseAuth.instance.currentUser?.uid;
+    } catch (_) {
+      return true; // No signed-in session to compare with: keep the card.
+    }
   }
 
   // ── Evidence Card with Tap-to-Zoom & Video Playback ──────────────────────────

@@ -7,6 +7,10 @@
  *                         resident phone (works even when the app is closed).
  * 3. pushOnNotification - When a personal notification is created (status change,
  *                         neighbour corroboration), push it to that resident's phones.
+ * 4. adminMfa      - Callable. Admin two-step sign-in (authenticator app codes),
+ *                    checked here so a stolen password alone can't open the panel.
+ *                    A right code writes admin_sessions/{uid}, which the database
+ *                    rules require before treating the account as an admin.
  *
  * Setup (once):  firebase functions:secrets:set GEMINI_API_KEY
  * Deploy:        firebase deploy --only functions
@@ -14,6 +18,7 @@
 
 const functions = require("firebase-functions/v1");
 const admin = require("firebase-admin");
+const totp = require("./totp");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -345,4 +350,183 @@ exports.pushOnNotification = functions
       });
     }
     return null;
+  });
+
+// ───────────────────────────────────────────────────────────────────
+// 4. Admin two-step sign-in (TOTP)
+// ───────────────────────────────────────────────────────────────────
+//
+// Only this function (Admin SDK) writes these; clients can't read the first
+// three at all, and can read only their own admin_sessions/{uid}:
+//   admin_mfa/{uid}          { secret, email, enabledAt, lastUsedStep? }
+//   admin_mfa_pending/{uid}  { secret, createdAt }
+//   admin_mfa_attempts/{uid} { count, windowStart }   (windowStart: ms since 1970)
+//   admin_sessions/{uid}     { authTime, expiresAt, verifiedAt }
+//
+// Request  { action: "status" }               → { enrolled: boolean }
+//          { action: "beginSetup" }           → { secret }   (not yet enrolled only)
+//          { action: "verify", code: "123456" } → { ok: true }
+// Errors carry details.reason: "not-admin" (permission-denied),
+// "already-enrolled" / "not-set-up" (failed-precondition), "wrong-code"
+// (permission-denied), "locked-out" (resource-exhausted).
+
+const MFA_MAX_WRONG = 5;
+const MFA_WINDOW_MS = 15 * 60 * 1000;
+const ADMIN_SESSION_MS = 12 * 60 * 60 * 1000;
+
+async function assertAdmin(uid) {
+  const snap = await db.collection("users").doc(uid).get();
+  if (!snap.exists || snap.get("role") !== "admin" || snap.get("isActive") === false) {
+    throw new functions.https.HttpsError(
+      "permission-denied",
+      "This account can't use the admin portal.",
+      { reason: "not-admin" },
+    );
+  }
+  return snap;
+}
+
+function adminDisplayName(userSnap, email) {
+  const name = userSnap.get("displayName") || userSnap.get("fullName") || "";
+  if (typeof name === "string" && name.trim()) return name.trim();
+  return email ? email.split("@")[0] : "Admin";
+}
+
+exports.adminMfa = functions
+  .region(REGION)
+  .runWith({ timeoutSeconds: 30, memory: "256MB" })
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError("unauthenticated", "Please sign in first.");
+    }
+    const uid = context.auth.uid;
+    const userSnap = await assertAdmin(uid);
+
+    const mfaRef = db.collection("admin_mfa").doc(uid);
+    const pendingRef = db.collection("admin_mfa_pending").doc(uid);
+    const attemptsRef = db.collection("admin_mfa_attempts").doc(uid);
+    const sessionRef = db.collection("admin_sessions").doc(uid);
+    const action = data?.action;
+
+    if (action === "status") {
+      const mfa = await mfaRef.get();
+      return { enrolled: mfa.exists && typeof mfa.get("secret") === "string" };
+    }
+
+    if (action === "beginSetup") {
+      return db.runTransaction(async (tx) => {
+        const mfa = await tx.get(mfaRef);
+        if (mfa.exists && typeof mfa.get("secret") === "string") {
+          throw new functions.https.HttpsError(
+            "failed-precondition",
+            "Two-step verification is already set up for this account.",
+            { reason: "already-enrolled" },
+          );
+        }
+        const secret = totp.generateSecret();
+        tx.set(pendingRef, {
+          secret,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return { secret };
+      });
+    }
+
+    if (action === "verify") {
+      const code = typeof data?.code === "string" ? data.code : "";
+      const authTime = Number(context.auth.token.auth_time);
+      if (!Number.isInteger(authTime)) {
+        throw new functions.https.HttpsError("unauthenticated", "Please sign in again.");
+      }
+      const email = context.auth.token.email || userSnap.get("email") || "";
+
+      // Decided inside the transaction, thrown after it, so a wrong code's
+      // attempt count is saved.
+      const outcome = await db.runTransaction(async (tx) => {
+        const [attempts, mfa, pending] = await Promise.all([
+          tx.get(attemptsRef),
+          tx.get(mfaRef),
+          tx.get(pendingRef),
+        ]);
+        const now = Date.now();
+        let windowStart = attempts.exists ? Number(attempts.get("windowStart")) || 0 : 0;
+        let count = attempts.exists ? Number(attempts.get("count")) || 0 : 0;
+        if (now - windowStart > MFA_WINDOW_MS) {
+          windowStart = now;
+          count = 0;
+        }
+        if (count >= MFA_MAX_WRONG) return "locked";
+
+        const enrolled = mfa.exists && typeof mfa.get("secret") === "string";
+        const secret = enrolled ? mfa.get("secret") : pending.exists ? pending.get("secret") : null;
+        if (typeof secret !== "string") return "no-setup";
+
+        let step = null;
+        try {
+          step = totp.matchStep(secret, code, now);
+        } catch (error) {
+          functions.logger.error("Stored authenticator key is unreadable", uid, error.message);
+          return "bad-secret";
+        }
+        // A code works once: replaying the one just used is a wrong code.
+        const lastUsedStep = enrolled ? Number(mfa.get("lastUsedStep")) : NaN;
+        if (step === null || (Number.isFinite(lastUsedStep) && step <= lastUsedStep)) {
+          tx.set(attemptsRef, { count: count + 1, windowStart });
+          return "wrong";
+        }
+
+        const serverTime = admin.firestore.FieldValue.serverTimestamp();
+        if (enrolled) {
+          tx.update(mfaRef, { lastUsedStep: step });
+        } else {
+          tx.set(mfaRef, { secret, email, enabledAt: serverTime, lastUsedStep: step });
+          tx.delete(pendingRef);
+          // Lets User Management show who has two-step sign-in on, without the key.
+          tx.update(userSnap.ref, { mfaEnabledAt: serverTime });
+          // Same fields as the app's audit log (AuditLogModel.toSignedFirestore).
+          tx.create(db.collection("audit_logs").doc(), {
+            timestamp: serverTime,
+            adminUid: uid,
+            adminName: adminDisplayName(userSnap, email),
+            adminEmail: email || `uid ${uid}`,
+            actionType: "Security",
+            details: `Turned on two-step verification (authenticator app) for ${email || uid}`,
+            targetId: uid,
+          });
+        }
+        tx.delete(attemptsRef);
+        tx.set(sessionRef, {
+          authTime,
+          expiresAt: admin.firestore.Timestamp.fromMillis(now + ADMIN_SESSION_MS),
+          verifiedAt: serverTime,
+        });
+        return "ok";
+      });
+
+      if (outcome === "ok") return { ok: true };
+      if (outcome === "locked") {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          "Too many wrong codes. Wait 15 minutes, then sign in again.",
+          { reason: "locked-out" },
+        );
+      }
+      if (outcome === "wrong") {
+        throw new functions.https.HttpsError(
+          "permission-denied",
+          "That code is wrong or expired.",
+          { reason: "wrong-code" },
+        );
+      }
+      if (outcome === "no-setup") {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "Two-step verification isn't set up yet. Start the setup again.",
+          { reason: "not-set-up" },
+        );
+      }
+      throw new functions.https.HttpsError("internal", "Two-step verification could not be checked.");
+    }
+
+    throw new functions.https.HttpsError("invalid-argument", "Unknown two-step verification action.");
   });
