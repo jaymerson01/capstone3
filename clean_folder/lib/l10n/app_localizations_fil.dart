@@ -2390,4 +2390,14 @@ class AppLocalizationsFil extends AppLocalizations {
   String accessLimitBody(int limit) {
     return '$limit ulat bawat araw ang puwede sa account na hindi pa verified. Puwede ka pa ring mag-report ng emergency: sunog, medikal, aksidente, baha, karahasan at nakawan. I-verify ang ID mo para mawala ang limit.';
   }
+
+  @override
+  String get guideWelcomeTitle =>
+      'Maligayang pagdating! Ganito gamitin ang ResQ';
+
+  @override
+  String get guideSkip => 'Laktawan';
+
+  @override
+  String get guideGetStarted => 'Simulan na';
 }

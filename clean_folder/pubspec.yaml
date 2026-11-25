@@ -102,7 +102,6 @@ flutter:
     - assets/images/logo.png
     - assets/sounds/
     - assets/videos/
-    - .env
     - assets/fonts/PlusJakartaSans/OFL.txt
 
   # Plus Jakarta Sans, the Neo-Tactile UI font (SIL Open Font License 1.1).

@@ -181,7 +181,15 @@ class _ResponderReportPageState extends State<ResponderReportPage> {
                   const SizedBox(height: 12),
                   _map(report),
                   const SizedBox(height: 12),
-                  _details(report),
+                  // Evidence links are in the confidential doc, readable
+                  // once the report is assigned to this responder.
+                  if (_contact == null)
+                    _details(report)
+                  else
+                    FutureBuilder<Map<String, dynamic>?>(
+                      future: _contact,
+                      builder: (context, contact) => _details(report.withConfidential(contact.data)),
+                    ),
                   const SizedBox(height: 12),
                   _reporter(report),
                   const SizedBox(height: 12),
@@ -275,7 +283,13 @@ class _ResponderReportPageState extends State<ResponderReportPage> {
             const SizedBox(height: 12),
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(report.photoUrl!, height: 200, width: double.infinity, fit: BoxFit.cover),
+              child: Image.network(
+                report.photoUrl!,
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+              ),
             ),
           ],
           if ((report.videoUrl ?? '').startsWith('http'))

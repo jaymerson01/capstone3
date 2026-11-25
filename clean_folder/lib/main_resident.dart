@@ -11,6 +11,8 @@ import 'package:community_safety_app/firebase_options.dart';
 import 'package:community_safety_app/core/services/injection_container.dart';
 import 'package:community_safety_app/core/services/fcm_service.dart';
 import 'package:community_safety_app/core/services/locale_controller.dart';
+import 'package:community_safety_app/core/services/first_run_guide.dart';
+import 'package:community_safety_app/features/incident_reporting/presentation/widgets/first_run_guide_gate.dart';
 import 'package:community_safety_app/core/services/sync_service.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
 import 'package:community_safety_app/core/widgets/emergency_broadcast_listener.dart';
@@ -33,7 +35,6 @@ import 'package:community_safety_app/features/incident_reporting/presentation/pa
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/settings_page.dart';
 import 'package:community_safety_app/features/incident_reporting/presentation/pages/resident_nav_shell.dart';
 import 'package:community_safety_app/features/notifications/data/datasources/notification_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:community_safety_app/features/auth/presentation/pages/terms_page.dart';
 import 'package:community_safety_app/core/widgets/nearby_incident_alerts.dart';
 
@@ -44,13 +45,9 @@ final GlobalKey<NavigatorState> residentNavigatorKey =
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint("Notice: .env loading skipped or warning: $e");
-  }
 
   await LocaleController.load();
+  await FirstRunGuide.load();
 
   try {
     await Hive.initFlutter();
@@ -137,7 +134,8 @@ class ResQResidentApp extends StatelessWidget {
             supportedLocales: AppLocalizations.supportedLocales,
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             theme: AppTheme.resident(),
-        home: const ResidentAuthWrapper(),
+        // The first time the app opens, the How to use ResQ guide opens on top.
+        home: const FirstRunGuideGate(child: ResidentAuthWrapper()),
         routes: {
           '/welcome': (context) => const WelcomePage(),
           '/login': (context) => const LoginPage(),

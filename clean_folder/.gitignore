@@ -58,3 +58,6 @@ app.*.map.json
 .vercel/
 .vercel
 .env*
+
+# Rules emulator test tools
+rules_test/node_modules/

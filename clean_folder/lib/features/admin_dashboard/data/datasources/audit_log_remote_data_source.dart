@@ -103,7 +103,7 @@ class AuditLogRemoteDataSourceImpl implements AuditLogRemoteDataSource {
         targetId: targetId,
       );
 
-      await firestore.collection('audit_logs').add(log.toFirestore());
+      await firestore.collection('audit_logs').add(log.toSignedFirestore(auth.currentUser?.uid));
     } catch (_) {
       // Non-blocking for UI resilience
     }

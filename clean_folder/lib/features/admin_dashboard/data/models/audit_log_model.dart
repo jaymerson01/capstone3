@@ -45,4 +45,15 @@ class AuditLogModel extends AuditLogEntity {
       if (targetId != null) 'targetId': targetId,
     };
   }
+
+  /// What the admin app writes: the database rules require the acting
+  /// admin's uid and the server's clock, so an entry can't be written in
+  /// another admin's name or back-dated.
+  Map<String, dynamic> toSignedFirestore(String? adminUid) {
+    return {
+      ...toFirestore(),
+      'adminUid': adminUid,
+      'timestamp': FieldValue.serverTimestamp(),
+    };
+  }
 }

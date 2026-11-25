@@ -54,8 +54,8 @@ class ResponderRepository {
     return _incidents.doc(incidentId).snapshots().map((doc) => doc.exists ? IncidentModel.fromFirestore(doc) : null);
   }
 
-  /// The reporter's name, email and phone. Readable only once the report is
-  /// assigned to this responder.
+  /// The reporter's name, email and phone, and the evidence photo/video
+  /// links. Readable only once the report is assigned to this responder.
   Future<Map<String, dynamic>?> contactFor(String incidentId) async {
     final doc = await _incidents
         .doc(incidentId)

@@ -12,12 +12,32 @@ service cloud.firestore {
       return /databases/$(database)/documents/users/$(request.auth.uid);
     }
 
-    // Admin = the user's own /users document says role == 'admin'.
+    // Has the 'admin' role on their /users document and is not suspended.
     // Residents can never set this themselves (see the users rules below).
-    function isAdmin() {
+    function hasAdminRole() {
       return isAuthenticated() &&
         exists(userDoc()) &&
-        get(userDoc()).data.get('role', 'resident') == 'admin';
+        get(userDoc()).data.get('role', 'resident') == 'admin' &&
+        get(userDoc()).data.get('isActive', true) != false;
+    }
+
+    function adminSessionDoc() {
+      return /databases/$(database)/documents/admin_sessions/$(request.auth.uid);
+    }
+
+    // Two-step verification passed on the server for THIS sign-in: the
+    // adminMfa Cloud Function writes admin_sessions/{uid} only after a right
+    // authenticator code, tied to the token's sign-in time. A stolen
+    // password alone (a new sign-in) gets no admin rights.
+    function hasVerifiedAdminSession() {
+      return exists(adminSessionDoc()) &&
+        get(adminSessionDoc()).data.get('authTime', 0) == request.auth.token.auth_time &&
+        get(adminSessionDoc()).data.expiresAt > request.time;
+    }
+
+    // Admin = admin role + a verified two-step session.
+    function isAdmin() {
+      return hasAdminRole() && hasVerifiedAdminSession();
     }
 
     // Super admin = an admin whose profile has isSuperAdmin: true. Only a
@@ -70,9 +90,28 @@ service cloud.firestore {
       return ['role', 'status', 'isActive', 'isVerified', 'isSuperAdmin', 'department'];
     }
 
-    // Contact details that must never sit in the public incident document.
+    // Contact details and evidence that must never sit in the public
+    // incident document (they live in incidents/{id}/confidential/contact).
     function privateIncidentFields() {
-      return ['reporterName', 'reporterEmail', 'victimName', 'victimPhone'];
+      return ['reporterName', 'reporterEmail', 'victimName', 'victimPhone', 'photoUrl', 'videoUrl'];
+    }
+
+    // Evidence links must point at ResQ's own Cloudinary account (or be empty).
+    function isEvidenceUrl(v) {
+      return v == null || v == '' ||
+        (v is string && v.size() < 600 && v.matches('https://res[.]cloudinary[.]com/g45cmboy/.*'));
+    }
+
+    // Short text with a length cap (missing or null is fine).
+    function isShortText(v, max) {
+      return v == null || (v is string && v.size() <= max);
+    }
+
+    // Is the profile being changed another admin's? Only a super admin may
+    // suspend, edit or delete an admin account.
+    function targetIsAdmin() {
+      return resource.data.get('role', 'resident') == 'admin' ||
+        resource.data.get('isSuperAdmin', false) == true;
     }
 
     // ── 1. Users ──────────────────────────────────────────────────────
@@ -90,23 +129,36 @@ service cloud.firestore {
 
       // Owners edit their own details but never role / suspension / verification.
       // Admins moderate accounts; only a super admin changes who is an admin.
-      allow update: if (isAdmin() && !changedKeys().hasAny(['role', 'isSuperAdmin'])) ||
+      // A regular admin cannot touch other admin accounts.
+      allow update: if (isAdmin() && !targetIsAdmin() && !changedKeys().hasAny(['role', 'isSuperAdmin'])) ||
         isSuperAdmin() ||
         (isOwner(userId) && !changedKeys().hasAny(protectedUserFields()));
 
       // Right to erasure (RA 10173): owners may delete their own profile.
-      allow delete: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || (isAdmin() && !targetIsAdmin()) || isSuperAdmin();
     }
 
-    // ── 1b. Admin two-step verification keys ──────────────────────────
-    // Each admin's authenticator key is readable only by that admin. It is
-    // set once; a super admin deletes it if the admin loses their phone.
+    // ── 1b. Admin two-step verification ───────────────────────────────
+    // Authenticator keys never leave the server: only the adminMfa Cloud
+    // Function (Admin SDK) reads and writes them. A super admin deletes a
+    // key (and the session) when an admin loses their phone.
     match /admin_mfa/{userId} {
-      allow read: if isOwner(userId) && isAdmin();
-      allow create: if isOwner(userId) && isAdmin() &&
-        request.resource.data.keys().hasOnly(['secret', 'email', 'enabledAt']) &&
-        request.resource.data.secret is string;
-      allow update: if false;
+      allow read, create, update: if false;
+      allow delete: if isSuperAdmin();
+    }
+
+    match /admin_mfa_pending/{userId} {
+      allow read, write: if false;
+    }
+
+    match /admin_mfa_attempts/{userId} {
+      allow read, write: if false;
+    }
+
+    // Written only by the adminMfa Cloud Function after a right code.
+    match /admin_sessions/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if false;
       allow delete: if isSuperAdmin();
     }
 
@@ -156,7 +208,21 @@ service cloud.firestore {
          request.resource.data.reporterVerified == isVerifiedResident()) &&
         (request.resource.data.get('urgencyStatus', null) == null ||
          request.resource.data.urgencyStatus in ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']) &&
-        !request.resource.data.keys().hasAny(privateIncidentFields());
+        !request.resource.data.keys().hasAny(privateIncidentFields()) &&
+        hasSaneReportText(request.resource.data);
+
+      // Caps on what a reporter can type, so one report can't fill the
+      // database or the admin screens.
+      function hasSaneReportText(data) {
+        return isShortText(data.get('description', null), 3000) &&
+          isShortText(data.get('category', null), 80) &&
+          isShortText(data.get('resolvedAddress', null), 300) &&
+          isShortText(data.get('areaSector', null), 120) &&
+          (data.get('latitude', null) == null ||
+            (data.latitude is number && data.latitude >= -90 && data.latitude <= 90)) &&
+          (data.get('longitude', null) == null ||
+            (data.longitude is number && data.longitude >= -180 && data.longitude <= 180));
+      }
 
       // 1. Admins: status, ETA, dispatcher notes, archive.
       // 2. "Me Too" upvote: exactly +1, only your own uid added, once, not on your own report.
@@ -195,7 +261,9 @@ service cloud.firestore {
           request.resource.data.get('assignedResponderId', '') == request.auth.uid &&
           changedKeys().hasOnly(['status', 'responderStatus', 'responderStatusAt', 'responderNotes',
                                  'responderPhotoUrl', 'inProgressAt', 'resolvedAt', 'respondedAt', 'updatedAt']) &&
-          request.resource.data.get('status', 'pending') in ['pending', 'in_progress', 'resolved'];
+          request.resource.data.get('status', 'pending') in ['pending', 'in_progress', 'resolved'] &&
+          isShortText(request.resource.data.get('responderNotes', null), 2000) &&
+          isEvidenceUrl(request.resource.data.get('responderPhotoUrl', null));
       }
 
       function isOwnerRating() {
@@ -215,9 +283,10 @@ service cloud.firestore {
         return isActiveUser() &&
           resource.data.get('reporterId', '') == request.auth.uid &&
           resource.data.get('status', '') == 'pending' &&
-          changedKeys().hasOnly(['description', 'photoUrl', 'videoUrl', 'resolvedAddress',
+          changedKeys().hasOnly(['description', 'resolvedAddress',
                                  'areaSector', 'latitude', 'longitude', 'isAnonymous']) &&
-          (request.resource.data.get('isAnonymous', false) != true || isVerifiedResident());
+          (request.resource.data.get('isAnonymous', false) != true || isVerifiedResident()) &&
+          hasSaneReportText(request.resource.data);
       }
 
       // ── 2a. The responder's live position while on the way ──────────
@@ -232,18 +301,37 @@ service cloud.firestore {
         allow write: if isResponder() && report().get('assignedResponderId', '') == request.auth.uid;
       }
 
-      // ── 2b. Incident contact details (private) ──────────────────────
-      // Reporter name/email and victim name/phone live here, readable only
-      // by the person who filed the report and by admins.
+      // ── 2b. Incident contact details and evidence (private) ─────────
+      // Reporter name/email, victim name/phone and the evidence photo/video
+      // live here, readable only by the person who filed the report, admins
+      // and the responder assigned to it.
       match /confidential/{docId} {
+        function incident() {
+          return get(/databases/$(database)/documents/incidents/$(incidentId)).data;
+        }
+        function hasValidEvidence() {
+          return isEvidenceUrl(request.resource.data.get('photoUrl', null)) &&
+            isEvidenceUrl(request.resource.data.get('videoUrl', null));
+        }
         allow read: if isAdmin() ||
           (isAuthenticated() && resource.data.reporterId == request.auth.uid) ||
-          (isResponder() &&
-            get(/databases/$(database)/documents/incidents/$(incidentId)).data.get('assignedResponderId', '') == request.auth.uid);
+          (isResponder() && incident().get('assignedResponderId', '') == request.auth.uid);
         allow create: if isAdmin() || (isActiveUser() &&
           request.resource.data.reporterId == request.auth.uid &&
-          getAfter(/databases/$(database)/documents/incidents/$(incidentId)).data.reporterId == request.auth.uid);
-        allow update, delete: if isAdmin();
+          getAfter(/databases/$(database)/documents/incidents/$(incidentId)).data.reporterId == request.auth.uid &&
+          request.resource.data.keys().hasOnly(['reporterId', 'reporterName', 'reporterEmail', 'reporterPhone',
+                                                'victimName', 'victimPhone', 'photoUrl', 'videoUrl']) &&
+          isShortText(request.resource.data.get('reporterName', null), 120) &&
+          isShortText(request.resource.data.get('victimName', null), 120) &&
+          isShortText(request.resource.data.get('victimPhone', null), 40) &&
+          hasValidEvidence());
+        // The reporter may change the photo/video while the report is pending.
+        allow update: if isAdmin() || (isActiveUser() &&
+          resource.data.reporterId == request.auth.uid &&
+          incident().get('status', '') == 'pending' &&
+          changedKeys().hasOnly(['photoUrl', 'videoUrl']) &&
+          hasValidEvidence());
+        allow delete: if isAdmin();
       }
     }
 
@@ -259,9 +347,14 @@ service cloud.firestore {
     }
 
     // ── 3. Audit Logs (immutable, admin only) ─────────────────────────
+    // Each entry carries the acting admin's uid and the server's time, so
+    // nobody can log in another admin's name or back-date an entry.
     match /audit_logs/{logId} {
       allow read: if isAdmin();
-      allow create: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.get('adminUid', null) == request.auth.uid &&
+        request.resource.data.timestamp == request.time &&
+        isShortText(request.resource.data.get('details', null), 4000);
       allow update, delete: if false;
     }
 

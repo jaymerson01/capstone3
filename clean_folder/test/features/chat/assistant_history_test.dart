@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -30,37 +28,22 @@ void main() {
     });
   });
 
-  test('Gemini gets each question once, in strict user/model alternation', () async {
-    dotenv.loadFromString(envString: 'GEMINI_API_KEY=test-key');
-    late Map<String, dynamic> sent;
-    // Stands in for Gemini; nothing leaves the machine.
-    final gemini = MockClient((request) async {
-      sent = jsonDecode(request.body) as Map<String, dynamic>;
-      return http.Response(
-        jsonEncode({
-          'candidates': [
-            {
-              'content': {
-                'parts': [
-                  {'text': 'Lumabas agad at tumawag sa 911.'}
-                ]
-              }
-            }
-          ]
-        }),
-        200,
-      );
+  test('the app never calls Gemini directly (the API key stays on the server)', () async {
+    final requested = <Uri>[];
+    final network = MockClient((request) async {
+      requested.add(request.url);
+      return http.Response('{}', 500);
     });
 
-    final reply = await IncidentAiRemoteDataSourceImpl(client: gemini).askCivilDefenseAssistant(
-      userMessage: 'May sunog sa kapitbahay',
-      history: [bot('Hello!'), user('Paano mag-report?'), bot('Tap Report Incident.')],
+    // No signed-in user / no Firebase here, so the Cloud Function can't be
+    // used: the call must fail instead of going straight to Gemini.
+    await expectLater(
+      IncidentAiRemoteDataSourceImpl(client: network).askCivilDefenseAssistant(
+        userMessage: 'May sunog sa kapitbahay',
+        history: [bot('Hello!'), user('Paano mag-report?'), bot('Tap Report Incident.')],
+      ),
+      throwsA(anything),
     );
-
-    expect(reply, 'Lumabas agad at tumawag sa 911.');
-    final turns = (sent['contents'] as List).cast<Map<String, dynamic>>();
-    expect(turns.map((t) => t['role']), ['user', 'model', 'user']);
-    expect(turns.last['parts'][0]['text'], 'May sunog sa kapitbahay');
-    expect(sent['generationConfig']['thinkingConfig'], {'thinkingBudget': 0});
+    expect(requested.where((u) => u.host.contains('generativelanguage')), isEmpty);
   });
 }

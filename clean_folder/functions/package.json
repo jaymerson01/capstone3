@@ -1,6 +1,6 @@
 {
   "name": "resq-functions",
-  "description": "ResQ Cloud Functions: Gemini AI proxy (keeps the API key off devices) and push notifications.",
+  "description": "ResQ Cloud Functions: Gemini AI proxy (keeps the API key off devices), push notifications and admin two-step verification.",
   "private": true,
   "main": "index.js",
   "engines": {
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "check": "node -e \"require('./index.js'); console.log('functions load OK')\"",
+    "test": "node totp.test.js",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },

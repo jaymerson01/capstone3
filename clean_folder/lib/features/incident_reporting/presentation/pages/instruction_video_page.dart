@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:community_safety_app/core/presentation/neo/neo_button.dart';
 import 'package:community_safety_app/core/presentation/neo/neo_icon_button.dart';
 import 'package:community_safety_app/core/theme/app_colors.dart';
 import 'package:community_safety_app/l10n/app_localizations.dart';
@@ -7,7 +9,12 @@ import 'package:community_safety_app/l10n/app_localizations.dart';
 /// Plays the "How to use ResQ" guide that ships with the app, in the app's
 /// language (Filipino, or English otherwise). It works offline.
 class InstructionVideoPage extends StatefulWidget {
-  const InstructionVideoPage({super.key});
+  const InstructionVideoPage({super.key, this.firstRun = false});
+
+  /// Opened by itself the first time the app opens: a welcome title, a Skip
+  /// button, and a "Get started" button once the video ends. On the web it
+  /// waits for a tap on Play, because browsers block autoplay with sound.
+  final bool firstRun;
 
   static String assetFor(Locale locale) => locale.languageCode == 'fil'
       ? 'assets/videos/how_to_use_fil.mp4'
@@ -33,7 +40,7 @@ class _InstructionVideoPageState extends State<InstructionVideoPage> {
     controller.initialize().then((_) {
       if (!mounted) return;
       setState(() {});
-      controller.play();
+      if (!(kIsWeb && widget.firstRun)) controller.play();
     }).catchError((Object _) {
       if (mounted) setState(() => _failed = true);
     });
@@ -88,20 +95,26 @@ class _InstructionVideoPageState extends State<InstructionVideoPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
+              padding: widget.firstRun
+                  ? const EdgeInsets.fromLTRB(20, 8, 8, 8)
+                  : const EdgeInsets.fromLTRB(12, 8, 16, 8),
               child: Row(
                 children: [
-                  NeoIconButton(
-                    icon: Icons.close_rounded,
-                    tooltip: l10n.commonClose,
-                    tone: NeoIconButtonTone.slate,
-                    size: 44,
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: 12),
+                  if (!widget.firstRun) ...[
+                    NeoIconButton(
+                      icon: Icons.close_rounded,
+                      tooltip: l10n.commonClose,
+                      tone: NeoIconButtonTone.slate,
+                      size: 44,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 12),
+                  ],
                   Expanded(
                     child: Text(
-                      l10n.dashboardVideoInstructions,
+                      widget.firstRun
+                          ? l10n.guideWelcomeTitle
+                          : l10n.dashboardVideoInstructions,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -111,6 +124,22 @@ class _InstructionVideoPageState extends State<InstructionVideoPage> {
                       ),
                     ),
                   ),
+                  if (widget.firstRun)
+                    TextButton(
+                      key: const Key('guide-skip'),
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(64, 44),
+                      ),
+                      child: Text(
+                        l10n.guideSkip,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -134,7 +163,14 @@ class _InstructionVideoPageState extends State<InstructionVideoPage> {
                             aspectRatio: controller.value.aspectRatio,
                             child: GestureDetector(
                               onTap: _togglePlay,
-                              child: VideoPlayer(controller),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  VideoPlayer(controller),
+                                  if (_notStarted)
+                                    Center(child: _bigPlayButton(l10n)),
+                                ],
+                              ),
                             ),
                           )
                         : const CircularProgressIndicator(),
@@ -184,9 +220,51 @@ class _InstructionVideoPageState extends State<InstructionVideoPage> {
                   ],
                 ),
               ),
+            if (widget.firstRun && (failed || (ready && _ended)))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                child: NeoButton(
+                  key: const Key('guide-start'),
+                  label: l10n.guideGetStarted,
+                  icon: Icons.arrow_forward_rounded,
+                  expand: true,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
+
+  /// Before the video has started (on the web it waits for a tap).
+  bool get _notStarted {
+    final value = _controller!.value;
+    return value.isInitialized &&
+        !value.isPlaying &&
+        value.position == Duration.zero;
+  }
+
+  Widget _bigPlayButton(AppLocalizations l10n) => Semantics(
+        button: true,
+        label: l10n.videoPlay,
+        child: Container(
+          key: const Key('guide-play'),
+          width: 84,
+          height: 84,
+          decoration: BoxDecoration(
+            color: AppColors.secondary,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.35),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Icon(Icons.play_arrow_rounded,
+              color: Colors.white, size: 52),
+        ),
+      );
 }

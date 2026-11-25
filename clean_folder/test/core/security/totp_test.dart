@@ -29,6 +29,14 @@ void main() {
     expect(Totp.verify(secret, Totp.codeAt(secret, now), now: now), isTrue);
   });
 
+  test('same code as the Cloud Function (functions/totp.test.js)', () {
+    // The server checks codes with functions/totp.js; this pins both to one value.
+    expect(
+      Totp.codeAt('JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP', DateTime.utc(2026, 1, 1)),
+      '452777',
+    );
+  });
+
   test('builds the authenticator link', () {
     expect(
       Totp.otpauthUri(secret: 'ABC', account: 'desk@resq.ph'),

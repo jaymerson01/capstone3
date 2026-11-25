@@ -412,7 +412,8 @@ class IncidentModel extends IncidentEntity {
   }
 
   /// Sub-collection that holds contact details (reporter name/email, victim
-  /// name/phone). Only the reporter and admins can read it (firestore.rules).
+  /// name/phone) and the evidence photo/video links. Only the reporter,
+  /// admins and the assigned responder can read it (firestore.rules).
   static const String confidentialCollection = 'confidential';
   static const String confidentialDocId = 'contact';
 
@@ -422,9 +423,15 @@ class IncidentModel extends IncidentEntity {
     'reporterEmail',
     'victimName',
     'victimPhone',
+    'photoUrl',
+    'videoUrl',
   ];
 
-  /// Private contact details, stored at
+  /// Evidence links: kept in the confidential doc, and the only fields a
+  /// reporter may change there (while the report is still pending).
+  static const List<String> evidenceKeys = ['photoUrl', 'videoUrl'];
+
+  /// Private contact details and evidence links, stored at
   /// incidents/{id}/confidential/contact.
   Map<String, dynamic> toConfidentialFirestore() {
     return {
@@ -434,19 +441,45 @@ class IncidentModel extends IncidentEntity {
       'victimName': victimName,
       'victimPhone': victimPhone,
       if (reporterPhone != null && reporterPhone!.isNotEmpty) 'reporterPhone': reporterPhone,
+      if (isUploadedEvidence(photoUrl)) 'photoUrl': photoUrl,
+      if (isUploadedEvidence(videoUrl)) 'videoUrl': videoUrl,
     };
   }
 
-  /// Returns a copy filled with contact details from the confidential doc.
+  /// Only uploaded (https) evidence links are shared. When an upload fails
+  /// the camera service hands back a local `file://` path: it means nothing
+  /// on another device, and firestore.rules reject non-Cloudinary links, so
+  /// it stays in the local (Hive) copy only.
+  static bool isUploadedEvidence(String? url) => url != null && url.startsWith('https://');
+
+  /// The confidential-doc update for a reporter replacing or removing the
+  /// evidence of their own pending report. Only `photoUrl`/`videoUrl` are
+  /// touched; a null argument leaves that link as it is and an empty string
+  /// removes it.
+  static Map<String, dynamic> evidenceUpdate({String? photoUrl, String? videoUrl}) {
+    Object? value(String url) => url.isEmpty ? FieldValue.delete() : url;
+    return {
+      if (photoUrl != null) 'photoUrl': value(photoUrl),
+      if (videoUrl != null) 'videoUrl': value(videoUrl),
+    };
+  }
+
+  /// Returns a copy filled with contact details and evidence links from the
+  /// confidential doc.
   IncidentModel withConfidential(Map<String, dynamic>? data) {
     if (data == null) return this;
+    String? confidentialUrl(String key) {
+      final value = data[key];
+      return value is String && value.isNotEmpty ? value : null;
+    }
+
     return IncidentModel(
       id: id,
       reporterId: reporterId,
       description: description,
       category: category,
-      photoUrl: photoUrl,
-      videoUrl: videoUrl,
+      photoUrl: confidentialUrl('photoUrl') ?? photoUrl,
+      videoUrl: confidentialUrl('videoUrl') ?? videoUrl,
       status: status,
       urgencyStatus: urgencyStatus,
       timestamp: timestamp,
@@ -486,8 +519,9 @@ class IncidentModel extends IncidentEntity {
     );
   }
 
-  /// Public incident document (community map / feed). Contact details are
-  /// written separately with [toConfidentialFirestore].
+  /// Public incident document (community map / feed). Contact details and
+  /// evidence links are written separately with [toConfidentialFirestore];
+  /// no key of [confidentialKeys] is ever included here.
   Map<String, dynamic> toFirestore() {
     final mappedStatus = IncidentStatusExtension.normalize(status);
     final effectiveAddress = (resolvedAddress != null && resolvedAddress!.isNotEmpty)
@@ -500,8 +534,7 @@ class IncidentModel extends IncidentEntity {
       'reporterId': reporterId,
       'description': description,
       'category': category,
-      'photoUrl': photoUrl,
-      'videoUrl': videoUrl,
+      // photoUrl / videoUrl live in the confidential doc only.
       'status': mappedStatus,
       'urgencyStatus': urgencyStatus?.toUpperCase(),
       'timestamp': Timestamp.fromDate(timestamp),

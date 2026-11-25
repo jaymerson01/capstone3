@@ -2404,4 +2404,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String accessLimitBody(int limit) {
     return 'Unverified accounts can send $limit reports a day. You can still report emergencies: fire, medical, accidents, floods, violence and theft. Verify your ID to remove the limit.';
   }
+
+  @override
+  String get guideWelcomeTitle => 'Welcome! Here\'s how ResQ works';
+
+  @override
+  String get guideSkip => 'Skip';
+
+  @override
+  String get guideGetStarted => 'Get started';
 }

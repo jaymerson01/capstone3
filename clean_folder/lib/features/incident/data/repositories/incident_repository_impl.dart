@@ -108,30 +108,45 @@ class IncidentRepositoryImpl implements IncidentRepository {
     return controller.stream;
   }
 
-  /// One-time clean-up for reports filed before contact details were split
-  /// out: moves names/emails/phones from the public doc into the
-  /// confidential sub-document. Runs from the admin desk (admins only).
+  /// One-time clean-up for reports filed before contact details and
+  /// evidence links were split out: moves names/emails/phones and
+  /// photoUrl/videoUrl from the public doc into the confidential
+  /// sub-document. Runs from the admin desk (admins only).
   final Set<String> _migratedIncidentIds = {};
+
+  /// For a public incident doc still carrying [IncidentModel.confidentialKeys]:
+  /// what to merge into its confidential doc and which public keys to delete.
+  /// Null values are not copied (they would blank out a value the
+  /// confidential doc may already hold); the public key is still removed.
+  @visibleForTesting
+  static ({Map<String, dynamic> confidential, List<String> removeFromPublic})? legacyConfidentialMove(
+      Map<String, dynamic> data) {
+    final legacyKeys = IncidentModel.confidentialKeys.where(data.containsKey).toList();
+    if (legacyKeys.isEmpty) return null;
+    return (
+      confidential: {
+        'reporterId': data['reporterId'] ?? data['userId'] ?? '',
+        for (final key in legacyKeys)
+          if (data[key] != null && data[key] != '') key: data[key],
+      },
+      removeFromPublic: legacyKeys,
+    );
+  }
 
   void _migrateLegacyContactFields(QuerySnapshot<Map<String, dynamic>> snapshot) {
     for (final doc in snapshot.docs) {
-      final data = doc.data();
-      final legacyKeys =
-          IncidentModel.confidentialKeys.where(data.containsKey).toList();
-      if (legacyKeys.isEmpty || _migratedIncidentIds.contains(doc.id)) continue;
+      final move = legacyConfidentialMove(doc.data());
+      if (move == null || _migratedIncidentIds.contains(doc.id)) continue;
       _migratedIncidentIds.add(doc.id);
 
       final batch = firestore.batch();
       batch.set(
         _confidentialRef(doc.id),
-        {
-          'reporterId': data['reporterId'] ?? data['userId'] ?? '',
-          for (final key in legacyKeys) key: data[key],
-        },
+        move.confidential,
         SetOptions(merge: true),
       );
       batch.update(doc.reference, {
-        for (final key in legacyKeys) key: FieldValue.delete(),
+        for (final key in move.removeFromPublic) key: FieldValue.delete(),
       });
       batch.commit().catchError((Object error) {
         debugPrint('[IncidentRepository] Contact migration skipped for ${doc.id}: $error');
@@ -520,6 +535,16 @@ class IncidentRepositoryImpl implements IncidentRepository {
       firestore.collection('incidents').doc(id).update({'departments': departmentIds});
 
   @override
+  Future<void> updateEvidence(String id, {String? photoUrl, String? videoUrl}) async {
+    final update = IncidentModel.evidenceUpdate(photoUrl: photoUrl, videoUrl: videoUrl);
+    if (update.isEmpty) return;
+    // Evidence lives in the confidential doc only; the public doc is never
+    // touched (firestore.rules lets the reporter change just these two
+    // fields, and only while the report is pending).
+    await _confidentialRef(id).update(update);
+  }
+
+  @override
   Future<void> rateIncident(String id, int rating, {String? comment}) async {
     final note = comment?.trim() ?? '';
     await firestore.collection('incidents').doc(id).update({
@@ -748,7 +773,7 @@ class IncidentRepositoryImpl implements IncidentRepository {
         details: 'Updated incident #$id status to "${normalizedStatus.toUpperCase()}"$etaSnippet$notesSnippet',
         targetId: id,
       );
-      await firestore.collection('audit_logs').add(log.toFirestore());
+      await firestore.collection('audit_logs').add(log.toSignedFirestore(FirebaseAuth.instance.currentUser?.uid));
 
     } catch (_) {}
   }

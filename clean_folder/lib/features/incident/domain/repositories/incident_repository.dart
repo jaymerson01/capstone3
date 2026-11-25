@@ -15,6 +15,11 @@ abstract class IncidentRepository {
   Future<void> updateIncidentStatus(String id, String status, {String? dispatcherNotes, String? estimatedResponseTime});
   Future<void> archiveIncident(String id);
 
+  /// The reporter replaces or removes the photo/video evidence of their own
+  /// pending report. Written to the confidential sub-document (never the
+  /// public incident doc); null leaves a link as it is, '' removes it.
+  Future<void> updateEvidence(String id, {String? photoUrl, String? videoUrl});
+
   /// The reporter's rating (1-5 stars, optional comment) of the barangay's
   /// response to their resolved report. Can be sent once.
   Future<void> rateIncident(String id, int rating, {String? comment});
